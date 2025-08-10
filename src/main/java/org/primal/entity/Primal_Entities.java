@@ -14,7 +14,7 @@ import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-public final class ModEntities {
+public final class Primal_Entities {
     public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE,
             Primal_Main.MODID);
 
@@ -33,6 +33,6 @@ public final class ModEntities {
 
     public static void bootstrap(IEventBus bus) {
         ENTITIES.register(bus);
-        bus.register(ModEntities.class);
+        bus.register(Primal_Entities.class);
     }
 }

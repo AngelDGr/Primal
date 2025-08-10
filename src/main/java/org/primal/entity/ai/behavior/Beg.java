@@ -1,9 +1,5 @@
 package org.primal.entity.ai.behavior;
 
-import java.util.Map;
-
-import org.primal.entity.animal.Bear;
-
 import com.google.common.collect.ImmutableMap;
 
 import net.minecraft.server.level.ServerLevel;
@@ -14,9 +10,7 @@ import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import software.bernie.geckolib.animatable.GeoEntity;

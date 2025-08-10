@@ -5,11 +5,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 
-import java.util.Map;
-import java.util.Optional;
 import java.util.function.Predicate;
 
-import org.primal.entity.ModEntities;
+import org.primal.entity.Primal_Entities;
 import org.primal.entity.ai.behavior.Beg;
 import org.primal.entity.ai.behavior.bear.BearRaidBeehive;
 import org.primal.entity.ai.behavior.bear.BearSleep;
@@ -17,23 +15,14 @@ import org.primal.entity.ai.behavior.bear.BearStartAttacking;
 import org.primal.entity.ai.sensors.ModSensors;
 import org.primal.entity.animal.Bear;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.AnimalMakeLove;
-import net.minecraft.world.entity.ai.behavior.AnimalPanic;
 import net.minecraft.world.entity.ai.behavior.BabyFollowAdult;
-import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.behavior.BehaviorControl;
-import net.minecraft.world.entity.ai.behavior.CountDownCooldownTicks;
 import net.minecraft.world.entity.ai.behavior.DoNothing;
 import net.minecraft.world.entity.ai.behavior.EraseMemoryIf;
-import net.minecraft.world.entity.ai.behavior.FollowTemptation;
 import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
 import net.minecraft.world.entity.ai.behavior.MeleeAttack;
 import net.minecraft.world.entity.ai.behavior.MoveToTargetSink;
@@ -43,21 +32,14 @@ import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
 import net.minecraft.world.entity.ai.behavior.SetEntityLookTargetSometimes;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromAttackTargetIfTargetOutOfReach;
-import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromLookTarget;
-import net.minecraft.world.entity.ai.behavior.StartAttacking;
 import net.minecraft.world.entity.ai.behavior.StopAttackingIfTargetInvalid;
 import net.minecraft.world.entity.ai.behavior.Swim;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
-import net.minecraft.world.entity.ai.behavior.warden.SetRoarTarget;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
-import net.minecraft.world.entity.animal.camel.Camel;
-import net.minecraft.world.entity.animal.camel.CamelAi;
-import net.minecraft.world.entity.monster.hoglin.HoglinAi;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.crafting.Ingredient;
 
 public final class BearAi {
     private static final ImmutableList<SensorType<? extends Sensor<? super Bear>>> SENSOR_TYPES = ImmutableList.of(
@@ -116,7 +98,7 @@ public final class BearAi {
                 10,
                 ImmutableList.of(
                         new BearSleep(),
-                        new AnimalMakeLove(ModEntities.BEAR.get(), 0.6F, 10),
+                        new AnimalMakeLove(Primal_Entities.BEAR.get(), 0.6F, 10),
                         new Beg(),
                         new BearStartAttacking(Predicate.not(Bear::isBaby),
                                 bear -> bear.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE)),
