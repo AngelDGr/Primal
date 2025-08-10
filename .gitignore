@@ -27,3 +27,4 @@ build
 bin
 
 repo
+/src/generated/resources/.cache/

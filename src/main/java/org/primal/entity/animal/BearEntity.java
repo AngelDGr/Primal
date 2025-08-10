@@ -1,6 +1,5 @@
 package org.primal.entity.animal;
 
-import java.util.List;
 import java.util.function.IntFunction;
 
 import javax.annotation.Nullable;
@@ -13,11 +12,9 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -30,17 +27,12 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.Brain.Provider;
@@ -49,27 +41,22 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.phys.Vec3;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.animation.AnimatableManager.ControllerRegistrar;
-import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Variant>, GeoEntity {
+public class BearEntity extends AbstractChestedHorse implements VariantHolder<BearEntity.Variant>, GeoEntity {
 
-    public static enum Variant implements StringRepresentable {
+    public enum Variant implements StringRepresentable {
         GRIZZLY(0, "grizzly"),
         ASIATIC(1, "asiatic");
 
@@ -85,7 +72,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
 
         private final String name;
 
-        private Variant(int id, String name) {
+        Variant(int id, String name) {
             this.id = id;
             this.name = name;
         }
@@ -95,14 +82,14 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
         }
 
         @Override
-        public String getSerializedName() {
+        public @NotNull String getSerializedName() {
             return this.name;
         }
 
     }
 
-    private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(Bear.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_HONEY_COUNTER = SynchedEntityData.defineId(Bear.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_HONEY_COUNTER = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
@@ -116,7 +103,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public Bear(EntityType<Bear> entityType, Level level) {
+    public BearEntity(EntityType<BearEntity> entityType, Level level) {
         super(entityType, level);
         this.setHealth(this.getMaxHealth());
     }
@@ -128,7 +115,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
     }
 
     @Override
-    protected boolean canRide(Entity vehicle) {
+    protected boolean canRide(@NotNull Entity vehicle) {
         return super.canRide(vehicle) && !this.isBaby();
     }
 
@@ -150,7 +137,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
 
     @SuppressWarnings("null")
     @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
+    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("Variant", this.getVariant().id);
         compound.putInt("HoneyCounter", this.getHoneyCounter());
@@ -158,7 +145,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
+    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setVariant(Variant.byId(compound.getInt("Variant")));
         this.setHoneyCounter(compound.getInt("HoneyCounter"));
@@ -167,7 +154,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
 
     @Override
     @Nullable
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         Holder<Biome> holder = level.getBiome(this.blockPosition());
         if (holder.is(BiomeTags.IS_FOREST) && holder.is(BiomeTags.SPAWNS_WARM_VARIANT_FROGS)) { // your bear is a little bit a frog
             this.setVariant(Variant.ASIATIC);
@@ -223,23 +210,23 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
     }
 
     @Override
-    public Variant getVariant() {
+    public @NotNull Variant getVariant() {
         return Variant.byId(this.entityData.get(DATA_VARIANT_ID));
     }
 
     @Override
-    public void swing(InteractionHand hand) {
+    public void swing(@NotNull InteractionHand hand) {
         this.triggerAnim("attack", this.getRandom().nextBoolean() ? "attack" : "attack2");
         super.swing(hand);
     }
 
     @Override
-    public AgeableMob getBreedOffspring(ServerLevel level, AgeableMob otherParent) {
+    public AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
         throw new UnsupportedOperationException("Unimplemented method 'getBreedOffspring'");
     }
 
     @Override
-    public InteractionResult mobInteract(Player player, InteractionHand hand) {
+    public @NotNull InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.is(Items.HONEYCOMB)) {
             if (this.isBaby() && !this.isTamed()) {
@@ -285,12 +272,12 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
     }
 
     @Override
-    protected float getRiddenSpeed(Player player) {
+    protected float getRiddenSpeed(@NotNull Player player) {
         return .1f;
     }
 
     @Override
-    protected void randomizeAttributes(RandomSource random) {
+    protected void randomizeAttributes(@NotNull RandomSource random) {
     }
 
     @SuppressWarnings("unchecked")
@@ -299,7 +286,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
         super.customServerAiStep();
 
         Brain<?> brain = this.getBrain();
-        ((Brain<Bear>) brain).tick((ServerLevel) this.level(), this);
+        ((Brain<BearEntity>) brain).tick((ServerLevel) this.level(), this);
 
         this.setSprinting(brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent());
 
@@ -307,14 +294,14 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_VARIANT_ID, Variant.GRIZZLY.id);
         builder.define(DATA_HONEY_COUNTER, 0);
     }
 
     @Override
-    protected Provider<Bear> brainProvider() {
+    protected @NotNull Provider<BearEntity> brainProvider() {
         return BearAi.brainProvider();
     }
 
@@ -324,7 +311,7 @@ public class Bear extends AbstractChestedHorse implements VariantHolder<Bear.Var
     }
 
     @Override
-    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+    protected @NotNull Brain<?> makeBrain(@NotNull Dynamic<?> dynamic) {
         return BearAi.makeBrain(this.brainProvider().makeBrain(dynamic));
     }
 

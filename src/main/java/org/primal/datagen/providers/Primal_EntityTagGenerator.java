@@ -1,7 +1,8 @@
-package org.primal.datagen;
+package org.primal.datagen.providers;
 
 import java.util.concurrent.CompletableFuture;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
 
@@ -10,17 +11,18 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.primal.registry.Primal_Tags;
 
-public final class ModEntityTypeTagsProvider extends EntityTypeTagsProvider {
+public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
 
-    public ModEntityTypeTagsProvider(PackOutput output, CompletableFuture<Provider> provider,
-            @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, provider, Primal_Main.MODID, existingFileHelper);
+    public Primal_EntityTagGenerator(PackOutput output, CompletableFuture<Provider> provider,
+                                     @Nullable ExistingFileHelper existingFileHelper) {
+        super(output, provider, Primal_Main.MOD_ID, existingFileHelper);
     }
 
     @Override
-    protected void addTags(Provider provider) {
-        this.tag(ModEntityTypeTags.BEAR_HUNTABLE).add(
+    protected void addTags(@NotNull Provider provider) {
+        this.tag(Primal_Tags.BEAR_HUNTABLE).add(
                 EntityType.PLAYER,
                 EntityType.PIG,
                 EntityType.SHEEP,

@@ -7,13 +7,13 @@ import com.mojang.datafixers.util.Pair;
 
 import java.util.function.Predicate;
 
-import org.primal.entity.Primal_Entities;
+import org.primal.registry.Primal_Entities;
 import org.primal.entity.ai.behavior.Beg;
 import org.primal.entity.ai.behavior.bear.BearRaidBeehive;
 import org.primal.entity.ai.behavior.bear.BearSleep;
 import org.primal.entity.ai.behavior.bear.BearStartAttacking;
-import org.primal.entity.ai.sensors.ModSensors;
-import org.primal.entity.animal.Bear;
+import org.primal.registry.Primal_Sensors;
+import org.primal.entity.animal.BearEntity;
 
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -42,13 +42,13 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 
 public final class BearAi {
-    private static final ImmutableList<SensorType<? extends Sensor<? super Bear>>> SENSOR_TYPES = ImmutableList.of(
+    private static final ImmutableList<SensorType<? extends Sensor<? super BearEntity>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.NEAREST_LIVING_ENTITIES,
             SensorType.HURT_BY,
             SensorType.NEAREST_ADULT,
             SensorType.NEAREST_PLAYERS,
-            ModSensors.BEAR_ATTACK_SENSOR.get(),
-            ModSensors.BEAR_NEAREST_BEEHIVE_SENSOR.get());
+            Primal_Sensors.BEAR_ATTACK_SENSOR.get(),
+            Primal_Sensors.BEAR_NEAREST_BEEHIVE_SENSOR.get());
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.HURT_BY,
             MemoryModuleType.HURT_BY_ENTITY,
@@ -65,14 +65,14 @@ public final class BearAi {
             MemoryModuleType.ROAR_TARGET);
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
 
-    protected static void initMemories(Bear Bear, RandomSource random) {
+    protected static void initMemories(BearEntity BearEntity, RandomSource random) {
     }
 
-    public static Brain.Provider<Bear> brainProvider() {
+    public static Brain.Provider<BearEntity> brainProvider() {
         return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
     }
 
-    public static Brain<?> makeBrain(Brain<Bear> brain) {
+    public static Brain<?> makeBrain(Brain<BearEntity> brain) {
         initCoreActivity(brain);
         initIdleActivity(brain);
         initFightActivity(brain);
@@ -82,7 +82,7 @@ public final class BearAi {
         return brain;
     }
 
-    private static void initCoreActivity(Brain<Bear> brain) {
+    private static void initCoreActivity(Brain<BearEntity> brain) {
         brain.addActivity(
                 Activity.CORE,
                 0,
@@ -92,7 +92,7 @@ public final class BearAi {
                         new MoveToTargetSink()));
     }
 
-    private static void initIdleActivity(Brain<Bear> brain) {
+    private static void initIdleActivity(Brain<BearEntity> brain) {
         brain.addActivity(
                 Activity.IDLE,
                 10,
@@ -100,7 +100,7 @@ public final class BearAi {
                         new BearSleep(),
                         new AnimalMakeLove(Primal_Entities.BEAR.get(), 0.6F, 10),
                         new Beg(),
-                        new BearStartAttacking(Predicate.not(Bear::isBaby),
+                        new BearStartAttacking(Predicate.not(BearEntity::isBaby),
                                 bear -> bear.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE)),
                         new BearRaidBeehive(),
                         BabyFollowAdult.create(ADULT_FOLLOW_RANGE, 1F),
@@ -113,14 +113,14 @@ public final class BearAi {
                                         MemoryStatus.VALUE_ABSENT),
                                 ImmutableList.of(
                                         Pair.of(BehaviorBuilder.triggerIf(
-                                                Predicate.not(Bear::refuseToMove),
+                                                Predicate.not(BearEntity::refuseToMove),
                                                 RandomStroll.stroll(
                                                         1f)),
                                                 1),
                                         Pair.of(new DoNothing(30, 60), 1)))));
     }
 
-    private static void initFightActivity(Brain<Bear> brain) {
+    private static void initFightActivity(Brain<BearEntity> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(
                 Activity.FIGHT,
                 10,
@@ -129,12 +129,12 @@ public final class BearAi {
                         MeleeAttack.create(10),
                         SetEntityLookTarget.create(10),
                         StopAttackingIfTargetInvalid.create(),
-                        EraseMemoryIf.create(Bear::isInLove, MemoryModuleType.ATTACK_TARGET)),
+                        EraseMemoryIf.create(BearEntity::isInLove, MemoryModuleType.ATTACK_TARGET)),
                 MemoryModuleType.ATTACK_TARGET);
     }
 
-    public static void updateActivity(Bear bear) {
-        bear.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.FIGHT, Activity.IDLE));
-        bear.setAggressive(bear.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
+    public static void updateActivity(BearEntity bearEntity) {
+        bearEntity.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.FIGHT, Activity.IDLE));
+        bearEntity.setAggressive(bearEntity.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
     }
 }

@@ -1,8 +1,8 @@
-package org.primal.client.renderer.entity.layer;
+package org.primal.client.renderer.entity.bear.layer;
 
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
-import org.primal.entity.animal.Bear;
+import org.primal.entity.animal.BearEntity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -17,18 +17,18 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 import software.bernie.geckolib.util.Color;
 
-public class BearSleepLayer extends GeoRenderLayer<Bear> {
+public class BearSleepLayer extends GeoRenderLayer<BearEntity> {
 
-    public BearSleepLayer(GeoRenderer<Bear> entityRendererIn) {
+    public BearSleepLayer(GeoRenderer<BearEntity> entityRendererIn) {
         super(entityRendererIn);
     }
 
     @Override
-    public void render(PoseStack poseStack, Bear animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+    public void render(PoseStack poseStack, BearEntity animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         if (!animatable.hasPose(Pose.CROAKING))
             return;
-        RenderType sleepRenderType = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(Primal_Main.MODID,
-                String.format("textures/entity/bear/grizzly_bear%s_sleep.png", animatable.getVariant() == Bear.Variant.ASIATIC ? "_black" : "")));
+        RenderType sleepRenderType = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
+                String.format("textures/entity/bear/grizzly_bear%s_sleep.png", animatable.getVariant() == BearEntity.Variant.ASIATIC ? "_black" : "")));
 
         this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, sleepRenderType, bufferSource.getBuffer(sleepRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
     }

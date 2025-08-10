@@ -1,11 +1,11 @@
-package org.primal.client.renderer.entity;
+package org.primal.client.renderer.entity.bear;
 
 import org.primal.client.model.entity.BearModel;
-import org.primal.client.renderer.entity.layer.BearChestLayer;
-import org.primal.client.renderer.entity.layer.BearHoneyLayer;
-import org.primal.client.renderer.entity.layer.BearSaddleLayer;
-import org.primal.client.renderer.entity.layer.BearSleepLayer;
-import org.primal.entity.animal.Bear;
+import org.primal.client.renderer.entity.bear.layer.BearChestLayer;
+import org.primal.client.renderer.entity.bear.layer.BearHoneyLayer;
+import org.primal.client.renderer.entity.bear.layer.BearSaddleLayer;
+import org.primal.client.renderer.entity.bear.layer.BearSleepLayer;
+import org.primal.entity.animal.BearEntity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -17,7 +17,7 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 @OnlyIn(Dist.CLIENT)
-public final class BearRenderer extends GeoEntityRenderer<Bear> {
+public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
     public BearRenderer(EntityRendererProvider.Context context) {
         super(context, new BearModel());
 
@@ -28,7 +28,7 @@ public final class BearRenderer extends GeoEntityRenderer<Bear> {
     }
 
     @Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, Bear animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
+    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, BearEntity animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
         GeoBone bone = model.getBone("head").get();
         float headScale = animatable.isBaby() ? 2.f : 1.f;
         bone.updateScale(headScale, headScale, headScale);

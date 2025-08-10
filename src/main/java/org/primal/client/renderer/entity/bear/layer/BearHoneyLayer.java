@@ -1,8 +1,8 @@
-package org.primal.client.renderer.entity.layer;
+package org.primal.client.renderer.entity.bear.layer;
 
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
-import org.primal.entity.animal.Bear;
+import org.primal.entity.animal.BearEntity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -16,16 +16,16 @@ import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 import software.bernie.geckolib.util.Color;
 
-public class BearHoneyLayer extends GeoRenderLayer<Bear> {
+public class BearHoneyLayer extends GeoRenderLayer<BearEntity> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Primal_Main.MODID, "textures/entity/bear/grizzly_bear_honey_texture.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/bear/grizzly_bear_honey_texture.png");
 
-    public BearHoneyLayer(GeoRenderer<Bear> entityRendererIn) {
+    public BearHoneyLayer(GeoRenderer<BearEntity> entityRendererIn) {
         super(entityRendererIn);
     }
 
     @Override
-    public void render(PoseStack poseStack, Bear animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+    public void render(PoseStack poseStack, BearEntity animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         if (animatable.getHoneyCounter() <= 0)
             return;
         RenderType honeyRenderType = RenderType.entityCutoutNoCull(TEXTURE);

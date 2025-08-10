@@ -1,17 +1,10 @@
 package org.primal.client.animation.entity;
 
-import org.primal.entity.animal.Bear;
+import org.primal.entity.animal.BearEntity;
 
-import net.minecraft.world.entity.Pose;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.animation.Animation.LoopType;
-import software.bernie.geckolib.animation.AnimationController.State;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.constant.dataticket.DataTicket;
 
 public final class BearAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.grizzly_bear.idle");
@@ -24,7 +17,7 @@ public final class BearAnimations {
     public static final RawAnimation BEG = RawAnimation.begin().thenPlay("animation.grizzly_bear.beg_start").thenLoop("animation.grizzly_bear.beg");
     public static final RawAnimation SLEEP = RawAnimation.begin().thenLoop("animation.grizzly_bear.sleep");
 
-    public static AnimationController<Bear> mainController(Bear animatable) {
+    public static AnimationController<BearEntity> mainController(BearEntity animatable) {
         return new AnimationController<>(animatable, state -> {
             state.setControllerSpeed(1);
             state.getController().transitionLength(0);
@@ -36,7 +29,7 @@ public final class BearAnimations {
 
             switch (animatable.getPose()) {
                 case SNIFFING:
-                    if (state.getController().getCurrentAnimation() != null && state.getController().getCurrentAnimation().animation().name() == BEG.getAnimationStages().get(0).animationName()) {
+                    if (state.getController().getCurrentAnimation() != null && state.getController().getCurrentAnimation().animation().name().equals(BEG.getAnimationStages().getFirst().animationName())) {
                         state.getController().transitionLength(5);
                     }
                     return state.setAndContinue(BEG);

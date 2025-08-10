@@ -7,7 +7,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nonnull;
 
 import org.jetbrains.annotations.NotNull;
-import org.primal.entity.animal.Bear;
+import org.primal.entity.animal.BearEntity;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -16,16 +16,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.phys.Vec3;
 
-public final class BearStartAttacking extends Behavior<Bear> {
-    private Predicate<Bear> canAttackPredicate;
-    private Function<Bear, Optional<? extends LivingEntity>> targetFinderFunction;
+public final class BearStartAttacking extends Behavior<BearEntity> {
+    private final Predicate<BearEntity> canAttackPredicate;
+    private final Function<BearEntity, Optional<? extends LivingEntity>> targetFinderFunction;
 
-    public BearStartAttacking(Predicate<Bear> canAttack, Function<Bear, Optional<? extends LivingEntity>> targetFinder) {
+    public BearStartAttacking(Predicate<BearEntity> canAttack, Function<BearEntity, Optional<? extends LivingEntity>> targetFinder) {
         super(ImmutableMap.of(
                 MemoryModuleType.ATTACK_TARGET,
                 MemoryStatus.VALUE_ABSENT,
@@ -39,9 +37,9 @@ public final class BearStartAttacking extends Behavior<Bear> {
 
     @SuppressWarnings("null")
     @Override
-    protected void start(ServerLevel level, @Nonnull Bear entity, long gameTime) {
+    protected void start(@NotNull ServerLevel level, @Nonnull BearEntity entity, long gameTime) {
         Optional<? extends LivingEntity> target = targetFinderFunction.apply(entity);
-        if (!canAttackPredicate.test(entity) || !target.isPresent()) {
+        if (!canAttackPredicate.test(entity) || target.isEmpty()) {
             this.stop(level, entity, gameTime);
             return;
         }
@@ -60,13 +58,13 @@ public final class BearStartAttacking extends Behavior<Bear> {
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, Bear entity, long gameTime) {
+    protected boolean canStillUse(@NotNull ServerLevel level, @NotNull BearEntity entity, long gameTime) {
         return true;
     }
 
     @SuppressWarnings("null")
     @Override
-    protected void stop(ServerLevel level, Bear entity, long gameTime) {
+    protected void stop(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
         if (!entity.getBrain().hasMemoryValue(MemoryModuleType.ROAR_TARGET)) {
             return;
         }
