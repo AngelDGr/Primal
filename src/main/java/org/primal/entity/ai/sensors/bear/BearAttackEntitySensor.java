@@ -24,11 +24,37 @@ public final class BearAttackEntitySensor extends NearestLivingEntitySensor<Bear
     }
 
     @Override
-    protected void doTick(@NotNull ServerLevel level, @NotNull BearEntity entity) {
-        super.doTick(level, entity);
-        entity.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
-                .filter(ent -> Sensor.isEntityAttackable(entity, ent) && ent.getType().is(Primal_Tags.BEAR_HUNTABLE)).findFirst()
-                .ifPresentOrElse(ent -> entity.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),
-                        () -> entity.getBrain().eraseMemory(MemoryModuleType.NEAREST_ATTACKABLE));
+    protected void doTick(@NotNull ServerLevel level, @NotNull BearEntity bear) {
+        super.doTick(level, bear);
+
+        //Wild logic
+        if(!bear.isTame()){
+            bear.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
+                    .filter(
+                            target ->
+                                    Sensor.isEntityAttackable(bear, target)
+                                            //To attack prey
+                                            && target.getType().is(Primal_Tags.BEAR_HUNTABLE)
+                                            //To not attack enemies near campfires
+                                            && !(target.level() instanceof ServerLevel serverLevel && BearRepellentSensor.findNearestRepellent(serverLevel, target).isPresent()))
+                    .findFirst()
+                    .ifPresentOrElse(ent -> bear.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),
+                            () -> bear.getBrain().eraseMemory(MemoryModuleType.NEAREST_ATTACKABLE));
+        }
+        //Tamed logic
+        else {
+            bear.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
+                    .filter(target ->
+                            Sensor.isEntityAttackable(bear, target)
+                                    && bear.getOwner()!=null
+                                    //To defend owner or attack targets when following
+                                    && (bear.getOwner().getLastHurtByMob()==target || (bear.getOwner().getLastHurtMob()==target && bear.isFollowing()))
+                                    //To not attack other owned bear
+                                    && !(target instanceof BearEntity bear2 && bear2.getOwner()!=null && bear2.getOwner()==bear.getOwner())
+                    )
+                    .findFirst()
+                    .ifPresentOrElse(ent -> bear.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),
+                            () -> bear.getBrain().eraseMemory(MemoryModuleType.NEAREST_ATTACKABLE));
+        }
     }
 }

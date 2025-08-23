@@ -25,12 +25,10 @@ public class BearSleepLayer extends GeoRenderLayer<BearEntity> {
 
     @Override
     public void render(PoseStack poseStack, BearEntity animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        if (!animatable.hasPose(Pose.CROAKING))
+        if (!animatable.hasPose(Pose.CROAKING) || animatable.isInvisible())
             return;
-        RenderType sleepRenderType = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
-                String.format("textures/entity/bear/grizzly_bear%s_sleep.png", animatable.getVariant() == BearEntity.Variant.ASIATIC ? "_black" : "")));
+        RenderType sleepRenderType = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/bear/sleep_"+animatable.getVariant().getSerializedName()+".png"));
 
         this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, sleepRenderType, bufferSource.getBuffer(sleepRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
     }
-
 }

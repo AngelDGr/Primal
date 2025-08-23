@@ -1,5 +1,21 @@
 {
+  "advancements.primal.feed_shark.description": "Bring all passive oceanic mobs to the shark's table",
+  "advancements.primal.feed_shark.title": "One Hungry Shark",
+  "advancements.primal.survive_shark.description": "Get back to full health after facing a shark attack",
+  "advancements.primal.survive_shark.title": "Test The Waters",
+  "advancements.primal.swim_with_shark.description": "Power the sea with a Conduit and tip your supremacy over sharks",
+  "advancements.primal.swim_with_shark.title": "A Sense Of Empowerment",
+  "advancements.primal.tame_all_bears.description": "Tame all Bear variants!",
+  "advancements.primal.tame_all_bears.title": "We Bare Bears",
+  "advancements.primal.tame_bear.description": "Had strong enough confidence to tame a bear",
+  "advancements.primal.tame_bear.title": "Friend-Shaped Beast",
   "entity.primal.bear": "Bear",
+  "entity.primal.shark": "Shark",
   "item.primal.bear_spawn_egg": "Bear Spawn Egg",
-  "itemGroup.primal": "Primal"
+  "item.primal.shark_spawn_egg": "Shark Spawn Egg",
+  "item.primal.shark_tooth": "Shark Tooth",
+  "itemGroup.primal": "Primal",
+  "primal.gui.animal_following": "%1$s will follow you",
+  "primal.gui.animal_sitting": "%1$s will sit down",
+  "primal.gui.animal_wandering": "%1$s will wander around"
 }

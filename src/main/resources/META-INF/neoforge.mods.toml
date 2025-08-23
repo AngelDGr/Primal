@@ -35,7 +35,7 @@ displayName="${mod_name}" #mandatory
 #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
 
 # A file name (in the root of the mod JAR) containing a logo for display
-#logoFile="examplemod.png" #optional
+logoFile="icon.png" #optional
 
 # A text field displayed in the mod UI
 #credits="" #optional
@@ -58,7 +58,7 @@ config="${mod_id}.mixins.json"
 # The coremods config file path is not configurable and is always loaded from META-INF/coremods.json
 
 # A dependency - use the . to indicate dependency for a specific modid. Dependencies are optional.
-[[dependencies.${mod_id}]] #optional
+[[dependencies.neoforge]] #optional
     # the modid of the dependency
     modId="neoforge" #mandatory
     # The type of the dependency. Can be one of "required", "optional", "incompatible" or "discouraged" (case insensitive).
@@ -77,7 +77,7 @@ config="${mod_id}.mixins.json"
     side="BOTH"
 
 # Here's another dependency
-[[dependencies.${mod_id}]]
+[[dependencies.minecraft]]
     modId="minecraft"
     type="required"
     # This version range declares a minimum of the current minecraft version up to but not including the next major version
@@ -85,8 +85,10 @@ config="${mod_id}.mixins.json"
     ordering="NONE"
     side="BOTH"
 
-# Features are specific properties of the game environment, that you may want to declare you require. This example declares
-# that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
-# stop your mod loading on the server for example.
-#[features.${mod_id}]
-#openGLVersion="[3.2,)"
+# Geckolib above 4.2
+[[dependencies.geckolib]]
+modId = "geckolib"
+type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
+versionRange="[4.2,)"
+ordering = "NONE"
+side = "BOTH"

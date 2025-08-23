@@ -1,0 +1,160 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "minecraft:cod": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:cod"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    },
+    "minecraft:dolphin": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:dolphin"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    },
+    "minecraft:glow_squid": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:glow_squid"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    },
+    "minecraft:pufferfish": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:pufferfish"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    },
+    "minecraft:salmon": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:salmon"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    },
+    "minecraft:squid": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:squid"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    },
+    "minecraft:tropical_fish": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:tropical_fish"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    },
+    "minecraft:turtle": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "minecraft:turtle"
+            }
+          }
+        ]
+      },
+      "trigger": "primal:primal/feed_shark"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.feed_shark.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:tropical_fish_bucket"
+    },
+    "title": {
+      "translate": "advancements.primal.feed_shark.title"
+    }
+  },
+  "requirements": [
+    [
+      "minecraft:cod"
+    ],
+    [
+      "minecraft:salmon"
+    ],
+    [
+      "minecraft:tropical_fish"
+    ],
+    [
+      "minecraft:pufferfish"
+    ],
+    [
+      "minecraft:squid"
+    ],
+    [
+      "minecraft:glow_squid"
+    ],
+    [
+      "minecraft:turtle"
+    ],
+    [
+      "minecraft:dolphin"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  },
+  "sends_telemetry_event": true
+}

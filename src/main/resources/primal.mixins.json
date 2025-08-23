@@ -1,5 +1,13 @@
 {
-    "package": "org.primal.mixin",
-    "mixins": [
-    ]
+  "package": "org.primal.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "mixins": [
+    "AnimalMixin",
+    "PolarBearMixin",
+    "TestingMixin",
+    "ItemMixin",
+    "VillagerHostilesSensorMixin",
+    "ZombieMixin"
+  ]
 }

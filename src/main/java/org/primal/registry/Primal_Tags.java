@@ -1,5 +1,10 @@
 package org.primal.registry;
 
+
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
 import org.primal.Primal_Main;
 
 import net.minecraft.core.registries.Registries;
@@ -9,9 +14,24 @@ import net.minecraft.world.entity.EntityType;
 
 public final class Primal_Tags {
 
-    public static final TagKey<EntityType<?>> BEAR_HUNTABLE = create("bear_huntable");
+    public static final TagKey<EntityType<?>> BEAR_HUNTABLE = createTag(Registries.ENTITY_TYPE, "bear_huntable");
+    public static final TagKey<EntityType<?>> SHARK_HUNTABLE = createTag(Registries.ENTITY_TYPE, "shark_huntable");
 
-    private static TagKey<EntityType<?>> create(String name) {
-        return TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, name));
+    public static final TagKey<Block> BEAR_REPELLENTS = createTag(Registries.BLOCK, "bear_repellents");
+    public static final TagKey<Block> SHARK_ATTRACTORS = createTag(Registries.BLOCK, "shark_attractors");
+
+    public static final TagKey<Biome> SPAWNS_BLACK_BEAR = createTag(Registries.BIOME, "has_mob/has_variant/black_bear_variant");
+    public static final TagKey<Biome> SPAWNS_TIGER_SHARK = createTag(Registries.BIOME, "has_mob/has_variant/tiger_shark_variant");
+    public static final TagKey<Biome> SPAWNS_HAMMERHEAD = createTag(Registries.BIOME, "has_mob/has_variant/hammerhead_variant");
+
+    public static final TagKey<Biome> SPAWNS_BEAR = createTag(Registries.BIOME, "has_mob/bear");
+    public static final TagKey<Biome> SPAWNS_SHARK = createTag(Registries.BIOME, "has_mob/shark");
+
+    private static <T> TagKey<T> createTag(ResourceKey<Registry<T>> registryResourceKey, String name) {
+        return createTag(registryResourceKey, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, name));
+    }
+
+    private static <T> TagKey<T> createTag(ResourceKey<Registry<T>> registryResourceKey, ResourceLocation resourceLocation) {
+        return TagKey.create(registryResourceKey, resourceLocation);
     }
 }

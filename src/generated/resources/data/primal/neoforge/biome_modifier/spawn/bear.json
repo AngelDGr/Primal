@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#primal:has_mob/bear",
+  "spawners": {
+    "type": "primal:bear",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 50
+  }
+}

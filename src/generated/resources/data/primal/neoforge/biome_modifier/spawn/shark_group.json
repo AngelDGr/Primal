@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#primal:has_mob/shark",
+  "spawners": {
+    "type": "primal:shark",
+    "maxCount": 3,
+    "minCount": 1,
+    "weight": 1
+  }
+}

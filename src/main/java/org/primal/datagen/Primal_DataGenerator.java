@@ -5,19 +5,27 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
 import org.primal.datagen.providers.*;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Primal_Main.MOD_ID)
 public final class Primal_DataGenerator {
+
+    private static final RegistrySetBuilder BUILDER =
+            new RegistrySetBuilder()
+
+                    .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Primal_BiomeModifiersGenerator::bootstrap);
 
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
@@ -43,6 +51,11 @@ public final class Primal_DataGenerator {
         {
             //Entity Tags
             generator.addProvider(event.includeServer(), new Primal_EntityTagGenerator(output, lookupProvider, existingFileHelper));
+            //Block Tags
+            generator.addProvider(event.includeServer(), new Primal_BlockTagsGenerator(output, lookupProvider, existingFileHelper));
+            //Biome Tags
+            generator.addProvider(event.includeServer(), new Primal_BiomeTagGenerator(output, lookupProvider, existingFileHelper));
+
 
             //Recipes
             generator.addProvider(event.includeServer(), new Primal_RecipesGenerator(output, lookupProvider));
@@ -52,6 +65,9 @@ public final class Primal_DataGenerator {
 
             //Advancements
             generator.addProvider(event.includeServer(), new Primal_AdvancementsGenerator(output, lookupProvider, existingFileHelper));
+
+            //World Gen
+            generator.addProvider(true, new DatapackBuiltinEntriesProvider(output, lookupProvider, BUILDER, Set.of(Primal_Main.MOD_ID)));
         }
     }
 

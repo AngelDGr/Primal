@@ -1,5 +1,6 @@
 package org.primal.client.animation.entity;
 
+import net.minecraft.util.Mth;
 import org.primal.entity.animal.BearEntity;
 
 import software.bernie.geckolib.animation.AnimationController;
@@ -10,6 +11,7 @@ public final class BearAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.grizzly_bear.idle");
     public static final RawAnimation IDLE_ALT = RawAnimation.begin().thenPlay("animation.grizzly_bear.idle_break_one");
     public static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.grizzly_bear.walk");
+    public static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.grizzly_bear.swim");
     public static final RawAnimation RUN = RawAnimation.begin().thenLoop("animation.grizzly_bear.run");
     public static final RawAnimation ROAR = RawAnimation.begin().thenPlay("animation.grizzly_bear.roar");
     public static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("animation.grizzly_bear.attack");
@@ -40,17 +42,28 @@ public final class BearAnimations {
             }
 
             if (state.isMoving()) {
-                if (animatable.isSprinting()) {
+                //Swim
+                if(animatable.isInWater()){
+                    float healthFactor = Mth.clamp(animatable.getHealth() / animatable.getMaxHealth(), 0.1f, 1f);
+                    state.setControllerSpeed(healthFactor);
+                    return state.setAndContinue(SWIM);
+                }
+                //Run
+                else if (animatable.isSprinting()) {
+                    state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 15 : 1f));
                     return state.setAndContinue(RUN);
-                } else {
+                }
+                //Walk
+                else {
                     state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 15 : 3));
+
                     return state.setAndContinue(WALK);
                 }
             }
 
-            state.setControllerSpeed(1);
+            state.setControllerSpeed(animatable.isInWater() && !state.isMoving()? 0.3f: 1f);
             state.getController().transitionLength(20);
-            return state.setAndContinue(IDLE);
+            return  state.setAndContinue(animatable.isInWater()? SWIM: IDLE);
         });
     }
 }

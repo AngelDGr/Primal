@@ -1,0 +1,87 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 4,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "body",
+					"pivot": [0, 8, -1],
+					"cubes": [
+						{"origin": [-5.5, 0, -10], "size": [11, 15, 18], "uv": [0, 0]},
+						{"origin": [-4.5, 0, -24], "size": [9, 8, 14], "uv": [0, 33]},
+						{"origin": [-11, 2, -26], "size": [22, 4, 9], "uv": [64, 20]},
+						{"origin": [-4.5, 8, -24], "size": [9, 2, 4], "uv": [36, 56]}
+					]
+				},
+				{
+					"name": "tail",
+					"parent": "body",
+					"pivot": [0, 7, 8],
+					"cubes": [
+						{"origin": [-3, 3, 8], "size": [6, 7, 8], "uv": [46, 41]}
+					]
+				},
+				{
+					"name": "tail_tip",
+					"parent": "tail",
+					"pivot": [0, 7, 14],
+					"cubes": [
+						{"origin": [-1, -1, 12], "size": [2, 20, 6], "uv": [0, 55]},
+						{"origin": [-1, 15, 18], "size": [2, 4, 4], "uv": [58, 8]},
+						{"origin": [-1, -1, 18], "size": [2, 3, 3], "uv": [58, 19]}
+					]
+				},
+				{
+					"name": "fin",
+					"parent": "body",
+					"pivot": [0, 14, -1],
+					"rotation": [-7.5, 0, 0],
+					"cubes": [
+						{"origin": [-1, 21, -1], "size": [2, 3, 5], "uv": [58, 0]},
+						{"origin": [-1, 14, -4], "size": [2, 7, 8], "uv": [16, 55]}
+					]
+				},
+				{
+					"name": "left_fin",
+					"parent": "body",
+					"pivot": [5.5, 0.5, -5.5],
+					"cubes": [
+						{"origin": [5.5, 0, -9], "size": [11, 1, 7], "uv": [46, 33]}
+					]
+				},
+				{
+					"name": "right_fin",
+					"parent": "body",
+					"pivot": [-5.5, 0.5, -5.5],
+					"cubes": [
+						{"origin": [-16.5, 0, -9], "size": [11, 1, 7], "uv": [46, 33], "mirror": true}
+					]
+				},
+				{
+					"name": "left_little_fin",
+					"parent": "body",
+					"pivot": [5.5, 0, 6.5],
+					"cubes": [
+						{"origin": [5.5, 0, 5], "size": [4, 0, 3], "uv": [58, 16]}
+					]
+				},
+				{
+					"name": "right_little_fin",
+					"parent": "body",
+					"pivot": [-5.5, 0, 6.5],
+					"cubes": [
+						{"origin": [-9.5, 0, 5], "size": [4, 0, 3], "uv": [58, 16], "mirror": true}
+					]
+				}
+			]
+		}
+	]
+}

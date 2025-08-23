@@ -1,9 +1,9 @@
 package org.primal.client.renderer.entity.bear;
 
 import org.primal.client.model.entity.BearModel;
-import org.primal.client.renderer.entity.bear.layer.BearChestLayer;
+import org.primal.client.renderer.entity.bear.layer.BearBarrelsLayer;
+import org.primal.client.renderer.entity.bear.layer.BearCollarLayer;
 import org.primal.client.renderer.entity.bear.layer.BearHoneyLayer;
-import org.primal.client.renderer.entity.bear.layer.BearSaddleLayer;
 import org.primal.client.renderer.entity.bear.layer.BearSleepLayer;
 import org.primal.entity.animal.BearEntity;
 
@@ -21,8 +21,8 @@ public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
     public BearRenderer(EntityRendererProvider.Context context) {
         super(context, new BearModel());
 
-        this.addRenderLayer(new BearSaddleLayer(this));
-        this.addRenderLayer(new BearChestLayer(this));
+        this.addRenderLayer(new BearCollarLayer(this));
+        this.addRenderLayer(new BearBarrelsLayer(this));
         this.addRenderLayer(new BearHoneyLayer(this));
         this.addRenderLayer(new BearSleepLayer(this));
     }
@@ -36,5 +36,10 @@ public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
             widthScale = heightScale = .5f;
         }
         super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
+    }
+
+    @Override
+    public float getMotionAnimThreshold(BearEntity animatable) {
+        return animatable.isInWater()? 0.0f: 0.0015f;
     }
 }

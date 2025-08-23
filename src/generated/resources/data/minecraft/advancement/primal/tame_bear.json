@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:husbandry/tame_an_animal",
+  "criteria": {
+    "tame_bear": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "primal:bear"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:tame_animal"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.tame_bear.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:honeycomb"
+    },
+    "title": {
+      "translate": "advancements.primal.tame_bear.title"
+    }
+  },
+  "requirements": [
+    [
+      "tame_bear"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

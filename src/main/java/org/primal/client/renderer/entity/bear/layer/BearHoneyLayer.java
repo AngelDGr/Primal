@@ -18,7 +18,7 @@ import software.bernie.geckolib.util.Color;
 
 public class BearHoneyLayer extends GeoRenderLayer<BearEntity> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/bear/grizzly_bear_honey_texture.png");
+    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/bear/honey.png");
 
     public BearHoneyLayer(GeoRenderer<BearEntity> entityRendererIn) {
         super(entityRendererIn);

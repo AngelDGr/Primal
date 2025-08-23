@@ -1,0 +1,27 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "swim_with_shark": {
+      "trigger": "primal:primal/swim_with_sharks"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.swim_with_shark.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:conduit"
+    },
+    "title": {
+      "translate": "advancements.primal.swim_with_shark.title"
+    }
+  },
+  "requirements": [
+    [
+      "swim_with_shark"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -5,10 +5,20 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.registry.Primal_Entities;
+import org.primal.registry.Primal_Items;
 
 import java.util.Map;
 import java.util.stream.Stream;
@@ -25,12 +35,44 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                 .filter(e -> e.getKey().location().getNamespace().equals(Primal_Main.MOD_ID)).map(Map.Entry::getValue);
     }
 
-    //TODO: Add drops
     @Override
     public void generate() {
 
-
         this.add(Primal_Entities.BEAR.get(), LootTable.lootTable());
+
+        this.add(Primal_Entities.SHARK.get(), LootTable.lootTable()
+                .withPool(
+                        LootPool.lootPool()
+                                .setRolls(UniformGenerator.between(2.0f, 4.0f))
+                                .add(
+                                        LootItem.lootTableItem(Items.COD)
+                                                .apply(SmeltItemFunction.smelted().when(this.shouldSmeltLoot()))
+                                                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
+                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                )
+                                .add(
+                                        LootItem.lootTableItem(Items.SALMON)
+                                                .apply(SmeltItemFunction.smelted().when(this.shouldSmeltLoot()))
+                                                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
+                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                )
+                                .add(
+                                        LootItem.lootTableItem(Items.TROPICAL_FISH)
+                                                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
+                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                )
+                )
+                .withPool(
+                        LootPool.lootPool()
+                                .setRolls(ConstantValue.exactly(1.0f))
+                                .add(
+                                        LootItem.lootTableItem(Primal_Items.SHARK_TOOTH.get())
+                                                .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
+                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                                .when(LootItemRandomChanceWithEnchantedBonusCondition.randomChanceAndLootingBoost(this.registries,
+                                                        0.30f, 0.1f))
+                                )
+                ));
 
     }
 }

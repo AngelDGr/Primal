@@ -58,6 +58,7 @@ public class BearRaidBeehive extends Behavior<BearEntity> {
             }
             level.destroyBlock(nearestBeehive, false, owner);
             owner.triggerAnim("attack", "attack");
+
             owner.setHoneyCounter(20*60*10);
         }
     }

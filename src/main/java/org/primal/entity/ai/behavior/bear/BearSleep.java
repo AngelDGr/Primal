@@ -27,22 +27,27 @@ public class BearSleep extends Behavior<BearEntity> {
 
     @Override
     protected boolean canStillUse(ServerLevel level, @NotNull BearEntity entity, long gameTime) {
-        return level.isNight() && !entity.hasControllingPassenger() && (entity.getLastHurtByMobTimestamp() > entity.tickCount || entity.tickCount-entity.getLastHurtByMobTimestamp() >= 20*10);
+        return level.isNight()
+                && !entity.isVehicle()
+                && (entity.getLastHurtByMobTimestamp() > entity.tickCount || entity.tickCount-entity.getLastHurtByMobTimestamp() >= 20*10)
+                && entity.getAwakeCounter()==0;
     }
 
     @Override
     protected void start(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        entity.setPose(Pose.CROAKING);
-        if (!entity.getSleeping())
+        if (!entity.isBearSleeping())
             entity.triggerAnim("base_controller", "sleep_start");
-        entity.setSleeping(true);
+        entity.setPose(Pose.CROAKING);
+        if(entity.isVehicle()){
+            entity.ejectPassengers();
+        }
+        entity.setBearSleeping(true);
     }
 
     @Override
     protected void stop(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
+        entity.triggerAnim("base_controller", "sleep_end");
         entity.setPose(Pose.STANDING);
-        if (!entity.hasControllingPassenger())
-            entity.triggerAnim("base_controller", "sleep_end");
-        entity.setSleeping(false);
+        entity.setBearSleeping(false);
     }
 }

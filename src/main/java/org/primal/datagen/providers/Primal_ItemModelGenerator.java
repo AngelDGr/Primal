@@ -22,8 +22,11 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
         //Spawn Eggs
         {
             eggItem(Primal_Items.BEAR_SPAWN_EGG.get());
-        }
 
+            eggItem(Primal_Items.SHARK_SPAWN_EGG.get());
+
+            basicItem(Primal_Items.SHARK_TOOTH.get());
+        }
     }
 
     protected void eggItem(final Item eggItem) {
