@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#primal:has_mob/brown_crocodile_variant",
+  "spawners": {
+    "type": "primal:crocodile",
+    "maxCount": 1,
+    "minCount": 1,
+    "weight": 3
+  }
+}

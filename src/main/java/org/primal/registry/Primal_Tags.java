@@ -18,6 +18,8 @@ public final class Primal_Tags {
     public static final TagKey<EntityType<?>> BEAR_HUNTABLE = createTag(Registries.ENTITY_TYPE, "bear_huntable");
     public static final TagKey<EntityType<?>> SHARK_HUNTABLE = createTag(Registries.ENTITY_TYPE, "shark_huntable");
     public static final TagKey<EntityType<?>> CROCODILE_HUNTABLE = createTag(Registries.ENTITY_TYPE, "crocodile_huntable");
+    public static final TagKey<EntityType<?>> NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "never_attack");
+    public static final TagKey<EntityType<?>> CROCODILE_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "crocodile_never_attack");
 
     public static final TagKey<Block> BEAR_REPELLENTS = createTag(Registries.BLOCK, "bear_repellents");
     public static final TagKey<Block> SHARK_ATTRACTORS = createTag(Registries.BLOCK, "shark_attractors");

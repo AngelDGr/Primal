@@ -33,6 +33,8 @@ public class Primal_BiomeModifiersGenerator {
         registerMobSpawn(bootstrap, "spawn/shark_group", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 1, 1, 3);
 
         registerMobSpawn(bootstrap, "spawn/crocodile", Primal_Tags.SPAWNS_CROCODILE, Primal_Entities.CROCODILE.get(), 35, 1, 1);
+        registerMobSpawn(bootstrap, "spawn/crocodile_warm", Primal_Tags.SPAWNS_BROWN_CROCODILE, Primal_Entities.CROCODILE.get(), 3, 1, 1);
+
 
         //Flora
         registerVegetation(bootstrap, "feature/river_reeds", Primal_Tags.SPAWNS_RIVER_REEDS, Primal_WorldGen.RIVER_REEDS_PLACED);

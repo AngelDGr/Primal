@@ -612,9 +612,11 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 //To detect attackable
                 && this.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE).isPresent() && this.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE).get()==target
                 //To see if Bear can attack (If it is near a baby or is tamed it attacks normally, otherwise only attacks at less than <8 blocks without shifting)
-                && ((this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get())) || (this.isTame()) || (target.distanceTo(this)<8 && !target.isShiftKeyDown()))
+                && ((this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get()))
+                || (this.isTame())
+                || (target.distanceTo(this)<8 && !target.isShiftKeyDown()))
                 //To not double trigger the moments the enemy is dying and is attackable
-                && target.getHealth()>0 && target.canBeSeenAsEnemy();
+                && target.getHealth()>0 && target.canBeSeenAsEnemy() && MiscUtil.isNotNeverAttack(target);
     }
 
     public void setAttackTarget(LivingEntity attackTarget) {

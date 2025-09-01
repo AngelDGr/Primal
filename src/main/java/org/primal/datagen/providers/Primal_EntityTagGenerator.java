@@ -24,6 +24,9 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
 
     @Override
     protected void addTags(@NotNull Provider provider) {
+        this.tag(Primal_Tags.NEVER_ATTACK)
+                .add(EntityType.CREEPER);
+
         this.tag(Primal_Tags.BEAR_HUNTABLE)
                 .add(
                         EntityType.PLAYER,
@@ -62,7 +65,6 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                         EntityType.CAMEL,
                         EntityType.CAT,
                         EntityType.CHICKEN,
-                        EntityType.COD,
 
                         EntityType.COW,
                         EntityType.DONKEY,
@@ -75,11 +77,9 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                         EntityType.PARROT,
                         EntityType.PIG,
                         EntityType.RABBIT,
-                        EntityType.SALMON,
                         EntityType.SHEEP,
                         EntityType.SNIFFER,
                         EntityType.SQUID,
-                        EntityType.TROPICAL_FISH,
                         EntityType.TURTLE,
                         EntityType.DOLPHIN,
                         EntityType.FOX,
@@ -88,5 +88,10 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                         EntityType.PANDA,
                         EntityType.TRADER_LLAMA,
                         EntityType.WOLF);
+
+        this.tag(Primal_Tags.CROCODILE_NEVER_ATTACK)
+                .add(EntityType.TROPICAL_FISH,
+                        EntityType.SALMON,
+                        EntityType.COD);
     }
 }

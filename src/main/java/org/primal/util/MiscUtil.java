@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.phys.Vec3;
+import org.primal.registry.Primal_Tags;
 
 import java.util.List;
 
@@ -79,5 +80,12 @@ public class MiscUtil {
         entriesBuilder.addAll(pool.entries);
         entriesBuilder.addAll(newEntries);
         pool.entries = entriesBuilder.build();
+    }
+
+    /**
+        A simple check to see if the entity is from the tag {@link  Primal_Tags#NEVER_ATTACK}
+     */
+    public static boolean isNotNeverAttack(LivingEntity entity) {
+        return !entity.getType().is(Primal_Tags.NEVER_ATTACK);
     }
 }

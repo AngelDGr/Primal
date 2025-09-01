@@ -95,8 +95,7 @@ public class SharkToothBlock extends Block {
         if (direction1 == null) {
             return null;
         } else {
-            boolean flag = !context.isSecondaryUseActive();
-            SharkToothThickness sharkToothThickness = calculateDripstoneThickness(levelaccessor, blockpos, direction1, flag);
+            SharkToothThickness sharkToothThickness = calculateDripstoneThickness(levelaccessor, blockpos, direction1);
             return sharkToothThickness == null
                     ? null
                     : this.defaultBlockState()
@@ -106,13 +105,11 @@ public class SharkToothBlock extends Block {
         }
     }
 
-    private SharkToothThickness calculateDripstoneThickness(LevelReader level, BlockPos pos, Direction dir, boolean isTipMerge) {
-        Direction direction = dir.getOpposite();
+    private SharkToothThickness calculateDripstoneThickness(LevelReader level, BlockPos pos, Direction dir) {
+//        Direction direction = dir.getOpposite();
         BlockState blockstate = level.getBlockState(pos.relative(dir));
-        if (isPointedDripstoneWithDirection(blockstate, direction) && !isTipMerge ) {
+        if (isPointedDripstoneWithDirection(blockstate, dir)) {
             return SharkToothThickness.BASE;
-        } else if (!isPointedDripstoneWithDirection(blockstate, dir)) {
-            return SharkToothThickness.TIP;
         } else {
             return SharkToothThickness.TIP;
         }

@@ -49,6 +49,7 @@ import org.primal.entity.ai.CrocodileAi;
 import org.primal.entity.ai.controls.*;
 import org.primal.registry.*;
 import org.primal.util.HostileMount;
+import org.primal.util.MiscUtil;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -348,6 +349,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
+    public boolean onClimbable() {
+        return false;
+    }
+
+    @Override
     protected void customServerAiStep() {
         super.customServerAiStep();
 
@@ -565,7 +571,9 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                     && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown())
                 //Attacks if it's too close
                 || (target.distanceTo(this)<8 && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown()))
-                && !this.isPacified();
+                && !this.isPacified()
+                && MiscUtil.isNotNeverAttack(target)
+                && !target.getType().is(Primal_Tags.CROCODILE_NEVER_ATTACK);
     }
 
     @Override
@@ -774,7 +782,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     public static boolean checkCrocodileSpawnRules(EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
         return pos.getY() >= level.getSeaLevel() - 10
                 && (MobSpawnType.ignoresLightRequirements(spawnType) || isBrightEnoughToSpawn(level, pos))
-                && isNearWater(level, pos, 20, 5);
+                && isNearWater(level, pos, 5, 2);
     }
 
 

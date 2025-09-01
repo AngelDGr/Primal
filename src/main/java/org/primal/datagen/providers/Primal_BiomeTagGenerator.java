@@ -52,9 +52,7 @@ public class Primal_BiomeTagGenerator extends BiomeTagsProvider {
 
                 .add(Biomes.SWAMP)
 
-                .addTag(Primal_Tags.SPAWNS_BLACK_CROCODILE)
-
-                .addTag(Primal_Tags.SPAWNS_BROWN_CROCODILE);
+                .addTag(Primal_Tags.SPAWNS_BLACK_CROCODILE);
 
         this.tag(Primal_Tags.SPAWNS_BLACK_CROCODILE)
                 .add(Biomes.JUNGLE)

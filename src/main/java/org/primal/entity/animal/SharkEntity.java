@@ -40,6 +40,7 @@ import org.primal.registry.Primal_Advancements;
 import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Tags;
+import org.primal.util.MiscUtil;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -288,7 +289,8 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
                 //To defend players near conduits
                 || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()) && (this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtMob()==target || this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtByMob()==target)))
                 //To never attack someone with conduit power
-                && !target.hasEffect(MobEffects.CONDUIT_POWER);
+                && !target.hasEffect(MobEffects.CONDUIT_POWER)
+                && MiscUtil.isNotNeverAttack(target);
     }
 
     @Override
