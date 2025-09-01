@@ -1,0 +1,8 @@
+{
+  "type": "primal:river_reeds_patch",
+  "config": {
+    "tries": 384,
+    "xz_spread": 6,
+    "y_spread": 6
+  }
+}

@@ -1,0 +1,208 @@
+{
+  "type": "minecraft:flower",
+  "config": {
+    "feature": {
+      "feature": {
+        "type": "primal:seashells",
+        "config": {
+          "to_place": {
+            "type": "minecraft:weighted_state_provider",
+            "entries": [
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "north",
+                    "seashells_amount": "1",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "east",
+                    "seashells_amount": "1",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "south",
+                    "seashells_amount": "1",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "west",
+                    "seashells_amount": "1",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "north",
+                    "seashells_amount": "2",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "east",
+                    "seashells_amount": "2",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "south",
+                    "seashells_amount": "2",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "west",
+                    "seashells_amount": "2",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "north",
+                    "seashells_amount": "3",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "east",
+                    "seashells_amount": "3",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "south",
+                    "seashells_amount": "3",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "west",
+                    "seashells_amount": "3",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "north",
+                    "seashells_amount": "4",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "east",
+                    "seashells_amount": "4",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "south",
+                    "seashells_amount": "4",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              },
+              {
+                "data": {
+                  "Name": "primal:seashells",
+                  "Properties": {
+                    "facing": "west",
+                    "seashells_amount": "4",
+                    "waterlogged": "false"
+                  }
+                },
+                "weight": 1
+              }
+            ]
+          }
+        }
+      },
+      "placement": [
+        {
+          "type": "minecraft:block_predicate_filter",
+          "predicate": {
+            "type": "minecraft:matching_blocks",
+            "blocks": [
+              "minecraft:air",
+              "minecraft:water"
+            ]
+          }
+        }
+      ]
+    },
+    "tries": 96,
+    "xz_spread": 6,
+    "y_spread": 2
+  }
+}

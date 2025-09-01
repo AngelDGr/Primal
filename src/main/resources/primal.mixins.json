@@ -4,10 +4,15 @@
   "minVersion": "0.8",
   "mixins": [
     "AnimalMixin",
+    "EntityMixin",
+    "ItemMixin",
+    "MaceItemMixin",
     "PolarBearMixin",
     "TestingMixin",
-    "ItemMixin",
     "VillagerHostilesSensorMixin",
     "ZombieMixin"
+  ],
+  "client": [
+    "ClientPacketListenerMixin"
   ]
 }

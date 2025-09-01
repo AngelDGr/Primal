@@ -121,7 +121,7 @@
     "frame": "challenge",
     "icon": {
       "count": 1,
-      "id": "minecraft:tropical_fish_bucket"
+      "id": "primal:shark_tooth"
     },
     "title": {
       "translate": "advancements.primal.feed_shark.title"

@@ -1,0 +1,12 @@
+package org.primal.effects;
+
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+
+public class HeavyEffect extends MobEffect {
+
+    public HeavyEffect(final MobEffectCategory category, final int color) {
+        super(category, color);
+    }
+
+}

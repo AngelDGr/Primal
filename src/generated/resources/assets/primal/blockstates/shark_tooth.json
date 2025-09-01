@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "thickness=base": {
+      "model": "primal:block/shark_tooth_base"
+    },
+    "thickness=tip,vertical_direction=down": {
+      "model": "primal:block/shark_tooth_tip_down"
+    },
+    "thickness=tip,vertical_direction=up": {
+      "model": "primal:block/shark_tooth_tip"
+    }
+  }
+}

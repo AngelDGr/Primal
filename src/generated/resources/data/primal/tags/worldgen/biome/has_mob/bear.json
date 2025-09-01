@@ -7,6 +7,7 @@
     "minecraft:old_growth_spruce_taiga",
     "minecraft:old_growth_pine_taiga",
     "minecraft:old_growth_birch_forest",
-    "minecraft:windswept_forest"
+    "minecraft:windswept_forest",
+    "#primal:has_mob/has_variant/black_bear_variant"
   ]
 }

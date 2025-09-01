@@ -60,7 +60,7 @@
     "frame": "challenge",
     "icon": {
       "count": 1,
-      "id": "minecraft:salmon_bucket"
+      "id": "minecraft:barrel"
     },
     "title": {
       "translate": "advancements.primal.tame_all_bears.title"

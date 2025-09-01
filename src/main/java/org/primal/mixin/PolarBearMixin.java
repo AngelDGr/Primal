@@ -45,7 +45,7 @@ public abstract class PolarBearMixin extends Animal implements NeutralMob {
     @Inject(method = "getBreedOffspring", at = @At("HEAD"), cancellable = true)
     private void primal$makeGrolar(ServerLevel level, AgeableMob otherParent, CallbackInfoReturnable<AgeableMob> cir){
         if(otherParent instanceof BearEntity bear && bear.getVariant() == BearEntity.Variant.GRIZZLY){
-            cir.setReturnValue(BearEntity.createBearFromParents(p$THIS, otherParent));
+            cir.setReturnValue(BearEntity.createFromParents(p$THIS, otherParent));
         }
     }
 }

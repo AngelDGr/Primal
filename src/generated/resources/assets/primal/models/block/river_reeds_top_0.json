@@ -1,0 +1,7 @@
+{
+  "parent": "primal:block/tinted_cross_overlay",
+  "textures": {
+    "cross": "primal:block/river_reeds_top_0",
+    "overlay": "primal:block/river_reeds_top_0_overlay"
+  }
+}

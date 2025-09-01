@@ -122,11 +122,11 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         Holder<Biome> holder = level.getBiome(this.blockPosition());
 
         if (holder.is(Primal_Tags.SPAWNS_TIGER_SHARK)) {
-            this.setVariant(SharkEntity.Variant.TIGER);
+            this.setVariant(Variant.TIGER);
         } else if (holder.is(Primal_Tags.SPAWNS_HAMMERHEAD)) {
-            this.setVariant(SharkEntity.Variant.HAMMERHEAD);
+            this.setVariant(Variant.HAMMERHEAD);
         } else {
-            this.setVariant(SharkEntity.Variant.GREAT_WHITE);
+            this.setVariant(Variant.GREAT_WHITE);
         }
 
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
@@ -266,6 +266,12 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     @Override
     public @NotNull Brain<SharkEntity> getBrain() {
         return (Brain<SharkEntity>) super.getBrain();
+    }
+
+    @Nullable
+    @Override
+    public LivingEntity getTarget() {
+        return this.getTargetFromBrain();
     }
 
     @Override

@@ -9,6 +9,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
+import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Tags;
 
 import java.util.concurrent.CompletableFuture;
@@ -26,5 +27,9 @@ public class Primal_BlockTagsGenerator extends BlockTagsProvider {
 
         this.tag(Primal_Tags.SHARK_ATTRACTORS)
                 .add(Blocks.CONDUIT);
+
+        this.tag(Primal_Tags.CROCODILE_ATTRACTORS)
+                .add(Primal_Blocks.RIVER_REEDS.get())
+                .add(Primal_Blocks.SHORT_RIVER_REEDS.get());
     }
 }

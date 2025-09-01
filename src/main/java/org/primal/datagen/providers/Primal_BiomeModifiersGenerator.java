@@ -18,6 +18,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Tags;
+import org.primal.registry.Primal_WorldGen;
 
 import java.util.List;
 
@@ -25,10 +26,18 @@ public class Primal_BiomeModifiersGenerator {
 
     public static void bootstrap(final BootstrapContext<BiomeModifier> bootstrap){
 
+        //Animals
         registerMobSpawn(bootstrap, "spawn/bear", Primal_Tags.SPAWNS_BEAR, Primal_Entities.BEAR.get(), 50, 1, 1);
 
         registerMobSpawn(bootstrap, "spawn/shark_single", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 5, 1, 1);
         registerMobSpawn(bootstrap, "spawn/shark_group", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 1, 1, 3);
+
+        registerMobSpawn(bootstrap, "spawn/crocodile", Primal_Tags.SPAWNS_CROCODILE, Primal_Entities.CROCODILE.get(), 35, 1, 1);
+
+        //Flora
+        registerVegetation(bootstrap, "feature/river_reeds", Primal_Tags.SPAWNS_RIVER_REEDS, Primal_WorldGen.RIVER_REEDS_PLACED);
+
+        registerVegetation(bootstrap, "feature/seashells", Primal_Tags.SPAWNS_SEASHELLS, Primal_WorldGen.SEASHELLS_PLACED);
     }
 
     public static void registerVegetation(final BootstrapContext<BiomeModifier> bootstrap, final String biomeModifier, final TagKey<Biome> spawnTag, final ResourceKey<PlacedFeature> placedFeature){

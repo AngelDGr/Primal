@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
@@ -18,12 +19,17 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
 import org.primal.datagen.providers.*;
+import org.primal.registry.Primal_DamageTypes;
+import org.primal.registry.Primal_WorldGen;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Primal_Main.MOD_ID)
 public final class Primal_DataGenerator {
 
     private static final RegistrySetBuilder BUILDER =
             new RegistrySetBuilder()
+//                    .add(Registries.DAMAGE_TYPE, Primal_DamageTypes::boostrapDamageTypes)
+                    .add(Registries.PLACED_FEATURE, Primal_WorldGen::boostrapPlacedFeature)
+                    .add(Registries.CONFIGURED_FEATURE, Primal_WorldGen::boostrapConfiguredFeature)
 
                     .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Primal_BiomeModifiersGenerator::bootstrap);
 
@@ -36,6 +42,12 @@ public final class Primal_DataGenerator {
 
         //Client
         {
+            //Block Model
+            generator.addProvider(event.includeClient(), new Primal_BlockModelGenerator(output, existingFileHelper));
+
+            //Block States
+            generator.addProvider(event.includeClient(), new Primal_BlockStateGenerator(output, existingFileHelper));
+
             //Item Model
             generator.addProvider(event.includeClient(), new Primal_ItemModelGenerator(output, existingFileHelper));
 
@@ -52,10 +64,13 @@ public final class Primal_DataGenerator {
             //Entity Tags
             generator.addProvider(event.includeServer(), new Primal_EntityTagGenerator(output, lookupProvider, existingFileHelper));
             //Block Tags
-            generator.addProvider(event.includeServer(), new Primal_BlockTagsGenerator(output, lookupProvider, existingFileHelper));
+            final var blockTagGenerator = generator.addProvider(event.includeServer(), new Primal_BlockTagsGenerator(output, lookupProvider, existingFileHelper));
             //Biome Tags
             generator.addProvider(event.includeServer(), new Primal_BiomeTagGenerator(output, lookupProvider, existingFileHelper));
-
+            //Damage Types Tags
+            generator.addProvider(event.includeServer(), new Primal_DamageTypesTagGenerator(output, lookupProvider, existingFileHelper));
+            //Item Tags
+            generator.addProvider(event.includeServer(), new Primal_ItemTagsGenerator(output, lookupProvider, blockTagGenerator.contentsGetter(), existingFileHelper));
 
             //Recipes
             generator.addProvider(event.includeServer(), new Primal_RecipesGenerator(output, lookupProvider));
@@ -68,6 +83,9 @@ public final class Primal_DataGenerator {
 
             //World Gen
             generator.addProvider(true, new DatapackBuiltinEntriesProvider(output, lookupProvider, BUILDER, Set.of(Primal_Main.MOD_ID)));
+
+            //NeoForge Datamaps
+            generator.addProvider(event.includeServer(), new Primal_DataMapGenerator(output, lookupProvider));
         }
     }
 

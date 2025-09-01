@@ -74,5 +74,6 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                                 )
                 ));
 
+        this.add(Primal_Entities.CROCODILE.get(), LootTable.lootTable());
     }
 }

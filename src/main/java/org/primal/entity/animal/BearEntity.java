@@ -2,6 +2,7 @@ package org.primal.entity.animal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.IntFunction;
 
 import javax.annotation.Nullable;
@@ -21,6 +22,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
@@ -85,7 +87,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 // x Have colored collars
 // x Make it untargetable if faint
 // x Fix the look
-public class BearEntity extends TamableAnimal implements VariantHolder<BearEntity.Variant>, GeoEntity, ContainerListener, HasCustomInventoryScreen, OwnableEntity {
+public class BearEntity extends TamableAnimal implements VariantHolder<BearEntity.Variant>, GeoEntity, ContainerListener, HasCustomInventoryScreen, OwnableEntity, NeutralMob {
 
     protected SimpleContainer inventory=new SimpleContainer(27);
     @Override
@@ -197,7 +199,12 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
         List<Entity> attackablesEntities =
                 new ArrayList<>(this.level().getEntities(this, this.getBoundingBox().inflate(1))
-                        .stream().filter(entity1 -> MiscUtil.isSeeingTarget(entity1, this, -0.8f)).toList());
+                        .stream().filter(
+                                //Is seeing the target
+                                target -> MiscUtil.isSeeingTarget(target, this, -0.8f)
+                                //Is not owned bear
+                                && !(target instanceof BearEntity bear2 && bear2.getOwner()!=null && bear2.getOwner()==this.getOwner()))
+                        .toList());
 
         // To not attack more than 5 entities at the same time
         if (attackablesEntities.size() > 5) {
@@ -230,8 +237,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0, 0.6));
             }
 
-            if (this.level() instanceof ServerLevel serverlevel1) {
-                EnchantmentHelper.doPostAttackEffects(serverlevel1, entity, damagesource);
+            if (this.level() instanceof ServerLevel serverLevel1) {
+                EnchantmentHelper.doPostAttackEffects(serverLevel1, entity, damagesource);
             }
         }
     }
@@ -415,7 +422,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             this.setHoneyCounter(this.getHoneyCounter() - 1);
         }
 
-        if (this.getAwakeCounter() > 0) {
+        if (this.getAwakeCounter() > 0 && !this.isAggressive() && !this.getBrain().isActive(Activity.ROAR)) {
             this.setAwakeCounter(this.getAwakeCounter() - 1);
         }
 
@@ -441,10 +448,10 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
     @Override
     public AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
-        return createBearFromParents(this, otherParent);
+        return createFromParents(this, otherParent);
     }
 
-    public static BearEntity createBearFromParents(AgeableMob parent, AgeableMob otherParent){
+    public static BearEntity createFromParents(AgeableMob parent, AgeableMob otherParent){
         BearEntity offspring = Primal_Entities.BEAR.get().create(parent.level());
 
         if(offspring!=null){
@@ -464,6 +471,12 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     //Movement
     public boolean refuseToMove() {
         return ImmutableList.of(Pose.ROARING, Pose.SNIFFING, Pose.CROAKING).contains(this.getPose());
+    }
+
+    public void stopMoving(){
+        this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        this.getNavigation().stop();
+        this.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
     }
 
     @Override
@@ -570,13 +583,23 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         return (Brain<BearEntity>) super.getBrain();
     }
 
+    @Nullable
+    @Override
+    public LivingEntity getTarget() {
+        return this.getTargetFromBrain();
+    }
+
     @Override
     public boolean hurt(@NotNull DamageSource source, float amount) {
         boolean hurt = super.hurt(source, amount);
         if (this.level().isClientSide) {
             return false;
         } else {
-            if (hurt && source.getEntity() instanceof LivingEntity target && target!=this.getOwner()) {
+            if (hurt && source.getEntity() instanceof LivingEntity target
+                    //Not be angry with owner
+                    && target!=this.getOwner()
+                    //Not be angry other owned bear
+                    && !(target instanceof BearEntity bear2 && bear2.getOwner()!=null && bear2.getOwner()==this.getOwner())) {
                 BearAi.wasHurtBy(this, target);
             }
 
@@ -629,7 +652,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             if (dyecolor != this.getCollarColor()) {
                 this.setCollarColor(dyecolor);
                 stackInHand.consume(1, player);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
         }
 
@@ -638,7 +661,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             boolean wasFeed = this.handleEating(player, stackInHand);
             if (wasFeed) {
                 stackInHand.consume(1, player);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
         }
 
@@ -660,7 +683,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         if (this.isTame()) {
             //Awake bear if it is sleeping by their own
             if(this.isBearSleeping() && !this.isSitting()) {
-                this.setAwakeCounter((20)*30);
+                //30s of delay + 1-10 extra seconds
+                this.setAwakeCounter(600+this.getRandom().nextIntBetweenInclusive(20, 200));
                 return InteractionResult.sidedSuccess(this.level().isClientSide());
             }
             //Make it change the follow state (Wandering/Follow/Sitting)
@@ -691,7 +715,6 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                     this.getName()), true);
         }
 
-
         return InteractionResult.sidedSuccess(this.level().isClientSide());
     }
 
@@ -707,7 +730,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     protected boolean handleEating(@NotNull Player player, @NotNull ItemStack stack) {
-        if (this.isFood(stack)) {
+        if (this.isFood(stack) && !this.level().isClientSide) {
             //To try to mate
             if(isMatingFood(stack) && !this.isBearSleeping()){
                 if (this.getAge() == 0 && this.canFallInLove()) {
@@ -718,7 +741,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             }
 
             //To try to tame it, unless it is sleeping
-            if (!this.isTame() && isTameFood(stack) && !(this.isBearSleeping() && !this.bearCollapses())) {
+            if (!this.isTame() && isTameFood(stack) && !this.isBearSleeping()) {
                 tameAttempts++;
 
                 boolean canTameNow = tameAttempts >= 10 && this.random.nextInt(21 - tameAttempts) == 0;
@@ -841,4 +864,20 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     protected @NotNull Vec3 getLeashOffset() {
         return new Vec3(0.0, this.getEyeHeight()*0.6f, this.getBbWidth() * 0.2F);
     }
+
+    //Just to being classified as neutral
+    @Override
+    public int getRemainingPersistentAngerTime() {return 0;}
+
+    @Override
+    public void setRemainingPersistentAngerTime(int remainingPersistentAngerTime) {}
+
+    @Override
+    public @Nullable UUID getPersistentAngerTarget() {return null;}
+
+    @Override
+    public void setPersistentAngerTarget(@Nullable UUID persistentAngerTarget) {}
+
+    @Override
+    public void startPersistentAngerTimer() {}
 }

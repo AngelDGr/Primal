@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#primal:has_flora/river_reeds",
+  "features": "primal:river_reeds",
+  "step": "vegetal_decoration"
+}

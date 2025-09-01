@@ -1,12 +1,15 @@
 package org.primal.datagen.providers;
 
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
+import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Items;
 
 import java.util.Objects;
@@ -19,14 +22,37 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
 
     @Override
     protected void registerModels() {
-        //Spawn Eggs
-        {
-            eggItem(Primal_Items.BEAR_SPAWN_EGG.get());
+        eggItem(Primal_Items.BEAR_SPAWN_EGG.get());
+        eggItem(Primal_Items.SHARK_SPAWN_EGG.get());
+        eggItem(Primal_Items.CROCODILE_SPAWN_EGG.get());
 
-            eggItem(Primal_Items.SHARK_SPAWN_EGG.get());
 
-            basicItem(Primal_Items.SHARK_TOOTH.get());
-        }
+        basicItem(Primal_Items.SHARK_TOOTH.get());
+        basicItem(Primal_Items.SEASHELLS.get());
+
+        basicItem(Primal_Items.CROCODILE_SCUTE.get());
+
+        simpleBlockItem(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
+        simpleBlockItem(Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get());
+        simpleBlockItem(Primal_Blocks.CHISELED_CROCODILE_SCUTE.get());
+        simpleBlockItem(Primal_Blocks.CROCODILE_SCUTE_STAIRS.get());
+        simpleBlockItem(Primal_Blocks.CROCODILE_SCUTE_SLAB.get());
+
+        getBuilder("river_reeds")
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/river_reeds"));
+
+        getBuilder("short_river_reeds")
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/short_river_reeds"));
+
+        basicItem(Primal_Items.CROCODILE_EGG.get());
+    }
+
+    protected void simpleGrassItem(Block block){
+        getBuilder(Objects.requireNonNull(Primal_Registries.BLOCKS.getRegistry().get().getKey(block)).toString())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ Objects.requireNonNull(Primal_Registries.BLOCKS.getRegistry().get().getKey(block))));
     }
 
     protected void eggItem(final Item eggItem) {

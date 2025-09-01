@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#primal:has_flora/seashells",
+  "features": "primal:seashells",
+  "step": "vegetal_decoration"
+}

@@ -35,7 +35,8 @@ public final class BearRoar extends Behavior<BearEntity> {
 
     @Override
     protected void start(@NotNull ServerLevel level, @Nonnull BearEntity bear, long gameTime) {
-        bear.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        bear.stopMoving();
+
         Optional<LivingEntity> target = bear.getBrain().getMemory(MemoryModuleType.ROAR_TARGET);
         target.ifPresent(entity -> BehaviorUtils.lookAtEntity(bear, entity));
 

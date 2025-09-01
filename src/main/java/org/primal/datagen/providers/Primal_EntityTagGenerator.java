@@ -49,5 +49,44 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
 
         this.tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER)
                 .add(Primal_Entities.SHARK.get());
+
+        this.tag(Primal_Tags.CROCODILE_HUNTABLE)
+                .add(
+                        //Nether
+                        EntityType.PIGLIN,
+                        EntityType.PIGLIN_BRUTE,
+                        EntityType.HOGLIN,
+
+                        //Overworld
+                        EntityType.AXOLOTL,
+                        EntityType.CAMEL,
+                        EntityType.CAT,
+                        EntityType.CHICKEN,
+                        EntityType.COD,
+
+                        EntityType.COW,
+                        EntityType.DONKEY,
+                        EntityType.FROG,
+                        EntityType.GLOW_SQUID,
+                        EntityType.HORSE,
+                        EntityType.MOOSHROOM,
+                        EntityType.MULE,
+                        EntityType.OCELOT,
+                        EntityType.PARROT,
+                        EntityType.PIG,
+                        EntityType.RABBIT,
+                        EntityType.SALMON,
+                        EntityType.SHEEP,
+                        EntityType.SNIFFER,
+                        EntityType.SQUID,
+                        EntityType.TROPICAL_FISH,
+                        EntityType.TURTLE,
+                        EntityType.DOLPHIN,
+                        EntityType.FOX,
+                        EntityType.GOAT,
+                        EntityType.LLAMA,
+                        EntityType.PANDA,
+                        EntityType.TRADER_LLAMA,
+                        EntityType.WOLF);
     }
 }

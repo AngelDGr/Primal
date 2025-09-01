@@ -23,14 +23,21 @@ public class BearDefeated extends Behavior<BearEntity> {
     }
 
     @Override
-    protected void start(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        if (!entity.isBearSleeping())
-            entity.triggerAnim("base_controller", "sleep_start");
-        entity.setPose(Pose.CROAKING);
-        if(entity.isVehicle()){
-            entity.ejectPassengers();
+    protected void start(@NotNull ServerLevel level, BearEntity bear, long gameTime) {
+        bear.stopMoving();
+
+        if (!bear.isBearSleeping())
+            bear.triggerAnim("base_controller", "sleep_start");
+        bear.setPose(Pose.CROAKING);
+        if(bear.isVehicle()){
+            bear.ejectPassengers();
         }
-        entity.setBearSleeping(true);
+        bear.setBearSleeping(true);
+    }
+
+    @Override
+    protected void tick(@NotNull ServerLevel level, @NotNull BearEntity bear, long gameTime) {
+        bear.stopMoving();
     }
 
     @Override

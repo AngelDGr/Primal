@@ -1,6 +1,7 @@
 package org.primal.registry;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,19 +21,71 @@ public class Primal_Items {
     public static DeferredHolder<Item, Item> SHARK_SPAWN_EGG;
     public static DeferredHolder<Item, Item> SHARK_TOOTH;
 
+    //Crocodile
+    public static DeferredHolder<Item, Item> CROCODILE_SPAWN_EGG;
+    public static DeferredHolder<Item, Item> CROCODILE_SCUTE;
+    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_BLOCK;
+    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_SHINGLE;
+    public static DeferredHolder<Item, Item> CHISELED_CROCODILE_SCUTE;
+    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_STAIRS;
+    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_SLAB;
+    public static DeferredHolder<Item, Item> CROCODILE_EGG;
+
+    //Flora
+    public static DeferredHolder<Item, Item> RIVER_REEDS;
+    public static DeferredHolder<Item, Item> SHORT_RIVER_REEDS;
+    public static DeferredHolder<Item, Item> SEASHELLS;
+
     public static void initItems(){
 
-        BEAR_SPAWN_EGG=registerItem("bear_spawn_egg",
+        BEAR_SPAWN_EGG= register("bear_spawn_egg",
                 () -> new DeferredSpawnEggItem(Primal_Entities.BEAR, 0x924d36, 0xc19060, new Item.Properties()));
 
-        SHARK_SPAWN_EGG=registerItem("shark_spawn_egg",
+        SHARK_SPAWN_EGG= register("shark_spawn_egg",
                 () -> new DeferredSpawnEggItem(Primal_Entities.SHARK, 0x94b0c0, 0xe4e6f0, new Item.Properties()));
 
-        SHARK_TOOTH=registerItem("shark_tooth",
+        CROCODILE_SPAWN_EGG= register("crocodile_spawn_egg",
+                () -> new DeferredSpawnEggItem(Primal_Entities.CROCODILE, 0x959a54, 0xf2f3af, new Item.Properties()));
+
+
+        SHARK_TOOTH= register("shark_tooth",
+                ()-> new BlockItem(Primal_Blocks.SHARK_TOOTH.get(), new Item.Properties()));
+
+        CROCODILE_SCUTE= register("crocodile_scute",
                 ()-> new Item(new Item.Properties()));
+
+
+        CROCODILE_SCUTE_BLOCK=register("crocodile_scute_block",
+                ()-> new BlockItem(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get(), new Item.Properties()));
+
+        CROCODILE_SCUTE_SHINGLE=register("crocodile_scute_shingle",
+                ()-> new BlockItem(Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get(), new Item.Properties()));
+
+        CHISELED_CROCODILE_SCUTE=register("chiseled_crocodile_scute",
+                ()-> new BlockItem(Primal_Blocks.CHISELED_CROCODILE_SCUTE.get(), new Item.Properties()));
+
+        CROCODILE_SCUTE_STAIRS=register("crocodile_scute_stairs",
+                ()-> new BlockItem(Primal_Blocks.CROCODILE_SCUTE_STAIRS.get(), new Item.Properties()));
+
+        CROCODILE_SCUTE_SLAB=register("crocodile_scute_slab",
+                ()-> new BlockItem(Primal_Blocks.CROCODILE_SCUTE_SLAB.get(), new Item.Properties()));
+
+        CROCODILE_EGG=register("crocodile_egg",
+                ()-> new BlockItem(Primal_Blocks.CROCODILE_EGG.get(), new Item.Properties()));
+
+
+        RIVER_REEDS=register("river_reeds",
+                ()-> new BlockItem(Primal_Blocks.RIVER_REEDS.get(), new Item.Properties()));
+
+        SHORT_RIVER_REEDS=register("short_river_reeds",
+                ()-> new BlockItem(Primal_Blocks.SHORT_RIVER_REEDS.get(), new Item.Properties()));
+
+        SEASHELLS=register("seashells",
+                ()-> new BlockItem(Primal_Blocks.SEASHELLS.get(), new Item.Properties()));
     }
 
     public static void initGroups(){
+
         Primal_Registries.CREATIVE_MODE_TABS.register(
                 "item_group." + Primal_Main.MOD_ID,
                 () -> CreativeModeTab.builder()
@@ -45,10 +98,21 @@ public class Primal_Items {
                                     {
                                         output.accept(BEAR_SPAWN_EGG.get());
                                         output.accept(SHARK_SPAWN_EGG.get());
+                                        output.accept(CROCODILE_SPAWN_EGG.get());
                                     }
 
                                     {
                                         output.accept(SHARK_TOOTH.get());
+                                        output.accept(CROCODILE_EGG.get());
+                                        output.accept(CROCODILE_SCUTE.get());
+                                        output.accept(CROCODILE_SCUTE_BLOCK.get());
+                                        output.accept(CROCODILE_SCUTE_SHINGLE.get());
+                                        output.accept(CHISELED_CROCODILE_SCUTE.get());
+                                        output.accept(CROCODILE_SCUTE_STAIRS.get());
+                                        output.accept(CROCODILE_SCUTE_SLAB.get());
+                                        output.accept(SHORT_RIVER_REEDS.get());
+                                        output.accept(RIVER_REEDS.get());
+                                        output.accept(SEASHELLS.get());
                                     }
 
                                 }
@@ -57,7 +121,7 @@ public class Primal_Items {
         );
     }
 
-    public static DeferredHolder<Item, Item> registerItem(final String name, final Supplier<Item> item) {
+    public static DeferredHolder<Item, Item> register(final String name, final Supplier<Item> item) {
         return Primal_Registries.ITEMS.register(name, item);
     }
 }

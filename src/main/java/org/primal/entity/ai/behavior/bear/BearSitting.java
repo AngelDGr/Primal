@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.BearEntity;
 import org.primal.registry.Primal_Activities;
@@ -25,12 +24,18 @@ public class BearSitting extends Behavior<BearEntity> {
     }
 
     @Override
-    protected void start(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        entity.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
-        if (!entity.isBearSleeping())
-            entity.triggerAnim("base_controller", "sleep_start");
-        entity.setPose(Pose.CROAKING);
-        entity.setBearSleeping(true);
+    protected void start(@NotNull ServerLevel level, BearEntity bear, long gameTime) {
+        bear.stopMoving();
+
+        if (!bear.isBearSleeping())
+            bear.triggerAnim("base_controller", "sleep_start");
+        bear.setPose(Pose.CROAKING);
+        bear.setBearSleeping(true);
+    }
+
+    @Override
+    protected void tick(@NotNull ServerLevel level, @NotNull BearEntity bear, long gameTime) {
+        bear.stopMoving();
     }
 
     @Override

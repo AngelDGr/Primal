@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.*;
 @Mixin(VillagerHostilesSensor.class)
 public class VillagerHostilesSensorMixin {
     @Unique
-    private static final float tcots$distanceDanger = 12.0f;
+    private static final float primal$distanceDanger = 12.0f;
     @Unique
-    private static final float tcots$distanceMediumDanger = 16.0f;
+    private static final float primal$distanceMediumDanger = 16.0f;
     @Unique
-    private static final float tcots$distanceExtremeDanger = 24.0f;
+    private static final float primal$distanceExtremeDanger = 24.0f;
 
 
     @Shadow @Final @Mutable
@@ -22,8 +22,9 @@ public class VillagerHostilesSensorMixin {
                 ACCEPTABLE_DISTANCE_FROM_HOSTILES = ImmutableMap.builder()
                 .putAll(ACCEPTABLE_DISTANCE_FROM_HOSTILES.entrySet())
 
-                        .put(Primal_Entities.BEAR.get(), tcots$distanceDanger)
-                        .put(Primal_Entities.SHARK.get(), tcots$distanceDanger)
+                        .put(Primal_Entities.BEAR.get(), primal$distanceDanger)
+                        .put(Primal_Entities.SHARK.get(), primal$distanceDanger)
+                        .put(Primal_Entities.CROCODILE.get(), primal$distanceMediumDanger)
 
                         .build();
     }

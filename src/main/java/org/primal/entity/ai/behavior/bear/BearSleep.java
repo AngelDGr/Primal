@@ -21,27 +21,35 @@ public class BearSleep extends Behavior<BearEntity> {
     }
 
     @Override
-    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull BearEntity owner) {
-        return this.canStillUse(level, owner, 0);
+    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull BearEntity bear) {
+        return canStillUse(level, bear, 0);
     }
 
     @Override
-    protected boolean canStillUse(ServerLevel level, @NotNull BearEntity entity, long gameTime) {
+    protected boolean canStillUse(ServerLevel level, @NotNull BearEntity bear, long gameTime) {
         return level.isNight()
-                && !entity.isVehicle()
-                && (entity.getLastHurtByMobTimestamp() > entity.tickCount || entity.tickCount-entity.getLastHurtByMobTimestamp() >= 20*10)
-                && entity.getAwakeCounter()==0;
+                && !bear.isVehicle()
+                && (bear.getLastHurtByMobTimestamp() > bear.tickCount || bear.tickCount-bear.getLastHurtByMobTimestamp() >= 20*10)
+                && bear.getAwakeCounter()==0
+                && hasRequiredMemories(bear);
     }
 
     @Override
-    protected void start(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        if (!entity.isBearSleeping())
-            entity.triggerAnim("base_controller", "sleep_start");
-        entity.setPose(Pose.CROAKING);
-        if(entity.isVehicle()){
-            entity.ejectPassengers();
+    protected void start(@NotNull ServerLevel level, BearEntity bear, long gameTime) {
+        bear.stopMoving();
+
+        if (!bear.isBearSleeping())
+            bear.triggerAnim("base_controller", "sleep_start");
+        bear.setPose(Pose.CROAKING);
+        if(bear.isVehicle()){
+            bear.ejectPassengers();
         }
-        entity.setBearSleeping(true);
+        bear.setBearSleeping(true);
+    }
+
+    @Override
+    protected void tick(@NotNull ServerLevel level, @NotNull BearEntity bear, long gameTime) {
+        bear.stopMoving();
     }
 
     @Override
@@ -49,5 +57,7 @@ public class BearSleep extends Behavior<BearEntity> {
         entity.triggerAnim("base_controller", "sleep_end");
         entity.setPose(Pose.STANDING);
         entity.setBearSleeping(false);
+        //30s of delay + 1-10 extra seconds
+        entity.setAwakeCounter(600+entity.getRandom().nextIntBetweenInclusive(20, 200));
     }
 }

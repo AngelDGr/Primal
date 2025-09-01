@@ -1,0 +1,6 @@
+{
+  "parent": "primal:block/template_three_crocodile_eggs",
+  "textures": {
+    "egg": "primal:block/crocodile_egg_three_chipped"
+  }
+}

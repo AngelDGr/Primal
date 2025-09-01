@@ -26,17 +26,17 @@ import java.util.function.Consumer;
 public class Primal_AdvancementsGenerator extends AdvancementProvider {
 
     //TODO: Advancements
-    // --- Crocodile ---
-    // “Floridian Shenanigans”
-    //      Hit a crocodile with a shovel.
-    // “Tick Tock Croc” (Secret Advancement)
-    //      Feed a crocodile with a Clock, then let them devour a Drowned.
     // --- Eagle ---
     // “FREEDOM!!!!!”
     //      Evade the Exile by killing a Pillager Captain using your Eagle.
     // “Birds Of Feathers” (Challenge Advancement)
     //      Tame all Birds including their variants. (Parrots & Eagle)
-    // --- Vanilla ---
+    // --- Crocodile ---
+    // “Tick Tock Croc” (Secret Advancement)
+    //      Feed a crocodile with a Clock, then let them devour a Drowned.
+    //“Floridian Shenanigans”
+    //      Hit a crocodile.
+    //--- Vanilla ---
     // “Two by Two" <- Probably impossible to add the mod animals to this because the advancements are already generated as data - Tenebris
     //xxx Shark xxx
     // “Test The Waters”
@@ -83,7 +83,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                 Advancement.Builder.advancement()
                         .parent(tameBear)
                         .display(
-                                Items.SALMON_BUCKET, // The display icon
+                                Items.BARREL, // The display icon
                                 Component.translatable("advancements.primal.tame_all_bears.title"), // The title
                                 Component.translatable("advancements.primal.tame_all_bears.description"), // The description
                                 null,
@@ -104,7 +104,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                 Advancement.Builder.advancement()
                         .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
                         .display(
-                                Primal_Items.SHARK_TOOTH.get(), // The display icon
+                                Items.WATER_BUCKET, // The display icon
                                 Component.translatable("advancements.primal.survive_shark.title"), // The title
                                 Component.translatable("advancements.primal.survive_shark.description"), // The description
                                 null,
@@ -116,10 +116,25 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         .addCriterion("survive_shark", Primal_CustomCriterion.Conditions.createSurviveShark())
                         .save(consumer, Primal_Main.MOD_ID + "/survive_shark");
 
+                addMarineAnimalsToFeedShark(Advancement.Builder.advancement())
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Primal_Items.SHARK_TOOTH.get(), // The display icon
+                                Component.translatable("advancements.primal.feed_shark.title"), // The title
+                                Component.translatable("advancements.primal.feed_shark.description"), // The description
+                                null,
+                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .rewards(AdvancementRewards.Builder.experience(100))
+                        .save(consumer, Primal_Main.MOD_ID + "/feed_shark");
+
                 Advancement.Builder.advancement()
                         .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
                         .display(
-                                Items.CONDUIT, // The display icon
+                                Items.HEART_OF_THE_SEA, // The display icon
                                 Component.translatable("advancements.primal.swim_with_shark.title"), // The title
                                 Component.translatable("advancements.primal.swim_with_shark.description"), // The description
                                 null,
@@ -131,20 +146,40 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         .addCriterion("swim_with_shark", Primal_CustomCriterion.Conditions.createSwimWithShark())
                         .save(consumer, Primal_Main.MOD_ID + "/swim_with_shark");
 
-                addMarineAnimalsToFeedShark(Advancement.Builder.advancement())
+
+            }
+
+            //Crocodile
+            {
+                Advancement.Builder.advancement()
                         .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
                         .display(
-                                Items.TROPICAL_FISH_BUCKET, // The display icon
-                                Component.translatable("advancements.primal.feed_shark.title"), // The title
-                                Component.translatable("advancements.primal.feed_shark.description"), // The description
+                                Primal_Items.CROCODILE_SCUTE.get(), // The display icon
+                                Component.translatable("advancements.primal.punch_crocodile.title"), // The title
+                                Component.translatable("advancements.primal.punch_crocodile.description"), // The description
                                 null,
-                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                AdvancementType.TASK, // Options: TASK, CHALLENGE, GOAL
                                 true, // Show toast top right
                                 true, // Announce to chat
                                 false // Hidden in the advancement tab
                         )
-                        .rewards(AdvancementRewards.Builder.experience(100))
-                        .save(consumer, Primal_Main.MOD_ID + "/feed_shark");
+                        .addCriterion("punch_crocodile", Primal_CustomCriterion.Conditions.createPunchCrocodile())
+                        .save(consumer, Primal_Main.MOD_ID + "/punch_crocodile");
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Items.CLOCK, // The display icon
+                                Component.translatable("advancements.primal.clock_croc.title"), // The title
+                                Component.translatable("advancements.primal.clock_croc.description"), // The description
+                                null,
+                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                true // Hidden in the advancement tab
+                        )
+                        .addCriterion("clock_croc", Primal_CustomCriterion.Conditions.createClockCroc())
+                        .save(consumer, Primal_Main.MOD_ID + "/clock_croc");
             }
         }
     }

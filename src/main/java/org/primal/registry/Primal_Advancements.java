@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class Primal_Advancements {
-    //Criteria
+    //Shark
     public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> SURVIVE_SHARK =
             Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/survive_shark", Primal_CustomCriterion::new);
 
@@ -28,6 +28,13 @@ public class Primal_Advancements {
 
     public static final DeferredHolder<CriterionTrigger<?>, SharkKillsEntity> FEED_SHARK =
             Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/feed_shark", SharkKillsEntity::new);
+
+    //Crocodile
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> PUNCH_CROCODILE =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/punch_crocodile", Primal_CustomCriterion::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> CLOCK_CROC =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/clock_croc", Primal_CustomCriterion::new);
 
     public static final List<EntityType<?>> ANIMALS_SHARK_NEEDS_TO_KILL = List.of(
             //Fishes

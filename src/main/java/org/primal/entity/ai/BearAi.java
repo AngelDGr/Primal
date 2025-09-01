@@ -128,7 +128,7 @@ public final class BearAi {
                         new AnimalMakeLove(Primal_Entities.BEAR.get()),
                         new AnimalMakeLove(EntityType.POLAR_BEAR),
 
-                        new Beg(),
+                        new BearBeg(),
 
                         SetBearRoarTarget.create(),
 
@@ -163,7 +163,7 @@ public final class BearAi {
                         new AnimalMakeLove(Primal_Entities.BEAR.get()),
                         new AnimalMakeLove(EntityType.POLAR_BEAR),
 
-                        new Beg(),
+                        new BearBeg(),
 
                         SetBearRoarTarget.create(),
 

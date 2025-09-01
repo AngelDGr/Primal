@@ -28,3 +28,4 @@ bin
 
 repo
 /src/generated/resources/.cache/
+/changelog.txt

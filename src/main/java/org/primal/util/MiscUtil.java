@@ -1,8 +1,14 @@
 package org.primal.util;
 
+import com.google.common.collect.ImmutableList;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public class MiscUtil {
 
@@ -41,5 +47,37 @@ public class MiscUtil {
         vec3d3 = new Vec3(vec3d3.x, 0.0, vec3d3.z).normalize();
 
         return vec3d3.dot(vec3d2) < angle;
+    }
+
+    /**
+     Makes an angle move slowly to the desired angle
+     @param current The rotation that you want to move
+     @param target The desired rotation
+     @param maxChange The maximum rotation that it moves every tick
+     @return The new rotation
+     */
+    public static float smoothAngle(float current, float target, float maxChange) {
+        float delta = Mth.wrapDegrees(target - current);
+        delta = Mth.clamp(delta, -maxChange, maxChange);
+
+        return current + delta;
+    }
+
+    /**
+     Detects if an entity is riding an enemy that implements {@link HostileMount}, used for mobs like the Crocodile
+     @param entity The rider
+     */
+    public static boolean isRidingUnfriendly(LivingEntity entity) {
+        return entity.isPassenger() && entity.getVehicle() instanceof HostileMount;
+    }
+
+    /**
+     Extends a loot pool
+     */
+    public static void extendLootPool(LootPool pool, List<LootPoolEntryContainer> newEntries) {
+        var entriesBuilder = ImmutableList.<LootPoolEntryContainer>builder();
+        entriesBuilder.addAll(pool.entries);
+        entriesBuilder.addAll(newEntries);
+        pool.entries = entriesBuilder.build();
     }
 }

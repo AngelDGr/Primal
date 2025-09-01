@@ -29,5 +29,11 @@ public final class Primal_MemoryModuleTypes {
     public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<LivingEntity>> LAST_ATTACK_TARGET =
             Primal_Registries.MEMORY_MODULE_TYPES.register("last_attack_target", () -> new MemoryModuleType<>(Optional.empty()));
 
+    public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> IS_THRASHING =
+            Primal_Registries.MEMORY_MODULE_TYPES.register("crocodile_thrashing", () -> new MemoryModuleType<>(Optional.empty()));
+
+    public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> IS_STUNNED =
+            Primal_Registries.MEMORY_MODULE_TYPES.register("crocodile_stunned", () -> new MemoryModuleType<>(Optional.empty()));
+
     public static void init() {}
 }

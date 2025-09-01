@@ -6,6 +6,7 @@ import org.primal.entity.animal.BearEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.primal.entity.animal.CrocodileEntity;
 import org.primal.entity.animal.SharkEntity;
 
 public final class Primal_Entities {
@@ -24,8 +25,18 @@ public final class Primal_Entities {
             () -> EntityType.Builder.of(SharkEntity::new, MobCategory.WATER_CREATURE)
                     //Hitbox
                     .sized(1.5f, 1.5f)
+                    .eyeHeight(0.75f)
                     .clientTrackingRange(8)
                     .build("shark"));
+
+    public static DeferredHolder<EntityType<?>, EntityType<CrocodileEntity>> CROCODILE = Primal_Registries.ENTITIES.register(
+            "crocodile",
+            () -> EntityType.Builder.of(CrocodileEntity::new, MobCategory.CREATURE)
+                    //Hitbox
+                    .sized(1.9975f, 1.1f)
+                    .eyeHeight(1.0f)
+                    .clientTrackingRange(8)
+                    .build("crocodile"));
 
     public static void init() {}
 }

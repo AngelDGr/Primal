@@ -1,12 +1,20 @@
 package org.primal;
 
+import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.level.GrassColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import org.primal.client.renderer.entity.bear.BearRenderer;
-import org.primal.client.renderer.entity.shark.SharkRenderer;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import org.primal.client.renderer.entity.BearRenderer;
+import org.primal.client.renderer.entity.CrocodileRenderer;
+import org.primal.client.renderer.entity.SharkRenderer;
+import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Entities;
 
 @EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
@@ -14,9 +22,39 @@ import org.primal.registry.Primal_Entities;
 public class Primal_Client {
 
     @SubscribeEvent
-    public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(Primal_Entities.BEAR.get(), BearRenderer::new);
-        event.registerEntityRenderer(Primal_Entities.SHARK.get(), SharkRenderer::new);
+    public static void registerClientEvent(final FMLClientSetupEvent event){
+        registerBlockRenderers();
     }
 
+    @SubscribeEvent
+    public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(Primal_Entities.BEAR.get(),      BearRenderer::new);
+        event.registerEntityRenderer(Primal_Entities.SHARK.get(),     SharkRenderer::new);
+        event.registerEntityRenderer(Primal_Entities.CROCODILE.get(), CrocodileRenderer::new);
+    }
+
+    @SuppressWarnings("deprecation")
+    public static void registerBlockRenderers(){
+        //Blocks
+        ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.SHARK_TOOTH.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.CROCODILE_EGG.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.RIVER_REEDS.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.SHORT_RIVER_REEDS.get(), RenderType.cutout());
+        ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.SEASHELLS.get(), RenderType.cutout());
+    }
+
+    @SubscribeEvent
+    public static void registerColorBlocks(final RegisterColorHandlersEvent.Block event){
+
+        event.register((state, world, pos, tintIndex) -> {
+                    if (world == null || pos == null) {
+                        return GrassColor.getDefaultColor();
+                    }
+                    return BiomeColors.getAverageGrassColor(world, pos);}, Primal_Blocks.SHORT_RIVER_REEDS.get(), Primal_Blocks.RIVER_REEDS.get());
+    }
+
+    @SubscribeEvent
+    public static void registerColorItems(final RegisterColorHandlersEvent.Item event){
+
+    }
 }

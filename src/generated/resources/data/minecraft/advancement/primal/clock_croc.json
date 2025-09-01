@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "clock_croc": {
+      "trigger": "primal:primal/clock_croc"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.clock_croc.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "minecraft:clock"
+    },
+    "title": {
+      "translate": "advancements.primal.clock_croc.title"
+    }
+  },
+  "requirements": [
+    [
+      "clock_croc"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

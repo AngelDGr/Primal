@@ -13,6 +13,8 @@ public class Primal_Activities {
 
     public static final DeferredHolder<Activity, Activity> BEACHED = register("beached");
 
+    public static final DeferredHolder<Activity, Activity> THRASH = register("thrash");
+
 
     public static void init() {}
 

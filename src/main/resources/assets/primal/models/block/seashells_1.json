@@ -1,0 +1,20 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"texture": "primal:block/seashells",
+		"particle": "primal:block/seashells"
+	},
+	"elements": [
+		{
+			"name": "cube_1",
+			"from": [0, 0.25, 0],
+			"to": [9, 0.25, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-8, 0.25, -8]},
+			"faces": {
+				"up": {"uv": [16, 16, 7, 7], "texture": "#texture"},
+				"down": {"uv": [16, 7, 7, 16], "texture": "#texture"}
+			}
+		}
+	]
+}
