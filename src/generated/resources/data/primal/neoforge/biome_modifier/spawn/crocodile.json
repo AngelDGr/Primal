@@ -5,6 +5,6 @@
     "type": "primal:crocodile",
     "maxCount": 1,
     "minCount": 1,
-    "weight": 35
+    "weight": 20
   }
 }

@@ -19,13 +19,12 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
-import org.primal.block.CrocodileEgg;
 import org.primal.entity.ai.behavior.crocodile.*;
 import org.primal.entity.ai.behavior.generic.TryFindWaterSurface;
-import org.primal.entity.ai.behavior.generic.TryLayEggOnLand;
-import org.primal.entity.animal.BearEntity;
+import org.primal.entity.ai.behavior.generic.TryLayEggOnLandOrNest;
 import org.primal.entity.animal.CrocodileEntity;
 import org.primal.registry.*;
+import org.primal.util.MiscUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -146,7 +145,7 @@ public class CrocodileAi {
                 10,
                 ImmutableList.of(
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        new CrocodileStartMeleeAttack(20),
+                        new CrocodileStartAttack(20),
                         SetEntityLookTarget.create(50),
                         StopAttackingIfTargetInvalid.create(),
                         EraseMemoryIf.create(Animal::isInLove, MemoryModuleType.ATTACK_TARGET)),
@@ -214,7 +213,7 @@ public class CrocodileAi {
         brain.addActivityWithConditions(
                 Activity.LAY_SPAWN,
                 ImmutableList.of(
-                        Pair.of(1, TryLayEggOnLand.create(Primal_Blocks.CROCODILE_EGG.get(), null, CrocodileEgg.EGGS, 3, 1)),
+                        Pair.of(1, TryLayEggOnLandOrNest.create(Primal_Blocks.CROCODILE_EGG.get(), MiscUtil.EGGS_3, 3, 1)),
                         Pair.of(2, TryFindLand.create(16, 1)),
                         Pair.of(
                                 3,

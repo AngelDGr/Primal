@@ -1,6 +1,6 @@
 {
   "values": [
     "minecraft:swamp",
-    "#primal:has_mob/black_crocodile_variant"
+    "#primal:has_mob/has_variant/black_crocodile_variant"
   ]
 }

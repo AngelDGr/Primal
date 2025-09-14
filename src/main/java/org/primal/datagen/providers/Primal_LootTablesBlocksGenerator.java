@@ -6,14 +6,20 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.block.SeashellsBlock;
@@ -55,6 +61,16 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
         this.add(Primal_Blocks.SEASHELLS.get(), createSeashellsDrops(Primal_Blocks.SEASHELLS.get()));
 
         this.dropWhenSilkTouch(Primal_Blocks.CROCODILE_EGG.get());
+
+        this.dropWhenSilkTouch(Primal_Blocks.EAGLE_EGG.get());
+
+        this.add(Primal_Blocks.NEST_BLOCK.get(),
+                this.createSilkTouchOrShearsDispatchTable(
+                        Primal_Blocks.NEST_BLOCK.get(),
+                        this.applyExplosionCondition(Primal_Blocks.NEST_BLOCK.get(),
+                                LootItem.lootTableItem(Items.STICK).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
+                )
+        );
     }
 
     private void createDropThemselves(Block... blocks){

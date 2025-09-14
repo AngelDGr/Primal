@@ -11,9 +11,12 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import org.primal.client.renderer.block_entity.NestBlockEntityRenderer;
 import org.primal.client.renderer.entity.BearRenderer;
 import org.primal.client.renderer.entity.CrocodileRenderer;
+import org.primal.client.renderer.entity.EagleRenderer;
 import org.primal.client.renderer.entity.SharkRenderer;
+import org.primal.registry.Primal_BlockEntities;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Entities;
 
@@ -31,13 +34,16 @@ public class Primal_Client {
         event.registerEntityRenderer(Primal_Entities.BEAR.get(),      BearRenderer::new);
         event.registerEntityRenderer(Primal_Entities.SHARK.get(),     SharkRenderer::new);
         event.registerEntityRenderer(Primal_Entities.CROCODILE.get(), CrocodileRenderer::new);
+        event.registerEntityRenderer(Primal_Entities.EAGLE.get(),     EagleRenderer::new);
+
+        event.registerBlockEntityRenderer(Primal_BlockEntities.NEST_BLOCK_ENTITY.get(), NestBlockEntityRenderer::new);
     }
 
     @SuppressWarnings("deprecation")
     public static void registerBlockRenderers(){
         //Blocks
+        ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.NEST_BLOCK.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.SHARK_TOOTH.get(), RenderType.cutout());
-        ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.CROCODILE_EGG.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.RIVER_REEDS.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.SHORT_RIVER_REEDS.get(), RenderType.cutout());
         ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.SEASHELLS.get(), RenderType.cutout());

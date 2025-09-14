@@ -9,11 +9,14 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Zombie;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
+import org.primal.entity.ai.goals.ZombieAttackEggGoal;
 import org.primal.entity.animal.BearEntity;
+import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Entities;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Zombie.class)
@@ -21,6 +24,12 @@ public abstract class ZombieMixin extends Monster {
 
     protected ZombieMixin(EntityType<? extends Monster> entityType, Level level) {
         super(entityType, level);
+    }
+
+    @Inject(method = "registerGoals", at = @At(value = "HEAD"))
+    private void primal$zombiesTryToDestroyEggs(CallbackInfo ci){
+        this.goalSelector.addGoal(4, new ZombieAttackEggGoal(Primal_Blocks.CROCODILE_EGG.get(),this, 1.0, 3));
+        this.goalSelector.addGoal(4, new ZombieAttackEggGoal(Primal_Blocks.EAGLE_EGG.get(),this, 1.0, 3));
     }
 
     @Inject(method = "finalizeSpawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Zombie;setBaby(Z)V"))

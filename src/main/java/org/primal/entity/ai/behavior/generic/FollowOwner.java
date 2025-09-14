@@ -19,24 +19,28 @@ public class FollowOwner extends Behavior<TamableAnimal> {
 
     private final Predicate<TamableAnimal> canFollowPredicate;
 
-    private final int minDistance;
+    private final int distanceToGet;
 
-    private final int distanceStopFollowingBehavior;
+    private final int distanceStartFollowing;
 
     public FollowOwner(Predicate<TamableAnimal> canFollow) {
-        this(canFollow, 2, 20);
+        this(canFollow, 3, 10);
     }
 
-    public FollowOwner(Predicate<TamableAnimal> canFollow, int minDistance) {
-        this(canFollow, minDistance, 20);
+    public FollowOwner() {
+        this(pet -> true, 3, 10);
     }
 
-    public FollowOwner(Predicate<TamableAnimal> canFollow, int minDistance, int distanceStopFollowingBehavior) {
+    public FollowOwner(Predicate<TamableAnimal> canFollow, int distanceToGet) {
+        this(canFollow, distanceToGet, 20);
+    }
+
+    public FollowOwner(Predicate<TamableAnimal> canFollow, int distanceToGet, int distanceStartFollowing) {
         super(ImmutableMap.of(MemoryModuleType.ATTACK_TARGET, MemoryStatus.VALUE_ABSENT), Integer.MAX_VALUE);
 
         this.canFollowPredicate=canFollow;
-        this.minDistance = minDistance;
-        this.distanceStopFollowingBehavior = distanceStopFollowingBehavior;
+        this.distanceToGet = distanceToGet;
+        this.distanceStartFollowing = distanceStartFollowing;
     }
 
     @Override
@@ -45,14 +49,15 @@ public class FollowOwner extends Behavior<TamableAnimal> {
                 && pet.getBrain().isActive(Primal_Activities.FOLLOW.get())
                 && canFollowPredicate.test(pet)
                 && !pet.unableToMoveToOwner()
-                && !(pet.distanceToSqr(pet.getOwner()) <= (double)(this.distanceStopFollowingBehavior * this.distanceStopFollowingBehavior));
+                && pet.distanceToSqr(pet.getOwner()) >= (double)(this.distanceStartFollowing * this.distanceStartFollowing);
     }
 
     @Override
     protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull TamableAnimal pet) {
         return pet.getOwner()!=null
                 && canFollowPredicate.test(pet)
-                && !pet.unableToMoveToOwner();
+                && !pet.unableToMoveToOwner()
+                && pet.distanceToSqr(pet.getOwner()) >= (double)(this.distanceStartFollowing * this.distanceStartFollowing);
     }
 
     @Override
@@ -76,8 +81,8 @@ public class FollowOwner extends Behavior<TamableAnimal> {
         if(pet.shouldTryTeleportToOwner()){
             pet.tryToTeleportToOwner();
         } else {
-            pet.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(owner.get(), 1.0f, minDistance));
             BehaviorUtils.lookAtEntity(pet, owner.get());
+            pet.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(owner.get(), 1.0f, distanceToGet));
         }
     }
 }

@@ -8,12 +8,10 @@ import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
@@ -60,6 +58,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_MemoryModuleTypes;
+import org.primal.registry.Primal_Sounds;
 import org.primal.registry.Primal_Tags;
 import org.primal.util.MiscUtil;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -732,9 +731,9 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     protected boolean handleEating(@NotNull Player player, @NotNull ItemStack stack) {
-        if (this.isFood(stack) && !this.level().isClientSide) {
+        if (this.isFood(stack)) {
             //To try to mate
-            if(isMatingFood(stack) && !this.isBearSleeping()){
+            if(isMatingFood(stack) && !this.isBearSleeping() && !this.level().isClientSide){
                 if (this.getAge() == 0 && this.canFallInLove()) {
                     this.setInLove(player);
 
@@ -743,7 +742,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             }
 
             //To try to tame it, unless it is sleeping
-            if (!this.isTame() && isTameFood(stack) && !this.isBearSleeping()) {
+            if (!this.isTame() && isTameFood(stack) && !this.isBearSleeping() && !this.level().isClientSide) {
                 tameAttempts++;
 
                 boolean canTameNow = tameAttempts >= 10 && this.random.nextInt(21 - tameAttempts) == 0;
@@ -761,7 +760,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             }
 
             //Only when tamed
-            if (this.isTame()) {
+            if (this.isTame() && !this.level().isClientSide) {
                 //To heal the bear
                 if(isHealFood(stack)){
                     if (this.getHealth() < this.getMaxHealth()) {
@@ -774,10 +773,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
             //To age up if baby, with sweet berries or salmon bucket
             if (this.isBaby() && !isTameFood(stack)) {
-                this.level().addParticle(ParticleTypes.HAPPY_VILLAGER, this.getRandomX(1.0), this.getRandomY() + 0.5, this.getRandomZ(1.0), 0.0, 0.0, 0.0);
-                if (!this.level().isClientSide) {
-                    this.ageUp(isMatingFood(stack)? 20: 10);
-                }
+                int i = this.getAge();
+                this.ageUp(getSpeedUpSecondsWhenFeeding(-i), true);
 
                 return playEatingSound();
             }
@@ -805,7 +802,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     protected void playChestEquipsSound() {
-        this.playSound(SoundEvents.DONKEY_CHEST, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+        this.playSound(Primal_Sounds.ANIMAL_CHEST.get(), 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
     }
 
     public SoundEvent getEatingSound() {

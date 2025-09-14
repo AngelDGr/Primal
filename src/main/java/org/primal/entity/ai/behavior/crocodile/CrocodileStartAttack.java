@@ -17,9 +17,9 @@ import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.CrocodileEntity;
 import org.primal.registry.Primal_MemoryModuleTypes;
 
-public class CrocodileStartMeleeAttack extends Behavior<CrocodileEntity> {
+public class CrocodileStartAttack extends Behavior<CrocodileEntity> {
     private final int cooldownBetweenAttacks;
-    public CrocodileStartMeleeAttack(int cooldownBetweenAttacks) {
+    public CrocodileStartAttack(int cooldownBetweenAttacks) {
         super(ImmutableMap.of(
                 MemoryModuleType.LOOK_TARGET,
                 MemoryStatus.REGISTERED,

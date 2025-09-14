@@ -29,7 +29,6 @@ public class SeashellsFeature extends Feature<SimpleBlockConfiguration> {
 
             level.setBlock(blockpos, blockstate, 2);
 
-
             return true;
         } else {
             return false;

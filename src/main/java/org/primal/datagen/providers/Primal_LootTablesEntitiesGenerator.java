@@ -75,5 +75,17 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                 ));
 
         this.add(Primal_Entities.CROCODILE.get(), LootTable.lootTable());
+
+        this.add(Primal_Entities.EAGLE.get(),
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .add(
+                                                LootItem.lootTableItem(Items.FEATHER)
+                                                        .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
+                                                        .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                        )
+                        ));
     }
 }

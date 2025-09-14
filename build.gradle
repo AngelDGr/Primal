@@ -29,7 +29,8 @@ repositories {
 
 base {
     archivesName = mod_id
-    minecraft.accessTransformers.file rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+    minecraft.accessTransformers.file  rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+    minecraft.interfaceInjections.file rootProject.file('src/main/resources/META-INF/interface-injection.json')
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)

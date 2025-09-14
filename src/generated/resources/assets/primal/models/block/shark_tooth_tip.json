@@ -1,5 +1,6 @@
 {
   "parent": "minecraft:block/pointed_dripstone",
+  "ambientocclusion": false,
   "textures": {
     "cross": "primal:block/shark_tooth_tip"
   }

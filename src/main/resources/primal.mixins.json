@@ -6,8 +6,12 @@
     "AnimalMixin",
     "EntityMixin",
     "ItemMixin",
+    "LivingEntityMixin",
     "MaceItemMixin",
     "PolarBearMixin",
+    "RaiderMixin",
+    "RunFromCrocodileMixins$PillagerMixin",
+    "RunFromCrocodileMixins$VindicatorMixin",
     "TestingMixin",
     "VillagerHostilesSensorMixin",
     "ZombieMixin"

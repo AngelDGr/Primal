@@ -22,13 +22,13 @@ public class CrocodileGoesToCompass extends Behavior<CrocodileEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(@NotNull ServerLevel level, CrocodileEntity crocodile) {
-        return crocodile.getCompass().isPresent()
-        && crocodile.getCompass().get().pos().distManhattan(crocodile.getOnPos())>5;
+        return crocodile.getCompassPos().isPresent()
+        && crocodile.getCompassPos().get().pos().distManhattan(crocodile.getOnPos())>5;
     }
 
     @Override
     protected void start(@NotNull ServerLevel level, CrocodileEntity crocodile, long gameTime) {
-        var pos = crocodile.getCompass();
+        var pos = crocodile.getCompassPos();
 
         if(pos.isEmpty()){
             stop(level, crocodile, gameTime);

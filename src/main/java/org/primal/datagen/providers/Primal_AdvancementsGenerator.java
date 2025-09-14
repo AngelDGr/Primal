@@ -3,11 +3,15 @@ package org.primal.datagen.providers;
 import net.minecraft.advancements.*;
 import net.minecraft.advancements.critereon.*;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.raid.Raid;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import net.neoforged.neoforge.common.data.AdvancementProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +19,7 @@ import org.primal.Primal_Main;
 import org.primal.advancements.criterion.Primal_CustomCriterion;
 import org.primal.advancements.criterion.SharkKillsEntity;
 import org.primal.entity.animal.BearEntity;
+import org.primal.entity.animal.EagleEntity;
 import org.primal.registry.Primal_Advancements;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Items;
@@ -25,19 +30,17 @@ import java.util.function.Consumer;
 
 public class Primal_AdvancementsGenerator extends AdvancementProvider {
 
-    //TODO: Advancements
+    //xTODO: Advancements
     // --- Eagle ---
     // “FREEDOM!!!!!”
     //      Evade the Exile by killing a Pillager Captain using your Eagle.
     // “Birds Of Feathers” (Challenge Advancement)
     //      Tame all Birds including their variants. (Parrots & Eagle)
-    // --- Crocodile ---
-    // “Tick Tock Croc” (Secret Advancement)
+    //xxx Crocodile xxx
+    //“Tick Tock Croc” (Secret Advancement)
     //      Feed a crocodile with a Clock, then let them devour a Drowned.
     //“Floridian Shenanigans”
     //      Hit a crocodile.
-    //--- Vanilla ---
-    // “Two by Two" <- Probably impossible to add the mod animals to this because the advancements are already generated as data - Tenebris
     //xxx Shark xxx
     // “Test The Waters”
     //      Get back to full health, after facing its attack.
@@ -51,6 +54,8 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
     //       Had strong enough confidence to tame a bear.
     // “We Bare Bears” (Challenge Advancement)
     //      Bring all the bears from different climates to your base.
+    //--- Vanilla ---
+    // “Two by Two" <- Probably impossible to add the mod animals to this because the advancements are already generated as data - Tenebris
 
     public Primal_AdvancementsGenerator(final PackOutput output, final CompletableFuture<HolderLookup.Provider> lookupProvider, final ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, existingFileHelper, List.of(new Generator()));
@@ -145,8 +150,6 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         )
                         .addCriterion("swim_with_shark", Primal_CustomCriterion.Conditions.createSwimWithShark())
                         .save(consumer, Primal_Main.MOD_ID + "/swim_with_shark");
-
-
             }
 
             //Crocodile
@@ -180,11 +183,69 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         )
                         .addCriterion("clock_croc", Primal_CustomCriterion.Conditions.createClockCroc())
                         .save(consumer, Primal_Main.MOD_ID + "/clock_croc");
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Items.FEATHER, // The display icon
+                                Component.translatable("advancements.primal.tickle_crocodile.title"), // The title
+                                Component.translatable("advancements.primal.tickle_crocodile.description"), // The description
+                                null,
+                                AdvancementType.TASK, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("tickle_crocodile", Primal_CustomCriterion.Conditions.createTickleCrocodile())
+                        .save(consumer, Primal_Main.MOD_ID + "/tickle_crocodile");
+            }
+
+            //Eagle
+            {
+                HolderLookup.RegistryLookup<BannerPattern> registrylookup = registries.lookupOrThrow(Registries.BANNER_PATTERN);
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Raid.getLeaderBannerInstance(registrylookup), // The display icon
+                                Component.translatable("advancements.primal.kill_captain.title"), // The title
+                                Component.translatable("advancements.primal.kill_captain.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("kill_captain", Primal_CustomCriterion.Conditions.createKillCaptain())
+                        .save(consumer, Primal_Main.MOD_ID + "/kill_captain");
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/tame_an_animal"))
+                        .display(
+                                Items.EGG, // The display icon
+                                Component.translatable("advancements.primal.tame_all_birds.title"), // The title
+                                Component.translatable("advancements.primal.tame_all_birds.description"), // The description
+                                null,
+                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .rewards(AdvancementRewards.Builder.experience(50))
+                        .addCriterion("tame_bald", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.eagleVariantTamed(EagleEntity.Variant.BALD)))
+                        .addCriterion("tame_harpy", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.eagleVariantTamed(EagleEntity.Variant.HARPY)))
+                        .addCriterion("tame_philippine", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.eagleVariantTamed(EagleEntity.Variant.PHILIPPINE)))
+                        .addCriterion("tame_golden", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.eagleVariantTamed(EagleEntity.Variant.GOLDEN)))
+
+                        .addCriterion("tame_blue", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.BLUE)))
+                        .addCriterion("tame_gray", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.GRAY)))
+                        .addCriterion("tame_green", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.GREEN)))
+                        .addCriterion("tame_red_blue", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.RED_BLUE)))
+                        .addCriterion("tame_yellow_blue", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.YELLOW_BLUE)))
+                        .save(consumer, Primal_Main.MOD_ID + "/tame_all_birds");
             }
         }
     }
-
-
 
     private static Advancement.Builder addMarineAnimalsToFeedShark(Advancement.Builder builder) {
         Primal_Advancements.ANIMALS_SHARK_NEEDS_TO_KILL

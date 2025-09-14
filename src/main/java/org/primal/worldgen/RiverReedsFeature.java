@@ -15,14 +15,14 @@ import org.primal.block.RiverReeds;
 import org.primal.block.properties.TripleBlockHalf;
 import org.primal.registry.Primal_Blocks;
 
-public class RiverReedsFeature extends Feature<RiverReedsPatchFeatureConfig> {
-    public RiverReedsFeature(final Codec<RiverReedsPatchFeatureConfig> configCodec) {
+public class RiverReedsFeature extends Feature<RandomPatchCustomConfig> {
+    public RiverReedsFeature(final Codec<RandomPatchCustomConfig> configCodec) {
         super(configCodec);
     }
 
     @Override
-    public boolean place(final @NotNull FeaturePlaceContext<RiverReedsPatchFeatureConfig> context) {
-        RiverReedsPatchFeatureConfig randomPatchConfiguration = context.config();
+    public boolean place(final @NotNull FeaturePlaceContext<RandomPatchCustomConfig> context) {
+        RandomPatchCustomConfig randomPatchConfiguration = context.config();
         RandomSource randomsource = context.random();
         BlockPos origin = context.origin();
         WorldGenLevel level = context.level();
@@ -55,7 +55,10 @@ public class RiverReedsFeature extends Feature<RiverReedsPatchFeatureConfig> {
                     randomsource.nextInt(k) - randomsource.nextInt(k),
                     randomsource.nextInt(j) - randomsource.nextInt(j)
             );
-            if (canGenerateHere(level, desiredPosition)) {
+            if (canGenerateHere(level, desiredPosition)
+                    //To check if it's a survivable soil
+                    && defaultStateShortReeds.canSurvive(level, desiredPosition)
+                    && defaultStateLongReeds.canSurvive(level, desiredPosition)) {
 
                 boolean isUnderwater=level.getBlockState(desiredPosition).is(Blocks.WATER);
                 boolean isUnderwaterAbove=level.getBlockState(desiredPosition.above()).is(Blocks.WATER);

@@ -19,12 +19,16 @@ public class Primal_Blocks {
 
     public static DeferredHolder<Block, Block> SHARK_TOOTH;
 
+    public static DeferredHolder<Block, Block> CROCODILE_EGG;
+    public static DeferredHolder<Block, Block> EAGLE_EGG;
+    public static DeferredHolder<Block, Block> NEST_BLOCK;
+
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_BLOCK;
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_SHINGLE;
     public static DeferredHolder<Block, Block> CHISELED_CROCODILE_SCUTE;
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_STAIRS;
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_SLAB;
-    public static DeferredHolder<Block, Block> CROCODILE_EGG;
+
 
     //Flora
     public static DeferredHolder<Block, Block> RIVER_REEDS;
@@ -32,6 +36,40 @@ public class Primal_Blocks {
     public static DeferredHolder<Block, Block> SEASHELLS;
 
     public static void init(){
+
+        //Animal Eggs
+        {
+            CROCODILE_EGG=register("crocodile_egg",
+                    ()-> new CrocodileEgg(BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.SAND)
+                            .forceSolidOn()
+                            .strength(0.5F)
+                            .sound(SoundType.METAL)
+                            .randomTicks()
+                            .noOcclusion()
+                            .pushReaction(PushReaction.DESTROY)));
+
+            EAGLE_EGG=register("eagle_egg",
+                    ()-> new EagleEgg(BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.TERRACOTTA_BROWN)
+                            .forceSolidOn()
+                            .strength(0.5F)
+                            .sound(SoundType.METAL)
+                            .randomTicks()
+                            .noOcclusion()
+                            .pushReaction(PushReaction.DESTROY)));
+
+            NEST_BLOCK=register("nest",
+                    ()-> new NestBlock(BlockBehaviour.Properties.of()
+                            .mapColor(MapColor.COLOR_BROWN)
+                            .forceSolidOn()
+                            .strength(0.5F)
+                            .sound(SoundType.MANGROVE_ROOTS)
+                            .randomTicks()
+                            .noOcclusion()
+                            .pushReaction(PushReaction.DESTROY)));
+        }
+
         SHARK_TOOTH=register("shark_tooth",
                 ()-> new SharkToothBlock(BlockBehaviour.Properties.of()
                                 .mapColor(MapColor.TERRACOTTA_WHITE)
@@ -76,16 +114,6 @@ public class Primal_Blocks {
                                 .instabreak()
                                 .explosionResistance(1200f)
                                 .sound(SoundType.SCAFFOLDING)));
-
-        CROCODILE_EGG=register("crocodile_egg",
-                ()-> new CrocodileEgg(BlockBehaviour.Properties.of()
-                        .mapColor(MapColor.SAND)
-                        .forceSolidOn()
-                        .strength(0.5F)
-                        .sound(SoundType.METAL)
-                        .randomTicks()
-                        .noOcclusion()
-                        .pushReaction(PushReaction.DESTROY)));
 
         RIVER_REEDS=register("river_reeds",
                 ()-> new RiverReeds(BlockBehaviour.Properties.of()

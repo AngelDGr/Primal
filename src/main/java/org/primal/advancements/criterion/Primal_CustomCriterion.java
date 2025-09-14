@@ -49,5 +49,13 @@ public class Primal_CustomCriterion extends SimpleCriterionTrigger<Primal_Custom
             return Primal_Advancements.CLOCK_CROC.get().createCriterion(new Conditions(Optional.empty()));
         }
 
+        public static Criterion<Primal_CustomCriterion.Conditions> createTickleCrocodile() {
+            return Primal_Advancements.TICKLE_CROC.get().createCriterion(new Conditions(Optional.empty()));
+        }
+
+        public static Criterion<Primal_CustomCriterion.Conditions> createKillCaptain() {
+            return Primal_Advancements.KILL_CAPTAIN.get().createCriterion(new Conditions(Optional.empty()));
+        }
+
     }
 }

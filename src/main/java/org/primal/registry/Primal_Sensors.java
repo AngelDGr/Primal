@@ -1,18 +1,24 @@
 package org.primal.registry;
 
 import net.minecraft.world.entity.ai.sensing.TemptingSensor;
+import net.minecraft.world.entity.animal.Animal;
 import org.primal.Primal_Registries;
 import org.primal.entity.ai.BearAi;
 import org.primal.entity.ai.CrocodileAi;
+import org.primal.entity.ai.EagleAi;
 import org.primal.entity.ai.sensors.bear.*;
 
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.primal.entity.ai.sensors.crocodile.CrocodileAttackEntitySensor;
+import org.primal.entity.ai.sensors.eagle.EagleAttackEntitySensor;
+import org.primal.entity.ai.sensors.eagle.EagleNearestHostile;
+import org.primal.entity.ai.sensors.generic.ScaredSensor;
 import org.primal.entity.ai.sensors.generic.BabySensor;
 import org.primal.entity.ai.sensors.generic.NearestSpecificBlockSensor;
 import org.primal.entity.ai.sensors.shark.SharkAttackEntitySensor;
 import org.primal.entity.ai.sensors.shark.SharkNearConduitPlayerSensor;
+import org.primal.entity.animal.EagleEntity;
 
 public final class Primal_Sensors {
 
@@ -73,9 +79,35 @@ public final class Primal_Sensors {
                     () -> new SensorType<>(()-> new NearestSpecificBlockSensor(Primal_Tags.CROCODILE_ATTRACTORS, 24, 3)));
 
 
+    //Eagle
+    public static DeferredHolder<SensorType<?>, SensorType<EagleAttackEntitySensor>> EAGLE_ATTACK_SENSOR =
+            Primal_Registries.SENSOR_TYPES.register("eagle_attack_entity_sensor",
+                    () -> new SensorType<>(EagleAttackEntitySensor::new));
+
+    public static final DeferredHolder<SensorType<?>, SensorType<TemptingSensor>> EAGLE_TEMPTATIONS_SENSOR =
+            Primal_Registries.SENSOR_TYPES.register("eagle_temptations",
+                    () -> new SensorType<>(() -> new TemptingSensor(EagleAi.getTemptations())));
+
+    public static final DeferredHolder<SensorType<?>, SensorType<ScaredSensor<EagleEntity>>> EAGLE_SCARE_SENSOR =
+            Primal_Registries.SENSOR_TYPES.register("eagle_scare_sensor",
+                    () -> new SensorType<>(() -> new ScaredSensor<>(
+                            //Not scared from Animals
+                            target -> !(target instanceof Animal),
+                            //Not scared if its tamed
+                            eagle -> !eagle.isTame())));
+
+    public static DeferredHolder<SensorType<?>, SensorType<EagleNearestHostile>> EAGLE_HOSTILE_SENSOR =
+            Primal_Registries.SENSOR_TYPES.register("eagle_nearest_hostile_sensor",
+                    () -> new SensorType<>(EagleNearestHostile::new));
+
     //Generic
     public static DeferredHolder<SensorType<?>, SensorType<BabySensor>> NEAREST_BABY =
             Primal_Registries.SENSOR_TYPES.register("nearest_baby",
                     () -> new SensorType<>(BabySensor::new));
+
+    public static DeferredHolder<SensorType<?>, SensorType<NearestSpecificBlockSensor>> NEAREST_NEST =
+            Primal_Registries.SENSOR_TYPES.register("nearest_nest",
+                    () -> new SensorType<>(()-> new NearestSpecificBlockSensor(Primal_Blocks.NEST_BLOCK.get(), 24, 5)));
+
     public static void init() {}
 }

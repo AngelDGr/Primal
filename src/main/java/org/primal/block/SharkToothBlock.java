@@ -9,15 +9,13 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -26,26 +24,41 @@ import org.primal.block.properties.SharkToothThickness;
 import org.primal.registry.Primal_DamageTypes;
 
 import javax.annotation.Nullable;
+import java.util.Map;
 
 public class SharkToothBlock extends Block {
     public static final MapCodec<SharkToothBlock> CODEC = simpleCodec(SharkToothBlock::new);
-    public static final DirectionProperty TIP_DIRECTION = BlockStateProperties.VERTICAL_DIRECTION;
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final EnumProperty<SharkToothThickness> THICKNESS = EnumProperty.create("thickness", SharkToothThickness.class);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public SharkToothBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(TIP_DIRECTION, Direction.UP).setValue(THICKNESS, SharkToothThickness.TIP).setValue(WATERLOGGED, false));
+        this.registerDefaultState(
+                this.stateDefinition.any()
+                        .setValue(FACING, Direction.UP)
+                        .setValue(THICKNESS, SharkToothThickness.TIP)
+                        .setValue(WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(TIP_DIRECTION, THICKNESS, WATERLOGGED);
+        builder.add(FACING, THICKNESS, WATERLOGGED);
     }
 
     @Override
     protected boolean canSurvive(BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
-        return isValidPointedDripstonePlacement(level, pos, state.getValue(TIP_DIRECTION));
+        return isValidPointedDripstonePlacement(level, pos, state.getValue(FACING));
+    }
+
+    @Override
+    protected @NotNull BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
     @Override
@@ -55,34 +68,49 @@ public class SharkToothBlock extends Block {
         }
 
         //Destroy block
-        if(((state.getValue(TIP_DIRECTION)==Direction.UP && directionUpdated==Direction.DOWN) || ((state.getValue(TIP_DIRECTION)==Direction.DOWN && directionUpdated==Direction.UP)))
-                && !facingState.is(this))
+        if(updateOpposites(state, directionUpdated) && !facingState.is(this) && !canSurvive(state, level, currentPos))
             return Blocks.AIR.defaultBlockState();
 
-        //Handle connection for up
-        if (state.getValue(THICKNESS)==SharkToothThickness.TIP && state.getValue(TIP_DIRECTION)==Direction.UP
-                && directionUpdated==Direction.UP && facingState.is(this) && facingState.getValue(TIP_DIRECTION)==Direction.UP)
+        if(isValueForConnection(state, Direction.UP, directionUpdated, facingState)
+                || isValueForConnection(state, Direction.DOWN, directionUpdated, facingState)
+                || isValueForConnection(state, Direction.NORTH, directionUpdated, facingState)
+                || isValueForConnection(state, Direction.SOUTH, directionUpdated, facingState)
+                || isValueForConnection(state, Direction.EAST, directionUpdated, facingState)
+                || isValueForConnection(state, Direction.WEST, directionUpdated, facingState))
             return state.setValue(THICKNESS, SharkToothThickness.BASE);
 
-        //Handle connection for down
-        if (state.getValue(THICKNESS)==SharkToothThickness.TIP && state.getValue(TIP_DIRECTION)==Direction.DOWN
-                && directionUpdated==Direction.DOWN && facingState.is(this) && facingState.getValue(TIP_DIRECTION)==Direction.DOWN)
-            return state.setValue(THICKNESS, SharkToothThickness.BASE);
-
-        if ((directionUpdated==Direction.DOWN || directionUpdated==Direction.UP) && state.getValue(THICKNESS)==SharkToothThickness.BASE && !facingState.is(this))
+        if (state.getValue(THICKNESS)==SharkToothThickness.BASE && !facingState.is(this) && directionUpdated==state.getValue(FACING))
             return state.setValue(THICKNESS, SharkToothThickness.TIP);
 
         return state;
     }
 
+    private boolean isValueForConnection(BlockState state, Direction directionToCheck, Direction directionUpdated, BlockState facingState){
+        return state.getValue(THICKNESS)==SharkToothThickness.TIP && state.getValue(FACING)==directionToCheck
+                && directionUpdated==directionToCheck && facingState.is(this) && facingState.getValue(FACING)==directionToCheck;
+    }
+
+    private boolean updateOpposite(BlockState state, Direction directionToCheck, Direction directionUpdated){
+        return state.getValue(FACING)==directionToCheck && directionUpdated==directionToCheck.getOpposite();
+    }
+
+    private boolean updateOpposites(BlockState state, Direction directionUpdated){
+        return updateOpposite(state, Direction.UP, directionUpdated)
+                || updateOpposite(state, Direction.DOWN, directionUpdated)
+                || updateOpposite(state, Direction.NORTH, directionUpdated)
+                || updateOpposite(state, Direction.SOUTH, directionUpdated)
+                || updateOpposite(state, Direction.EAST, directionUpdated)
+                || updateOpposite(state, Direction.WEST, directionUpdated);
+    }
+
     private boolean isValidPointedDripstonePlacement(LevelReader level, BlockPos pos, Direction dir) {
         BlockPos blockpos = pos.relative(dir.getOpposite());
         BlockState blockstate = level.getBlockState(blockpos);
-        return (blockstate.isFaceSturdy(level, blockpos, dir) || blockstate.is(this)) && !blockstate.isAir();
+        return (blockstate.isFaceSturdy(level, blockpos, dir, SupportType.CENTER) || (blockstate.is(this) && blockstate.getValue(FACING)==dir)) && !blockstate.isAir();
     }
 
-    private boolean isPointedDripstoneWithDirection(BlockState state, Direction dir) {
-        return state.is(this) && state.getValue(TIP_DIRECTION) == dir;
+    private boolean isToothWithDirection(BlockState state, Direction dir) {
+        return state.is(this) && state.getValue(FACING) == dir;
     }
 
     @Nullable
@@ -90,45 +118,23 @@ public class SharkToothBlock extends Block {
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         LevelAccessor levelaccessor = context.getLevel();
         BlockPos blockpos = context.getClickedPos();
-        Direction direction = context.getNearestLookingVerticalDirection().getOpposite();
-        Direction direction1 = calculateTipDirection(levelaccessor, blockpos, direction);
-        if (direction1 == null) {
-            return null;
-        } else {
-            SharkToothThickness sharkToothThickness = calculateDripstoneThickness(levelaccessor, blockpos, direction1);
-            return sharkToothThickness == null
-                    ? null
-                    : this.defaultBlockState()
-                    .setValue(TIP_DIRECTION, direction1)
-                    .setValue(THICKNESS, sharkToothThickness)
-                    .setValue(WATERLOGGED, levelaccessor.getFluidState(blockpos).getType() == Fluids.WATER);
-        }
+
+        SharkToothThickness sharkToothThickness = calculateToothThickness(levelaccessor, blockpos, context.getClickedFace().getOpposite());
+        return sharkToothThickness == null
+                ? null
+                : this.defaultBlockState()
+                .setValue(FACING, context.getClickedFace())
+                .setValue(THICKNESS, sharkToothThickness)
+                .setValue(WATERLOGGED, levelaccessor.getFluidState(blockpos).getType() == Fluids.WATER);
     }
 
-    private SharkToothThickness calculateDripstoneThickness(LevelReader level, BlockPos pos, Direction dir) {
-//        Direction direction = dir.getOpposite();
-        BlockState blockstate = level.getBlockState(pos.relative(dir));
-        if (isPointedDripstoneWithDirection(blockstate, dir)) {
+    private SharkToothThickness calculateToothThickness(LevelReader level, BlockPos pos, Direction dir) {
+        BlockState onBlockPlacedState = level.getBlockState(pos.relative(dir));
+        if (isToothWithDirection(onBlockPlacedState, dir)) {
             return SharkToothThickness.BASE;
         } else {
             return SharkToothThickness.TIP;
         }
-    }
-
-    @Nullable
-    private Direction calculateTipDirection(LevelReader level, BlockPos pos, Direction dir) {
-        Direction direction;
-        if (isValidPointedDripstonePlacement(level, pos, dir)) {
-            direction = dir;
-        } else {
-            if (!isValidPointedDripstonePlacement(level, pos, dir.getOpposite())) {
-                return null;
-            }
-
-            direction = dir.getOpposite();
-        }
-
-        return direction;
     }
 
     @Override
@@ -141,24 +147,31 @@ public class SharkToothBlock extends Block {
         return Shapes.empty();
     }
 
-    private static final VoxelShape BASE_SHAPE = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
-    private static final VoxelShape TIP_SHAPE_UP = Block.box(5.0, 0.0, 5.0, 11.0, 11.0, 11.0);
-    private static final VoxelShape TIP_SHAPE_DOWN = Block.box(5.0, 5.0, 5.0, 11.0, 16.0, 11.0);
+    private final Map<Direction, VoxelShape> tipShapesByDirection = Map.of(
+            Direction.UP, Block.box(5.0, 0.0, 5.0, 11.0, 11.0, 11.0),
+            Direction.DOWN, Block.box(5.0, 5.0, 5.0, 11.0, 16.0, 11.0),
+
+            Direction.NORTH, Block.box(5.0, 5.0, 5.0, 11.0, 11.0, 16.0),
+            Direction.SOUTH, Block.box(5.0, 5.0, 0.0, 11.0, 11.0, 11.0),
+            Direction.EAST,  Block.box(0.0, 5.0, 5.0, 11.0, 11.0, 11.0),
+            Direction.WEST,  Block.box(5.0, 5.0, 5.0, 16.0, 11.0, 11.0)
+    );
+
+    private final Map<Direction, VoxelShape> baseShapesByDirection = Map.of(
+            Direction.UP, Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0),
+            Direction.DOWN, Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0),
+
+            Direction.NORTH, Block.box(5.0, 5.0, 0.0, 11.0, 11.0, 16.0),
+            Direction.SOUTH, Block.box(5.0, 5.0, 0.0, 11.0, 11.0, 16.0),
+            Direction.EAST,  Block.box(0.0, 5.0, 5.0, 16.0, 11.0, 11.0),
+            Direction.WEST,  Block.box(0.0, 5.0, 5.0, 16.0, 11.0, 11.0)
+    );
+
     @Override
     protected @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-        VoxelShape voxelshape;
-        if(state.getValue(THICKNESS) == SharkToothThickness.TIP) {
-            if (state.getValue(TIP_DIRECTION) == Direction.DOWN) {
-                voxelshape = TIP_SHAPE_DOWN;
-            } else {
-                voxelshape = TIP_SHAPE_UP;
-            }
-        } else {
-            voxelshape = BASE_SHAPE;
-        }
-
-        Vec3 vec3 = state.getOffset(level, pos);
-        return voxelshape.move(vec3.x, 0.0, vec3.z);
+        return state.getValue(THICKNESS) == SharkToothThickness.TIP?
+                tipShapesByDirection.get(state.getValue(FACING)):
+                baseShapesByDirection.get(state.getValue(FACING));
     }
 
     @Override
@@ -168,7 +181,7 @@ public class SharkToothBlock extends Block {
 
     @Override
     public void fallOn(@NotNull Level level, BlockState state, @NotNull BlockPos pos, @NotNull Entity entity, float fallDistance) {
-        if (state.getValue(TIP_DIRECTION) == Direction.UP && state.getValue(THICKNESS) == SharkToothThickness.TIP) {
+        if (state.getValue(FACING) == Direction.UP && state.getValue(THICKNESS) == SharkToothThickness.TIP) {
             entity.causeFallDamage(fallDistance + 4.0F, 2.0F, Primal_DamageTypes.sharkTooth(level));
         } else {
             super.fallOn(level, state, pos, entity, fallDistance);

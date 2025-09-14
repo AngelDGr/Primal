@@ -32,7 +32,7 @@ public class Primal_BiomeModifiersGenerator {
         registerMobSpawn(bootstrap, "spawn/shark_single", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 5, 1, 1);
         registerMobSpawn(bootstrap, "spawn/shark_group", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 1, 1, 3);
 
-        registerMobSpawn(bootstrap, "spawn/crocodile", Primal_Tags.SPAWNS_CROCODILE, Primal_Entities.CROCODILE.get(), 35, 1, 1);
+        registerMobSpawn(bootstrap, "spawn/crocodile", Primal_Tags.SPAWNS_CROCODILE, Primal_Entities.CROCODILE.get(), 20, 1, 1);
         registerMobSpawn(bootstrap, "spawn/crocodile_warm", Primal_Tags.SPAWNS_BROWN_CROCODILE, Primal_Entities.CROCODILE.get(), 3, 1, 1);
 
 
@@ -40,6 +40,8 @@ public class Primal_BiomeModifiersGenerator {
         registerVegetation(bootstrap, "feature/river_reeds", Primal_Tags.SPAWNS_RIVER_REEDS, Primal_WorldGen.RIVER_REEDS_PLACED);
 
         registerVegetation(bootstrap, "feature/seashells", Primal_Tags.SPAWNS_SEASHELLS, Primal_WorldGen.SEASHELLS_PLACED);
+
+        registerVegetation(bootstrap, "feature/eagle_nest", Primal_Tags.SPAWNS_EAGLE, Primal_WorldGen.EAGLES_NEST_SPAWN);
     }
 
     public static void registerVegetation(final BootstrapContext<BiomeModifier> bootstrap, final String biomeModifier, final TagKey<Biome> spawnTag, final ResourceKey<PlacedFeature> placedFeature){

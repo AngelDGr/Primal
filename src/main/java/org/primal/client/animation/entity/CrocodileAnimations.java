@@ -44,7 +44,7 @@ public class CrocodileAnimations {
                     state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 4 : 2.f));
                     return state.setAndContinue(RUN);
                 } else {
-                    state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 6 : 3f));
+                    state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 6 : 5f));
                     return state.setAndContinue(WALK);
                 }
             }

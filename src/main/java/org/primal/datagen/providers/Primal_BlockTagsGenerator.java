@@ -31,5 +31,11 @@ public class Primal_BlockTagsGenerator extends BlockTagsProvider {
         this.tag(Primal_Tags.CROCODILE_ATTRACTORS)
                 .add(Primal_Blocks.RIVER_REEDS.get())
                 .add(Primal_Blocks.SHORT_RIVER_REEDS.get());
+
+        this.tag(Primal_Tags.IS_ANIMAL_EGG)
+                .add(Primal_Blocks.CROCODILE_EGG.get())
+                .add(Primal_Blocks.EAGLE_EGG.get())
+                .add(Blocks.TURTLE_EGG)
+                .add(Blocks.SNIFFER_EGG);
     }
 }

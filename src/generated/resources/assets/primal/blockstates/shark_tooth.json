@@ -1,13 +1,56 @@
 {
   "variants": {
-    "thickness=base": {
+    "facing=down,thickness=base": {
+      "model": "primal:block/shark_tooth_base",
+      "x": 180
+    },
+    "facing=down,thickness=tip": {
+      "model": "primal:block/shark_tooth_tip",
+      "x": 180
+    },
+    "facing=east,thickness=base": {
+      "model": "primal:block/shark_tooth_base",
+      "x": 90,
+      "y": 90
+    },
+    "facing=east,thickness=tip": {
+      "model": "primal:block/shark_tooth_tip",
+      "x": 90,
+      "y": 90
+    },
+    "facing=north,thickness=base": {
+      "model": "primal:block/shark_tooth_base",
+      "x": 90
+    },
+    "facing=north,thickness=tip": {
+      "model": "primal:block/shark_tooth_tip",
+      "x": 90
+    },
+    "facing=south,thickness=base": {
+      "model": "primal:block/shark_tooth_base",
+      "x": 90,
+      "y": 180
+    },
+    "facing=south,thickness=tip": {
+      "model": "primal:block/shark_tooth_tip",
+      "x": 90,
+      "y": 180
+    },
+    "facing=up,thickness=base": {
       "model": "primal:block/shark_tooth_base"
     },
-    "thickness=tip,vertical_direction=down": {
-      "model": "primal:block/shark_tooth_tip_down"
-    },
-    "thickness=tip,vertical_direction=up": {
+    "facing=up,thickness=tip": {
       "model": "primal:block/shark_tooth_tip"
+    },
+    "facing=west,thickness=base": {
+      "model": "primal:block/shark_tooth_base",
+      "x": 90,
+      "y": 270
+    },
+    "facing=west,thickness=tip": {
+      "model": "primal:block/shark_tooth_tip",
+      "x": 90,
+      "y": 270
     }
   }
 }

@@ -18,12 +18,18 @@ public final class Primal_Tags {
     public static final TagKey<EntityType<?>> BEAR_HUNTABLE = createTag(Registries.ENTITY_TYPE, "bear_huntable");
     public static final TagKey<EntityType<?>> SHARK_HUNTABLE = createTag(Registries.ENTITY_TYPE, "shark_huntable");
     public static final TagKey<EntityType<?>> CROCODILE_HUNTABLE = createTag(Registries.ENTITY_TYPE, "crocodile_huntable");
+    public static final TagKey<EntityType<?>> EAGLE_HUNTABLE = createTag(Registries.ENTITY_TYPE, "eagle_huntable");
+
+
     public static final TagKey<EntityType<?>> NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "never_attack");
     public static final TagKey<EntityType<?>> CROCODILE_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "crocodile_never_attack");
+
 
     public static final TagKey<Block> BEAR_REPELLENTS = createTag(Registries.BLOCK, "bear_repellents");
     public static final TagKey<Block> SHARK_ATTRACTORS = createTag(Registries.BLOCK, "shark_attractors");
     public static final TagKey<Block> CROCODILE_ATTRACTORS = createTag(Registries.BLOCK, "crocodile_attractors");
+    public static final TagKey<Block> IS_ANIMAL_EGG = createTag(Registries.BLOCK, "animal_egg");
+
 
     public static final TagKey<Item> CROCODILE_CANT_EAT = createTag(Registries.ITEM, "crocodile_cant_eat");
 
@@ -36,8 +42,13 @@ public final class Primal_Tags {
     public static final TagKey<Biome> SPAWNS_HAMMERHEAD = createTag(Registries.BIOME, "has_mob/has_variant/hammerhead_variant");
 
     public static final TagKey<Biome> SPAWNS_CROCODILE = createTag(Registries.BIOME, "has_mob/crocodile");
-    public static final TagKey<Biome> SPAWNS_BLACK_CROCODILE = createTag(Registries.BIOME, "has_mob/black_crocodile_variant");
-    public static final TagKey<Biome> SPAWNS_BROWN_CROCODILE = createTag(Registries.BIOME, "has_mob/brown_crocodile_variant");
+    public static final TagKey<Biome> SPAWNS_BLACK_CROCODILE = createTag(Registries.BIOME, "has_mob/has_variant/black_crocodile_variant");
+    public static final TagKey<Biome> SPAWNS_BROWN_CROCODILE = createTag(Registries.BIOME, "has_mob/has_variant/brown_crocodile_variant");
+
+    public static final TagKey<Biome> SPAWNS_EAGLE = createTag(Registries.BIOME, "has_mob/eagle");
+    public static final TagKey<Biome> SPAWNS_GOLDEN_EAGLE = createTag(Registries.BIOME, "has_mob/has_variant/golden_eagle_variant");
+    public static final TagKey<Biome> SPAWNS_HARPY_EAGLE = createTag(Registries.BIOME, "has_mob/has_variant/harpy_eagle_variant");
+    public static final TagKey<Biome> SPAWNS_PHILIPPINE_EAGLE = createTag(Registries.BIOME, "has_mob/has_variant/philippine_eagle_variant");
 
     public static final TagKey<Biome> SPAWNS_RIVER_REEDS = createTag(Registries.BIOME, "has_flora/river_reeds");
     public static final TagKey<Biome> SPAWNS_SEASHELLS = createTag(Registries.BIOME, "has_flora/seashells");

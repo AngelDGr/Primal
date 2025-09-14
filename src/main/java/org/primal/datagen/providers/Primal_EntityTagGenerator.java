@@ -93,5 +93,12 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                 .add(EntityType.TROPICAL_FISH,
                         EntityType.SALMON,
                         EntityType.COD);
+
+        this.tag(Primal_Tags.EAGLE_HUNTABLE)
+                .add(
+                        EntityType.CHICKEN,
+                        EntityType.RABBIT,
+                        EntityType.SALMON,
+                        EntityType.COD);
     }
 }

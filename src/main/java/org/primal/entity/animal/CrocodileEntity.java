@@ -50,6 +50,7 @@ import org.primal.entity.ai.controls.*;
 import org.primal.registry.*;
 import org.primal.util.HostileMount;
 import org.primal.util.MiscUtil;
+import org.primal.util.VariantHolderPrimal;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -63,7 +64,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
-//TODO
+//xTODO
 // x Fix movement and set basic behaviors
 // x Egg block
 // x Create the lay egg behavior
@@ -89,11 +90,7 @@ import java.util.function.IntFunction;
 //      x Entity falls faster
 //      x Sink faster in water
 //      x Inflicted from Ominous Trial Spawner’s projectile throw.
-// - Drums crafted with 6 crocodile scutes + 2 leather
-// - Drums play differently from angle
-// - Wall Drum plays snare,  while Ground Drum can play kick.
-// - It can make entities with dancing behavior dance by playing it.
-public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, GeoEntity, ContainerListener, NeutralMob, HostileMount {
+public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, GeoEntity, ContainerListener, NeutralMob, HostileMount, VariantHolderPrimal<CrocodileEntity.Variant, CrocodileEntity> {
 
     protected SimpleContainer inventory=new SimpleContainer(54);
     @Override
@@ -137,7 +134,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 40f)
-                .add(Attributes.MOVEMENT_SPEED, 0.25f)
+                .add(Attributes.MOVEMENT_SPEED, 0.20f)
                 .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.ATTACK_DAMAGE, 4f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.2f)
@@ -161,7 +158,8 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
-    public static void setVariantFromBiome(CrocodileEntity crocodile, Holder<Biome> holder){
+    @Override
+    public void setVariantFromBiome(CrocodileEntity crocodile, Holder<Biome> holder){
         if (holder.is(Primal_Tags.SPAWNS_BLACK_CROCODILE)) {
             crocodile.setVariant( Variant.BLACK);
         } else if(holder.is(Primal_Tags.SPAWNS_BROWN_CROCODILE)){
@@ -169,6 +167,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         } else {
             crocodile.setVariant(Variant.GREEN);
         }
+    }
+
+    @Override
+    public CrocodileEntity.Variant getRareVariant(CrocodileEntity crocodile) {
+        return Variant.ALBINO;
     }
 
     @Override
@@ -219,7 +222,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
             // Alternate pitch each tick
             float pitch = (this.tickCount / 20) % 2 == 0 ? 0.6f : 0.5f;
 
-            this.playSound(SoundEvents.NOTE_BLOCK_HAT.value(), 1.0f, pitch);
+            this.playSound(Primal_Sounds.CROCODILE_CLOCK.get(), 1.0f, pitch);
 
 //            this.level().addParticle(
 //                    ParticleTypes.NOTE,
@@ -476,6 +479,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
+    public @Nullable LivingEntity getControllingPassenger() {
+        return null;
+    }
+
+    @Override
     protected void positionRider(@NotNull Entity passenger, @NotNull MoveFunction callback) {
         if (this.hasPassenger(passenger)) {
 
@@ -523,7 +531,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
     @Override
     public float getSpeed() {
-        return this.isSprinting()? super.getSpeed()*1.1f : super.getSpeed();
+        return this.isSprinting()? super.getSpeed()*1.375f : super.getSpeed();
     }
 
     //AI
@@ -554,7 +562,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
     @Override
     public boolean canAttack(@NotNull LivingEntity target) {
-        if(this.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).filter(attack-> attack==target).isPresent())
+        if(this.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target) && super.canAttack(target))
             return true;
 
         return super.canAttack(target) &&
@@ -630,6 +638,10 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                     this.triggerAnim("base_controller", "vomits");
                 if(this.getVomitSound()!=null)
                     this.playSound(this.getVomitSound(), 1.0f, 1.0f);
+
+
+                if(player instanceof ServerPlayer serverPlayer)
+                    Primal_Advancements.TICKLE_CROC.get().trigger(serverPlayer);
 
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             } else if (!isFood(itemstack) && this.canEatItem(itemstack)){
@@ -719,7 +731,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         }
     }
 
-    public Optional<GlobalPos> getCompass(){
+    public Optional<GlobalPos> getCompassPos(){
         Optional<GlobalPos> compassPos=Optional.empty();
 
         for(ItemStack stack: this.inventory.getItems()){
@@ -746,16 +758,35 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     //Sounds
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return Primal_Sounds.CROCODILE_IDLE.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return Primal_Sounds.CROCODILE_DEATH.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
+        return Primal_Sounds.CROCODILE_HURT.get();
+    }
+
+    @Override
+    protected void playAttackSound() {
+        this.playSound(Primal_Sounds.CROCODILE_ATTACK.get(), 1.0F, 1.0F);
+    }
+
     @Nullable
     protected SoundEvent getVomitSound(){
-        return null;
+        return Primal_Sounds.CROCODILE_VOMIT.get();
     }
 
     @Nullable
     protected SoundEvent getEatSound(){
-        return null;
+        return Primal_Sounds.CROCODILE_EAT.get();
     }
-
 
     //Misc
     @Override
@@ -781,7 +812,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     //This ensures the crocodile only spawn near the water
     public static boolean checkCrocodileSpawnRules(EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random) {
         return pos.getY() >= level.getSeaLevel() - 10
-                && (MobSpawnType.ignoresLightRequirements(spawnType) || isBrightEnoughToSpawn(level, pos))
+//                && (MobSpawnType.ignoresLightRequirements(spawnType) || isBrightEnoughToSpawn(level, pos))
                 && isNearWater(level, pos, 5, 2);
     }
 

@@ -1,0 +1,5 @@
+{
+  "net/minecraft/world/entity/LivingEntity": [
+    "org/primal/injection/IsEagleTarget"
+  ]
+}

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.primal.entity.animal.CrocodileEntity;
+import org.primal.entity.animal.EagleEntity;
 import org.primal.entity.animal.SharkEntity;
 
 public final class Primal_Entities {
@@ -37,6 +38,14 @@ public final class Primal_Entities {
                     .eyeHeight(1.0f)
                     .clientTrackingRange(8)
                     .build("crocodile"));
+
+    public static DeferredHolder<EntityType<?>, EntityType<EagleEntity>> EAGLE = Primal_Registries.ENTITIES.register(
+            "eagle",
+            () -> EntityType.Builder.of(EagleEntity::new, MobCategory.CREATURE)
+                    //Hitbox
+                    .sized(0.9f, 1.25f)
+                    .clientTrackingRange(8)
+                    .build("eagle"));
 
     public static void init() {}
 }

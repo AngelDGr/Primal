@@ -22,48 +22,67 @@ public class Primal_BiomeTagGenerator extends BiomeTagsProvider {
     @Override
     protected void addTags(final HolderLookup.@NotNull Provider arg) {
 
-        //Bear
-        this.tag(Primal_Tags.SPAWNS_BEAR)
-                .add(Biomes.BIRCH_FOREST)
-                .add(Biomes.FLOWER_FOREST)
-                .add(Biomes.DARK_FOREST)
-                .add(Biomes.TAIGA)
-                .add(Biomes.OLD_GROWTH_SPRUCE_TAIGA).add(Biomes.OLD_GROWTH_PINE_TAIGA).add(Biomes.OLD_GROWTH_BIRCH_FOREST)
-                .add(Biomes.WINDSWEPT_FOREST)
-                .addTag(Primal_Tags.SPAWNS_BLACK_BEAR);
+        //Animals
+        {
+            //Bear
+            this.tag(Primal_Tags.SPAWNS_BEAR)
+                    .add(Biomes.BIRCH_FOREST)
+                    .add(Biomes.FLOWER_FOREST)
+                    .add(Biomes.DARK_FOREST)
+                    .add(Biomes.TAIGA)
+                    .add(Biomes.OLD_GROWTH_SPRUCE_TAIGA).add(Biomes.OLD_GROWTH_PINE_TAIGA).add(Biomes.OLD_GROWTH_BIRCH_FOREST)
+                    .add(Biomes.WINDSWEPT_FOREST)
+                    .addTag(Primal_Tags.SPAWNS_BLACK_BEAR);
 
-        this.tag(Primal_Tags.SPAWNS_BLACK_BEAR)
-                .add(Biomes.JUNGLE).add(Biomes.SPARSE_JUNGLE)
-                .add(Biomes.WOODED_BADLANDS);
+            this.tag(Primal_Tags.SPAWNS_BLACK_BEAR)
+                    .add(Biomes.JUNGLE).add(Biomes.SPARSE_JUNGLE)
+                    .add(Biomes.WOODED_BADLANDS);
 
-        //Shark
-        this.tag(Primal_Tags.SPAWNS_SHARK)
-                .addTag(BiomeTags.IS_OCEAN);
+            //Shark
+            this.tag(Primal_Tags.SPAWNS_SHARK)
+                    .addTag(BiomeTags.IS_OCEAN);
 
-        this.tag(Primal_Tags.SPAWNS_TIGER_SHARK)
-                .add(Biomes.WARM_OCEAN);
+            this.tag(Primal_Tags.SPAWNS_TIGER_SHARK)
+                    .add(Biomes.WARM_OCEAN);
 
-        this.tag(Primal_Tags.SPAWNS_HAMMERHEAD)
-                .add(Biomes.LUKEWARM_OCEAN)
-                .add(Biomes.DEEP_LUKEWARM_OCEAN);
+            this.tag(Primal_Tags.SPAWNS_HAMMERHEAD)
+                    .add(Biomes.LUKEWARM_OCEAN)
+                    .add(Biomes.DEEP_LUKEWARM_OCEAN);
 
-        //Crocodile
-        this.tag(Primal_Tags.SPAWNS_CROCODILE)
+            //Crocodile
+            this.tag(Primal_Tags.SPAWNS_CROCODILE)
 
-                .add(Biomes.SWAMP)
+                    .add(Biomes.SWAMP)
 
-                .addTag(Primal_Tags.SPAWNS_BLACK_CROCODILE);
+                    .addTag(Primal_Tags.SPAWNS_BLACK_CROCODILE);
 
-        this.tag(Primal_Tags.SPAWNS_BLACK_CROCODILE)
-                .add(Biomes.JUNGLE)
-                .add(Biomes.SPARSE_JUNGLE)
-                .add(Biomes.BAMBOO_JUNGLE)
-                .add(Biomes.MANGROVE_SWAMP);
+            this.tag(Primal_Tags.SPAWNS_BLACK_CROCODILE)
+                    .add(Biomes.JUNGLE)
+                    .add(Biomes.SPARSE_JUNGLE)
+                    .add(Biomes.BAMBOO_JUNGLE)
+                    .add(Biomes.MANGROVE_SWAMP);
 
-        this.tag(Primal_Tags.SPAWNS_BROWN_CROCODILE)
-                .add(Biomes.DESERT)
-                .add(Biomes.SAVANNA)
-                .add(Biomes.WINDSWEPT_SAVANNA);
+            this.tag(Primal_Tags.SPAWNS_BROWN_CROCODILE)
+                    .add(Biomes.DESERT)
+                    .add(Biomes.SAVANNA)
+                    .add(Biomes.WINDSWEPT_SAVANNA);
+
+            //Eagle
+            this.tag(Primal_Tags.SPAWNS_EAGLE)
+                    .add(Biomes.FROZEN_PEAKS)
+                    .addTag(Primal_Tags.SPAWNS_GOLDEN_EAGLE)
+                    .addTag(Primal_Tags.SPAWNS_HARPY_EAGLE)
+                    .addTag(Primal_Tags.SPAWNS_PHILIPPINE_EAGLE);
+
+            this.tag(Primal_Tags.SPAWNS_GOLDEN_EAGLE)
+                    .add(Biomes.JAGGED_PEAKS);
+
+            this.tag(Primal_Tags.SPAWNS_HARPY_EAGLE)
+                    .add(Biomes.STONY_PEAKS);
+
+            this.tag(Primal_Tags.SPAWNS_PHILIPPINE_EAGLE)
+                    .add(Biomes.WINDSWEPT_SAVANNA);
+        }
 
         //Flora
         {

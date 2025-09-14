@@ -45,6 +45,30 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
                     addPotionTranslation(entry.getKey());
                 });
 
+        //Subtitles
+        {
+            add("subtitles.primal.entity.zombie.destroy_generic_egg", "Animal Egg stomped");
+
+            add("subtitles.primal.entity.generic.chest", "Animal Chest equips");
+            add("subtitles.primal.entity.generic.places_egg", "Places an egg");
+            add("subtitles.primal.entity.generic.lays_egg", "Animal lays egg");
+
+            add("subtitles.primal.entity.generic.egg_break", "Animal Egg breaks");
+            add("subtitles.primal.entity.generic.egg_crack", "Animal Egg cracks");
+            add("subtitles.primal.entity.generic.egg_hatch", "Animal Egg hatches");
+
+            //Crocodile
+            {
+                add("subtitles.primal.entity.crocodile.idle", "Crocodile growls");
+                add("subtitles.primal.entity.crocodile.attack", "Crocodile attacks");
+                add("subtitles.primal.entity.crocodile.hurt", "Crocodile hurts");
+                add("subtitles.primal.entity.crocodile.death", "Crocodile dies");
+                add("subtitles.primal.entity.crocodile.eat", "Crocodile eats");
+                add("subtitles.primal.entity.crocodile.vomit", "Crocodile spit item");
+                add("subtitles.primal.entity.crocodile.clock", "Tick-tock clock sounds");
+            }
+        }
+
         //Misc
         add("death.attack.shark_tooth", "%1$s was killed by a dead shark");
         add("death.attack.shark_tooth.player", "%1$s was killed by a dead shark while fighting %2$s");
@@ -78,7 +102,17 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
             add("advancements.primal.punch_crocodile.description", "Punch a crocodile with your bare hands");
 
             add("advancements.primal.clock_croc.title", "Tick-Tock Croc");
-            add("advancements.primal.clock_croc.description", "Feed a crocodile with a clock");
+            add("advancements.primal.clock_croc.description", "Feed a crocodile with a clock, this probably will scare pillagers!");
+
+            add("advancements.primal.tickle_crocodile.title", "Tickle tickle");
+            add("advancements.primal.tickle_crocodile.description", "Tickle a crocodile with a feather and retrieve some items from its stomach");
+
+            //Eagle
+            add("advancements.primal.kill_captain.title", "FREEDOM!!!!!");
+            add("advancements.primal.kill_captain.description", "Kill a raid captain alongside your eagle");
+
+            add("advancements.primal.tame_all_birds.title", "Birds Of Feathers");
+            add("advancements.primal.tame_all_birds.description", "Tame all Birds including their variants. (Parrots & Eagle)");
         }
     }
 
@@ -119,6 +153,7 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
         add(BuiltInRegistries.BLOCK.get(block.location()), translation);
     }
 
+    @SuppressWarnings("all")
     private void addEffectTranslation(ResourceKey<MobEffect> block) {
         String path = block.location().getPath();
         String translation = translate(path);

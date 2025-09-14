@@ -1,6 +1,5 @@
 package org.primal;
 
-import com.google.common.collect.ImmutableList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -11,9 +10,7 @@ import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
-import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.entries.LootPoolEntry;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SetPotionFunction;
@@ -22,7 +19,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
-import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -31,6 +27,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.BearEntity;
 import org.primal.entity.animal.CrocodileEntity;
+import org.primal.entity.animal.EagleEntity;
 import org.primal.entity.animal.SharkEntity;
 import org.primal.registry.*;
 
@@ -48,7 +45,7 @@ public class Primal_Main {
     public static final String MOD_ID = "primal";
     
     public Primal_Main(IEventBus modEventBus) {
-        IEventBus neoEventBus = NeoForge.EVENT_BUS;
+        
 
         //AI
         Primal_Sensors.init(); Primal_Registries.SENSOR_TYPES.register(modEventBus);
@@ -63,8 +60,12 @@ public class Primal_Main {
         //Entities
         Primal_Entities.init(); Primal_Registries.ENTITIES.register(modEventBus);
 
+        //Sounds
+        Primal_Sounds.init(); Primal_Registries.SOUNDS.register(modEventBus);
+
         //Blocks
         Primal_Blocks.init(); Primal_Registries.BLOCKS.register(modEventBus);
+        Primal_BlockEntities.init(); Primal_Registries.BLOCK_ENTITIES.register(modEventBus);
 
         //Items
         Primal_Items.initItems(); Primal_Registries.ITEMS.register(modEventBus);
@@ -80,6 +81,7 @@ public class Primal_Main {
         Primal_VillagerCustomTrades.init();
     }
 
+    @SuppressWarnings("unused")
     @EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
     private static class Primal_MainGameBus {
 
@@ -159,6 +161,7 @@ public class Primal_Main {
         event.put(Primal_Entities.BEAR.get(), BearEntity.createAttributes().build());
         event.put(Primal_Entities.SHARK.get(), SharkEntity.createAttributes().build());
         event.put(Primal_Entities.CROCODILE.get(), CrocodileEntity.createAttributes().build());
+        event.put(Primal_Entities.EAGLE.get(), EagleEntity.createAttributes().build());
     }
 
     @SubscribeEvent
@@ -172,7 +175,11 @@ public class Primal_Main {
                 SharkEntity::checkSurfaceWaterAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
         //Crocodile
-        event.register(Primal_Entities.CROCODILE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+        event.register(Primal_Entities.CROCODILE.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 CrocodileEntity::checkCrocodileSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        //Eagle
+        event.register(Primal_Entities.EAGLE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                BearEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
     }
 }

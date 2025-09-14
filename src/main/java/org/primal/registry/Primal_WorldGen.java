@@ -19,8 +19,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
 import org.primal.block.SeashellsBlock;
+import org.primal.worldgen.EagleNestFeature;
 import org.primal.worldgen.RiverReedsFeature;
-import org.primal.worldgen.RiverReedsPatchFeatureConfig;
+import org.primal.worldgen.RandomPatchCustomConfig;
 import org.primal.worldgen.SeashellsFeature;
 
 import java.util.function.Supplier;
@@ -32,13 +33,19 @@ public class Primal_WorldGen {
     public static final ResourceKey<PlacedFeature> SEASHELLS_PLACED = registerPlacedFeatureKey("seashells");
     public static ResourceKey<ConfiguredFeature<?, ?>> SEASHELLS_CONFIGURED = registerKey("seashells_patch");
 
+    public static final ResourceKey<PlacedFeature> EAGLES_NEST_SPAWN = registerPlacedFeatureKey("eagle_nest");
+    public static ResourceKey<ConfiguredFeature<?, ?>> EAGLES_NEST_SPAWN_CONFIGURED = registerKey("eagle_nest_spawn");
+
 
     //New Features
     public static DeferredHolder<Feature<?>, RiverReedsFeature> RIVER_REEDS_FEATURE =
-            registerFeature("river_reeds_patch", ()-> new RiverReedsFeature(RiverReedsPatchFeatureConfig.CODEC));
+            registerFeature("river_reeds", ()-> new RiverReedsFeature(RandomPatchCustomConfig.CODEC));
 
     public static final DeferredHolder<Feature<?>, SeashellsFeature> SEASHELLS =
             registerFeature("seashells", ()-> new SeashellsFeature(SimpleBlockConfiguration.CODEC));
+
+    public static final DeferredHolder<Feature<?>, EagleNestFeature> EAGLE_NEST =
+            registerFeature("eagle_nest", ()-> new EagleNestFeature(RandomPatchCustomConfig.CODEC));
 
     public static void init() {}
 
@@ -52,13 +59,17 @@ public class Primal_WorldGen {
         PlacementUtils.register(context, SEASHELLS_PLACED, registryEntryLookup.getOrThrow(SEASHELLS_CONFIGURED),
                 RarityFilter.onAverageOnceEvery(5), InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP_TOP_SOLID, BiomeFilter.biome());
+
+        PlacementUtils.register(context, EAGLES_NEST_SPAWN, registryEntryLookup.getOrThrow(EAGLES_NEST_SPAWN_CONFIGURED),
+                RarityFilter.onAverageOnceEvery(8), InSquarePlacement.spread(),
+                PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
     }
 
     public static void boostrapConfiguredFeature(final BootstrapContext<ConfiguredFeature<?, ?>> context) {
         registerFeature(context,
                 RIVER_REEDS_CONFIGURED,
                 RIVER_REEDS_FEATURE.get(),
-                new RiverReedsPatchFeatureConfig(384,6,6));
+                new RandomPatchCustomConfig(384,6,6));
 
         registerFeature(
                 context,
@@ -66,6 +77,11 @@ public class Primal_WorldGen {
                 Feature.FLOWER,
                 createSeashells(96,6,2)
         );
+
+        registerFeature(context,
+                EAGLES_NEST_SPAWN_CONFIGURED,
+                EAGLE_NEST.get(),
+                new RandomPatchCustomConfig(12,1,0));
     }
 
     @SuppressWarnings("all")

@@ -31,6 +31,11 @@ public class Primal_Items {
     public static DeferredHolder<Item, Item> CROCODILE_SCUTE_SLAB;
     public static DeferredHolder<Item, Item> CROCODILE_EGG;
 
+    //Eagle
+    public static DeferredHolder<Item, Item> EAGLE_SPAWN_EGG;
+    public static DeferredHolder<Item, Item> EAGLE_EGG;
+    public static DeferredHolder<Item, Item> NEST;
+
     //Flora
     public static DeferredHolder<Item, Item> RIVER_REEDS;
     public static DeferredHolder<Item, Item> SHORT_RIVER_REEDS;
@@ -47,12 +52,27 @@ public class Primal_Items {
         CROCODILE_SPAWN_EGG= register("crocodile_spawn_egg",
                 () -> new DeferredSpawnEggItem(Primal_Entities.CROCODILE, 0x959a54, 0xf2f3af, new Item.Properties()));
 
+        EAGLE_SPAWN_EGG= register("eagle_spawn_egg",
+                () -> new DeferredSpawnEggItem(Primal_Entities.EAGLE, 0x5c483d, 0xfbf8f5, new Item.Properties()));
+
 
         SHARK_TOOTH= register("shark_tooth",
                 ()-> new BlockItem(Primal_Blocks.SHARK_TOOTH.get(), new Item.Properties()));
 
         CROCODILE_SCUTE= register("crocodile_scute",
                 ()-> new Item(new Item.Properties()));
+
+        //Animal Eggs
+        {
+            NEST=register("nest",
+                    ()-> new BlockItem(Primal_Blocks.NEST_BLOCK.get(), new Item.Properties()));
+
+            CROCODILE_EGG=register("crocodile_egg",
+                    ()-> new BlockItem(Primal_Blocks.CROCODILE_EGG.get(), new Item.Properties()));
+
+            EAGLE_EGG=register("eagle_egg",
+                    ()-> new BlockItem(Primal_Blocks.EAGLE_EGG.get(), new Item.Properties()));
+        }
 
 
         CROCODILE_SCUTE_BLOCK=register("crocodile_scute_block",
@@ -70,10 +90,11 @@ public class Primal_Items {
         CROCODILE_SCUTE_SLAB=register("crocodile_scute_slab",
                 ()-> new BlockItem(Primal_Blocks.CROCODILE_SCUTE_SLAB.get(), new Item.Properties()));
 
-        CROCODILE_EGG=register("crocodile_egg",
-                ()-> new BlockItem(Primal_Blocks.CROCODILE_EGG.get(), new Item.Properties()));
 
 
+
+
+        //Flora
         RIVER_REEDS=register("river_reeds",
                 ()-> new BlockItem(Primal_Blocks.RIVER_REEDS.get(), new Item.Properties()));
 
@@ -99,10 +120,13 @@ public class Primal_Items {
                                         output.accept(BEAR_SPAWN_EGG.get());
                                         output.accept(SHARK_SPAWN_EGG.get());
                                         output.accept(CROCODILE_SPAWN_EGG.get());
+                                        output.accept(EAGLE_SPAWN_EGG.get());
                                     }
 
                                     {
                                         output.accept(SHARK_TOOTH.get());
+                                        output.accept(NEST.get());
+                                        output.accept(EAGLE_EGG.get());
                                         output.accept(CROCODILE_EGG.get());
                                         output.accept(CROCODILE_SCUTE.get());
                                         output.accept(CROCODILE_SCUTE_BLOCK.get());
@@ -110,6 +134,8 @@ public class Primal_Items {
                                         output.accept(CHISELED_CROCODILE_SCUTE.get());
                                         output.accept(CROCODILE_SCUTE_STAIRS.get());
                                         output.accept(CROCODILE_SCUTE_SLAB.get());
+
+
                                         output.accept(SHORT_RIVER_REEDS.get());
                                         output.accept(RIVER_REEDS.get());
                                         output.accept(SEASHELLS.get());

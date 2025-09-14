@@ -15,6 +15,9 @@ public class Primal_Activities {
 
     public static final DeferredHolder<Activity, Activity> THRASH = register("thrash");
 
+    public static final DeferredHolder<Activity, Activity> SNATCH = register("snatch");
+    public static final DeferredHolder<Activity, Activity> NESTED = register("nested");
+
 
     public static void init() {}
 

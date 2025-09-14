@@ -54,15 +54,23 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/short_river_reeds"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/short_river_reeds_overlay"));
 
-        this.createEggModel("crocodile_egg_one", "template_one_crocodile_egg");
+        this.createEggModel("eagle_egg_one",         "template_one_eagle_egg");
+        this.createEggModel("eagle_egg_one_chipped", "template_one_eagle_egg");
+        this.createEggModel("eagle_egg_one_cracked", "template_one_eagle_egg");
+
+        this.createEggModel("eagle_egg_two",         "template_two_eagle_eggs");
+        this.createEggModel("eagle_egg_two_chipped", "template_two_eagle_eggs");
+        this.createEggModel("eagle_egg_two_cracked", "template_two_eagle_eggs");
+
+        this.createEggModel("crocodile_egg_one",         "template_one_crocodile_egg");
         this.createEggModel("crocodile_egg_one_chipped", "template_one_crocodile_egg");
         this.createEggModel("crocodile_egg_one_cracked", "template_one_crocodile_egg");
 
-        this.createEggModel("crocodile_egg_two", "template_two_crocodile_eggs");
+        this.createEggModel("crocodile_egg_two",         "template_two_crocodile_eggs");
         this.createEggModel("crocodile_egg_two_chipped", "template_two_crocodile_eggs");
         this.createEggModel("crocodile_egg_two_cracked", "template_two_crocodile_eggs");
 
-        this.createEggModel("crocodile_egg_three", "template_three_crocodile_eggs");
+        this.createEggModel("crocodile_egg_three",         "template_three_crocodile_eggs");
         this.createEggModel("crocodile_egg_three_chipped", "template_three_crocodile_eggs");
         this.createEggModel("crocodile_egg_three_cracked", "template_three_crocodile_eggs");
     }

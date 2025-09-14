@@ -4,14 +4,20 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.phys.Vec3;
+import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Tags;
 
 import java.util.List;
 
 public class MiscUtil {
+
+    public static final IntegerProperty EGGS_2 = IntegerProperty.create("eggs", 1, 2);
+    public static final IntegerProperty EGGS_3 = IntegerProperty.create("eggs", 1, 3);
+    public static final IntegerProperty EGGS_4 = IntegerProperty.create("eggs", 1, 4);
 
     /**
      * Works just like the GeckoLib {@link software.bernie.geckolib.animation.AnimationState#isMoving()} but on server side
@@ -87,5 +93,25 @@ public class MiscUtil {
      */
     public static boolean isNotNeverAttack(LivingEntity entity) {
         return !entity.getType().is(Primal_Tags.NEVER_ATTACK);
+    }
+
+    /**
+     Simple addition logic, used to count attacks
+     */
+    public static void addToAttackCount(LivingEntity entity) {
+        if(entity.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get())){
+            entity.getBrain().setMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get(),
+                    entity.getBrain().getMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get()).get()+1);
+        } else {
+            entity.getBrain().setMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get(), 1);
+        }
+    }
+
+    public static boolean isSameEagleAttacking(LivingEntity target, LivingEntity eagle) {
+        if(target.primal$eagleAttacking().isPresent()){
+            return target.primal$eagleAttacking().get() == eagle.getUUID();
+        } else {
+            return true;
+        }
     }
 }

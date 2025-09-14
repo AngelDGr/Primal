@@ -25,6 +25,7 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
         eggItem(Primal_Items.BEAR_SPAWN_EGG.get());
         eggItem(Primal_Items.SHARK_SPAWN_EGG.get());
         eggItem(Primal_Items.CROCODILE_SPAWN_EGG.get());
+        eggItem(Primal_Items.EAGLE_SPAWN_EGG.get());
 
 
         basicItem(Primal_Items.SHARK_TOOTH.get());
@@ -47,6 +48,10 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
                 .texture("layer0", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/short_river_reeds"));
 
         basicItem(Primal_Items.CROCODILE_EGG.get());
+
+        basicItem(Primal_Items.EAGLE_EGG.get());
+
+        simpleBlockItem(Primal_Blocks.NEST_BLOCK.get());
     }
 
     protected void simpleGrassItem(Block block){

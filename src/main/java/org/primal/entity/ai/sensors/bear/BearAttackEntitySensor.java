@@ -27,22 +27,8 @@ public final class BearAttackEntitySensor extends NearestLivingEntitySensor<Bear
     protected void doTick(@NotNull ServerLevel level, @NotNull BearEntity bear) {
         super.doTick(level, bear);
 
-        //Wild logic
-        if(!bear.isTame()){
-            bear.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
-                    .filter(
-                            target ->
-                                    Sensor.isEntityAttackable(bear, target)
-                                            //To attack prey
-                                            && target.getType().is(Primal_Tags.BEAR_HUNTABLE)
-                                            //To not attack enemies near campfires
-                                            && !(target.level() instanceof ServerLevel serverLevel && BearRepellentSensor.findNearestRepellent(serverLevel, target).isPresent()))
-                    .findFirst()
-                    .ifPresentOrElse(ent -> bear.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),
-                            () -> bear.getBrain().eraseMemory(MemoryModuleType.NEAREST_ATTACKABLE));
-        }
-        //Tamed logic
-        else {
+        //Tame logic
+        if(bear.isTame()){
             bear.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
                     .filter(target ->
                             Sensor.isEntityAttackable(bear, target)
@@ -52,6 +38,20 @@ public final class BearAttackEntitySensor extends NearestLivingEntitySensor<Bear
                                     //To not attack other owned bear
                                     && !(target instanceof BearEntity bear2 && bear2.getOwner()!=null && bear2.getOwner()==bear.getOwner())
                     )
+                    .findFirst()
+                    .ifPresentOrElse(ent -> bear.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),
+                            () -> bear.getBrain().eraseMemory(MemoryModuleType.NEAREST_ATTACKABLE));
+        }
+        //Wild logic
+        else {
+            bear.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
+                    .filter(
+                            target ->
+                                    Sensor.isEntityAttackable(bear, target)
+                                            //To attack prey
+                                            && target.getType().is(Primal_Tags.BEAR_HUNTABLE)
+                                            //To not attack enemies near campfires
+                                            && !(target.level() instanceof ServerLevel serverLevel && BearRepellentSensor.findNearestRepellent(serverLevel, target).isPresent()))
                     .findFirst()
                     .ifPresentOrElse(ent -> bear.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),
                             () -> bear.getBrain().eraseMemory(MemoryModuleType.NEAREST_ATTACKABLE));

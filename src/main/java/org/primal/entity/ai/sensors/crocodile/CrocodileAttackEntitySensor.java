@@ -8,7 +8,6 @@ import net.minecraft.world.entity.ai.sensing.NearestLivingEntitySensor;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.CrocodileEntity;
-import org.primal.entity.animal.SharkEntity;
 
 import java.util.Collection;
 import java.util.List;
