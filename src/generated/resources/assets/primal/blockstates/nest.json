@@ -1,0 +1,41 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "primal:block/nest_base"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/nest_north_side"
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/nest_south_side"
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/nest_east_side"
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/nest_west_side"
+      },
+      "when": {
+        "west": "true"
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "kill_captain": {
+      "trigger": "primal:primal/kill_captain"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.kill_captain.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "components": {
+        "minecraft:banner_patterns": [
+          {
+            "color": "cyan",
+            "pattern": "minecraft:rhombus"
+          },
+          {
+            "color": "light_gray",
+            "pattern": "minecraft:stripe_bottom"
+          },
+          {
+            "color": "gray",
+            "pattern": "minecraft:stripe_center"
+          },
+          {
+            "color": "light_gray",
+            "pattern": "minecraft:border"
+          },
+          {
+            "color": "black",
+            "pattern": "minecraft:stripe_middle"
+          },
+          {
+            "color": "light_gray",
+            "pattern": "minecraft:half_horizontal"
+          },
+          {
+            "color": "light_gray",
+            "pattern": "minecraft:circle"
+          },
+          {
+            "color": "black",
+            "pattern": "minecraft:border"
+          }
+        ],
+        "minecraft:hide_additional_tooltip": {},
+        "minecraft:item_name": "{\"color\":\"gold\",\"translate\":\"block.minecraft.ominous_banner\"}"
+      },
+      "count": 1,
+      "id": "minecraft:white_banner"
+    },
+    "title": {
+      "translate": "advancements.primal.kill_captain.title"
+    }
+  },
+  "requirements": [
+    [
+      "kill_captain"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

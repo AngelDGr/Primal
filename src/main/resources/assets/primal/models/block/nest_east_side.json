@@ -1,0 +1,26 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "eagle_nest",
+	"texture_size": [64, 64],
+	"textures": {
+		"texture": "primal:block/nest",
+		"particle": "primal:block/nest_particle"
+	},
+	"elements": [
+		{
+			"name": "east",
+			"from": [14.0005, 4.0005, 0.0005],
+			"to": [15.9995, 6.9995, 15.9995],
+			"rotation": {"angle": 0, "axis": "y", "origin": [14, 4, 0]},
+			"faces": {
+				"north": {"uv": [9, 9.75, 8.5, 10.5], "texture": "#texture"},
+				"east": {"uv": [12, 8, 8, 8.75], "texture": "#texture"},
+				"south": {"uv": [8.5, 9.75, 8, 10.5], "texture": "#texture"},
+				"west": {"uv": [12, 7.25, 8, 8], "texture": "#texture"},
+				"up": {"uv": [12, 8.75, 8, 9.25], "rotation": 90, "texture": "#texture"},
+				"down": {"uv": [12, 9.75, 8, 9.25], "rotation": 270, "texture": "#texture"}
+			}
+		}
+	]
+}

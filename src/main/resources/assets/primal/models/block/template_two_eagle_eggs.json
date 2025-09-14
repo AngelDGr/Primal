@@ -1,0 +1,39 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "eagle_egg",
+	"texture_size": [64, 64],
+	"textures": {
+		"particle": "primal:block/eagle_egg_particle"
+	},
+	"elements": [
+		{
+			"from": [9, 0, 9],
+			"to": [13, 6, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-3, 0, 9]},
+			"color": 2,
+			"faces": {
+				"north": {"uv": [0, 9, 1, 10.5], "texture": "#egg"},
+				"east": {"uv": [1, 9, 2, 10.5], "texture": "#egg"},
+				"south": {"uv": [2, 9, 3, 10.5], "texture": "#egg"},
+				"west": {"uv": [0, 10.5, 1, 12], "texture": "#egg"},
+				"up": {"uv": [1, 9, 0, 8], "texture": "#egg"},
+				"down": {"uv": [2, 8, 1, 9], "texture": "#egg"}
+			}
+		},
+		{
+			"from": [4, 0, 3],
+			"to": [8, 6, 7],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-8, 0, 3]},
+			"color": 2,
+			"faces": {
+				"north": {"uv": [2, 12, 3, 13.5], "texture": "#egg"},
+				"east": {"uv": [1, 10.5, 2, 12], "texture": "#egg"},
+				"south": {"uv": [2, 10.5, 3, 12], "texture": "#egg"},
+				"west": {"uv": [1, 12, 2, 13.5], "texture": "#egg"},
+				"up": {"uv": [4, 12.5, 3, 11.5], "texture": "#egg"},
+				"down": {"uv": [4, 10.5, 3, 11.5], "texture": "#egg"}
+			}
+		}
+	]
+}

@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "eggs=1,hatch=0": {
+      "model": "primal:block/eagle_egg_one"
+    },
+    "eggs=1,hatch=1": {
+      "model": "primal:block/eagle_egg_one_chipped"
+    },
+    "eggs=1,hatch=2": {
+      "model": "primal:block/eagle_egg_one_cracked"
+    },
+    "eggs=2,hatch=0": {
+      "model": "primal:block/eagle_egg_two"
+    },
+    "eggs=2,hatch=1": {
+      "model": "primal:block/eagle_egg_two_chipped"
+    },
+    "eggs=2,hatch=2": {
+      "model": "primal:block/eagle_egg_two_cracked"
+    }
+  }
+}

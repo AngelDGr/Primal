@@ -1,0 +1,6 @@
+{
+  "parent": "primal:block/template_one_eagle_egg",
+  "textures": {
+    "egg": "primal:block/eagle_egg_one_cracked"
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "entity.crocodile.attack": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_attack1",
+      "primal:entity/crocodile/crocodile_attack2",
+      "primal:entity/crocodile/crocodile_attack3"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.attack"
+  },
+  "entity.crocodile.clock": {
+    "sounds": [
+      "note/hat"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.clock"
+  },
+  "entity.crocodile.death": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_death1",
+      "primal:entity/crocodile/crocodile_death2"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.death"
+  },
+  "entity.crocodile.eat": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_eat1",
+      "primal:entity/crocodile/crocodile_eat2",
+      "primal:entity/crocodile/crocodile_eat3"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.eat"
+  },
+  "entity.crocodile.hurt": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_hurt1",
+      "primal:entity/crocodile/crocodile_hurt2",
+      "primal:entity/crocodile/crocodile_hurt3"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.hurt"
+  },
+  "entity.crocodile.idle": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_idle1",
+      "primal:entity/crocodile/crocodile_idle2",
+      "primal:entity/crocodile/crocodile_idle3",
+      "primal:entity/crocodile/crocodile_idle4",
+      "primal:entity/crocodile/crocodile_idle5"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.idle"
+  },
+  "entity.crocodile.vomit": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_vomit1",
+      "primal:entity/crocodile/crocodile_vomit2",
+      "primal:entity/crocodile/crocodile_vomit3",
+      "primal:entity/crocodile/crocodile_vomit4"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.vomit"
+  },
+  "entity.generic.chest": {
+    "sounds": [
+      "mob/chicken/plop"
+    ],
+    "subtitle": "subtitles.primal.entity.generic.chest"
+  },
+  "entity.generic.egg_break": {
+    "sounds": [
+      "mob/turtle/egg/egg_break1",
+      "mob/turtle/egg/egg_break2"
+    ],
+    "subtitle": "subtitles.primal.entity.generic.egg_break"
+  },
+  "entity.generic.egg_crack": {
+    "sounds": [
+      "mob/turtle/egg/egg_crack1",
+      "mob/turtle/egg/egg_crack2",
+      "mob/turtle/egg/egg_crack3",
+      "mob/turtle/egg/egg_crack4",
+      "mob/turtle/egg/egg_crack5"
+    ],
+    "subtitle": "subtitles.primal.entity.generic.egg_crack"
+  },
+  "entity.generic.egg_hatch": {
+    "sounds": [
+      "mob/turtle/baby/egg_hatched1",
+      "mob/turtle/baby/egg_hatched2",
+      "mob/turtle/baby/egg_hatched3"
+    ],
+    "subtitle": "subtitles.primal.entity.generic.egg_hatch"
+  },
+  "entity.generic.lays_egg": {
+    "sounds": [
+      "mob/turtle/egg/drop_egg1",
+      "mob/turtle/egg/drop_egg2"
+    ],
+    "subtitle": "subtitles.primal.entity.generic.lays_egg"
+  },
+  "entity.generic.places_egg": {
+    "sounds": [
+      "mob/chicken/plop"
+    ],
+    "subtitle": "subtitles.primal.entity.generic.places_egg"
+  },
+  "entity.zombie.destroy_generic_egg": {
+    "sounds": [
+      "mob/turtle/egg/jump_egg1",
+      "mob/turtle/egg/jump_egg2",
+      "mob/turtle/egg/jump_egg3",
+      "mob/turtle/egg/jump_egg4"
+    ],
+    "subtitle": "subtitles.primal.entity.zombie.destroy_generic_egg"
+  }
+}

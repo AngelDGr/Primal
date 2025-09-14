@@ -1,0 +1,6 @@
+{
+  "parent": "primal:block/template_two_eagle_eggs",
+  "textures": {
+    "egg": "primal:block/eagle_egg_two_chipped"
+  }
+}
