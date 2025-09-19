@@ -1,19 +1,16 @@
 {
   "variants": {
-    "age=0,half=middle": {
-      "model": "primal:block/river_reeds_middle_0"
-    },
     "age=0,half=upper": {
       "model": "primal:block/river_reeds_top_0"
-    },
-    "age=1,half=middle": {
-      "model": "primal:block/river_reeds_middle_1"
     },
     "age=1,half=upper": {
       "model": "primal:block/river_reeds_top_1"
     },
     "half=lower": {
       "model": "primal:block/river_reeds_bottom"
+    },
+    "half=middle": {
+      "model": "primal:block/river_reeds_middle"
     }
   }
 }

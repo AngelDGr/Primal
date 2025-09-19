@@ -167,9 +167,7 @@ public final class BearAi {
 
                         SetBearRoarTarget.create(),
 
-                        new FollowOwner(pet -> pet instanceof BearEntity bear && !bear.bearCollapses(),
-                                4
-                        ),
+                        new FollowOwner(pet -> pet instanceof BearEntity bear && !bear.bearCollapses()),
 
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
 

@@ -32,6 +32,7 @@ public class Primal_BiomeTagGenerator extends BiomeTagsProvider {
                     .add(Biomes.TAIGA)
                     .add(Biomes.OLD_GROWTH_SPRUCE_TAIGA).add(Biomes.OLD_GROWTH_PINE_TAIGA).add(Biomes.OLD_GROWTH_BIRCH_FOREST)
                     .add(Biomes.WINDSWEPT_FOREST)
+                    .add(Biomes.GROVE)
                     .addTag(Primal_Tags.SPAWNS_BLACK_BEAR);
 
             this.tag(Primal_Tags.SPAWNS_BLACK_BEAR)

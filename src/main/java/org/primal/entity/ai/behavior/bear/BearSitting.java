@@ -29,6 +29,7 @@ public class BearSitting extends Behavior<BearEntity> {
 
         if (!bear.isBearSleeping())
             bear.triggerAnim("base_controller", "sleep_start");
+
         bear.setPose(Pose.CROAKING);
         bear.setBearSleeping(true);
     }
@@ -42,6 +43,8 @@ public class BearSitting extends Behavior<BearEntity> {
     protected void stop(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
         entity.triggerAnim("base_controller", "sleep_end");
         entity.setPose(Pose.STANDING);
+        if(entity.getWakeUpSound()!=null)
+            entity.playSound(entity.getWakeUpSound(), 1,0.8f+ (entity.getRandom().nextIntBetweenInclusive(0, 2)*0.1f));
         entity.setBearSleeping(false);
     }
 }

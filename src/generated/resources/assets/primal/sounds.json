@@ -1,4 +1,67 @@
 {
+  "entity.bear.death": {
+    "sounds": [
+      "primal:entity/bear/bear_death1",
+      "primal:entity/bear/bear_death2",
+      "primal:entity/bear/bear_death3",
+      "primal:entity/bear/bear_death4"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.death"
+  },
+  "entity.bear.eat": {
+    "sounds": [
+      "mob/sniffer/eat1",
+      "mob/sniffer/eat2",
+      "mob/sniffer/eat3"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.eat"
+  },
+  "entity.bear.hurt": {
+    "sounds": [
+      "primal:entity/bear/bear_hurt1",
+      "primal:entity/bear/bear_hurt2",
+      "primal:entity/bear/bear_hurt3",
+      "primal:entity/bear/bear_hurt4"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.hurt"
+  },
+  "entity.bear.idle": {
+    "sounds": [
+      "primal:entity/bear/bear_idle1",
+      "primal:entity/bear/bear_idle2",
+      "primal:entity/bear/bear_idle3",
+      "primal:entity/bear/bear_idle4",
+      "primal:entity/bear/bear_idle5"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.idle"
+  },
+  "entity.bear.idle_angry": {
+    "sounds": [
+      "primal:entity/bear/bear_idle_angry1",
+      "primal:entity/bear/bear_idle_angry2",
+      "primal:entity/bear/bear_idle_angry3",
+      "primal:entity/bear/bear_idle_angry4"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.idle_angry"
+  },
+  "entity.bear.roar": {
+    "sounds": [
+      "primal:entity/bear/bear_roar1"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.roar"
+  },
+  "entity.bear.snoring": {
+    "sounds": [
+      "primal:entity/bear/bear_snoring1"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.snoring"
+  },
+  "entity.bear.wake_up": {
+    "sounds": [
+      "primal:entity/bear/bear_wake_up1"
+    ],
+    "subtitle": "subtitles.primal.entity.bear.wake_up"
+  },
   "entity.crocodile.attack": {
     "sounds": [
       "primal:entity/crocodile/crocodile_attack1",
@@ -46,6 +109,18 @@
     ],
     "subtitle": "subtitles.primal.entity.crocodile.idle"
   },
+  "entity.crocodile.splashes": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_splashes1"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.splashes"
+  },
+  "entity.crocodile.thrash": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_thrash1"
+    ],
+    "subtitle": "subtitles.primal.entity.crocodile.thrash"
+  },
   "entity.crocodile.vomit": {
     "sounds": [
       "primal:entity/crocodile/crocodile_vomit1",
@@ -54,6 +129,60 @@
       "primal:entity/crocodile/crocodile_vomit4"
     ],
     "subtitle": "subtitles.primal.entity.crocodile.vomit"
+  },
+  "entity.eagle.death": {
+    "sounds": [
+      "primal:entity/eagle/eagle_death1"
+    ],
+    "subtitle": "subtitles.primal.entity.eagle.death"
+  },
+  "entity.eagle.eat": {
+    "sounds": [
+      "mob/parrot/eat1",
+      "mob/parrot/eat2",
+      "mob/parrot/eat3"
+    ],
+    "subtitle": "subtitles.primal.entity.eagle.eat"
+  },
+  "entity.eagle.flap": {
+    "sounds": [
+      "primal:entity/eagle/eagle_flap1",
+      "primal:entity/eagle/eagle_flap2",
+      "primal:entity/eagle/eagle_flap3"
+    ],
+    "subtitle": "subtitles.primal.entity.eagle.flap"
+  },
+  "entity.eagle.freedom": {
+    "sounds": [
+      "primal:entity/eagle/eagle_freedom1"
+    ],
+    "subtitle": "subtitles.primal.entity.eagle.freedom"
+  },
+  "entity.eagle.hurt": {
+    "sounds": [
+      "primal:entity/eagle/eagle_hurt1",
+      "primal:entity/eagle/eagle_hurt2",
+      "primal:entity/eagle/eagle_hurt3",
+      "primal:entity/eagle/eagle_hurt4"
+    ],
+    "subtitle": "subtitles.primal.entity.eagle.hurt"
+  },
+  "entity.eagle.idle": {
+    "sounds": [
+      "primal:entity/eagle/eagle_idle1",
+      "primal:entity/eagle/eagle_idle2",
+      "primal:entity/eagle/eagle_idle3",
+      "primal:entity/eagle/eagle_idle4",
+      "primal:entity/eagle/eagle_idle5"
+    ],
+    "subtitle": "subtitles.primal.entity.eagle.idle"
+  },
+  "entity.eagle.shriek": {
+    "sounds": [
+      "primal:entity/eagle/eagle_shriek1",
+      "primal:entity/eagle/eagle_shriek2"
+    ],
+    "subtitle": "subtitles.primal.entity.eagle.shriek"
   },
   "entity.generic.chest": {
     "sounds": [

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "eat_apple_fritter": {
+      "conditions": {
+        "item": {
+          "items": "primal:apple_fritter"
+        }
+      },
+      "trigger": "minecraft:consume_item"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.eat_apple_fritter.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "primal:apple_fritter"
+    },
+    "title": {
+      "translate": "advancements.primal.eat_apple_fritter.title"
+    }
+  },
+  "requirements": [
+    [
+      "eat_apple_fritter"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

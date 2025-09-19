@@ -1,6 +1,12 @@
 {
   "values": {
+    "primal:river_reeds": {
+      "chance": 0.5
+    },
     "primal:seashells": {
+      "chance": 0.3
+    },
+    "primal:short_river_reeds": {
       "chance": 0.3
     }
   }

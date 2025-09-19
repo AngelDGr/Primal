@@ -81,7 +81,7 @@ public class Primal_Blocks {
                                 .strength(1.0F)
                                 .instabreak()
                                 .dynamicShape()
-                                .pushReaction(PushReaction.DESTROY)
+                                .pushReaction(PushReaction.NORMAL)
                                 .isRedstoneConductor(Primal_Blocks::never)));
 
         CROCODILE_SCUTE_BLOCK=register("crocodile_scute_block",

@@ -56,10 +56,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
-import org.primal.registry.Primal_Entities;
-import org.primal.registry.Primal_MemoryModuleTypes;
-import org.primal.registry.Primal_Sounds;
-import org.primal.registry.Primal_Tags;
+import org.primal.registry.*;
 import org.primal.util.MiscUtil;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -786,6 +783,29 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     private int tameAttempts = 0;
 
     //Sounds
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return this.getBrain().isActive(Activity.ROAR)? null: this.isBearSleeping()? Primal_Sounds.BEAR_SNORING.get(): this.isAggressive()? Primal_Sounds.BEAR_IDLE_ANGRY.get() : Primal_Sounds.BEAR_IDLE.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
+        return Primal_Sounds.BEAR_HURT.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return Primal_Sounds.BEAR_DEATH.get();
+    }
+
+    public @Nullable SoundEvent getRoarSound() {
+        return Primal_Sounds.BEAR_ROAR.get();
+    }
+
+    public @Nullable SoundEvent getWakeUpSound() {
+        return Primal_Sounds.BEAR_WAKE_UP.get();
+    }
+
     protected boolean playEatingSound(){
         //Play the sound
         if (!this.isSilent()) {
@@ -806,7 +826,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     public SoundEvent getEatingSound() {
-        return null;
+        return Primal_Sounds.BEAR_EAT.get();
     }
 
     //Misc
@@ -826,7 +846,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     @Override
     public boolean shouldTryTeleportToOwner() {
         LivingEntity livingentity = this.getOwner();
-        return livingentity != null && this.distanceToSqr(this.getOwner()) >= 225.0;
+        return livingentity != null && this.distanceToSqr(this.getOwner()) >= 625.0;
     }
 
     @Override

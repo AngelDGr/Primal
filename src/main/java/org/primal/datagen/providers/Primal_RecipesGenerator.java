@@ -40,6 +40,54 @@ public class Primal_RecipesGenerator extends RecipeProvider {
                 .unlockedBy("has_tooth", has(Primal_Items.SHARK_TOOTH.get()))
                 .save(exporter);
 
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, Primal_Items.APPLE_FRITTER.get())
+                .requires(Items.APPLE)
+                .requires(Items.SUGAR)
+                .requires(Items.WHEAT)
+                .requires(Items.EGG)
+                .unlockedBy("has_apple", has(Items.APPLE))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, Primal_Items.GOLDEN_APPLE_FRITTER.get())
+                .requires(Items.GOLDEN_APPLE)
+                .requires(Items.SUGAR)
+                .requires(Items.WHEAT)
+                .requires(Items.EGG)
+                .unlockedBy("has_golden_apple", has(Items.GOLDEN_APPLE))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, Primal_Items.ENCHANTED_GOLDEN_APPLE_FRITTER.get())
+                .requires(Items.ENCHANTED_GOLDEN_APPLE)
+                .requires(Items.SUGAR)
+                .requires(Items.WHEAT)
+                .requires(Items.EGG)
+                .unlockedBy("has_enchanted_golden_apple", has(Items.ENCHANTED_GOLDEN_APPLE))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Primal_Items.PAW_BANNER_PATTERN.get())
+                .requires(Items.PAPER)
+                .requires(Items.HONEYCOMB_BLOCK)
+                .unlockedBy("has_honey_comb", has(Items.HONEYCOMB_BLOCK))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Primal_Items.JAWS_BANNER_PATTERN.get())
+                .requires(Items.PAPER)
+                .requires(Primal_Items.SHARK_TOOTH.get())
+                .unlockedBy("has_shark_tooth", has(Primal_Items.SHARK_TOOTH.get()))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Primal_Items.MARSH_BANNER_PATTERN.get())
+                .requires(Items.PAPER)
+                .requires(Primal_Items.CROCODILE_SCUTE.get())
+                .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Primal_Items.EYRIE_BANNER_PATTERN.get())
+                .requires(Items.PAPER)
+                .requires(Primal_Items.EAGLE_EGG.get())
+                .unlockedBy("has_eagle_egg", has(Primal_Items.EAGLE_EGG.get()))
+                .save(exporter);
+
         twoByTwoPacker(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_BLOCK.get(), Primal_Items.CROCODILE_SCUTE.get());
 
         twoByTwoPacker(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());

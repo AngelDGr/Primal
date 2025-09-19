@@ -19,6 +19,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
 import org.primal.datagen.providers.*;
+import org.primal.registry.Primal_BannerPatterns;
 import org.primal.registry.Primal_DamageTypes;
 import org.primal.registry.Primal_WorldGen;
 
@@ -28,6 +29,8 @@ public final class Primal_DataGenerator {
     private static final RegistrySetBuilder BUILDER =
             new RegistrySetBuilder()
 //                    .add(Registries.DAMAGE_TYPE, Primal_DamageTypes::boostrapDamageTypes)
+//                    .add(Registries.BANNER_PATTERN, Primal_BannerPatterns::bootstrap)
+
                     .add(Registries.PLACED_FEATURE, Primal_WorldGen::boostrapPlacedFeature)
                     .add(Registries.CONFIGURED_FEATURE, Primal_WorldGen::boostrapConfiguredFeature)
 
@@ -61,6 +64,9 @@ public final class Primal_DataGenerator {
 
         //Server
         {
+            //World Gen - Banners
+            generator.addProvider(true, new DatapackBuiltinEntriesProvider(output, lookupProvider, BUILDER, Set.of("minecraft", Primal_Main.MOD_ID)));
+
             //Entity Tags
             generator.addProvider(event.includeServer(), new Primal_EntityTagGenerator(output, lookupProvider, existingFileHelper));
             //Block Tags
@@ -71,6 +77,9 @@ public final class Primal_DataGenerator {
             generator.addProvider(event.includeServer(), new Primal_DamageTypesTagGenerator(output, lookupProvider, existingFileHelper));
             //Item Tags
             generator.addProvider(event.includeServer(), new Primal_ItemTagsGenerator(output, lookupProvider, blockTagGenerator.contentsGetter(), existingFileHelper));
+            //Banner Pattern Tags
+            generator.addProvider(event.includeServer(), new Primal_BannerPatternTagsGenerator(output, lookupProvider, existingFileHelper));
+
 
             //Recipes
             generator.addProvider(event.includeServer(), new Primal_RecipesGenerator(output, lookupProvider));
@@ -81,8 +90,9 @@ public final class Primal_DataGenerator {
             //Advancements
             generator.addProvider(event.includeServer(), new Primal_AdvancementsGenerator(output, lookupProvider, existingFileHelper));
 
-            //World Gen
-            generator.addProvider(true, new DatapackBuiltinEntriesProvider(output, lookupProvider, BUILDER, Set.of(Primal_Main.MOD_ID)));
+
+
+
 
             //NeoForge Datamaps
             generator.addProvider(event.includeServer(), new Primal_DataMapGenerator(output, lookupProvider));

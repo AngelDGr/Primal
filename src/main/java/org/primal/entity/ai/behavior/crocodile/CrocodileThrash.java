@@ -1,6 +1,7 @@
 package org.primal.entity.ai.behavior.crocodile;
 
 import com.google.common.collect.ImmutableMap;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
@@ -26,7 +27,11 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
 
     @Override
     protected void start(@NotNull ServerLevel level, @NotNull CrocodileEntity crocodile, long gameTime) {
+        crocodile.setThrashing(true);
         crocodile.setPose(Pose.SPIN_ATTACK);
+        if (!crocodile.isSilent()) {
+            crocodile.level().broadcastEntityEvent(crocodile, CrocodileEntity.CROCODILE_THRASHING);
+        }
         crocodile.stopMoving();
     }
 
@@ -45,6 +50,11 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
             return;
         }
 
+        //Particles
+        if(crocodile.isInWater() && !crocodile.isUnderWater())
+            crocodile.level().broadcastEntityEvent(crocodile, (byte)80);
+
+
         //It hurt the picked entity each 2 ticks
         if(gameTime%2==0){
             target.hurt(crocodile.level().damageSources().mobAttack(crocodile), 2);
@@ -54,8 +64,8 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
     @Override
     protected void stop(@NotNull ServerLevel level, @NotNull CrocodileEntity crocodile, long gameTime) {
         if(!crocodile.getPassengers().isEmpty()){ crocodile.ejectPassengers(); }
-
         crocodile.setPose(Pose.STANDING);
         crocodile.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_THRASHING.get());
+        crocodile.setThrashing(false);
     }
 }

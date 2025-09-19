@@ -2,14 +2,10 @@ package org.primal.datagen.providers;
 
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.models.blockstates.PropertyDispatch;
-import net.minecraft.data.models.blockstates.Variant;
-import net.minecraft.data.models.blockstates.VariantProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
@@ -38,20 +34,6 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_tip"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_base"));
 
-//        this.getVariantBuilder(Primal_Blocks.SHARK_TOOTH.get())
-//                .partialState().with(SharkToothBlock.THICKNESS, SharkToothThickness.TIP).addModels(
-//                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_tip"))))
-//                .partialState().with(SharkToothBlock.THICKNESS, SharkToothThickness.BASE).addModels(
-//                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_base"))));
-
-//        this.getVariantBuilder(Primal_Blocks.SHARK_TOOTH.get())
-//                .partialState().with(SharkToothBlock.THICKNESS, SharkToothThickness.TIP).with(SharkToothBlock.TIP_DIRECTION, Direction.UP).addModels(
-//                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_tip"))))
-//                .partialState().with(SharkToothBlock.THICKNESS, SharkToothThickness.BASE).addModels(
-//                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_base"))))
-//                .partialState().with(SharkToothBlock.THICKNESS, SharkToothThickness.TIP).with(SharkToothBlock.TIP_DIRECTION, Direction.DOWN).addModels(
-//                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_tip_down"))));
-
         this.createSimilarToPinkPetals(Primal_Blocks.SEASHELLS, SeashellsBlock.FACING, SeashellsBlock.AMOUNT,
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/seashells_1"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/seashells_2"),
@@ -73,10 +55,8 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                         new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_0"))))
                 .partialState().with(RiverReeds.HALF, TripleBlockHalf.UPPER).with(RiverReeds.AGE, 1).addModels(
                         new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_1"))))
-                .partialState().with(RiverReeds.HALF, TripleBlockHalf.MIDDLE).with(RiverReeds.AGE, 0).addModels(
-                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle_0"))))
-                .partialState().with(RiverReeds.HALF, TripleBlockHalf.MIDDLE).with(RiverReeds.AGE, 1).addModels(
-                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle_1"))))
+                .partialState().with(RiverReeds.HALF, TripleBlockHalf.MIDDLE).addModels(
+                        new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle"))))
                 .partialState().with(RiverReeds.HALF, TripleBlockHalf.LOWER).addModels(
                         new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_bottom"))));
 
@@ -296,24 +276,5 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                 //WestSide
                 .part().modelFile(new ModelFile.UncheckedModelFile(westSide))
                 .addModel().condition(NestBlock.WEST, true).end();
-    }
-
-    private PropertyDispatch createColumnWithFacing() {
-        return PropertyDispatch.property(BlockStateProperties.FACING)
-                .select(Direction.DOWN, Variant.variant().with(VariantProperties.X_ROT, VariantProperties.Rotation.R180))
-                .select(Direction.UP, Variant.variant())
-                .select(Direction.NORTH, Variant.variant().with(VariantProperties.X_ROT, VariantProperties.Rotation.R90))
-                .select(
-                        Direction.SOUTH,
-                        Variant.variant().with(VariantProperties.X_ROT, VariantProperties.Rotation.R90).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R180)
-                )
-                .select(
-                        Direction.WEST,
-                        Variant.variant().with(VariantProperties.X_ROT, VariantProperties.Rotation.R90).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R270)
-                )
-                .select(
-                        Direction.EAST,
-                        Variant.variant().with(VariantProperties.X_ROT, VariantProperties.Rotation.R90).with(VariantProperties.Y_ROT, VariantProperties.Rotation.R90)
-                );
     }
 }

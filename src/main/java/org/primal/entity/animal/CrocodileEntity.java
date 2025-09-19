@@ -154,14 +154,19 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
-        setVariantFromBiome(this, level.getBiome(this.blockPosition()));
+        //1% of being albino
+        if(level.getRandom().nextIntBetweenInclusive(0, 100)==1){
+            this.setVariant(Variant.ALBINO);
+        } else {
+            setVariantFromBiome(this, level.getBiome(this.blockPosition()));
+        }
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
     @Override
     public void setVariantFromBiome(CrocodileEntity crocodile, Holder<Biome> holder){
         if (holder.is(Primal_Tags.SPAWNS_BLACK_CROCODILE)) {
-            crocodile.setVariant( Variant.BLACK);
+            crocodile.setVariant(Variant.BLACK);
         } else if(holder.is(Primal_Tags.SPAWNS_BROWN_CROCODILE)){
             crocodile.setVariant(Variant.BROWN);
         } else {
@@ -238,12 +243,15 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     //SynchedData
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Float> HEALTH_WHEN_START_RIDING = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Boolean> THRASHING = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.BOOLEAN);
+
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(HEALTH_WHEN_START_RIDING, 0f);
         builder.define(DATA_VARIANT_ID, CrocodileEntity.Variant.GREEN.id);
+        builder.define(THRASHING, false);
     }
 
     @Override
@@ -298,6 +306,14 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     @Override
     public @NotNull Variant getVariant() {
         return CrocodileEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
+    }
+
+    public boolean isThrashing() {
+        return this.entityData.get(THRASHING);
+    }
+
+    public void setThrashing(boolean thrashing) {
+        this.entityData.set(THRASHING, thrashing);
     }
 
     //Breeding
@@ -376,6 +392,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         if(thrashing.isPresent() && thrashing.get() && this.getPassengers().isEmpty()){
             this.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_THRASHING.get());
             this.setPose(Pose.STANDING);
+            if(this.isThrashing()) this.setThrashing(false);
         }
 
         if(thrashing.isEmpty() && !this.getPassengers().isEmpty())
@@ -702,8 +719,20 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     public void handleEntityEvent(byte id) {
         if (id == 38) {
             this.addParticlesAroundSelf(ParticleTypes.HAPPY_VILLAGER);
-        } else {
+        } else if(id==80) {
+            this.addSplashes();
+        }
+        else {
             super.handleEntityEvent(id);
+        }
+    }
+
+    private void addSplashes() {
+        for (int i = 0; i < 7; i++) {
+            double d0 = this.random.nextGaussian() * 0.01;
+            double d1 = this.random.nextGaussian() * 0.01;
+            double d2 = this.random.nextGaussian() * 0.01;
+            this.level().addParticle(ParticleTypes.SPLASH, this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(1.0), d0, d1, d2);
         }
     }
 
@@ -758,14 +787,14 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     //Sounds
-    @Override
-    protected @Nullable SoundEvent getAmbientSound() {
-        return Primal_Sounds.CROCODILE_IDLE.get();
-    }
+    public static final byte CROCODILE_THRASHING = 99;
 
     @Override
-    protected @Nullable SoundEvent getDeathSound() {
-        return Primal_Sounds.CROCODILE_DEATH.get();
+    protected @Nullable SoundEvent getAmbientSound() {
+        if(!this.isThrashing())
+            return Primal_Sounds.CROCODILE_IDLE.get();
+
+        return null;
     }
 
     @Override
@@ -778,13 +807,16 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         this.playSound(Primal_Sounds.CROCODILE_ATTACK.get(), 1.0F, 1.0F);
     }
 
-    @Nullable
-    protected SoundEvent getVomitSound(){
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return Primal_Sounds.CROCODILE_DEATH.get();
+    }
+
+    protected @Nullable SoundEvent getVomitSound(){
         return Primal_Sounds.CROCODILE_VOMIT.get();
     }
 
-    @Nullable
-    protected SoundEvent getEatSound(){
+    protected @Nullable SoundEvent getEatSound(){
         return Primal_Sounds.CROCODILE_EAT.get();
     }
 

@@ -27,7 +27,7 @@ public class Primal_BiomeModifiersGenerator {
     public static void bootstrap(final BootstrapContext<BiomeModifier> bootstrap){
 
         //Animals
-        registerMobSpawn(bootstrap, "spawn/bear", Primal_Tags.SPAWNS_BEAR, Primal_Entities.BEAR.get(), 50, 1, 1);
+        registerMobSpawn(bootstrap, "spawn/bear", Primal_Tags.SPAWNS_BEAR, Primal_Entities.BEAR.get(), 20, 1, 1);
 
         registerMobSpawn(bootstrap, "spawn/shark_single", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 5, 1, 1);
         registerMobSpawn(bootstrap, "spawn/shark_group", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 1, 1, 3);

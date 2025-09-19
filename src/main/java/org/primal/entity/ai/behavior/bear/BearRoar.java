@@ -41,6 +41,8 @@ public final class BearRoar extends Behavior<BearEntity> {
         target.ifPresent(entity -> BehaviorUtils.lookAtEntity(bear, entity));
 
         bear.setPose(Pose.ROARING);
+        if(bear.getRoarSound()!=null)
+            bear.playSound(bear.getRoarSound(), 1, 1);
         bear.triggerAnim("base_controller", "roar");
     }
 

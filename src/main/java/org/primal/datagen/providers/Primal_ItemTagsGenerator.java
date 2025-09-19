@@ -29,5 +29,9 @@ public class Primal_ItemTagsGenerator extends ItemTagsProvider {
         this.tag(Tags.Items.EGGS)
                 .add(Primal_Items.CROCODILE_EGG.get())
                 .add(Primal_Items.EAGLE_EGG.get());
+
+        this.tag(Tags.Items.FOODS_GOLDEN)
+                .add(Primal_Items.GOLDEN_APPLE_FRITTER.get())
+                .add(Primal_Items.ENCHANTED_GOLDEN_APPLE_FRITTER.get());
     }
 }

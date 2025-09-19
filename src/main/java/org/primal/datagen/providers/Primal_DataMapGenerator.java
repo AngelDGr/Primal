@@ -19,6 +19,8 @@ public class Primal_DataMapGenerator extends DataMapProvider {
     protected void gather(HolderLookup.@NotNull Provider provider) {
 
         builder(NeoForgeDataMaps.COMPOSTABLES)
-                .add(Primal_Items.SEASHELLS, new Compostable(0.3f), false);
+                .add(Primal_Items.SEASHELLS, new Compostable(0.3f), false)
+                .add(Primal_Items.SHORT_RIVER_REEDS, new Compostable(0.3f), false)
+                .add(Primal_Items.RIVER_REEDS, new Compostable(0.5f), false);
     }
 }

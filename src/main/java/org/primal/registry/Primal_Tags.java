@@ -1,11 +1,11 @@
 package org.primal.registry;
 
-
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import org.primal.Primal_Main;
 
 import net.minecraft.core.registries.Registries;
@@ -14,26 +14,31 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 
 public final class Primal_Tags {
+    //Banner Pattern
+    public static final TagKey<BannerPattern> PATTERN_ITEM_PAW = createTag(Registries.BANNER_PATTERN, "pattern_item/paw");
+    public static final TagKey<BannerPattern> PATTERN_ITEM_JAWS = createTag(Registries.BANNER_PATTERN, "pattern_item/jaws");
+    public static final TagKey<BannerPattern> PATTERN_ITEM_MARSH = createTag(Registries.BANNER_PATTERN, "pattern_item/marsh");
+    public static final TagKey<BannerPattern> PATTERN_ITEM_EYRIE = createTag(Registries.BANNER_PATTERN, "pattern_item/eyrie");
 
+    //Entity
     public static final TagKey<EntityType<?>> BEAR_HUNTABLE = createTag(Registries.ENTITY_TYPE, "bear_huntable");
     public static final TagKey<EntityType<?>> SHARK_HUNTABLE = createTag(Registries.ENTITY_TYPE, "shark_huntable");
     public static final TagKey<EntityType<?>> CROCODILE_HUNTABLE = createTag(Registries.ENTITY_TYPE, "crocodile_huntable");
     public static final TagKey<EntityType<?>> EAGLE_HUNTABLE = createTag(Registries.ENTITY_TYPE, "eagle_huntable");
 
-
     public static final TagKey<EntityType<?>> NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "never_attack");
     public static final TagKey<EntityType<?>> CROCODILE_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "crocodile_never_attack");
 
-
+    //Block
     public static final TagKey<Block> BEAR_REPELLENTS = createTag(Registries.BLOCK, "bear_repellents");
     public static final TagKey<Block> SHARK_ATTRACTORS = createTag(Registries.BLOCK, "shark_attractors");
     public static final TagKey<Block> CROCODILE_ATTRACTORS = createTag(Registries.BLOCK, "crocodile_attractors");
     public static final TagKey<Block> IS_ANIMAL_EGG = createTag(Registries.BLOCK, "animal_egg");
 
-
+    //Item
     public static final TagKey<Item> CROCODILE_CANT_EAT = createTag(Registries.ITEM, "crocodile_cant_eat");
 
-
+    //Biome
     public static final TagKey<Biome> SPAWNS_BEAR = createTag(Registries.BIOME, "has_mob/bear");
     public static final TagKey<Biome> SPAWNS_BLACK_BEAR = createTag(Registries.BIOME, "has_mob/has_variant/black_bear_variant");
 

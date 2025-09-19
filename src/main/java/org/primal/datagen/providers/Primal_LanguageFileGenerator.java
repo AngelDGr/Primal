@@ -3,8 +3,11 @@ package org.primal.datagen.providers;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.BannerPatternItem;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BannerPattern;
 import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -12,6 +15,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+import org.primal.registry.Primal_BannerPatterns;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +61,18 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
             add("subtitles.primal.entity.generic.egg_crack", "Animal Egg cracks");
             add("subtitles.primal.entity.generic.egg_hatch", "Animal Egg hatches");
 
+            //Bear
+            {
+                add("subtitles.primal.entity.bear.idle", "Bear growls");
+                add("subtitles.primal.entity.bear.idle_angry", "Bear growls angrily");
+                add("subtitles.primal.entity.bear.hurt", "Bear hurts");
+                add("subtitles.primal.entity.bear.death", "Bear dies");
+                add("subtitles.primal.entity.bear.roar", "Bear roars");
+                add("subtitles.primal.entity.bear.snoring", "Bear snores");
+                add("subtitles.primal.entity.bear.wake_up", "Bear wakes up");
+                add("subtitles.primal.entity.bear.eat", "Bear eats");
+            }
+
             //Crocodile
             {
                 add("subtitles.primal.entity.crocodile.idle", "Crocodile growls");
@@ -64,8 +80,21 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
                 add("subtitles.primal.entity.crocodile.hurt", "Crocodile hurts");
                 add("subtitles.primal.entity.crocodile.death", "Crocodile dies");
                 add("subtitles.primal.entity.crocodile.eat", "Crocodile eats");
+                add("subtitles.primal.entity.crocodile.thrash", "Crocodile thrashes");
+                add("subtitles.primal.entity.crocodile.splashes", "Violent water splashes");
                 add("subtitles.primal.entity.crocodile.vomit", "Crocodile spit item");
                 add("subtitles.primal.entity.crocodile.clock", "Tick-tock clock sounds");
+            }
+
+            //Eagle
+            {
+                add("subtitles.primal.entity.eagle.idle", "Eagle screeches");
+                add("subtitles.primal.entity.eagle.flap", "Eagle flaps");
+                add("subtitles.primal.entity.eagle.hurt", "Eagle hurts");
+                add("subtitles.primal.entity.eagle.death", "Eagle dies");
+                add("subtitles.primal.entity.eagle.eat", "Eagle eats");
+                add("subtitles.primal.entity.eagle.shriek", "Eagle shrieks");
+                add("subtitles.primal.entity.eagle.freedom", "FREEDOM");
             }
         }
 
@@ -113,6 +142,26 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
 
             add("advancements.primal.tame_all_birds.title", "Birds Of Feathers");
             add("advancements.primal.tame_all_birds.description", "Tame all Birds including their variants. (Parrots & Eagle)");
+
+            //Misc
+            add("advancements.primal.eat_apple_fritter.title", "Double-Glazed");
+            add("advancements.primal.eat_apple_fritter.description", "Consume and absorb the nutrients of one apple fritter");
+        }
+
+        Primal_BannerPatterns.Banner_Patterns.forEach(
+                this::addBannerTranslation
+        );
+    }
+
+    private void addBannerTranslation(ResourceKey<BannerPattern> banner) {
+        String path = banner.location().getPath();
+        String baseBannerTranslation = translate(path);
+        String baseBannerTranslationKey="block.minecraft.banner.primal."+path;
+        add(baseBannerTranslationKey, baseBannerTranslation);
+
+        for(DyeColor dyeColor: DyeColor.values()){
+            String translatedDyeColor= translate(dyeColor.getName());
+            add(baseBannerTranslationKey+"."+dyeColor.getName(), translatedDyeColor+" "+baseBannerTranslation);
         }
     }
 
@@ -144,7 +193,21 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
     private void addItemTranslation(ResourceKey<Item> item) {
         String path = item.location().getPath();
         String translation = translate(path);
-        add(BuiltInRegistries.ITEM.get(item.location()), translation);
+
+        //Handles descriptions and names for banner patterns
+        if(BuiltInRegistries.ITEM.get(item.location()) instanceof BannerPatternItem bannerPatternItem){
+            String resourceKeyPath= bannerPatternItem.getBannerPattern().location().getPath();
+            String[] resourceKeySplitted = resourceKeyPath.split("/");
+            //Name (All are named "Banner Pattern")
+            add(BuiltInRegistries.ITEM.get(item.location()), "Banner Pattern");
+
+            String translationBanner = translate(resourceKeySplitted[1]);
+            //Description
+            add(BuiltInRegistries.ITEM.get(item.location()).getDescriptionId()+".desc", translationBanner);
+
+        } else {
+            add(BuiltInRegistries.ITEM.get(item.location()), translation);
+        }
     }
 
     private void addBlockTranslation(ResourceKey<Block> block) {

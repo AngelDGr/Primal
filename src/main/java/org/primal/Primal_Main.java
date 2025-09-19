@@ -15,6 +15,7 @@ import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SetPotionFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
@@ -45,8 +46,6 @@ public class Primal_Main {
     public static final String MOD_ID = "primal";
     
     public Primal_Main(IEventBus modEventBus) {
-        
-
         //AI
         Primal_Sensors.init(); Primal_Registries.SENSOR_TYPES.register(modEventBus);
         Primal_MemoryModuleTypes.init(); Primal_Registries.MEMORY_MODULE_TYPES.register(modEventBus);
@@ -134,6 +133,8 @@ public class Primal_Main {
 
         @SubscribeEvent
         public static void modifyLootTables(LootTableLoadEvent event) {
+
+            //Heaviness potion to trial chambers
             if(event.getName().equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS.location())){
 
                 var originalTable= event.getTable();
@@ -148,6 +149,25 @@ public class Primal_Main {
                                     .apply(SetPotionFunction.setPotion(Primal_Potions.HEAVINESS)).build();
 
                     MiscUtil.extendLootPool(originalPool, List.of(heaviness_potion));
+                }
+            }
+
+            //1-3 Shark tooth in the small chest
+            if(event.getName().equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL.location())){
+
+                var originalTable= event.getTable();
+
+                var originalPool= originalTable.getPool("pool1");
+
+                if(originalPool!=null){
+
+                    LootPoolEntryContainer shark_tooth =
+                            LootItem.lootTableItem(Primal_Items.SHARK_TOOTH.get())
+                                    .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0f, 3.0f)))
+                                    .setWeight(2)
+                                    .build();
+
+                    MiscUtil.extendLootPool(originalPool, List.of(shark_tooth));
                 }
             }
         }

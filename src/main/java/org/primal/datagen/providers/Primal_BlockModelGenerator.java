@@ -41,18 +41,14 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.tintedOverlayCross("river_reeds_top_1",
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_1"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_1_overlay"));
-        this.tintedOverlayCross("river_reeds_middle_0",
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle_0"),
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle_0_overlay"));
-        this.tintedOverlayCross("river_reeds_middle_1",
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle_1"),
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle_1_overlay"));
 
-        this.cross("river_reeds_bottom", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_bottom"));
+        this.tintedCross("river_reeds_middle",
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle"));
 
-        this.tintedOverlayCross(Primal_Blocks.SHORT_RIVER_REEDS.getId().getPath(),
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/short_river_reeds"),
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/short_river_reeds_overlay"));
+        this.tintedCross("river_reeds_bottom", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_bottom"));
+
+        this.tintedCross(Primal_Blocks.SHORT_RIVER_REEDS.getId().getPath(),
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/short_river_reeds"));
 
         this.createEggModel("eagle_egg_one",         "template_one_eagle_egg");
         this.createEggModel("eagle_egg_one_chipped", "template_one_eagle_egg");

@@ -244,6 +244,24 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         .addCriterion("tame_yellow_blue", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.YELLOW_BLUE)))
                         .save(consumer, Primal_Main.MOD_ID + "/tame_all_birds");
             }
+
+            //Misc
+            {
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Primal_Items.APPLE_FRITTER.get(), // The display icon
+                                Component.translatable("advancements.primal.eat_apple_fritter.title"), // The title
+                                Component.translatable("advancements.primal.eat_apple_fritter.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("eat_apple_fritter", ConsumeItemTrigger.TriggerInstance.usedItem(Primal_Items.APPLE_FRITTER.get()))
+                        .save(consumer, Primal_Main.MOD_ID + "/eat_apple_fritter");
+            }
         }
     }
 

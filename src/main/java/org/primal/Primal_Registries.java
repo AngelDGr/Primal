@@ -47,5 +47,4 @@ public class Primal_Registries {
     public static DeferredRegister<CriterionTrigger<?>> CRITERIA = DeferredRegister.create(Registries.TRIGGER_TYPE, Primal_Main.MOD_ID);
 
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, Primal_Main.MOD_ID);
-
 }

@@ -14,9 +14,11 @@
     "RunFromCrocodileMixins$VindicatorMixin",
     "TestingMixin",
     "VillagerHostilesSensorMixin",
-    "ZombieMixin"
+    "ZombieMixin",
+    "ZombieVillagerMixin"
   ],
   "client": [
-    "ClientPacketListenerMixin"
+    "ClientPacketListenerMixin",
+    "ClientPlayNetworkHandlerMixin"
   ]
 }

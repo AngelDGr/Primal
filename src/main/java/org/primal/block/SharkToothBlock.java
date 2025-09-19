@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -106,7 +107,7 @@ public class SharkToothBlock extends Block {
     private boolean isValidPointedDripstonePlacement(LevelReader level, BlockPos pos, Direction dir) {
         BlockPos blockpos = pos.relative(dir.getOpposite());
         BlockState blockstate = level.getBlockState(blockpos);
-        return (blockstate.isFaceSturdy(level, blockpos, dir, SupportType.CENTER) || (blockstate.is(this) && blockstate.getValue(FACING)==dir)) && !blockstate.isAir();
+        return (blockstate.is(Blocks.MOVING_PISTON) || blockstate.isFaceSturdy(level, blockpos, dir, SupportType.CENTER) || (blockstate.is(this) && blockstate.getValue(FACING)==dir)) && !blockstate.isAir();
     }
 
     private boolean isToothWithDirection(BlockState state, Direction dir) {
@@ -187,6 +188,58 @@ public class SharkToothBlock extends Block {
             super.fallOn(level, state, pos, entity, fallDistance);
         }
     }
+
+    @Override
+    public boolean collisionExtendsVertically(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull Entity collidingEntity) {
+        return super.collisionExtendsVertically(state, level, pos, collidingEntity);
+    }
+
+    @Override
+    protected void entityInside(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Entity entity) {
+        if (level.isClientSide) return;
+
+        // Block AABB (full cube)
+        AABB blockBox = new AABB(pos);
+
+        // Entity AABB
+        AABB entityBox = entity.getBoundingBox();
+
+        if (!blockBox.intersects(entityBox)) return; // not touching
+
+        // Distances from faces
+        Direction face = getDirection(entityBox, blockBox);
+
+
+
+        if (face != null) {
+            if(entity.isShiftKeyDown() && face==Direction.UP) return;
+
+            if(state.getValue(FACING)==face)
+                entity.hurt(Primal_DamageTypes.sharkTooth(level), 2.0f);
+        }
+    }
+
+    private static @Nullable Direction getDirection(AABB eBox, AABB blockBox) {
+        double dxWest   = eBox.maxX - blockBox.minX;
+        double dxEast   = blockBox.maxX - eBox.minX;
+        double dzNorth  = eBox.maxZ - blockBox.minZ;
+        double dzSouth  = blockBox.maxZ - eBox.minZ;
+        double dyDown   = eBox.maxY - blockBox.minY;
+        double dyUp     = blockBox.maxY - eBox.minY;
+
+        // Find nearest face
+        double min = Double.MAX_VALUE;
+        Direction face = null;
+
+        if (dxWest >= 0 && dxWest < min) { min = dxWest; face = Direction.WEST; }
+        if (dxEast >= 0 && dxEast < min) { min = dxEast; face = Direction.EAST; }
+        if (dzNorth >= 0 && dzNorth < min) { min = dzNorth; face = Direction.NORTH; }
+        if (dzSouth >= 0 && dzSouth < min) { min = dzSouth; face = Direction.SOUTH; }
+        if (dyDown >= 0 && dyDown < min) { min = dyDown; face = Direction.DOWN; }
+        if (dyUp >= 0 && dyUp < min) { min = dyUp; face = Direction.UP; }
+        return face;
+    }
+
 
     @Override
     protected boolean isPathfindable(@NotNull BlockState state, @NotNull PathComputationType pathComputationType) {

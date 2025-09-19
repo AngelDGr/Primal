@@ -102,12 +102,12 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
             level.setBlock(posAboveAbove, upperRiverReed, 2);
         } else {
             if(level.getFluidState(pos).getType()==Fluids.WATER)
-                middleRiverReed=middleRiverReed.setValue(WATERLOGGED, true);
+                lowerRiverReed=lowerRiverReed.setValue(WATERLOGGED, true);
 
             if(level.getFluidState(posAbove).getType()==Fluids.WATER)
                 upperRiverReed=upperRiverReed.setValue(WATERLOGGED, true);
 
-            level.setBlock(pos, middleRiverReed, 2);
+            level.setBlock(pos, lowerRiverReed, 2);
             level.setBlock(posAbove, upperRiverReed, 2);
         }
     }

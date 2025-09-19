@@ -27,14 +27,14 @@ public class EagleDetectHostile extends Behavior<EagleEntity> {
     @Override
     protected void start(@NotNull ServerLevel level, @NotNull EagleEntity eagle, long gameTime) {
 
-        if(eagle.getChirpSound()!=null)
-            eagle.playSound(eagle.getChirpSound(), 1, 1);
+        if(eagle.getShriekSound()!=null)
+            eagle.playSound(eagle.getShriekSound(), 1, 1);
 
         Optional<LivingEntity> hostile= eagle.getBrain().getMemory(MemoryModuleType.NEAREST_HOSTILE);
 
         hostile.ifPresent(entity -> {
                     entity.addEffect(new MobEffectInstance(MobEffects.GLOWING, 100, 0));
-                    eagle.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.CHIRP_COOLDOWN.get(), true, 400);
+                    eagle.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.CHIRP_COOLDOWN.get(), true, 300);
                 }
         );
     }

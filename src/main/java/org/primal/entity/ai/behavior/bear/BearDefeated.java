@@ -44,6 +44,8 @@ public class BearDefeated extends Behavior<BearEntity> {
     protected void stop(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
         entity.triggerAnim("base_controller", "sleep_end");
         entity.setPose(Pose.STANDING);
+        if(entity.getWakeUpSound()!=null)
+            entity.playSound(entity.getWakeUpSound(), 1,0.8f+ (entity.getRandom().nextIntBetweenInclusive(0, 2)*0.1f));
         entity.setBearSleeping(false);
     }
 }

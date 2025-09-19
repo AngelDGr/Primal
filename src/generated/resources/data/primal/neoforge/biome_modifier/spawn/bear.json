@@ -5,6 +5,6 @@
     "type": "primal:bear",
     "maxCount": 1,
     "minCount": 1,
-    "weight": 50
+    "weight": 20
   }
 }

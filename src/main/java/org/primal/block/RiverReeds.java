@@ -51,14 +51,7 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
 
         BlockState finalState = super.getStateForPlacement(context).setValue(WATERLOGGED, isUnderwater);
 
-        if(context.getLevel().getRandom().nextBoolean())
-            return finalState.setValue(HALF, TripleBlockHalf.MIDDLE);
-
-        //Fallback-> If not underwater or not valid position, makes it a double plant
-        if((!isUnderwater || !RiverReeds.isValidPosForRiverReed(context.getLevel(), context.getClickedPos().above().above())) && finalState.getValue(HALF)==TripleBlockHalf.LOWER)
-            return finalState.setValue(HALF, TripleBlockHalf.MIDDLE);
-
-        return finalState;
+        return finalState.setValue(HALF, TripleBlockHalf.LOWER);
     }
 
     @Override
@@ -67,12 +60,13 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
         BlockPos blockPosAboveAbove = pos.above().above();
 
         //Put the other parts above
-        if(state.getValue(HALF)==TripleBlockHalf.LOWER){
-            level.setBlock(blockPosAbove, copyWaterloggedFrom(level, blockPosAbove, this.defaultBlockState().setValue(HALF, TripleBlockHalf.MIDDLE)), 3);
-            level.setBlock(blockPosAboveAbove, copyWaterloggedFrom(level, blockPosAboveAbove, this.defaultBlockState().setValue(HALF, TripleBlockHalf.UPPER)), 3);
-        }
-        else if(state.getValue(HALF)==TripleBlockHalf.MIDDLE) {
-            level.setBlock(blockPosAbove, copyWaterloggedFrom(level, blockPosAbove, this.defaultBlockState().setValue(HALF, TripleBlockHalf.UPPER)), 3);
+        if(state.getValue(HALF)==TripleBlockHalf.LOWER && !level.isClientSide){
+            if(state.getValue(WATERLOGGED) && level.getRandom().nextBoolean()){
+                level.setBlock(blockPosAbove, copyWaterloggedFrom(level, blockPosAbove, this.defaultBlockState().setValue(HALF, TripleBlockHalf.MIDDLE)), 3);
+                level.setBlock(blockPosAboveAbove, copyWaterloggedFrom(level, blockPosAboveAbove, this.defaultBlockState().setValue(HALF, TripleBlockHalf.UPPER)), 3);
+            } else {
+                level.setBlock(blockPosAbove, copyWaterloggedFrom(level, blockPosAbove, this.defaultBlockState().setValue(HALF, TripleBlockHalf.UPPER)), 3);
+            }
         }
     }
 
@@ -88,6 +82,7 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
         if((half==TripleBlockHalf.LOWER || half==TripleBlockHalf.MIDDLE) && facing==Direction.UP && !facingState.is(this))
             return Blocks.AIR.defaultBlockState();
 
+        //Update age
         if((facing==Direction.UP || facing==Direction.DOWN) && facingState.is(this)){
             int age= facingState.getValue(AGE);
             return state.setValue(AGE, age);
@@ -97,7 +92,7 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
     }
 
     @Override
-    protected boolean canSurvive(BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+    protected boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
         BlockState blockBelow = level.getBlockState(pos.below());
         BlockState blockAbove = level.getBlockState(pos.above());
 
@@ -105,9 +100,9 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
         if(state.getValue(HALF)==TripleBlockHalf.UPPER){
             return blockBelow.is(this);
         }
-        //Middle ONLY can survive if it has another block below, or if it is the lowest point of the reed
-        else if(state.getValue(HALF)==TripleBlockHalf.MIDDLE && blockBelow.is(this)){
-            return blockAbove.is(this);
+        //Middle ONLY can survive if it has another block below and above
+        else if(state.getValue(HALF)==TripleBlockHalf.MIDDLE){
+            return blockAbove.is(this) && blockBelow.is(this);
         }
         //Lower always tries to survive normally
         else {
@@ -165,7 +160,6 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
             if(state.getValue(HALF)==TripleBlockHalf.UPPER && blockBelow.is(this)){
                 pos=pos.below();
             }
-
             if(level.getBlockState(pos).getValue(HALF)==TripleBlockHalf.MIDDLE
                     && level.getBlockState(pos.below()).is(this)){
                 pos=pos.below();
@@ -173,10 +167,8 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
 
             BlockPos lowestPos=pos;
 
-            //If the lowest point is not a lower river reed, then it must be 2 blocks tall, so it tries to grow up to three if underwater and
             //if it can actually grow up (Not blocks above.above)
-            if(level.getBlockState(lowestPos).getValue(HALF)!=TripleBlockHalf.LOWER && level.getFluidState(lowestPos).is(Fluids.WATER)
-                    && (RiverReeds.isValidPosForRiverReed(level, pos.above().above()))){
+            if(level.getFluidState(lowestPos).is(Fluids.WATER) && (RiverReeds.isValidPosForRiverReed(level, pos.above().above())) && !level.getBlockState(pos.above().above()).is(this)){
                 BlockState defaultState= this.defaultBlockState();
 
                 level.setBlock(lowestPos,
@@ -198,7 +190,7 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
                         2);
 
             } else if (canSpread) {
-                setRiverReedsNear(level, lowestPos,level.getRandom().nextBoolean()?2: 1);
+                setRiverReedsNear(level, lowestPos, level.getRandom().nextBoolean()?2: 1);
             }
         }
     }
@@ -239,7 +231,7 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
 
     @Override
     protected boolean isRandomlyTicking(@NotNull BlockState state) {
-        return state.getValue(HALF)==TripleBlockHalf.MIDDLE;
+        return state.getValue(HALF)==TripleBlockHalf.LOWER;
     }
 
     @Override

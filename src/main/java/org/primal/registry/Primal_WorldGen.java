@@ -61,7 +61,7 @@ public class Primal_WorldGen {
                 PlacementUtils.HEIGHTMAP_TOP_SOLID, BiomeFilter.biome());
 
         PlacementUtils.register(context, EAGLES_NEST_SPAWN, registryEntryLookup.getOrThrow(EAGLES_NEST_SPAWN_CONFIGURED),
-                RarityFilter.onAverageOnceEvery(8), InSquarePlacement.spread(),
+                RarityFilter.onAverageOnceEvery(30), InSquarePlacement.spread(),
                 PlacementUtils.HEIGHTMAP, BiomeFilter.biome());
     }
 

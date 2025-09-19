@@ -98,7 +98,7 @@ public class RiverReedsFeature extends Feature<RandomPatchCustomConfig> {
                     } else if(canGenerateHere(level, desiredPosition) && canGenerateHere(level, desiredPosition.above())) {
                         if(level.setBlock(desiredPosition,
                                 defaultStateLongReeds
-                                        .setValue(RiverReeds.HALF, TripleBlockHalf.MIDDLE)
+                                        .setValue(RiverReeds.HALF, TripleBlockHalf.LOWER)
                                         .setValue(RiverReeds.AGE, age)
                                         .setValue(RiverReeds.WATERLOGGED, isUnderwater), 2) &&
 

@@ -13,6 +13,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
@@ -813,7 +814,6 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         }
     }
 
-    //Sounds
     protected boolean playEatingSound(){
         //Play the sound
         if (!this.isSilent()) {
@@ -829,12 +829,45 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         return true;
     }
 
-    public SoundEvent getEatingSound() {
-        return null;
+    //Sounds
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return Primal_Sounds.EAGLE_IDLE.get();
     }
 
-    public SoundEvent getChirpSound() {
-        return null;
+    @Override
+    protected boolean isFlapping() {
+        //Above 0.3 is gliding so shouldn't have a flapping sound
+        double speed = this.getDeltaMovement().length();
+
+        return !this.onGround() && !this.isInWater() && speed<0.3 && (float)this.tickCount % 15.0F == 0.0F;
+    }
+
+    @Override
+    protected void onFlap() {
+        this.playSound(Primal_Sounds.EAGLE_FLAP.get(), 0.15F, 1.0F);
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
+        return Primal_Sounds.EAGLE_HURT.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return Primal_Sounds.EAGLE_DEATH.get();
+    }
+
+    public @Nullable SoundEvent getEatingSound() {
+        return Primal_Sounds.EAGLE_EAT.get();
+    }
+
+    public @Nullable SoundEvent getShriekSound() {
+        if(this.getVariant()==Variant.BALD && this.random.nextIntBetweenInclusive(0, 500)==0){
+            return Primal_Sounds.EAGLE_FREEDOM.get();
+        }
+
+        return Primal_Sounds.EAGLE_SHRIEK.get();
     }
 
     //Just to being classified as neutral

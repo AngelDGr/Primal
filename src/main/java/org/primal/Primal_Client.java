@@ -19,6 +19,7 @@ import org.primal.client.renderer.entity.SharkRenderer;
 import org.primal.registry.Primal_BlockEntities;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Entities;
+import org.primal.registry.Primal_Items;
 
 @EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 @Mod(value = Primal_Main.MOD_ID, dist = Dist.CLIENT)
@@ -61,6 +62,8 @@ public class Primal_Client {
 
     @SubscribeEvent
     public static void registerColorItems(final RegisterColorHandlersEvent.Item event){
+        event.register((stack, tintIndex) -> 0x91bd59, Primal_Items.SHORT_RIVER_REEDS.get());
 
+        event.register((stack, tintIndex) -> tintIndex==0? 0x91bd59: -1, Primal_Items.RIVER_REEDS.get());
     }
 }
