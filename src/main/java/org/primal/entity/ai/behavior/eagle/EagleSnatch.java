@@ -15,7 +15,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.EagleEntity;
 import org.primal.registry.Primal_MemoryModuleTypes;
+import org.primal.registry.Primal_Tags;
 
+import java.util.List;
 import java.util.Objects;
 
 public class EagleSnatch extends Behavior<EagleEntity> {
@@ -23,7 +25,6 @@ public class EagleSnatch extends Behavior<EagleEntity> {
     private long endTimestamp=10;
 
     private final int defaultDuration;
-
 
     public EagleSnatch(int defaultDuration) {
         super(ImmutableMap.of(
@@ -45,7 +46,6 @@ public class EagleSnatch extends Behavior<EagleEntity> {
 
         int finalDuration = this.defaultDuration;
 
-
         double strengthAddition=0;
         if(eagle.hasEffect(MobEffects.DAMAGE_BOOST)){
             int amplifier = Objects.requireNonNull(eagle.getEffect(MobEffects.DAMAGE_BOOST)).getAmplifier();
@@ -60,7 +60,6 @@ public class EagleSnatch extends Behavior<EagleEntity> {
         this.endTimestamp = gameTime + (long)finalDuration;
 
         double forward = 10.0;
-
         // Calculate target position
         Vec3 targetPos =
                 eagle.position()
@@ -69,6 +68,20 @@ public class EagleSnatch extends Behavior<EagleEntity> {
                                 lookVec.y * forward + verticalAddition,
                                 lookVec.z * forward
                         );
+
+        //If it is not following you, tries to retrieve the animal to the baby if is from eagle_huntable
+        if(!eagle.isFollowing() &&  eagle.getFirstPassenger()!=null && eagle.getFirstPassenger().getType().is(Primal_Tags.EAGLE_HUNTABLE)){
+            List<EagleEntity> babyEagles=
+                    level.getEntitiesOfClass(EagleEntity.class, eagle.getBoundingBox().inflate(10))
+                            .stream().filter(babyEagle-> babyEagle.isBaby() && !babyEagle.isFollowing()).toList();
+
+            if(!babyEagles.isEmpty()){
+                BlockPos babyPos = babyEagles.get(level.random.nextInt(babyEagles.size())).getOnPos();
+
+                targetPos= new Vec3(babyPos.getX(), babyPos.getY()+5, babyPos.getZ());
+            }
+
+        }
 
         BlockPos flyTo = BlockPos.containing(targetPos);
 

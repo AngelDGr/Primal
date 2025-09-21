@@ -228,6 +228,47 @@
     ],
     "subtitle": "subtitles.primal.entity.generic.places_egg"
   },
+  "entity.shark.attack": {
+    "sounds": [
+      "primal:entity/shark/shark_attack1",
+      "primal:entity/shark/shark_attack2",
+      "primal:entity/shark/shark_attack3"
+    ],
+    "subtitle": "subtitles.primal.entity.shark.attack"
+  },
+  "entity.shark.death": {
+    "sounds": [
+      "primal:entity/shark/shark_death1"
+    ],
+    "subtitle": "subtitles.primal.entity.shark.death"
+  },
+  "entity.shark.flop": {
+    "sounds": [
+      "entity/fish/flop1",
+      "entity/fish/flop2",
+      "entity/fish/flop3",
+      "entity/fish/flop4"
+    ],
+    "subtitle": "subtitles.primal.entity.shark.flop"
+  },
+  "entity.shark.hurt": {
+    "sounds": [
+      "primal:entity/shark/shark_hurt1",
+      "primal:entity/shark/shark_hurt2",
+      "primal:entity/shark/shark_hurt3",
+      "primal:entity/shark/shark_hurt4"
+    ],
+    "subtitle": "subtitles.primal.entity.shark.hurt"
+  },
+  "entity.shark.idle": {
+    "sounds": [
+      "primal:entity/shark/shark_idle1",
+      "primal:entity/shark/shark_idle2",
+      "primal:entity/shark/shark_idle3",
+      "primal:entity/shark/shark_idle4"
+    ],
+    "subtitle": "subtitles.primal.entity.shark.idle"
+  },
   "entity.zombie.destroy_generic_egg": {
     "sounds": [
       "mob/turtle/egg/jump_egg1",

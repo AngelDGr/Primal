@@ -27,6 +27,13 @@ public class Primal_Sounds {
     public static final DeferredHolder<SoundEvent, SoundEvent> BEAR_WAKE_UP = register("entity.bear.wake_up");
     public static final DeferredHolder<SoundEvent, SoundEvent> BEAR_EAT = register("entity.bear.eat");
 
+    //Shark
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHARK_IDLE = register("entity.shark.idle");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHARK_ATTACK = register("entity.shark.attack");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHARK_HURT = register("entity.shark.hurt");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHARK_DEATH = register("entity.shark.death");
+    public static final DeferredHolder<SoundEvent, SoundEvent> SHARK_FLOP = register("entity.shark.flop");
+
     //Crocodile
     public static final DeferredHolder<SoundEvent, SoundEvent> CROCODILE_IDLE = register("entity.crocodile.idle");
     public static final DeferredHolder<SoundEvent, SoundEvent> CROCODILE_ATTACK = register("entity.crocodile.attack");

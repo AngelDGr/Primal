@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 import org.primal.block.properties.TripleBlockHalf;
 import org.primal.registry.Primal_Blocks;
+import org.primal.registry.Primal_Tags;
 
 import javax.annotation.Nullable;
 
@@ -62,6 +64,11 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
     protected boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
         FluidState fluidstate = level.getFluidState(pos);
         return (super.canSurvive(state, level, pos)) || (super.canSurvive(state, level, pos) && fluidstate.is(Fluids.WATER) && fluidstate.getAmount() == 8);
+    }
+
+    @Override
+    protected boolean mayPlaceOn(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+        return super.mayPlaceOn(state, level, pos) || state.is(Primal_Tags.RIVER_REED_SOIL);
     }
 
     @Override
@@ -123,7 +130,7 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
 
         if (level.getRawBrightness(pos, 0) >= 6) {
 
-            if (level.getRandom().nextIntBetweenInclusive(0, 10)==0) {
+            if (level.getRandom().nextIntBetweenInclusive(1, 50)==1) {
                 performBonemeal(level, random, pos, state);
             }
         }

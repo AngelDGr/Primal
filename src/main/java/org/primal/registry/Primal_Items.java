@@ -51,6 +51,8 @@ public class Primal_Items {
     public static DeferredHolder<Item, Item> MARSH_BANNER_PATTERN;
     public static DeferredHolder<Item, Item> EYRIE_BANNER_PATTERN;
 
+    public static DeferredHolder<Item, Item> STRAW_BLOCK;
+
     public static void initItems(){
         //Spawn eggs
         {
@@ -142,6 +144,9 @@ public class Primal_Items {
             MARSH_BANNER_PATTERN=register("marsh_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.PATTERN_ITEM_MARSH, new Item.Properties()));
 
             EYRIE_BANNER_PATTERN=register("eyrie_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.PATTERN_ITEM_EYRIE, new Item.Properties()));
+
+            STRAW_BLOCK=register("straw_bale",
+                    ()-> new BlockItem(Primal_Blocks.STRAW_BALE.get(), new Item.Properties()));
         }
     }
 
@@ -178,10 +183,11 @@ public class Primal_Items {
                                         output.accept(CROCODILE_SCUTE_STAIRS.get());
                                         output.accept(CROCODILE_SCUTE_SLAB.get());
 
-
                                         output.accept(SHORT_RIVER_REEDS.get());
                                         output.accept(RIVER_REEDS.get());
                                         output.accept(SEASHELLS.get());
+
+                                        output.accept(STRAW_BLOCK.get());
 
                                         output.accept(PAW_BANNER_PATTERN.get());
                                         output.accept(JAWS_BANNER_PATTERN.get());

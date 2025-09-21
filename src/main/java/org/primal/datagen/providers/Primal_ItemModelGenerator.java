@@ -58,6 +58,8 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
         basicItem(Primal_Items.JAWS_BANNER_PATTERN.get());
         basicItem(Primal_Items.MARSH_BANNER_PATTERN.get());
         basicItem(Primal_Items.EYRIE_BANNER_PATTERN.get());
+
+        simpleBlockItem(Primal_Blocks.STRAW_BALE.get());
     }
 
     protected void eggItem(final Item eggItem) {

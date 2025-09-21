@@ -13,14 +13,19 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import org.primal.entity.animal.BearEntity;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import software.bernie.geckolib.animatable.GeoReplacedEntity;
+import software.bernie.geckolib.util.RenderUtil;
 
 @Mixin(PolarBear.class)
 public abstract class PolarBearMixin extends Animal implements NeutralMob {
+
+    @Shadow public abstract boolean isStanding();
 
     protected PolarBearMixin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
@@ -46,6 +51,16 @@ public abstract class PolarBearMixin extends Animal implements NeutralMob {
     private void primal$makeGrolar(ServerLevel level, AgeableMob otherParent, CallbackInfoReturnable<AgeableMob> cir){
         if(otherParent instanceof BearEntity bear && bear.getVariant() == BearEntity.Variant.GRIZZLY){
             cir.setReturnValue(BearEntity.createFromParents(p$THIS, otherParent));
+        }
+    }
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void primal$implementAttackAnimation(CallbackInfo ci){
+        //This triggers the animation directly from the replacing class
+        if(this.isStanding() && !this.isInWater()){
+            if (RenderUtil.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity){
+                replacedEntity.triggerAnim(p$THIS, "base_controller", "attack");
+            }
         }
     }
 }

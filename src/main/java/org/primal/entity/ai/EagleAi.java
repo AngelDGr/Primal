@@ -32,8 +32,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+@SuppressWarnings("deprecation")
 public class EagleAi {
-
     private static final ImmutableList<SensorType<? extends Sensor<? super EagleEntity>>> SENSOR_TYPES = ImmutableList.of(
             SensorType.NEAREST_LIVING_ENTITIES,
             SensorType.HURT_BY,
@@ -234,6 +234,7 @@ public class EagleAi {
                 Primal_Activities.NESTED.get(),
                 10,
                 ImmutableList.of(
+                        StartAttacking.create(EagleAi::findNearestValidAttackTarget),
                         new EagleRemoveHome(),
                         new EagleSearchHome(),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 3.0F, UniformInt.of(30, 60)),
@@ -319,7 +320,7 @@ public class EagleAi {
             eagle.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Primal_Activities.SNATCH.get(), Activity.FIGHT, Activity.LAY_SPAWN, Primal_Activities.FOLLOW.get()));
         } else {
             if(eagle.isBaby())
-                brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Primal_Activities.NESTED.get()));
+                brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Activity.FIGHT, Primal_Activities.NESTED.get()));
             else
                 brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Primal_Activities.SNATCH.get(), Activity.FIGHT, Activity.LAY_SPAWN, Activity.IDLE));
         }
@@ -348,7 +349,6 @@ public class EagleAi {
     private static void handleEagleQueue(Brain<EagleEntity> brain, EagleEntity eagle){
         //This adds to the queue
         if(eagle.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_ATTACKABLE)){
-
             List<UUID> attackedList= brain.hasMemoryValue(Primal_MemoryModuleTypes.ATTACKED_LIST.get())? brain.getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).get() : Lists.newArrayList();
 
             //This put the nearest attackable in the last place
@@ -382,7 +382,7 @@ public class EagleAi {
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(EagleEntity eagle) {
 
-        if(BehaviorUtils.isBreeding(eagle) || eagle.isBaby() || eagle.level().isClientSide){
+        if(BehaviorUtils.isBreeding(eagle) || eagle.level().isClientSide){
             return Optional.empty();
         }
 

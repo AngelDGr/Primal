@@ -29,6 +29,8 @@ public class Primal_Blocks {
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_STAIRS;
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_SLAB;
 
+    public static DeferredHolder<Block, Block> STRAW_BALE;
+
 
     //Flora
     public static DeferredHolder<Block, Block> RIVER_REEDS;
@@ -67,6 +69,7 @@ public class Primal_Blocks {
                             .sound(SoundType.MANGROVE_ROOTS)
                             .randomTicks()
                             .noOcclusion()
+                            .ignitedByLava()
                             .pushReaction(PushReaction.DESTROY)));
         }
 
@@ -141,8 +144,15 @@ public class Primal_Blocks {
                         .noCollission()
                         .instabreak()
                         .sound(SoundType.METAL)
-                        .ignitedByLava()
                         .pushReaction(PushReaction.DESTROY)));
+
+        STRAW_BALE =register("straw_bale",
+                ()-> new StrawBlock(BlockBehaviour.Properties.of()
+                        .mapColor(MapColor.COLOR_LIGHT_GREEN)
+                        .instrument(NoteBlockInstrument.BANJO)
+                        .strength(0.3F)
+                        .sound(SoundType.GRASS)
+                        .ignitedByLava()));
     }
 
 

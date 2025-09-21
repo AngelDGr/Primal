@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "primal:block/straw_bale_top",
+    "side": "primal:block/straw_bale_side"
+  }
+}

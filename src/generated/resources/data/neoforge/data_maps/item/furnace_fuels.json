@@ -1,0 +1,10 @@
+{
+  "values": {
+    "primal:nest": {
+      "burn_time": 100
+    },
+    "primal:straw_bale": {
+      "burn_time": 800
+    }
+  }
+}

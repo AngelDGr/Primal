@@ -10,8 +10,8 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ByIdMap;
+import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -36,10 +36,7 @@ import org.jetbrains.annotations.Nullable;
 import org.primal.client.animation.entity.SharkAnimations;
 import org.primal.entity.ai.SharkAi;
 import org.primal.entity.ai.controls.BreachingWaterBoundPathNavigation;
-import org.primal.registry.Primal_Advancements;
-import org.primal.registry.Primal_Items;
-import org.primal.registry.Primal_MemoryModuleTypes;
-import org.primal.registry.Primal_Tags;
+import org.primal.registry.*;
 import org.primal.util.MiscUtil;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -134,21 +131,6 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     }
 
     @Override
-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
-        return false;
-    }
-
-    @Override
-    public void setVariant(SharkEntity.@NotNull Variant variant) {
-        this.entityData.set(DATA_VARIANT_ID, variant.id);
-    }
-
-    @Override
-    public SharkEntity.@NotNull Variant getVariant() {
-        return SharkEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
-    }
-
-    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(
                 SharkAnimations.mainController(this)
@@ -190,27 +172,49 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
 
     //SynchedData
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(SharkEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> IS_JOCKEY = SynchedEntityData.defineId(SharkEntity.class, EntityDataSerializers.BOOLEAN);
+
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_VARIANT_ID, SharkEntity.Variant.GREAT_WHITE.id);
+        builder.define(IS_JOCKEY, false);
     }
 
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putInt("Variant", this.getVariant().id);
+
+        compound.putBoolean("SharkJockey", this.isSharkJockey());
     }
 
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setVariant(SharkEntity.Variant.byId(compound.getInt("Variant")));
+
+        this.setSharkJockey(compound.getBoolean("SharkJockey"));
     }
 
-    //Breeding
+    @Override
+    public void setVariant(SharkEntity.@NotNull Variant variant) {
+        this.entityData.set(DATA_VARIANT_ID, variant.id);
+    }
 
+    @Override
+    public SharkEntity.@NotNull Variant getVariant() {
+        return SharkEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
+    }
+
+    public boolean isSharkJockey() {
+        return this.entityData.get(IS_JOCKEY);
+    }
+
+    public void setSharkJockey(boolean isJockey) {
+        this.entityData.set(IS_JOCKEY, isJockey);
+    }
 
     //Movement
     @Override
@@ -228,6 +232,15 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         this.setSprinting(brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent());
 
         SharkAi.updateActivity(this);
+
+        if(this.isSharkJockey() && this.shouldBeBeached()){
+            this.ejectPassengers();
+        }
+
+        //To remove the bear jockey value if the rider dies
+        if(this.isSharkJockey() && !this.isVehicle()){
+            this.setSharkJockey(false);
+        }
     }
 
     @Override
@@ -342,9 +355,54 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         return hurt;
     }
 
+    @Override
+    protected void positionRider(@NotNull Entity passenger, @NotNull MoveFunction callback) {
+        if (this.hasPassenger(passenger)) {
+//Fin -> 0.6y +0.3forward
+
+            // Vertical position
+            double y = this.getY()+0.2;
+
+            // Offset forward and right relative to the body rotation
+            float bodyYawRad = this.yBodyRot * Mth.DEG_TO_RAD;
+            double forwardOffset = -0.8; // Forward (Z direction)
+            double sideOffset = -0.0;    // Right (X direction)
+
+            double x = this.getX() + (Mth.sin(bodyYawRad) * forwardOffset) + (Mth.cos(bodyYawRad) * sideOffset);
+            double z = this.getZ() - (Mth.cos(bodyYawRad) * forwardOffset) + (Mth.sin(bodyYawRad) * sideOffset);
+
+            callback.accept(passenger, x, y, z);
+        }
+    }
+
     //Sounds
     protected SoundEvent getFlopSound() {
-        return SoundEvents.TADPOLE_FLOP;
+        return Primal_Sounds.SHARK_FLOP.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getAmbientSound() {
+        return Primal_Sounds.SHARK_IDLE.get();
+    }
+
+    @Override
+    public int getAmbientSoundInterval() {
+        return 200;
+    }
+
+    @Override
+    protected void playAttackSound() {
+        this.playSound(Primal_Sounds.SHARK_ATTACK.get(), 1.0F, 1.0F);
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
+        return Primal_Sounds.SHARK_HURT.get();
+    }
+
+    @Override
+    protected @Nullable SoundEvent getDeathSound() {
+        return Primal_Sounds.SHARK_DEATH.get();
     }
 
     //Misc
@@ -370,6 +428,11 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         } else {
             this.setAirSupply(this.getMaxAirSupply());
         }
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return isSharkJockey();
     }
 
     //Just to being classified as neutral

@@ -9,6 +9,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
 import org.primal.block.properties.TripleBlockHalf;
 import org.primal.registry.Primal_Blocks;
+import org.primal.registry.Primal_Tags;
 
 import javax.annotation.Nullable;
 
@@ -82,6 +84,10 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
         if((half==TripleBlockHalf.LOWER || half==TripleBlockHalf.MIDDLE) && facing==Direction.UP && !facingState.is(this))
             return Blocks.AIR.defaultBlockState();
 
+        //For upper part, checks if the block below is another reed, otherwise breaks
+        if(half==TripleBlockHalf.UPPER && facing==Direction.DOWN && !facingState.is(this))
+            return Blocks.AIR.defaultBlockState();
+
         //Update age
         if((facing==Direction.UP || facing==Direction.DOWN) && facingState.is(this)){
             int age= facingState.getValue(AGE);
@@ -106,8 +112,13 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
         }
         //Lower always tries to survive normally
         else {
-            return super.canSurvive(state, level, pos) && RiverReeds.isValidPosForRiverReed(level, pos.above());
+            return super.canSurvive(state, level, pos);
         }
+    }
+
+    @Override
+    protected boolean mayPlaceOn(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+        return super.mayPlaceOn(state, level, pos) || state.is(Primal_Tags.RIVER_REED_SOIL);
     }
 
     @Override
@@ -240,7 +251,7 @@ public class RiverReeds extends BushBlock implements BonemealableBlock, SimpleWa
 
         if (level.getRawBrightness(pos, 0) >= 6) {
 
-            if (level.getRandom().nextIntBetweenInclusive(0, 10)==0) {
+            if (level.getRandom().nextIntBetweenInclusive(1, 50)==1) {
                 this.performBonemeal(level, random, pos, state, false);
             }
         }

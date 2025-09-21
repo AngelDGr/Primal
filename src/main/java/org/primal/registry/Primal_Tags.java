@@ -34,9 +34,11 @@ public final class Primal_Tags {
     public static final TagKey<Block> SHARK_ATTRACTORS = createTag(Registries.BLOCK, "shark_attractors");
     public static final TagKey<Block> CROCODILE_ATTRACTORS = createTag(Registries.BLOCK, "crocodile_attractors");
     public static final TagKey<Block> IS_ANIMAL_EGG = createTag(Registries.BLOCK, "animal_egg");
+    public static final TagKey<Block> RIVER_REED_SOIL = createTag(Registries.BLOCK, "river_reed_soil");
 
     //Item
     public static final TagKey<Item> CROCODILE_CANT_EAT = createTag(Registries.ITEM, "crocodile_cant_eat");
+    public static final TagKey<Item> STRAW = createTag(Registries.ITEM, "straw");
 
     //Biome
     public static final TagKey<Biome> SPAWNS_BEAR = createTag(Registries.BIOME, "has_mob/bear");

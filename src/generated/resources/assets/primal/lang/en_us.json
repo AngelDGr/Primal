@@ -5,6 +5,8 @@
   "advancements.primal.eat_apple_fritter.title": "Double-Glazed",
   "advancements.primal.feed_shark.description": "Bring all passive oceanic mobs to the shark's table",
   "advancements.primal.feed_shark.title": "One Hungry Shark",
+  "advancements.primal.get_eagle_egg.description": "Get an eagle egg. Don’t forget to feed raw chicken to the baby, be a good parent!",
+  "advancements.primal.get_eagle_egg.title": "Angry Birds",
   "advancements.primal.kill_captain.description": "Kill a raid captain alongside your eagle",
   "advancements.primal.kill_captain.title": "FREEDOM!!!!!",
   "advancements.primal.punch_crocodile.description": "Punch a crocodile with your bare hands",
@@ -101,6 +103,7 @@
   "block.primal.seashells": "Seashells",
   "block.primal.shark_tooth": "Shark Tooth",
   "block.primal.short_river_reeds": "Short River Reeds",
+  "block.primal.straw_bale": "Straw Bale",
   "death.attack.shark_tooth": "%1$s was killed by a dead shark",
   "death.attack.shark_tooth.player": "%1$s was killed by a dead shark while fighting %2$s",
   "effect.primal.heaviness": "Heaviness",
@@ -162,5 +165,10 @@
   "subtitles.primal.entity.generic.egg_hatch": "Animal Egg hatches",
   "subtitles.primal.entity.generic.lays_egg": "Animal lays egg",
   "subtitles.primal.entity.generic.places_egg": "Places an egg",
+  "subtitles.primal.entity.shark.attack": "Shark attacks",
+  "subtitles.primal.entity.shark.death": "Shark dies",
+  "subtitles.primal.entity.shark.flop": "Shark flops",
+  "subtitles.primal.entity.shark.hurt": "Shark hurts",
+  "subtitles.primal.entity.shark.idle": "Shark groans",
   "subtitles.primal.entity.zombie.destroy_generic_egg": "Animal Egg stomped"
 }

@@ -8,16 +8,17 @@ import net.minecraft.world.entity.Attackable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.extensions.ILivingEntityExtension;
-import org.primal.entity.animal.EagleEntity;
+import org.primal.entity.animal.SharkEntity;
 import org.primal.injection.IsEagleTarget;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -31,7 +32,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
     }
 
     @Unique
-    LivingEntity primal$THIS = (LivingEntity)(Object)this;
+    LivingEntity p$THIS = (LivingEntity)(Object)this;
 
     @Unique
     private static final EntityDataAccessor<Optional<UUID>> primal$eagleAttacking = SynchedEntityData.defineId(LivingEntityMixin.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -57,13 +58,20 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void primal$test(CallbackInfo ci) {
-        if(primal$THIS.primal$eagleAttacking().isPresent()
+        if(p$THIS.primal$eagleAttacking().isPresent()
                 && !this.level().isClientSide
                 //Erase the eagle value if its null or the eagle is dead
-                && (((ServerLevel)this.level()).getEntity(primal$THIS.primal$eagleAttacking().get())==null
-                || ((ServerLevel)this.level()).getEntity(primal$THIS.primal$eagleAttacking().get()) instanceof LivingEntity eagle && eagle.isDeadOrDying())
+                && (((ServerLevel)this.level()).getEntity(p$THIS.primal$eagleAttacking().get())==null
+                || ((ServerLevel)this.level()).getEntity(p$THIS.primal$eagleAttacking().get()) instanceof LivingEntity eagle && eagle.isDeadOrDying())
         ){
-            primal$THIS.primal$setEagleAttacking(null);
+            p$THIS.primal$setEagleAttacking(null);
         }
+    }
+
+
+    @Inject(method = "getSwimAmount", at = @At(value = "RETURN"), cancellable = true)
+    private void primal$drownedAvoidSwimAnimationWhileJockey(float partialTicks, CallbackInfoReturnable<Float> cir){
+        if(p$THIS instanceof Drowned && this.getVehicle() instanceof SharkEntity)
+            cir.setReturnValue(0f);
     }
 }

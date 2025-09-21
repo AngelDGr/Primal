@@ -884,6 +884,11 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         return new Vec3(0.0, this.getEyeHeight()*0.6f, this.getBbWidth() * 0.2F);
     }
 
+    @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return this.isBearJockey();
+    }
+
     //Just to being classified as neutral
     @Override
     public int getRemainingPersistentAngerTime() {return 0;}

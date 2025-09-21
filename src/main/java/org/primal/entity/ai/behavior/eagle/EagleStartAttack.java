@@ -61,15 +61,13 @@ public class EagleStartAttack extends Behavior<EagleEntity> {
 
         double speed = eagle.getDeltaMovement().length();
 
-
-
         //Damages the entity if the eagle goes too fast
         if(speed>0.5){
             target.hurt(level.damageSources().mobAttack(eagle), 1);
         }
 
         //Picks up an entity if it's not too big
-        if(EagleEntity.canPickUpEntity(target, eagle)) {
+        if(eagle.canPickUpEntity(target)) {
 
             target.startRiding(eagle);
 
@@ -80,14 +78,16 @@ public class EagleStartAttack extends Behavior<EagleEntity> {
         } else {
             eagle.doHurtTarget(target);
 
-            MiscUtil.addToAttackCount(eagle);
+            if(!eagle.isBaby()){
+                MiscUtil.addToAttackCount(eagle);
 
-            if(eagle.getBrain().getMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get()).isPresent()
-                    && eagle.getBrain().getMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get()).get()>3){
+                if(eagle.getBrain().getMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get()).isPresent()
+                        && eagle.getBrain().getMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get()).get()>3){
 
-                eagle.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, target, level.getRandom().nextIntBetweenInclusive(60, 100));
+                    eagle.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, target, level.getRandom().nextIntBetweenInclusive(60, 100));
 
-                eagle.getBrain().setMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get(), 0);
+                    eagle.getBrain().setMemory(Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get(), 0);
+                }
             }
 
             stop(level, eagle, gameTime);
@@ -99,7 +99,8 @@ public class EagleStartAttack extends Behavior<EagleEntity> {
 
     @Override
     protected void stop(@NotNull ServerLevel level, EagleEntity eagle, long gameTime) {
-        eagle.getBrain().setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, this.cooldownBetweenAttacks);
+        if(!eagle.isBaby())
+            eagle.getBrain().setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, this.cooldownBetweenAttacks);
     }
 
     private static boolean isHoldingUsableProjectileWeapon(Mob mob) {

@@ -8,6 +8,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -18,6 +20,7 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
@@ -78,6 +81,20 @@ public class Primal_Main {
         Primal_WorldGen.init(); Primal_Registries.FEATURES.register(modEventBus);
 
         Primal_VillagerCustomTrades.init();
+    }
+
+    @SubscribeEvent
+    public static void registerCommonEvent(final FMLCommonSetupEvent event){
+        setFlammables();
+    }
+
+    public static void setFlammables() {
+        FireBlock fireblock = (FireBlock) Blocks.FIRE;
+        fireblock.setFlammable(Primal_Blocks.SHORT_RIVER_REEDS.get(), 30, 60);
+        fireblock.setFlammable(Primal_Blocks.RIVER_REEDS.get(), 30, 60);
+        fireblock.setFlammable(Primal_Blocks.NEST_BLOCK.get(), 30, 60);
+
+        fireblock.setFlammable(Primal_Blocks.STRAW_BALE.get(), 100, 200);
     }
 
     @SuppressWarnings("unused")

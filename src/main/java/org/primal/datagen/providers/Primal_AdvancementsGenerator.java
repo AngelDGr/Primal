@@ -55,7 +55,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
     // “We Bare Bears” (Challenge Advancement)
     //      Bring all the bears from different climates to your base.
     //--- Vanilla ---
-    // “Two by Two" <- Probably impossible to add the mod animals to this because the advancements are already generated as data - Tenebris
+    // "Two by Two" <- Probably impossible to add the mod animals to this because the advancements are already generated as data - Tenebris
 
     public Primal_AdvancementsGenerator(final PackOutput output, final CompletableFuture<HolderLookup.Provider> lookupProvider, final ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, existingFileHelper, List.of(new Generator()));
@@ -243,6 +243,21 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         .addCriterion("tame_red_blue", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.RED_BLUE)))
                         .addCriterion("tame_yellow_blue", TameAnimalTrigger.TriggerInstance.tamedAnimal(Primal_Advancements.parrotVariantTamed(Parrot.Variant.YELLOW_BLUE)))
                         .save(consumer, Primal_Main.MOD_ID + "/tame_all_birds");
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Primal_Items.EAGLE_EGG.get(), // The display icon
+                                Component.translatable("advancements.primal.get_eagle_egg.title"), // The title
+                                Component.translatable("advancements.primal.get_eagle_egg.description"), // The description
+                                null,
+                                AdvancementType.TASK, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("eagle_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Primal_Items.EAGLE_EGG.get()))
+                        .save(consumer, Primal_Main.MOD_ID + "/get_eagle_egg");
             }
 
             //Misc

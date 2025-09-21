@@ -13,7 +13,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
@@ -120,7 +119,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
                 .add(Attributes.ATTACK_DAMAGE, 3f)
                 .add(Attributes.FLYING_SPEED, 0.4F)
                 .add(Attributes.FOLLOW_RANGE, 48.0F)
-                .add(Attributes.STEP_HEIGHT, 1.0f);
+                .add(Attributes.STEP_HEIGHT, 2.0f);
     }
 
     //Init
@@ -335,7 +334,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
     @Override
     protected boolean canFlyToOwner() {
-        return true;
+        return !this.isBaby();
     }
 
     public void stopMoving(){
@@ -590,18 +589,25 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
                 && MiscUtil.isSameEagleAttacking(target, this);
     }
 
-    public static boolean canPickUpEntity(@NotNull Entity target, @NotNull EagleEntity eagle){
+    public boolean canPickUpEntity(@NotNull Entity target){
         //Eagle Size: 1.0166666507720947 * 1.049 = 1.0664833166599272
-        return target.getBoundingBox().getSize()<eagle.getBoundingBox().getSize()*1.049
-                && !eagle.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.IS_STUNNED.get())
+        return target.getBoundingBox().getSize()<this.getBoundingBox().getSize()*1.049
+                && !this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.IS_STUNNED.get())
                 && (target instanceof LivingEntity livingTarget && livingTarget.getHealth()>0)
-                && !(target instanceof FlyingAnimal || target instanceof FlyingMob);
+                && !(target instanceof FlyingAnimal || target instanceof FlyingMob)
+                && !this.isBaby();
     }
+
+    public boolean canBabyAttack(@NotNull Entity target){
+        //Eagle Size: 1.0166666507720947 * 1.049 = 1.0664833166599272
+        return target.getBoundingBox().getSize()<this.getBoundingBox().getSize()*1.049 && this.isBaby();
+    }
+
 
     @Override
     public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
         //Put the cooldown to attack prey each 600 ticks (30s)
-        if(killed.getType().is(Primal_Tags.EAGLE_HUNTABLE)){
+        if(killed.getType().is(Primal_Tags.EAGLE_HUNTABLE) && !this.isBaby()){
             this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, 600L);
         }
 

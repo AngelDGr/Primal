@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.GlobalPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,6 +30,9 @@ public final class Primal_MemoryModuleTypes {
     //Crocodile
     public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> IS_THRASHING =
             Primal_Registries.MEMORY_MODULE_TYPES.register("crocodile_thrashing", () -> new MemoryModuleType<>(Optional.empty()));
+
+    public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> WAS_BASKING =
+            Primal_Registries.MEMORY_MODULE_TYPES.register("crocodile_was_basking", () -> new MemoryModuleType<>(Optional.empty()));
 
     //Eagle
     public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> IS_SNATCHING =

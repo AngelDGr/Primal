@@ -69,7 +69,7 @@ public class Primal_WorldGen {
         registerFeature(context,
                 RIVER_REEDS_CONFIGURED,
                 RIVER_REEDS_FEATURE.get(),
-                new RandomPatchCustomConfig(384,6,6));
+                new RandomPatchCustomConfig(10,8,5));
 
         registerFeature(
                 context,

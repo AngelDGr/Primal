@@ -69,13 +69,25 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.createEggModel("crocodile_egg_three",         "template_three_crocodile_eggs");
         this.createEggModel("crocodile_egg_three_chipped", "template_three_crocodile_eggs");
         this.createEggModel("crocodile_egg_three_cracked", "template_three_crocodile_eggs");
+
+        this.columBlock(Primal_Blocks.STRAW_BALE, "block/straw_bale_side", "block/straw_bale_top");
     }
 
-    public void tintedCross(String name, ResourceLocation cross) {
+    private void columBlock(DeferredHolder<Block, Block> block, String side, String top){
+        this.cubeColumn(block.getRegisteredName(),
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, side),
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, top));
+
+        this.cubeColumnHorizontal(block.getRegisteredName()+"_horizontal",
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, side),
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, top));
+    }
+
+    private void tintedCross(String name, ResourceLocation cross) {
         singleTexture(name, BLOCK_FOLDER + "/tinted_cross", "cross", cross);
     }
 
-    public void tintedOverlayCross(String name, ResourceLocation cross, ResourceLocation overlay) {
+    private void tintedOverlayCross(String name, ResourceLocation cross, ResourceLocation overlay) {
         withExistingParent(name, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "tinted_cross_overlay"))
                 .texture("cross", cross)
                 .texture("overlay", overlay);

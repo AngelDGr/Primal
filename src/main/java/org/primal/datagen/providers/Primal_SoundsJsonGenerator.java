@@ -70,6 +70,17 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
                 "minecraft:mob/sniffer/eat3"
         );
 
+        addSoundEntity(Primal_Sounds.SHARK_IDLE, 4);
+        addSoundEntity(Primal_Sounds.SHARK_ATTACK, 3);
+        addSoundEntity(Primal_Sounds.SHARK_HURT, 4);
+        addSoundEntity(Primal_Sounds.SHARK_DEATH, 1);
+        addSpecificSound(Primal_Sounds.SHARK_FLOP,
+                "minecraft:entity/fish/flop1",
+                "minecraft:entity/fish/flop2",
+                "minecraft:entity/fish/flop3",
+                "minecraft:entity/fish/flop4"
+        );
+
         addSoundEntity(Primal_Sounds.CROCODILE_IDLE, 5);
         addSoundEntity(Primal_Sounds.CROCODILE_HURT, 3);
         addSoundEntity(Primal_Sounds.CROCODILE_ATTACK, 3);

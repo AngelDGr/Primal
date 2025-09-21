@@ -798,6 +798,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
+    public int getAmbientSoundInterval() {
+        return 200;
+    }
+
+    @Override
     protected @Nullable SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
         return Primal_Sounds.CROCODILE_HURT.get();
     }

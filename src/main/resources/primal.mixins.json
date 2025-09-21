@@ -4,7 +4,10 @@
   "minVersion": "0.8",
   "mixins": [
     "AnimalMixin",
+    "CampfireBlockMixin",
+    "EatBlockGoalMixin",
     "EntityMixin",
+    "EntityTypeMixin",
     "ItemMixin",
     "LivingEntityMixin",
     "MaceItemMixin",

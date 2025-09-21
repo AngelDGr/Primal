@@ -73,6 +73,15 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
                 add("subtitles.primal.entity.bear.eat", "Bear eats");
             }
 
+            //Shark
+            {
+                add("subtitles.primal.entity.shark.idle", "Shark groans");
+                add("subtitles.primal.entity.shark.attack", "Shark attacks");
+                add("subtitles.primal.entity.shark.hurt", "Shark hurts");
+                add("subtitles.primal.entity.shark.death", "Shark dies");
+                add("subtitles.primal.entity.shark.flop", "Shark flops");
+            }
+
             //Crocodile
             {
                 add("subtitles.primal.entity.crocodile.idle", "Crocodile growls");
@@ -142,6 +151,9 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
 
             add("advancements.primal.tame_all_birds.title", "Birds Of Feathers");
             add("advancements.primal.tame_all_birds.description", "Tame all Birds including their variants. (Parrots & Eagle)");
+
+            add("advancements.primal.get_eagle_egg.title", "Angry Birds");
+            add("advancements.primal.get_eagle_egg.description", "Get an eagle egg. Don’t forget to feed raw chicken to the baby, be a good parent!");
 
             //Misc
             add("advancements.primal.eat_apple_fritter.title", "Double-Glazed");

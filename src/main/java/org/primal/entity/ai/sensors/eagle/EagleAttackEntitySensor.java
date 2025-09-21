@@ -28,12 +28,24 @@ public final class EagleAttackEntitySensor extends NearestLivingEntitySensor<Eag
         if(eagle.isTame()){
             eagle.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
                     .filter(target ->
-                            Sensor.isEntityAttackable(eagle, target)
-                                    && eagle.getOwner()!=null
-                                    //To defend owner or attack targets when following
-                                    && (eagle.getOwner().getLastHurtByMob()==target || (eagle.getOwner().getLastHurtMob()==target && eagle.isFollowing()))
-                                    //To not attack other owned eagle
-                                    && !(target instanceof EagleEntity eagle2 && eagle2.getOwner()!=null && eagle2.getOwner()==eagle.getOwner())
+                            {
+                                if(eagle.isBaby())
+                                    return Sensor.isEntityAttackable(eagle, target)
+                                            && eagle.getOwner()!=null
+                                            //To defend owner or attack targets when following
+                                            && (eagle.getOwner().getLastHurtByMob()==target || (eagle.getOwner().getLastHurtMob()==target && eagle.isFollowing()))
+                                            //To not attack other owned eagle
+                                            && !(target instanceof EagleEntity eagle2 && eagle2.getOwner()!=null && eagle2.getOwner()==eagle.getOwner())
+                                            && eagle.canBabyAttack(target);
+                                else
+                                    return Sensor.isEntityAttackable(eagle, target)
+                                        && eagle.getOwner()!=null
+                                        //To defend owner or attack targets when following
+                                        && (eagle.getOwner().getLastHurtByMob()==target || (eagle.getOwner().getLastHurtMob()==target && eagle.isFollowing()))
+                                        //To not attack other owned eagle
+                                        && !(target instanceof EagleEntity eagle2 && eagle2.getOwner()!=null && eagle2.getOwner()==eagle.getOwner());
+                            }
+
                     )
                     .findFirst()
                     .ifPresentOrElse(ent -> eagle.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),
@@ -44,7 +56,13 @@ public final class EagleAttackEntitySensor extends NearestLivingEntitySensor<Eag
             eagle.getBrain().getMemory(MemoryModuleType.NEAREST_LIVING_ENTITIES).stream().flatMap(Collection::stream)
                     .filter(
                             target ->
-                                    Sensor.isEntityAttackable(eagle, target) && eagle.canAttack(target)
+                            {
+                                if(eagle.isBaby())
+                                    return Sensor.isEntityAttackable(eagle, target) && eagle.canAttack(target) && eagle.canBabyAttack(target) && eagle.distanceToSqr(target)<9;
+                                else
+                                    return Sensor.isEntityAttackable(eagle, target) && eagle.canAttack(target);
+                            }
+
                     )
                     .findFirst()
                     .ifPresentOrElse(ent -> eagle.getBrain().setMemory(MemoryModuleType.NEAREST_ATTACKABLE, ent),

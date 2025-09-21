@@ -3,6 +3,7 @@ package org.primal.datagen.providers;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -33,5 +34,11 @@ public class Primal_ItemTagsGenerator extends ItemTagsProvider {
         this.tag(Tags.Items.FOODS_GOLDEN)
                 .add(Primal_Items.GOLDEN_APPLE_FRITTER.get())
                 .add(Primal_Items.ENCHANTED_GOLDEN_APPLE_FRITTER.get());
+
+        this.tag(Primal_Tags.STRAW)
+                .add(Primal_Items.RIVER_REEDS.get())
+                .add(Primal_Items.SHORT_RIVER_REEDS.get())
+                .add(Items.SHORT_GRASS)
+                .add(Items.TALL_GRASS);
     }
 }

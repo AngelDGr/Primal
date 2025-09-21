@@ -3,6 +3,7 @@ package org.primal;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.GrassColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -16,6 +17,7 @@ import org.primal.client.renderer.entity.BearRenderer;
 import org.primal.client.renderer.entity.CrocodileRenderer;
 import org.primal.client.renderer.entity.EagleRenderer;
 import org.primal.client.renderer.entity.SharkRenderer;
+import org.primal.client.renderer.replaced.PolarBearRenderer;
 import org.primal.registry.Primal_BlockEntities;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Entities;
@@ -36,6 +38,9 @@ public class Primal_Client {
         event.registerEntityRenderer(Primal_Entities.SHARK.get(),     SharkRenderer::new);
         event.registerEntityRenderer(Primal_Entities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(Primal_Entities.EAGLE.get(),     EagleRenderer::new);
+
+        //Replaced
+        event.registerEntityRenderer(EntityType.POLAR_BEAR,      PolarBearRenderer::new);
 
         event.registerBlockEntityRenderer(Primal_BlockEntities.NEST_BLOCK_ENTITY.get(), NestBlockEntityRenderer::new);
     }

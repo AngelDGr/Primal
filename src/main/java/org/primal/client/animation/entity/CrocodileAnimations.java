@@ -9,10 +9,12 @@ import software.bernie.geckolib.animation.RawAnimation;
 public class CrocodileAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.crocodile.idle");
     public static final RawAnimation WALK = RawAnimation.begin().thenLoop("animation.crocodile.walk");
+
     public static final RawAnimation BASKING_START = RawAnimation.begin().thenPlay("animation.crocodile.basking_start");
-    public static final RawAnimation BASKING = RawAnimation.begin().thenLoop("animation.crocodile.basking");
-    public static final RawAnimation VOMITS = RawAnimation.begin().thenPlay("animation.crocodile.vomits");
+    public static final RawAnimation BASKING = RawAnimation.begin().thenPlay("animation.crocodile.basking_start").thenLoop("animation.crocodile.basking");
     public static final RawAnimation BASKING_END = RawAnimation.begin().thenPlay("animation.crocodile.basking_end");
+
+    public static final RawAnimation VOMITS = RawAnimation.begin().thenPlay("animation.crocodile.vomits");
     public static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.crocodile.swim");
     public static final RawAnimation SWIM_IDLE = RawAnimation.begin().thenLoop("animation.crocodile.swim_idle");
     public static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("animation.crocodile.attack");
@@ -31,9 +33,16 @@ public class CrocodileAnimations {
                 return PlayState.CONTINUE;
             }
 
+
+
             if(animatable.getPose() == Pose.SPIN_ATTACK){
                 state.setControllerSpeed(1f);
                 return state.setAndContinue(animatable.isInWater()? TRASH_UNDERWATER: TRASH);
+            } else if(animatable.getPose() == Pose.INHALING){
+                if (state.getController().getCurrentAnimation() != null && state.getController().getCurrentAnimation().animation().name().equals(BASKING.getAnimationStages().getFirst().animationName())) {
+                    state.getController().transitionLength(5);
+                }
+                return state.setAndContinue(BASKING);
             }
 
             if (state.isMoving()) {

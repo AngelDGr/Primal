@@ -87,6 +87,7 @@ public class SharkAi {
         initFightActivity(brain);
         initRetreatActivity(brain);
         initBeachedActivity(brain);
+        initJockeyActivity(brain);
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
         brain.setDefaultActivity(Activity.IDLE);
         brain.useDefaultActivity();
@@ -160,6 +161,16 @@ public class SharkAi {
         );
     }
 
+    private static void initJockeyActivity(Brain<SharkEntity> brain) {
+        brain.addActivity(
+                Primal_Activities.JOCKEY.get(),
+                10,
+                ImmutableList.of(
+                        new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F)
+                )
+        );
+    }
+
     private static RunOne<SharkEntity> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
@@ -200,7 +211,12 @@ public class SharkAi {
         else if(shark.shouldBeBeached()) {
             brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.BEACHED.get()));
         } else {
-            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Activity.FIGHT, Activity.IDLE));
+
+            if(shark.isSharkJockey())
+                brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.JOCKEY.get()));
+            else
+                brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Activity.FIGHT, Activity.IDLE));
+
             shark.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
         }
 

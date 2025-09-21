@@ -6,7 +6,6 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import org.jetbrains.annotations.NotNull;
-import org.primal.registry.Primal_Activities;
 
 import java.util.function.Predicate;
 

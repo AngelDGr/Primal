@@ -27,7 +27,8 @@ public class CrocodileModel extends DefaultedEntityGeoModel<CrocodileEntity> {
         if (controller.isPlayingTriggeredAnimation()
                 || controller.getCurrentRawAnimation() == CrocodileAnimations.SWIM_IDLE
                 || controller.getCurrentRawAnimation() == CrocodileAnimations.TRASH
-                || controller.getCurrentRawAnimation() == CrocodileAnimations.TRASH_UNDERWATER) {
+                || controller.getCurrentRawAnimation() == CrocodileAnimations.TRASH_UNDERWATER
+                || controller.getCurrentRawAnimation() == CrocodileAnimations.BASKING) {
             return;
         }
 

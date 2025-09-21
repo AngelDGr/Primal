@@ -109,7 +109,11 @@ public class MiscUtil {
 
     public static boolean isSameEagleAttacking(LivingEntity target, LivingEntity eagle) {
         if(target.primal$eagleAttacking().isPresent()){
-            return target.primal$eagleAttacking().get() == eagle.getUUID();
+            //So babies can have priority over other eagles
+            if(eagle.isBaby())
+                return true;
+            else
+                return target.primal$eagleAttacking().get() == eagle.getUUID();
         } else {
             return true;
         }

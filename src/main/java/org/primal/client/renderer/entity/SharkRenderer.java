@@ -21,7 +21,7 @@ public class SharkRenderer extends GeoEntityRenderer<SharkEntity> {
 
     @Override
     protected void applyRotations(SharkEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        if(animatable.isInWater() || (!animatable.isInWater() && !animatable.onGround()))
+        if((animatable.isInWater() || (!animatable.isInWater() && !animatable.onGround())) && !animatable.hasControllingPassenger())
         {
             float yaw = Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot());
             poseStack.mulPose(Axis.YP.rotationDegrees(180f - yaw));

@@ -3,15 +3,26 @@ package org.primal.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.primal.Primal_Main;
 import org.primal.client.model.entity.CrocodileModel;
 import org.primal.entity.animal.CrocodileEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class CrocodileRenderer extends GeoEntityRenderer<CrocodileEntity> {
     public CrocodileRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new CrocodileModel());
+
+        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
+
+            @Override
+            public ResourceLocation getTextureResource(CrocodileEntity crocodile){
+                return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/crocodile/"+crocodile.getVariant().getSerializedName()+".png");
+            }
+        });
     }
 
     @Override

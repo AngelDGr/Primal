@@ -19,8 +19,6 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
 import org.primal.datagen.providers.*;
-import org.primal.registry.Primal_BannerPatterns;
-import org.primal.registry.Primal_DamageTypes;
 import org.primal.registry.Primal_WorldGen;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Primal_Main.MOD_ID)

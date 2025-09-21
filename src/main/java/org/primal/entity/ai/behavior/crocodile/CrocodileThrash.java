@@ -1,7 +1,6 @@
 package org.primal.entity.ai.behavior.crocodile;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;

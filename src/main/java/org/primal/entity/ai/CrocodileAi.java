@@ -71,6 +71,8 @@ public class CrocodileAi {
             MemoryModuleType.IS_PREGNANT,
             MemoryModuleType.PACIFIED,
 
+            Primal_MemoryModuleTypes.WAS_BASKING.get(),
+
             Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get(),
             Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get(),
             MemoryModuleType.ADMIRING_ITEM,
@@ -235,7 +237,12 @@ public class CrocodileAi {
     private static RunOne<CrocodileEntity> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
-                        Pair.of(BehaviorBuilder.triggerIf(Predicate.not(crocodile -> crocodile.isAggressive() || (crocodile.isUnderWater() && crocodile.getAirSupply()>3500)), RandomStroll.stroll(1f)), 1),
+                        Pair.of(new CrocodileBasking(20), 1),
+
+                        Pair.of(BehaviorBuilder.triggerIf(Predicate.not(
+                                crocodile -> crocodile.isAggressive() || (crocodile.isUnderWater() && crocodile.getAirSupply()>3500)),
+                                RandomStroll.stroll(1f)), 1),
+
                         Pair.of(new DoNothing(30, 60), 1)));
     }
 

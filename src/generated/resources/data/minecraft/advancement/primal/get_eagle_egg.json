@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "eagle_egg": {
+      "conditions": {
+        "items": [
+          {
+            "items": "primal:eagle_egg"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.get_eagle_egg.description"
+    },
+    "icon": {
+      "count": 1,
+      "id": "primal:eagle_egg"
+    },
+    "title": {
+      "translate": "advancements.primal.get_eagle_egg.title"
+    }
+  },
+  "requirements": [
+    [
+      "eagle_egg"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

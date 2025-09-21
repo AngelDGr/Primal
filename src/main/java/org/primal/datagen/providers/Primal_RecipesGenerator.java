@@ -8,6 +8,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Items;
+import org.primal.registry.Primal_Tags;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -102,6 +103,16 @@ public class Primal_RecipesGenerator extends RecipeProvider {
 
         slabBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SLAB.get(),  Ingredient.of(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get().asItem()))
                 .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                .save(exporter);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.STRAW_BALE.get(), 1)
+                .define('#', Primal_Tags.STRAW)
+                .pattern("##")
+                .pattern("##")
+                .unlockedBy("has_reeds", has(Primal_Items.RIVER_REEDS.get()))
+                .unlockedBy("has_short_reeds", has(Primal_Items.SHORT_RIVER_REEDS.get()))
+                .unlockedBy("has_short_grass", has(Items.SHORT_GRASS))
+                .unlockedBy("has_tall_grass", has(Items.TALL_GRASS))
                 .save(exporter);
     }
 }

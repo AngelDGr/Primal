@@ -4,6 +4,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -106,6 +107,14 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/nest_south_side"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/nest_east_side"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/nest_west_side"));
+
+        this.axisBlock((RotatedPillarBlock) Primal_Blocks.STRAW_BALE.get(),
+                modelOf("block/straw_bale"),
+                modelOf("block/straw_bale_horizontal"));
+    }
+
+    private ModelFile modelOf(String location){
+        return new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, location));
     }
 
     private void simpleStairs(DeferredHolder<Block, Block> stairs, DeferredHolder<Block, Block> baseBlock){
