@@ -13,6 +13,7 @@ public class PolarBearRenderer extends GeoReplacedEntityRenderer<PolarBear, Pola
 
     public PolarBearRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new PolarBearModel(), new PolarBearReplaced());
+        shadowRadius=1.2F;
     }
 
     @Override

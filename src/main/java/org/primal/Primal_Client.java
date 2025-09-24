@@ -17,6 +17,7 @@ import org.primal.client.renderer.entity.BearRenderer;
 import org.primal.client.renderer.entity.CrocodileRenderer;
 import org.primal.client.renderer.entity.EagleRenderer;
 import org.primal.client.renderer.entity.SharkRenderer;
+import org.primal.client.renderer.replaced.FoxRenderer;
 import org.primal.client.renderer.replaced.PolarBearRenderer;
 import org.primal.registry.Primal_BlockEntities;
 import org.primal.registry.Primal_Blocks;
@@ -41,6 +42,7 @@ public class Primal_Client {
 
         //Replaced
         event.registerEntityRenderer(EntityType.POLAR_BEAR,      PolarBearRenderer::new);
+        event.registerEntityRenderer(EntityType.FOX,      FoxRenderer::new);
 
         event.registerBlockEntityRenderer(Primal_BlockEntities.NEST_BLOCK_ENTITY.get(), NestBlockEntityRenderer::new);
     }

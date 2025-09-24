@@ -23,6 +23,8 @@ public class CrocodileRenderer extends GeoEntityRenderer<CrocodileEntity> {
                 return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/crocodile/"+crocodile.getVariant().getSerializedName()+".png");
             }
         });
+
+        shadowRadius=1.1F;
     }
 
     @Override

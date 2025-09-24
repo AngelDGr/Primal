@@ -25,6 +25,8 @@ public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
         this.addRenderLayer(new BearBarrelsLayer(this));
         this.addRenderLayer(new BearHoneyLayer(this));
         this.addRenderLayer(new BearSleepLayer(this));
+
+        shadowRadius=1.0F;
     }
 
     @Override

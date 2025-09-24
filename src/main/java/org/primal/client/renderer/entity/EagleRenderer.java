@@ -18,6 +18,8 @@ public final class EagleRenderer extends GeoEntityRenderer<EagleEntity> {
         super(context, new EagleModel());
 
         this.addRenderLayer(new EagleCollarLayer(this));
+
+        shadowRadius=0.5F;
     }
 
     @Override

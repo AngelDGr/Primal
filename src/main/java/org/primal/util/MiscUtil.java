@@ -4,10 +4,13 @@ import com.google.common.collect.ImmutableList;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Tags;
 
@@ -117,5 +120,23 @@ public class MiscUtil {
         } else {
             return true;
         }
+    }
+
+    /**
+     Convenient method to add items to a CreativeTab in order after one item
+     */
+    public static void insertItemsAfter(BuildCreativeModeTabContentsEvent event, ItemStack after, ItemStack... itemStacks){
+
+        for (int i=0; i<itemStacks.length; i++){
+            if(i==0){
+                event.insertAfter(after, itemStacks[i], CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            }
+            else {
+                event.insertAfter(itemStacks[i-1], itemStacks[i], CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            }
+
+        }
+
+
     }
 }

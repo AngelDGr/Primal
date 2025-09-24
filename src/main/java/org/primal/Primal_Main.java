@@ -4,6 +4,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
@@ -23,6 +25,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -86,6 +89,7 @@ public class Primal_Main {
     @SubscribeEvent
     public static void registerCommonEvent(final FMLCommonSetupEvent event){
         setFlammables();
+
     }
 
     public static void setFlammables() {
@@ -191,7 +195,110 @@ public class Primal_Main {
     }
 
 
+    @SubscribeEvent
+    public static void addToCreativeTabs(@NotNull BuildCreativeModeTabContentsEvent event) {
 
+        if(event.getTabKey().equals(CreativeModeTabs.FOOD_AND_DRINKS)){
+
+            MiscUtil.insertItemsAfter(event,
+                    Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance(),
+
+                    Primal_Items.APPLE_FRITTER.get().getDefaultInstance(),
+                    Primal_Items.GOLDEN_APPLE_FRITTER.get().getDefaultInstance(),
+                    Primal_Items.ENCHANTED_GOLDEN_APPLE_FRITTER.get().getDefaultInstance());
+        }
+
+        if(event.getTabKey().equals(CreativeModeTabs.NATURAL_BLOCKS)){
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.SHORT_GRASS.getDefaultInstance(),
+                    Primal_Items.SHORT_RIVER_REEDS.get().getDefaultInstance()
+            );
+
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.TALL_GRASS.getDefaultInstance(),
+                    Primal_Items.RIVER_REEDS.get().getDefaultInstance()
+            );
+
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.FROGSPAWN.getDefaultInstance(),
+                    Primal_Items.NEST.get().getDefaultInstance()
+            );
+
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.SNIFFER_EGG.getDefaultInstance(),
+                    Primal_Items.EAGLE_EGG.get().getDefaultInstance(),
+                    Primal_Items.CROCODILE_EGG.get().getDefaultInstance()
+            );
+
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.LILY_PAD.getDefaultInstance(),
+                    Primal_Items.SHARK_TOOTH.get().getDefaultInstance(),
+                    Primal_Items.SEASHELLS.get().getDefaultInstance()
+            );
+
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.HAY_BLOCK.getDefaultInstance(),
+                    Primal_Items.STRAW_BLOCK.get().getDefaultInstance()
+            );
+        }
+
+        if(event.getTabKey().equals(CreativeModeTabs.INGREDIENTS)){
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.TURTLE_SCUTE.getDefaultInstance(),
+                    Primal_Items.CROCODILE_SCUTE.get().getDefaultInstance()
+            );
+
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.FLOWER_BANNER_PATTERN.getDefaultInstance(),
+                    Primal_Items.PAW_BANNER_PATTERN.get().getDefaultInstance(),
+                    Primal_Items.JAWS_BANNER_PATTERN.get().getDefaultInstance(),
+                    Primal_Items.MARSH_BANNER_PATTERN.get().getDefaultInstance(),
+                    Primal_Items.EYRIE_BANNER_PATTERN.get().getDefaultInstance()
+            );
+        }
+
+        if(event.getTabKey().equals(CreativeModeTabs.BUILDING_BLOCKS)){
+            MiscUtil.insertItemsAfter(
+                    event,
+                    Items.BAMBOO_BUTTON.getDefaultInstance(),
+                    Primal_Items.CROCODILE_SCUTE_BLOCK.get().getDefaultInstance(),
+                    Primal_Items.CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
+                    Primal_Items.CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
+                    Primal_Items.CHISELED_CROCODILE_SCUTE.get().getDefaultInstance(),
+                    Primal_Items.CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance()
+            );
+        }
+
+        if(event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)){
+            //Bat -> Bear -> Bee
+            event.insertAfter(Items.BAT_SPAWN_EGG.getDefaultInstance(),
+                    Primal_Items.BEAR_SPAWN_EGG.get().getDefaultInstance(),
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
+            //Creeper -> Crocodile
+            event.insertAfter(Items.CREEPER_SPAWN_EGG.getDefaultInstance(),
+                    Primal_Items.CROCODILE_SPAWN_EGG.get().getDefaultInstance(),
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
+            //Drowned -> Eagle -> Elder Guardian
+            event.insertAfter(Items.DROWNED_SPAWN_EGG.getDefaultInstance(),
+                    Primal_Items.EAGLE_SPAWN_EGG.get().getDefaultInstance(),
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
+            //Salmon -> Shark -> Sheep
+            event.insertAfter(Items.SALMON_SPAWN_EGG.getDefaultInstance(),
+                    Primal_Items.SHARK_SPAWN_EGG.get().getDefaultInstance(),
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+    }
 
     @SubscribeEvent
     public static void registerAttribute(@NotNull EntityAttributeCreationEvent event) {

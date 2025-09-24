@@ -55,7 +55,7 @@ public abstract class PolarBearMixin extends Animal implements NeutralMob {
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private void primal$implementAttackAnimation(CallbackInfo ci){
+    private void primal$triggerAttackAnimation(CallbackInfo ci){
         //This triggers the animation directly from the replacing class
         if(this.isStanding() && !this.isInWater()){
             if (RenderUtil.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity){

@@ -8,6 +8,8 @@
     "EatBlockGoalMixin",
     "EntityMixin",
     "EntityTypeMixin",
+    "FoxMixin",
+    "FoxMixin$FoxPounceMixin",
     "ItemMixin",
     "LivingEntityMixin",
     "MaceItemMixin",

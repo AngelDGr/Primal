@@ -2,9 +2,9 @@ package org.primal.entity.replaced;
 
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.animal.Fox;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.replaced.PolarBearAnimations;
+import org.primal.client.animation.replaced.FoxAnimations;
 import software.bernie.geckolib.animatable.GeoReplacedEntity;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -13,30 +13,30 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class PolarBearReplaced implements GeoReplacedEntity {
+public class FoxReplaced implements GeoReplacedEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public PolarBearReplaced(){
+    public FoxReplaced(){
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
 
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(PolarBearAnimations.mainController(this)
-                        .receiveTriggeredAnimations()
-                        .triggerableAnim("attack", PolarBearAnimations.ATTACK)
-                        );
+    public EntityType<Fox> getReplacingEntityType() {
+        return EntityType.FOX;
     }
 
     @Override
-    public EntityType<?> getReplacingEntityType() {
-        return EntityType.POLAR_BEAR;
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(FoxAnimations.mainController(this)
+                .receiveTriggeredAnimations()
+                .triggerableAnim("unstuck", FoxAnimations.UNSTUCK)
+        );
     }
 
     @Nullable
-    public PolarBear getEntityFromState(AnimationState<PolarBearReplaced> state) {
+    public Fox getEntityFromState(AnimationState<FoxReplaced> state) {
         Entity entity = state.getData(DataTickets.ENTITY);
-        if (!(entity instanceof PolarBear polarBear)) return null;
+        if (!(entity instanceof Fox polarBear)) return null;
         return polarBear;
     }
 

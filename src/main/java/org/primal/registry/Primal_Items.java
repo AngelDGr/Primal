@@ -152,53 +152,54 @@ public class Primal_Items {
 
     public static void initGroups(){
 
-        Primal_Registries.CREATIVE_MODE_TABS.register(
-                "item_group." + Primal_Main.MOD_ID,
-                () -> CreativeModeTab.builder()
-                        .title(Component.translatable("itemGroup." + Primal_Main.MOD_ID))
-                        .icon(() -> new ItemStack(Primal_Items.SHARK_TOOTH.get()))
-                        .displayItems((itemDisplayParameters, output) ->
-                                {
-
-                                    //Spawn Eggs
-                                    {
-                                        output.accept(BEAR_SPAWN_EGG.get());
-                                        output.accept(SHARK_SPAWN_EGG.get());
-                                        output.accept(CROCODILE_SPAWN_EGG.get());
-                                        output.accept(EAGLE_SPAWN_EGG.get());
-                                    }
-
-                                    {
-                                        output.accept(APPLE_FRITTER.get());
-                                        output.accept(GOLDEN_APPLE_FRITTER.get());
-                                        output.accept(ENCHANTED_GOLDEN_APPLE_FRITTER.get());
-                                        output.accept(SHARK_TOOTH.get());
-                                        output.accept(NEST.get());
-                                        output.accept(EAGLE_EGG.get());
-                                        output.accept(CROCODILE_EGG.get());
-                                        output.accept(CROCODILE_SCUTE.get());
-                                        output.accept(CROCODILE_SCUTE_BLOCK.get());
-                                        output.accept(CROCODILE_SCUTE_SHINGLE.get());
-                                        output.accept(CHISELED_CROCODILE_SCUTE.get());
-                                        output.accept(CROCODILE_SCUTE_STAIRS.get());
-                                        output.accept(CROCODILE_SCUTE_SLAB.get());
-
-                                        output.accept(SHORT_RIVER_REEDS.get());
-                                        output.accept(RIVER_REEDS.get());
-                                        output.accept(SEASHELLS.get());
-
-                                        output.accept(STRAW_BLOCK.get());
-
-                                        output.accept(PAW_BANNER_PATTERN.get());
-                                        output.accept(JAWS_BANNER_PATTERN.get());
-                                        output.accept(MARSH_BANNER_PATTERN.get());
-                                        output.accept(EYRIE_BANNER_PATTERN.get());
-                                    }
-
-                                }
-                        )
-                        .build()
-        );
+        //Only for testing purposes
+//        Primal_Registries.CREATIVE_MODE_TABS.register(
+//                "item_group." + Primal_Main.MOD_ID,
+//                () -> CreativeModeTab.builder()
+//                        .title(Component.translatable("itemGroup." + Primal_Main.MOD_ID))
+//                        .icon(() -> new ItemStack(Primal_Items.SHARK_TOOTH.get()))
+//                        .displayItems((itemDisplayParameters, output) ->
+//                                {
+//
+//                                    //Spawn Eggs
+//                                    {
+//                                        output.accept(BEAR_SPAWN_EGG.get());
+//                                        output.accept(SHARK_SPAWN_EGG.get());
+//                                        output.accept(CROCODILE_SPAWN_EGG.get());
+//                                        output.accept(EAGLE_SPAWN_EGG.get());
+//                                    }
+//
+//                                    {
+//                                        output.accept(APPLE_FRITTER.get());
+//                                        output.accept(GOLDEN_APPLE_FRITTER.get());
+//                                        output.accept(ENCHANTED_GOLDEN_APPLE_FRITTER.get());
+//                                        output.accept(SHARK_TOOTH.get());
+//                                        output.accept(NEST.get());
+//                                        output.accept(EAGLE_EGG.get());
+//                                        output.accept(CROCODILE_EGG.get());
+//                                        output.accept(CROCODILE_SCUTE.get());
+//                                        output.accept(CROCODILE_SCUTE_BLOCK.get());
+//                                        output.accept(CROCODILE_SCUTE_SHINGLE.get());
+//                                        output.accept(CHISELED_CROCODILE_SCUTE.get());
+//                                        output.accept(CROCODILE_SCUTE_STAIRS.get());
+//                                        output.accept(CROCODILE_SCUTE_SLAB.get());
+//
+//                                        output.accept(SHORT_RIVER_REEDS.get());
+//                                        output.accept(RIVER_REEDS.get());
+//                                        output.accept(SEASHELLS.get());
+//
+//                                        output.accept(STRAW_BLOCK.get());
+//
+//                                        output.accept(PAW_BANNER_PATTERN.get());
+//                                        output.accept(JAWS_BANNER_PATTERN.get());
+//                                        output.accept(MARSH_BANNER_PATTERN.get());
+//                                        output.accept(EYRIE_BANNER_PATTERN.get());
+//                                    }
+//
+//                                }
+//                        )
+//                        .build()
+//        );
     }
 
     public static DeferredHolder<Item, Item> register(final String name, final Supplier<Item> item) {

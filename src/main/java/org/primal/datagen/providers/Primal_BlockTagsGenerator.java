@@ -36,7 +36,8 @@ public class Primal_BlockTagsGenerator extends BlockTagsProvider {
                 .add(Primal_Blocks.CROCODILE_EGG.get())
                 .add(Primal_Blocks.EAGLE_EGG.get())
                 .add(Blocks.TURTLE_EGG)
-                .add(Blocks.SNIFFER_EGG);
+                .add(Blocks.SNIFFER_EGG)
+                .add(Blocks.DRAGON_EGG);
 
         this.tag(Primal_Tags.RIVER_REED_SOIL)
                 .add(Blocks.GRAVEL)

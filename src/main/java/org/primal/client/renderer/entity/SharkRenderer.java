@@ -12,6 +12,8 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 public class SharkRenderer extends GeoEntityRenderer<SharkEntity> {
     public SharkRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new SharkModel());
+
+        shadowRadius=0.9F;
     }
 
     @Override
