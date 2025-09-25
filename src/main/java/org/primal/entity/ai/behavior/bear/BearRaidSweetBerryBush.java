@@ -55,7 +55,7 @@ public class BearRaidSweetBerryBush extends Behavior<BearEntity> {
                 return;
             }
 
-            //TODO: Maybe change this
+            //xTODO: Maybe change this
             //Just decreases the age of the bush, and set it to 1 (No berries)
 //            BlockState newState = originalState.setValue(SweetBerryBushBlock.AGE, 1);
 //            level.setBlock(nearestBush, newState, 2);

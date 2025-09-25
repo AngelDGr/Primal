@@ -229,15 +229,14 @@ public class Primal_Main {
 
             MiscUtil.insertItemsAfter(
                     event,
-                    Items.SNIFFER_EGG.getDefaultInstance(),
-                    Primal_Items.EAGLE_EGG.get().getDefaultInstance(),
-                    Primal_Items.CROCODILE_EGG.get().getDefaultInstance()
+                    Items.TURTLE_EGG.getDefaultInstance(),
+                    Primal_Items.CROCODILE_EGG.get().getDefaultInstance(),
+                    Primal_Items.EAGLE_EGG.get().getDefaultInstance()
             );
 
             MiscUtil.insertItemsAfter(
                     event,
                     Items.LILY_PAD.getDefaultInstance(),
-                    Primal_Items.SHARK_TOOTH.get().getDefaultInstance(),
                     Primal_Items.SEASHELLS.get().getDefaultInstance()
             );
 
@@ -257,6 +256,12 @@ public class Primal_Main {
 
             MiscUtil.insertItemsAfter(
                     event,
+                    Items.PRISMARINE_CRYSTALS.getDefaultInstance(),
+                    Primal_Items.SHARK_TOOTH.get().getDefaultInstance()
+            );
+
+            MiscUtil.insertItemsAfter(
+                    event,
                     Items.FLOWER_BANNER_PATTERN.getDefaultInstance(),
                     Primal_Items.PAW_BANNER_PATTERN.get().getDefaultInstance(),
                     Primal_Items.JAWS_BANNER_PATTERN.get().getDefaultInstance(),
@@ -268,7 +273,7 @@ public class Primal_Main {
         if(event.getTabKey().equals(CreativeModeTabs.BUILDING_BLOCKS)){
             MiscUtil.insertItemsAfter(
                     event,
-                    Items.BAMBOO_BUTTON.getDefaultInstance(),
+                    Items.DARK_PRISMARINE_SLAB.getDefaultInstance(),
                     Primal_Items.CROCODILE_SCUTE_BLOCK.get().getDefaultInstance(),
                     Primal_Items.CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
                     Primal_Items.CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
