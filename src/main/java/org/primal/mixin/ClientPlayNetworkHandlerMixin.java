@@ -29,7 +29,7 @@ public abstract class ClientPlayNetworkHandlerMixin extends ClientCommonPacketLi
     }
 
     @Inject(method = "handleEntityEvent", at = @At("TAIL"), cancellable = true)
-    private void injectGhoulSound(@NotNull final ClientboundEntityEventPacket packet, final CallbackInfo ci) {
+    private void primal$injectCrocSound(@NotNull final ClientboundEntityEventPacket packet, final CallbackInfo ci) {
         final Entity entity = packet.getEntity(this.level);
         if (entity instanceof CrocodileEntity crocodile) {
             if (packet.getEventId() == CrocodileEntity.CROCODILE_THRASHING) {

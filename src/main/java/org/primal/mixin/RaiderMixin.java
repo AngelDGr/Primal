@@ -42,27 +42,6 @@ public abstract class RaiderMixin extends PatrollingMonster {
                         primal$triggerAdvancementKillCaptain(serverPlayer);
                 }
             }
-
-//            //Direct attack
-//            if((cause.is(DamageTypes.MOB_ATTACK) && cause.getEntity() instanceof EagleEntity eagle)){
-//                if(eagle.getOwner()!=null && eagle.getOwner() instanceof ServerPlayer serverPlayer)
-//                    primal$triggerAdvancementKillCaptain(serverPlayer);
-//            }
-//            //Fall damage
-//            else if(cause.is(DamageTypes.FALL)){
-//                List<EagleEntity> nearEagles =
-//                        this.level().getEntitiesOfClass(
-//                                EagleEntity.class,
-//                                this.getBoundingBox().inflate(30),
-//                                eagle -> eagle.isTame() && eagle.isFollowing());
-//
-//                if(!nearEagles.isEmpty()){
-//                    for (EagleEntity eagle: nearEagles){
-//                        if(eagle.getOwner()!=null && eagle.getOwner() instanceof ServerPlayer serverPlayer)
-//                            primal$triggerAdvancementKillCaptain(serverPlayer);
-//                    }
-//                }
-//            }
         }
     }
 

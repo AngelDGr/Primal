@@ -1,5 +1,6 @@
 package org.primal;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -12,6 +13,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
+import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
+import org.jetbrains.annotations.NotNull;
 import org.primal.client.renderer.block_entity.NestBlockEntityRenderer;
 import org.primal.client.renderer.entity.BearRenderer;
 import org.primal.client.renderer.entity.CrocodileRenderer;
@@ -23,6 +27,7 @@ import org.primal.registry.Primal_BlockEntities;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Items;
+import org.primal.util.MiscUtil;
 
 @EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 @Mod(value = Primal_Main.MOD_ID, dist = Dist.CLIENT)
@@ -72,5 +77,18 @@ public class Primal_Client {
         event.register((stack, tintIndex) -> 0x91bd59, Primal_Items.SHORT_RIVER_REEDS.get());
 
         event.register((stack, tintIndex) -> tintIndex==0? 0x91bd59: -1, Primal_Items.RIVER_REEDS.get());
+    }
+
+    @SuppressWarnings("unused")
+    @EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.GAME, value = Dist.CLIENT)
+    private static class Primal_MainGameBusClient {
+        @SubscribeEvent
+        public static void customizeOverlay(RenderGuiLayerEvent.@NotNull Pre event) {
+            if (VanillaGuiLayers.VEHICLE_HEALTH == event.getName()) {
+                assert Minecraft.getInstance().player != null;
+                if(MiscUtil.isRidingUnfriendly(Minecraft.getInstance().player))
+                    event.setCanceled(true);
+            }
+        }
     }
 }

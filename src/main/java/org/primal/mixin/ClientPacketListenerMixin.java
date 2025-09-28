@@ -22,7 +22,7 @@ public class ClientPacketListenerMixin {
     @WrapWithCondition(
             method = "handleSetEntityPassengersPacket",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui;setOverlayMessage(Lnet/minecraft/network/chat/Component;Z)V")
-    )    private boolean mtg$disableDismountToast(Gui instance, Component component, boolean animateColor, @Local(argsOnly = true) ClientboundSetPassengersPacket packet){
+    )    private boolean primal$disableDismountToast(Gui instance, Component component, boolean animateColor, @Local(argsOnly = true) ClientboundSetPassengersPacket packet){
         Entity entity = this.level.getEntity(packet.getVehicle());
 
 
@@ -32,7 +32,7 @@ public class ClientPacketListenerMixin {
     @WrapWithCondition(
             method = "handleSetEntityPassengersPacket",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/GameNarrator;sayNow(Lnet/minecraft/network/chat/Component;)V")
-    )    private boolean mtg$disableDismountNarrator(GameNarrator instance, Component message, @Local(argsOnly = true) ClientboundSetPassengersPacket packet){
+    )    private boolean primal$disableDismountNarrator(GameNarrator instance, Component message, @Local(argsOnly = true) ClientboundSetPassengersPacket packet){
         Entity entity = this.level.getEntity(packet.getVehicle());
 
 

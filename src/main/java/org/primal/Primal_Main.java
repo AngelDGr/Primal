@@ -1,6 +1,5 @@
 package org.primal;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -23,8 +22,6 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
-import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
@@ -126,15 +123,6 @@ public class Primal_Main {
                     event.getDrops().remove(itemEntity);
 
                 crocodile.addItemsToInventory(stacks);
-            }
-        }
-
-        @SubscribeEvent
-        public static void customizeOverlay(RenderGuiLayerEvent.@NotNull Pre event) {
-            if (VanillaGuiLayers.VEHICLE_HEALTH == event.getName()) {
-                assert Minecraft.getInstance().player != null;
-                if(MiscUtil.isRidingUnfriendly(Minecraft.getInstance().player))
-                    event.setCanceled(true);
             }
         }
 

@@ -38,7 +38,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
     private static final EntityDataAccessor<Optional<UUID>> primal$eagleAttacking = SynchedEntityData.defineId(LivingEntityMixin.class, EntityDataSerializers.OPTIONAL_UUID);
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void injectToxicityDataTracker(final SynchedEntityData.Builder builder, final CallbackInfo ci){
+    private void primal$IsEagleAttackingSynchedData(final SynchedEntityData.Builder builder, final CallbackInfo ci){
         builder.define(primal$eagleAttacking, Optional.empty());
     }
 
@@ -57,7 +57,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
-    private void primal$test(CallbackInfo ci) {
+    private void primal$removeEagle(CallbackInfo ci) {
         if(p$THIS.primal$eagleAttacking().isPresent()
                 && !this.level().isClientSide
                 //Erase the eagle value if its null or the eagle is dead

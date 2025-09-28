@@ -18,7 +18,7 @@ public class EntityTypeMixin<T extends Entity> {
             ),
             index = 0
     )
-    private static float modifyFoxWidth(float original) {
+    private static float primal$modifyFoxWidth(float original) {
         return (original == 0.6F) ? 0.9f : original;
     }
 
@@ -31,7 +31,7 @@ public class EntityTypeMixin<T extends Entity> {
             ),
             index = 0
     )
-    private static float modifyPolarBearWidth(float original) {
+    private static float primal$modifyPolarBearWidth(float original) {
         return (original == 1.4f) ? 1.9f : original;
     }
 
@@ -44,7 +44,7 @@ public class EntityTypeMixin<T extends Entity> {
             ),
             index = 1
     )
-    private static float modifyPolarBearHeight(float original) {
+    private static float primal$modifyPolarBearHeight(float original) {
         return (original == 1.4f) ? 1.75f : original;
     }
 
