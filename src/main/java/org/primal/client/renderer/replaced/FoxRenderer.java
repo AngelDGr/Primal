@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Fox;
@@ -18,6 +19,8 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
+
+import java.util.Optional;
 
 public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
 
@@ -68,6 +71,31 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
     @Override
     public ResourceLocation getTextureLocation(FoxReplaced animatable) {
         Fox fox = this.currentEntity;
+        CompoundTag mainTag = new CompoundTag();
+
+        fox.saveWithoutId(mainTag);
+        CompoundTag neoforgeAttachments= mainTag.getCompound("neoforge:attachments");
+        var variantTag = neoforgeAttachments.get("mixed_litter:variants");
+
+        //If it has nomansland variation, it set the location differently, so it can use nomansland textures
+        if(variantTag!=null && variantTag.getAsString().contains("nomansland")){
+            String raw = variantTag.getAsString();
+
+            // Defensive check: only parse if format looks correct
+            if (raw.contains("/")) {
+                String[] variantSplit = raw.split("/");
+                if (variantSplit.length > 1) {
+                    String[] quoteSplit = variantSplit[1].split("\"");
+                    if (quoteSplit.length > 0 && !quoteSplit[0].isEmpty()) {
+                        String variant = quoteSplit[0];
+                        return ResourceLocation.fromNamespaceAndPath(
+                                "nomansland",
+                                "textures/entity/mob_variants/fox/" + variant + "_fox" + (fox.isSleeping() ? "_sleep" : "") + ".png"
+                        );
+                    }
+                }
+            }
+        }
 
         return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/fox/"+fox.getVariant().getSerializedName()+(fox.isSleeping()?"_sleep":"")+ ".png");
     }
