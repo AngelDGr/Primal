@@ -2,6 +2,7 @@ package org.primal.datagen.providers;
 
 import java.util.concurrent.CompletableFuture;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EntityTypeTags;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -14,6 +15,7 @@ import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Tags;
+import org.primal.util.MiscUtil;
 
 public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
 
@@ -21,6 +23,24 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                                      @Nullable ExistingFileHelper existingFileHelper) {
         super(output, provider, Primal_Main.MOD_ID, existingFileHelper);
     }
+
+    //No Man's Land Mobs
+    ResourceLocation firebomb = MiscUtil.nomanslandLoc("firebomb");
+    ResourceLocation ink_bomb = MiscUtil.nomanslandLoc("ink_bomb");
+    ResourceLocation explosive = MiscUtil.nomanslandLoc("explosive");
+    ResourceLocation living_urn = MiscUtil.nomanslandLoc("living_urn");
+    ResourceLocation incendiary_arrow = MiscUtil.nomanslandLoc("incendiary_arrow");
+    ResourceLocation ember = MiscUtil.nomanslandLoc("ember");
+    ResourceLocation lingering_cloud = MiscUtil.nomanslandLoc("lingering_cloud");
+    ResourceLocation ink_cloud = MiscUtil.nomanslandLoc("ink_cloud");
+    ResourceLocation pacified_cloud = MiscUtil.nomanslandLoc("pacified_cloud");
+
+    ResourceLocation billhook_bass = MiscUtil.nomanslandLoc("billhook_bass");
+    ResourceLocation deer = MiscUtil.nomanslandLoc("deer");
+    ResourceLocation goose = MiscUtil.nomanslandLoc("goose");
+    // ResourceLocation buried = MiscUtil.nomanslandLoc("buried"); // if you uncomment the BURIED entity
+    ResourceLocation moose = MiscUtil.nomanslandLoc("moose");
+    ResourceLocation tortoise = MiscUtil.nomanslandLoc("tortoise");
 
     @Override
     protected void addTags(@NotNull Provider provider) {
@@ -40,7 +60,10 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                         EntityType.HORSE,
                         EntityType.DONKEY,
                         EntityType.LLAMA,
-                        EntityType.RABBIT);
+                        EntityType.RABBIT)
+                .addOptional(goose)
+                .addOptional(deer)
+                .addOptional(moose);
 
         this.tag(Primal_Tags.SHARK_HUNTABLE)
                 .add(
@@ -87,18 +110,24 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                         EntityType.LLAMA,
                         EntityType.PANDA,
                         EntityType.TRADER_LLAMA,
-                        EntityType.WOLF);
+                        EntityType.WOLF)
+                .addOptional(deer)
+                .addOptional(goose)
+                .addOptional(moose)
+                .addOptional(tortoise);
 
         this.tag(Primal_Tags.CROCODILE_NEVER_ATTACK)
                 .add(EntityType.TROPICAL_FISH,
                         EntityType.SALMON,
-                        EntityType.COD);
+                        EntityType.COD)
+                .addOptional(billhook_bass);
 
         this.tag(Primal_Tags.EAGLE_HUNTABLE)
                 .add(
                         EntityType.CHICKEN,
                         EntityType.RABBIT,
                         EntityType.SALMON,
-                        EntityType.COD);
+                        EntityType.COD)
+                .addOptional(billhook_bass);
     }
 }

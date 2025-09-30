@@ -1,6 +1,7 @@
 package org.primal.util;
 
 import com.google.common.collect.ImmutableList;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -138,5 +139,9 @@ public class MiscUtil {
         }
 
 
+    }
+
+    public static ResourceLocation nomanslandLoc(String name){
+        return ResourceLocation.fromNamespaceAndPath("nomansland", name);
     }
 }

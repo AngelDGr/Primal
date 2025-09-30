@@ -20,8 +20,6 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-import java.util.Optional;
-
 public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
 
     private static final String ITEM = "mouth";
@@ -88,10 +86,10 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
                     String[] quoteSplit = variantSplit[1].split("\"");
                     if (quoteSplit.length > 0 && !quoteSplit[0].isEmpty()) {
                         String variant = quoteSplit[0];
-                        return ResourceLocation.fromNamespaceAndPath(
-                                "nomansland",
-                                "textures/entity/mob_variants/fox/" + variant + "_fox" + (fox.isSleeping() ? "_sleep" : "") + ".png"
-                        );
+                        //Support only for cream and forest, to avoid missing textures
+                        if(variant.equals("cream") || variant.equals("forest"))
+                           return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
+                                   "textures/entity/fox/nomansland/"+variant +(fox.isSleeping()?"_sleep":"")+ ".png");
                     }
                 }
             }
