@@ -9,6 +9,22 @@
     "minecraft:old_growth_birch_forest",
     "minecraft:windswept_forest",
     "minecraft:grove",
+    {
+      "id": "nomansland:old_growth_forest",
+      "required": false
+    },
+    {
+      "id": "nomansland:old_growth_forest_edge",
+      "required": false
+    },
+    {
+      "id": "nomansland:boreal_forest",
+      "required": false
+    },
+    {
+      "id": "nomansland:dark_taiga",
+      "required": false
+    },
     "#primal:has_mob/has_variant/black_bear_variant"
   ]
 }

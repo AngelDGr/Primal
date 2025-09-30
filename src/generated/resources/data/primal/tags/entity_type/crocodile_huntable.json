@@ -28,6 +28,22 @@
     "minecraft:llama",
     "minecraft:panda",
     "minecraft:trader_llama",
-    "minecraft:wolf"
+    "minecraft:wolf",
+    {
+      "id": "nomansland:deer",
+      "required": false
+    },
+    {
+      "id": "nomansland:goose",
+      "required": false
+    },
+    {
+      "id": "nomansland:moose",
+      "required": false
+    },
+    {
+      "id": "nomansland:tortoise",
+      "required": false
+    }
   ]
 }

@@ -1,5 +1,9 @@
 {
   "values": [
+    {
+      "id": "nomansland:dark_swamp",
+      "required": false
+    },
     "minecraft:swamp",
     "#primal:has_mob/has_variant/black_crocodile_variant"
   ]

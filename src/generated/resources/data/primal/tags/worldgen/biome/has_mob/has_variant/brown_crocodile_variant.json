@@ -1,5 +1,9 @@
 {
   "values": [
+    {
+      "id": "nomansland:bog",
+      "required": false
+    },
     "minecraft:desert",
     "minecraft:savanna",
     "minecraft:windswept_savanna"

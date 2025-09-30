@@ -2,6 +2,10 @@
   "values": [
     "minecraft:tropical_fish",
     "minecraft:salmon",
-    "minecraft:cod"
+    "minecraft:cod",
+    {
+      "id": "nomansland:billhook_bass",
+      "required": false
+    }
   ]
 }

@@ -11,6 +11,18 @@
     "minecraft:horse",
     "minecraft:donkey",
     "minecraft:llama",
-    "minecraft:rabbit"
+    "minecraft:rabbit",
+    {
+      "id": "nomansland:goose",
+      "required": false
+    },
+    {
+      "id": "nomansland:deer",
+      "required": false
+    },
+    {
+      "id": "nomansland:moose",
+      "required": false
+    }
   ]
 }

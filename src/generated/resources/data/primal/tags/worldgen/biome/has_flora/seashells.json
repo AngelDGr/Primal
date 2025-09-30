@@ -1,6 +1,10 @@
 {
   "values": [
     "minecraft:beach",
+    {
+      "id": "nomansland:tropical_beach",
+      "required": false
+    },
     "minecraft:ocean",
     "minecraft:deep_ocean",
     "minecraft:lukewarm_ocean",
