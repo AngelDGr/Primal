@@ -130,7 +130,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 .add(Attributes.MOVEMENT_SPEED, 0.1f)
                 .add(Attributes.ATTACK_DAMAGE, 8f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.8f)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f)
+                .add(Attributes.STEP_HEIGHT, 1.5f);
     }
 
     //Init
@@ -143,6 +144,18 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+        if (spawnGroupData == null) {
+            spawnGroupData = new AgeableMob.AgeableMobGroupData(false);
+        }
+
+        AgeableMob.AgeableMobGroupData ageableData = (AgeableMob.AgeableMobGroupData) spawnGroupData;
+
+        // Alternate baby/adult based on group size, only if is more than 1
+        if(ageableData.getGroupSize()>0){
+
+            this.setBaby(ageableData.getGroupSize() % 2 != 0);
+        }
+
         Holder<Biome> holder = level.getBiome(this.blockPosition());
 
         if (holder.is(Primal_Tags.SPAWNS_BLACK_BEAR)) {

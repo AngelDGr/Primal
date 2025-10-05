@@ -1,51 +1,31 @@
 package org.primal.mixin;
 
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
+import org.primal.Primal_Main;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(EntityType.class)
-public class EntityTypeMixin<T extends Entity> {
+public class EntityTypeMixin {
+    @Unique
+    EntityType<?> p$THIS = (EntityType<?>)(Object)this;
 
-    @ModifyArg(
-            method = "<clinit>",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/EntityType$Builder;sized(FF)Lnet/minecraft/world/entity/EntityType$Builder;",
-                    ordinal = 42
-            ),
-            index = 0
-    )
-    private static float primal$modifyFoxWidth(float original) {
-        return (original == 0.6F) ? 0.9f : original;
+    @Inject(method = "getDimensions",
+            at = @At("HEAD"), cancellable = true)
+    private void primal$modifyHitboxesForNewModels(CallbackInfoReturnable<EntityDimensions> cir) {
+
+        // Fox Hitbox: 0.6 x 0.7 -> 0.9 x 0.7
+        if(p$THIS == EntityType.FOX && Primal_Main.ConfigCache.foxModelChange){
+            cir.setReturnValue(EntityDimensions.scalable(0.9F, 0.7F));
+        }
+
+        // Polar Bear Hitbox: 1.4 x 1.4 -> 1.9 x 1.75
+        if(p$THIS == EntityType.POLAR_BEAR && Primal_Main.ConfigCache.polarBearModelChange){
+            cir.setReturnValue(EntityDimensions.scalable(1.9F, 1.75F));
+        }
     }
-
-    @ModifyArg(
-            method = "<clinit>",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/EntityType$Builder;sized(FF)Lnet/minecraft/world/entity/EntityType$Builder;",
-                    ordinal = 81
-            ),
-            index = 0
-    )
-    private static float primal$modifyPolarBearWidth(float original) {
-        return (original == 1.4f) ? 1.9f : original;
-    }
-
-    @ModifyArg(
-            method = "<clinit>",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/EntityType$Builder;sized(FF)Lnet/minecraft/world/entity/EntityType$Builder;",
-                    ordinal = 81
-            ),
-            index = 1
-    )
-    private static float primal$modifyPolarBearHeight(float original) {
-        return (original == 1.4f) ? 1.75f : original;
-    }
-
 }

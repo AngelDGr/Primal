@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.GrassColor;
 import net.neoforged.api.distmarker.Dist;
@@ -36,6 +37,13 @@ public class Primal_Client {
     @SubscribeEvent
     public static void registerClientEvent(final FMLClientSetupEvent event){
         registerBlockRenderers();
+
+        if (Primal_Main.COMMON_CONFIG.polarBearModelChange.get()) {
+            EntityRenderers.register(EntityType.POLAR_BEAR, PolarBearRenderer::new);
+        }
+        if (Primal_Main.COMMON_CONFIG.foxModelChange.get()) {
+            EntityRenderers.register(EntityType.FOX, FoxRenderer::new);
+        }
     }
 
     @SubscribeEvent
@@ -44,10 +52,6 @@ public class Primal_Client {
         event.registerEntityRenderer(Primal_Entities.SHARK.get(),     SharkRenderer::new);
         event.registerEntityRenderer(Primal_Entities.CROCODILE.get(), CrocodileRenderer::new);
         event.registerEntityRenderer(Primal_Entities.EAGLE.get(),     EagleRenderer::new);
-
-        //Replaced
-        event.registerEntityRenderer(EntityType.POLAR_BEAR,      PolarBearRenderer::new);
-        event.registerEntityRenderer(EntityType.FOX,      FoxRenderer::new);
 
         event.registerBlockEntityRenderer(Primal_BlockEntities.NEST_BLOCK_ENTITY.get(), NestBlockEntityRenderer::new);
     }

@@ -2,6 +2,7 @@ package org.primal.entity.ai.behavior.bear;
 
 import javax.annotation.Nonnull;
 
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.BearEntity;
@@ -40,10 +41,15 @@ public final class BearRoar extends Behavior<BearEntity> {
         Optional<LivingEntity> target = bear.getBrain().getMemory(MemoryModuleType.ROAR_TARGET);
         target.ifPresent(entity -> BehaviorUtils.lookAtEntity(bear, entity));
 
-        bear.setPose(Pose.ROARING);
-        if(bear.getRoarSound()!=null)
-            bear.playSound(bear.getRoarSound(), 1, 1);
-        bear.triggerAnim("base_controller", "roar");
+        //It automatically starts attacking if it has cooldown
+        if(bear.getBrain().hasMemoryValue(MemoryModuleType.ROAR_SOUND_COOLDOWN)){
+            stop(level, bear, gameTime);
+        } else {
+            bear.setPose(Pose.ROARING);
+            if(bear.getRoarSound()!=null)
+                bear.playSound(bear.getRoarSound(), 1, 1);
+            bear.triggerAnim("base_controller", "roar");
+        }
     }
 
     @Override
@@ -54,5 +60,8 @@ public final class BearRoar extends Behavior<BearEntity> {
 
         bear.getBrain().getMemory(MemoryModuleType.ROAR_TARGET).ifPresent(bear::setAttackTarget);
         bear.getBrain().eraseMemory(MemoryModuleType.ROAR_TARGET);
+
+        if(!bear.getBrain().hasMemoryValue(MemoryModuleType.ROAR_SOUND_COOLDOWN))
+            bear.getBrain().setMemoryWithExpiry(MemoryModuleType.ROAR_SOUND_COOLDOWN, Unit.INSTANCE, 200);
     }
 }

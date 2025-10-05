@@ -16,32 +16,36 @@ import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
-import org.primal.registry.Primal_Entities;
-import org.primal.registry.Primal_Tags;
-import org.primal.registry.Primal_WorldGen;
+import org.primal.biome_modifiers.features.*;
+import org.primal.biome_modifiers.mobs.*;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 public class Primal_BiomeModifiersGenerator {
 
     public static void bootstrap(final BootstrapContext<BiomeModifier> bootstrap){
 
         //Animals
-        registerMobSpawn(bootstrap, "spawn/bear", Primal_Tags.SPAWNS_BEAR, Primal_Entities.BEAR.get(), 20, 1, 1);
+        register(bootstrap, "spawn/bear_single", BearSingle_BiomeModifier::new);
+        register(bootstrap, "spawn/bear_group", BearGroup_BiomeModifier::new);
 
-        registerMobSpawn(bootstrap, "spawn/shark_single", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 5, 1, 1);
-        registerMobSpawn(bootstrap, "spawn/shark_group", Primal_Tags.SPAWNS_SHARK, Primal_Entities.SHARK.get(), 1, 1, 3);
+        register(bootstrap, "spawn/shark_single", SharkSingle_BiomeModifier::new);
+        register(bootstrap, "spawn/shark_group", SharkGroup_BiomeModifier::new);
 
-        registerMobSpawn(bootstrap, "spawn/crocodile", Primal_Tags.SPAWNS_CROCODILE, Primal_Entities.CROCODILE.get(), 20, 1, 1);
-        registerMobSpawn(bootstrap, "spawn/crocodile_warm", Primal_Tags.SPAWNS_BROWN_CROCODILE, Primal_Entities.CROCODILE.get(), 3, 1, 1);
-
+        register(bootstrap, "spawn/crocodile", CrocodileNormal_BiomeModifier::new);
+        register(bootstrap, "spawn/crocodile_warm", CrocodileWarm_BiomeModifier::new);
 
         //Flora
-        registerVegetation(bootstrap, "feature/river_reeds", Primal_Tags.SPAWNS_RIVER_REEDS, Primal_WorldGen.RIVER_REEDS_PLACED);
+        register(bootstrap, "feature/river_reeds", RiverReeds_BiomeModifier::new);
 
-        registerVegetation(bootstrap, "feature/seashells", Primal_Tags.SPAWNS_SEASHELLS, Primal_WorldGen.SEASHELLS_PLACED);
+        register(bootstrap, "feature/seashells", Seashells_BiomeModifier::new);
 
-        registerVegetation(bootstrap, "feature/eagle_nest", Primal_Tags.SPAWNS_EAGLE, Primal_WorldGen.EAGLES_NEST_SPAWN);
+        register(bootstrap, "feature/eagle_nest", EagleNest_BiomeModifier::new);
+    }
+
+    public static void register(BootstrapContext<BiomeModifier> bootstrap, String name, Supplier<? extends BiomeModifier> sup){
+        bootstrap.register(modifierFor(name), sup.get());
     }
 
     public static void registerVegetation(final BootstrapContext<BiomeModifier> bootstrap, final String biomeModifier, final TagKey<Biome> spawnTag, final ResourceKey<PlacedFeature> placedFeature){

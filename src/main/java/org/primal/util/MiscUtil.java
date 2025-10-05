@@ -1,17 +1,33 @@
 package org.primal.util;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.levelgen.GenerationStep;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.Feature;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.world.BiomeModifier;
+import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import org.primal.Primal_Main;
 import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Tags;
 
@@ -137,8 +153,96 @@ public class MiscUtil {
             }
 
         }
+    }
 
 
+    /**
+     * Create a biome modifier with config values, for mobs
+     **/
+    public static void createBiomeModifier(Holder<Biome> biome, ModifiableBiomeInfo.BiomeInfo.Builder builder, TagKey<Biome> biomeTagSpawn,
+                                           List<String> extraBiomes,
+                                           boolean enabled,
+                                           int spawnWeight,
+                                           int minGroupSize,
+                                           int maxGroupSize,
+                                           EntityType<?> entityType) {
+        if(enabled){
+            // Check if biome is in extra biomes
+            boolean matchesExtra = extraBiomes.stream()
+                    .anyMatch(b -> {
+                        ResourceLocation loc = ResourceLocation.tryParse(b);
+                        return loc != null && biome.unwrapKey().map(key -> key.location().equals(loc)).orElse(false);
+                    });
+
+            if ((biome.is(biomeTagSpawn) || matchesExtra) && spawnWeight > 0 && minGroupSize > 0 && maxGroupSize > 0) {
+
+                builder.getMobSpawnSettings().getSpawner(entityType.getCategory())
+                        .add(new MobSpawnSettings.SpawnerData(
+                                entityType,
+                                spawnWeight,
+                                minGroupSize,
+                                maxGroupSize));
+            }
+        }
+    }
+
+    /**
+     * Create a biome modifier with config values, for features
+     **/
+    public static<FC extends FeatureConfiguration, F extends Feature<FC>> void createBiomeModifier(Holder<Biome> biome, ModifiableBiomeInfo.BiomeInfo.Builder builder, TagKey<Biome> biomeTagSpawn,
+                                                                                                   List<String> extraBiomes,
+                                                                                                   GenerationStep.Decoration step,
+                                                                                                   boolean enabled,
+                                                                                                   F feature,
+                                                                                                   FC config,
+                                                                                                   PlacementModifier heightmap,
+                                                                                                   int rarity) {
+        if(enabled){
+            // Check if biome is in extra biomes
+            boolean matchesExtra = extraBiomes.stream()
+                    .anyMatch(b -> {
+                        ResourceLocation loc = ResourceLocation.tryParse(b);
+                        return loc != null && biome.unwrapKey().map(key -> key.location().equals(loc)).orElse(false);
+                    });
+
+            if (biome.is(biomeTagSpawn) || matchesExtra) {
+
+                // Configured feature
+                var configured = new ConfiguredFeature<>(
+                        feature,
+                        config
+                );
+
+                // Build placement modifiers dynamically
+                List<PlacementModifier> modifiers = List.of(
+                        RarityFilter.onAverageOnceEvery(rarity),
+                        InSquarePlacement.spread(),
+                        heightmap,
+                        BiomeFilter.biome()
+                );
+
+                // Wrap into placed feature
+                Holder<PlacedFeature> placedFeature = Holder.direct(
+                        new PlacedFeature(Holder.direct(configured), modifiers)
+                );
+
+                // Add to biome
+                builder.getGenerationSettings().addFeature(
+                        step,
+                        placedFeature
+                );
+            }
+        }
+    }
+
+    /**
+     * Create a biome modifier serializer, for creation of biome modifiers
+     *
+     * @param name The name of the biome modifier
+     * @return
+     */
+    public static DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<? extends BiomeModifier>> createBiomeModifierSerializer(String name){
+        return DeferredHolder.create(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, name));
     }
 
     public static ResourceLocation nomanslandLoc(String name){

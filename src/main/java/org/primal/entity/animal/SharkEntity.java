@@ -294,7 +294,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
                 //To only attack if inside water
                 && this.isInWater()
                 //Attack enemies at low health
-                && (target.getHealth()<target.getMaxHealth()
+                && ((target.getHealth()<target.getMaxHealth() && !(target instanceof SharkEntity))
                 //Attack squids if it hasn't hunted in a while
                 || (!this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN) && target.getType().is(Primal_Tags.SHARK_HUNTABLE))
                 //To defend itself

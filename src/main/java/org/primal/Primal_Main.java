@@ -20,15 +20,23 @@ import net.minecraft.world.level.storage.loot.functions.SetPotionFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
+import org.primal.biome_modifiers.features.EagleNest_BiomeModifier;
+import org.primal.biome_modifiers.features.RiverReeds_BiomeModifier;
+import org.primal.biome_modifiers.features.Seashells_BiomeModifier;
+import org.primal.biome_modifiers.mobs.*;
 import org.primal.entity.animal.BearEntity;
 import org.primal.entity.animal.CrocodileEntity;
 import org.primal.entity.animal.EagleEntity;
@@ -47,8 +55,29 @@ import java.util.List;
 @Mod(Primal_Main.MOD_ID)
 public class Primal_Main {
     public static final String MOD_ID = "primal";
-    
+    public static final Primal_Config COMMON_CONFIG;
+    public static final ModConfigSpec COMMON_SPEC;
+
+    static {
+        Pair<Primal_Config, ModConfigSpec> pair = new ModConfigSpec.Builder()
+                .configure(Primal_Config::new);
+        COMMON_CONFIG = pair.getLeft();
+        COMMON_SPEC = pair.getRight();
+    }
+
+    public static class ConfigCache {
+        public static boolean foxModelChange;
+        public static boolean polarBearModelChange;
+
+        public static void load() {
+            foxModelChange = Primal_Main.COMMON_CONFIG.foxModelChange.get();
+            polarBearModelChange = Primal_Main.COMMON_CONFIG.polarBearModelChange.get();
+        }
+    }
+
     public Primal_Main(IEventBus modEventBus) {
+        ModList.get().getModContainerById(Primal_Main.MOD_ID).get().registerConfig(ModConfig.Type.COMMON, COMMON_SPEC);
+
         //AI
         Primal_Sensors.init(); Primal_Registries.SENSOR_TYPES.register(modEventBus);
         Primal_MemoryModuleTypes.init(); Primal_Registries.MEMORY_MODULE_TYPES.register(modEventBus);
@@ -81,12 +110,35 @@ public class Primal_Main {
         Primal_WorldGen.init(); Primal_Registries.FEATURES.register(modEventBus);
 
         Primal_VillagerCustomTrades.init();
+
+        //Biome Modifiers
+        createBiomeModifiers(); Primal_Registries.BIOME_MODIFIERS.register(modEventBus);
+    }
+
+    public static void createBiomeModifiers() {
+        //Mobs
+        {
+            BearSingle_BiomeModifier.register();
+            BearGroup_BiomeModifier.register();
+            CrocodileNormal_BiomeModifier.register();
+            CrocodileWarm_BiomeModifier.register();
+            SharkSingle_BiomeModifier.register();
+            SharkGroup_BiomeModifier.register();
+        }
+
+        //Features
+        {
+            RiverReeds_BiomeModifier.register();
+            Seashells_BiomeModifier.register();
+            EagleNest_BiomeModifier.register();
+        }
     }
 
     @SubscribeEvent
     public static void registerCommonEvent(final FMLCommonSetupEvent event){
         setFlammables();
 
+        ConfigCache.load();
     }
 
     public static void setFlammables() {

@@ -1,8 +1,0 @@
-{
-  "type": "primal:eagle_nest",
-  "config": {
-    "tries": 12,
-    "xz_spread": 1,
-    "y_spread": 0
-  }
-}

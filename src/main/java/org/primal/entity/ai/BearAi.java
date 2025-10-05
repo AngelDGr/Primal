@@ -54,6 +54,7 @@ public final class BearAi {
             MemoryModuleType.ATTACK_COOLING_DOWN,
             MemoryModuleType.NEAREST_ATTACKABLE,
             MemoryModuleType.ROAR_TARGET,
+            MemoryModuleType.ROAR_SOUND_COOLDOWN,
 
             MemoryModuleType.HURT_BY,
             MemoryModuleType.HURT_BY_ENTITY,

@@ -29,9 +29,6 @@ public final class Primal_DataGenerator {
 //                    .add(Registries.DAMAGE_TYPE, Primal_DamageTypes::boostrapDamageTypes)
 //                    .add(Registries.BANNER_PATTERN, Primal_BannerPatterns::bootstrap)
 
-                    .add(Registries.PLACED_FEATURE, Primal_WorldGen::boostrapPlacedFeature)
-                    .add(Registries.CONFIGURED_FEATURE, Primal_WorldGen::boostrapConfiguredFeature)
-
                     .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Primal_BiomeModifiersGenerator::bootstrap);
 
     @SubscribeEvent

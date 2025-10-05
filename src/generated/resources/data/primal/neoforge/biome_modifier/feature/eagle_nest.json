@@ -1,6 +1,3 @@
 {
-  "type": "neoforge:add_features",
-  "biomes": "#primal:has_mob/eagle",
-  "features": "primal:eagle_nest",
-  "step": "vegetal_decoration"
+  "type": "primal:eagle_nest_spawn"
 }

@@ -1,5 +1,9 @@
 package org.primal.datagen.providers;
 
+import com.google.common.base.Preconditions;
+import com.google.gson.JsonObject;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -7,8 +11,15 @@ import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredHolder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 import org.primal.Primal_Main;
 import org.primal.registry.Primal_Blocks;
+
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class Primal_BlockModelGenerator extends BlockModelProvider {
 
@@ -18,9 +29,9 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
 
     @Override
     protected void registerModels() {
-        this.withExistingParent("shark_tooth_base", ResourceLocation.withDefaultNamespace("block/pointed_dripstone"))
+        this.withExistingParentFalseAmbientOcclusion("shark_tooth_base", ResourceLocation.withDefaultNamespace("block/pointed_dripstone"))
                 .texture("cross", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_base"));
-        this.withExistingParent("shark_tooth_tip", ResourceLocation.withDefaultNamespace("block/pointed_dripstone"))
+        this.withExistingParentFalseAmbientOcclusion("shark_tooth_tip", ResourceLocation.withDefaultNamespace("block/pointed_dripstone"))
                 .texture("cross", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_tip"));
         this.withExistingParent("shark_tooth_tip_down", ResourceLocation.withDefaultNamespace("block/pointed_dripstone"))
                 .texture("cross", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_tip_down"));
@@ -113,16 +124,6 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()));
     }
 
-    private void createCross(DeferredHolder<Block, Block> block, boolean tinted){
-        if(tinted)
-            this.tintedCross(block.getId().getPath(),
-                    ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()));
-        else
-            this.cross(block.getId().getPath(),
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()));
-    }
-
-
     private BlockModelBuilder singleTexture(String name, String parent, String textureKey, ResourceLocation texture) {
         return singleTexture(name, mcLoc(parent), textureKey, texture);
     }
@@ -136,4 +137,45 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 .texture("egg", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+texture));
     }
 
+    @VisibleForTesting
+    public final Map<ResourceLocation, BlockModelBuilder> falseAmbientOcclusionGeneratedModels = new HashMap<>();
+
+
+    public BlockModelBuilder withExistingParentFalseAmbientOcclusion(String name, ResourceLocation parent) {
+        return getBuilderE(name).parent(getExistingFile(parent));
+    }
+
+    public BlockModelBuilder getBuilderE(String path) {
+        Preconditions.checkNotNull(path, "Path must not be null");
+        ResourceLocation outputLoc = extendWithFolder(path.contains(":") ? ResourceLocation.parse(path) : ResourceLocation.fromNamespaceAndPath(modid, path));
+        this.existingFileHelper.trackGenerated(outputLoc, MODEL);
+        return falseAmbientOcclusionGeneratedModels.computeIfAbsent(outputLoc, factory);
+    }
+
+    private ResourceLocation extendWithFolder(ResourceLocation rl) {
+        if (rl.getPath().contains("/")) {
+            return rl;
+        }
+        return ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), folder + "/" + rl.getPath());
+    }
+
+    @Override
+    protected @NotNull CompletableFuture<?> generateAll(@NotNull CachedOutput cache) {
+        CompletableFuture<?>[] futures = new CompletableFuture<?>[this.generatedModels.size() + this.falseAmbientOcclusionGeneratedModels.size()];
+        int i = 0;
+
+        for (BlockModelBuilder model : this.generatedModels.values()) {
+            Path target = getPath(model);
+            futures[i++] = DataProvider.saveStable(cache, model.toJson(), target);
+        }
+
+        for (BlockModelBuilder model : this.falseAmbientOcclusionGeneratedModels.values()) {
+            Path target = getPath(model);
+            JsonObject finalJson=model.toJson();
+            finalJson.addProperty("ambientocclusion", false);
+            futures[i++] = DataProvider.saveStable(cache, finalJson, target);
+        }
+
+        return CompletableFuture.allOf(futures);
+    }
 }
