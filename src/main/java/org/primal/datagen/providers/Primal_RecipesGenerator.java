@@ -3,9 +3,11 @@ package org.primal.datagen.providers;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
+import org.primal.Primal_Main;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_Tags;
@@ -27,9 +29,10 @@ public class Primal_RecipesGenerator extends RecipeProvider {
                 .pattern("X")
                 .pattern("#")
                 .pattern("Y")
+                .group("arrow")
                 .unlockedBy("has_feather", has(Items.FEATHER))
                 .unlockedBy("has_tooth", has(Primal_Items.SHARK_TOOTH.get()))
-                .save(exporter);
+                .save(exporter, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "arrow_shark"));
 
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.TRIDENT, 1)
                 .define('X', Primal_Items.SHARK_TOOTH.get())

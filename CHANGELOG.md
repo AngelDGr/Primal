@@ -1,3 +1,10 @@
+# 1.0.5 - 1.21
+# Additions
+- Now you can use biome tags inside the config, just put a # before to be recognized as tag
+
+# Fixes
+- Fixed the arrow recipe with shark tooth replacing the vanilla one
+
 # 1.0.4 - 1.21
 ### Additions
 - Added a config file! You can control what mobs spawn, spawn weights, group size, alongside being able to config world features like river reeds and seashells

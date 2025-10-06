@@ -3,6 +3,7 @@ package org.primal.util;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
@@ -171,8 +172,23 @@ public class MiscUtil {
             boolean matchesExtra = extraBiomes.stream()
                     .anyMatch(b -> {
                         ResourceLocation loc = ResourceLocation.tryParse(b);
-                        return loc != null && biome.unwrapKey().map(key -> key.location().equals(loc)).orElse(false);
-                    });
+
+                        if(b.contains("#")){
+                            //Splits the tag, getting the # alone and the id like ( minecraft:is_forest )
+                            String[] stringArray= b.split("#");
+
+                            //If it is actually that long
+                            if(stringArray.length>=1){
+
+                                String biomeTag= stringArray[1];
+
+                                ResourceLocation tagLoc =ResourceLocation.tryParse(biomeTag);
+
+                                //Detects biome tags
+                                return tagLoc!=null && biome.is(TagKey.create(Registries.BIOME, tagLoc));
+                            }
+                        }
+                        return loc != null && biome.unwrapKey().map(key -> key.location().equals(loc)).orElse(false);});
 
             if ((biome.is(biomeTagSpawn) || matchesExtra) && spawnWeight > 0 && minGroupSize > 0 && maxGroupSize > 0) {
 
@@ -202,6 +218,23 @@ public class MiscUtil {
             boolean matchesExtra = extraBiomes.stream()
                     .anyMatch(b -> {
                         ResourceLocation loc = ResourceLocation.tryParse(b);
+
+                        if(b.contains("#")){
+                            //Splits the tag, getting the # alone and the id like ( minecraft:is_forest )
+                            String[] stringArray= b.split("#");
+
+                            //If it is actually that long
+                            if(stringArray.length>=1){
+
+                                String biomeTag= stringArray[1];
+
+                                ResourceLocation tagLoc =ResourceLocation.tryParse(biomeTag);
+
+                                //Detects biome tags
+                                return tagLoc!=null && biome.is(TagKey.create(Registries.BIOME, tagLoc));
+                            }
+                        }
+
                         return loc != null && biome.unwrapKey().map(key -> key.location().equals(loc)).orElse(false);
                     });
 

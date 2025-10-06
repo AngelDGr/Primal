@@ -116,7 +116,8 @@ public class Primal_Config {
 
                     builder.comment("""
                             Extra biomes (separated from biome tag) where single bears can spawn.
-                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                            You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                             Default = []""");
                     bearSingleExtraBiomes = builder.defineList("bearSingleExtraBiomes",
                             List.of(),
@@ -149,7 +150,8 @@ public class Primal_Config {
 
                     builder.comment("""
                             Extra biomes (separated from biome tag) where bear groups can spawn.
-                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                            You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                             Default = []""");
                     bearGroupExtraBiomes = builder.defineList("bearGroupExtraBiomes",
                             List.of(),
@@ -187,7 +189,8 @@ public class Primal_Config {
 
                     builder.comment("""
                             Extra biomes (separated from biome tag) where normal crocodiles can spawn.
-                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                            You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                             Default = []""");
                     crocodileNormalExtraBiomes = builder.defineList("crocodileNormalExtraBiomes",
                             List.of(),
@@ -219,8 +222,9 @@ public class Primal_Config {
                     crocodileWarmMaxGroup = builder.defineInRange("crocodileWarmMaxGroup", 1, 1, Integer.MAX_VALUE);
 
                     builder.comment("""
-                            Extra biomes (separated from biome tag) where warm crocodiles can spawn.
-                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                            Extra biomes (separated from biome tag) where warm crocodiles can spawn
+                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                            You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                             Default = []""");
                     crocodileWarmExtraBiomes = builder.defineList("crocodileWarmExtraBiomes",
                             List.of(),
@@ -258,7 +262,8 @@ public class Primal_Config {
 
                     builder.comment("""
                             Extra biomes (separated from biome tag) where single sharks can spawn.
-                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                            You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                             Default = []""");
                     sharkSingleExtraBiomes = builder.defineList("sharkSingleExtraBiomes",
                             List.of(),
@@ -291,7 +296,8 @@ public class Primal_Config {
 
                     builder.comment("""
                             Extra biomes (separated from biome tag) where shark groups can spawn.
-                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                            Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                            You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                             Default = []""");
                     sharkGroupExtraBiomes = builder.defineList("sharkGroupExtraBiomes",
                             List.of(),
@@ -335,7 +341,8 @@ public class Primal_Config {
 
                 builder.comment("""
                         Extra biomes (separated from biome tag) where river reeds can spawn.
-                        Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                        Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                        You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                         Default = []""");
                 riverReedsExtraBiomes = builder.defineList("riverReedsExtraBiomes",
                         List.of(),
@@ -374,7 +381,8 @@ public class Primal_Config {
 
                 builder.comment("""
                         Extra biomes (separated from biome tag) where seashells can spawn.
-                        Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                        Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                        You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                         Default = []""");
                 seaShellsExtraBiomes = builder.defineList("seaShellsExtraBiomes",
                         List.of(),
@@ -413,7 +421,8 @@ public class Primal_Config {
 
                 builder.comment("""
                         Extra biomes (separated from biome tag) where eagle nests can spawn.
-                        Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest").
+                        Must be written as full biome IDs (e.g. "minecraft:plains", "nomansland:maple_forest")
+                        You can use biome tags too, just put a # before (e.g. "#minecraft:is_forest", "#nomansland:is_river")
                         Default = []""");
                 eagleNestExtraBiomes = builder.defineList("eagleNestExtraBiomes",
                         List.of(),
@@ -423,5 +432,6 @@ public class Primal_Config {
             builder.pop();
         }
         builder.pop();
+
     }
 }
