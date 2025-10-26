@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import org.primal.entity.ai.behavior.eagle.*;
 import org.primal.entity.ai.behavior.generic.*;
 import org.primal.entity.animal.EagleEntity;
+import org.primal.injection.IsEagleTarget;
 import org.primal.registry.*;
 import org.primal.util.MiscUtil;
 
@@ -331,7 +332,7 @@ public class EagleAi {
 
         //This put the value
         if (brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) {
-            brain.getMemory(MemoryModuleType.ATTACK_TARGET).get().primal$setEagleAttacking(eagle.getUUID());
+            ((IsEagleTarget) brain.getMemory(MemoryModuleType.ATTACK_TARGET).get()).primal$setEagleAttacking(eagle.getUUID());
             brain.setMemoryWithExpiry(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), brain.getMemory(MemoryModuleType.ATTACK_TARGET).get(), 80L);
         }
 
@@ -342,7 +343,7 @@ public class EagleAi {
                 && !brain.isMemoryValue(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), brain.getMemory(MemoryModuleType.ATTACK_TARGET).get())
                 && MiscUtil.isSameEagleAttacking(brain.getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).get(), eagle)){
 
-            brain.getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).get().primal$setEagleAttacking(null);
+            ((IsEagleTarget) brain.getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).get()).primal$setEagleAttacking(null);
         }
     }
 

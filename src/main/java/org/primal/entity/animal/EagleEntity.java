@@ -140,11 +140,11 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
     @Override
     public void setVariantFromBiome(EagleEntity eagle, Holder<Biome> holder){
-        if (holder.is(Primal_Tags.SPAWNS_GOLDEN_EAGLE)) {
+        if (holder.is(Primal_Tags.Biome.SPAWNS_GOLDEN_EAGLE)) {
             eagle.setVariant(Variant.GOLDEN);
-        } else if(holder.is(Primal_Tags.SPAWNS_HARPY_EAGLE)){
+        } else if(holder.is(Primal_Tags.Biome.SPAWNS_HARPY_EAGLE)){
             eagle.setVariant(Variant.HARPY);
-        } else if(holder.is(Primal_Tags.SPAWNS_PHILIPPINE_EAGLE)) {
+        } else if(holder.is(Primal_Tags.Biome.SPAWNS_PHILIPPINE_EAGLE)) {
             eagle.setVariant(Variant.PHILIPPINE);
         } else {
             eagle.setVariant(Variant.BALD);
@@ -583,7 +583,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
                 && (!(target instanceof EagleEntity) && this.getLastHurtByMob()!=target)
                 &&
                         //Hunts regularly
-                        ((target.getType().is(Primal_Tags.EAGLE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN))
+                        ((target.getType().is(Primal_Tags.Entity.EAGLE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN))
                         //To attack the last one that hurt it
                         || this.getLastHurtByMob()==target)
                 && MiscUtil.isSameEagleAttacking(target, this);
@@ -607,7 +607,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     @Override
     public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
         //Put the cooldown to attack prey each 600 ticks (30s)
-        if(killed.getType().is(Primal_Tags.EAGLE_HUNTABLE) && !this.isBaby()){
+        if(killed.getType().is(Primal_Tags.Entity.EAGLE_HUNTABLE) && !this.isBaby()){
             this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, 600L);
         }
 
@@ -714,8 +714,8 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
             }
         }
 
-        //Only if tame
-        if (this.isTame())
+        //Only if tame and if is the owner
+        if (this.isTame() && this.isOwnedBy(player))
             return changeFollowState(player, hand);
 
         return InteractionResult.PASS;

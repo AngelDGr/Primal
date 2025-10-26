@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "primal:block/humid_crocodile_scute_slab"
+    },
+    "type=double": {
+      "model": "primal:block/humid_crocodile_scute_block"
+    },
+    "type=top": {
+      "model": "primal:block/humid_crocodile_scute_slab_top"
+    }
+  }
+}

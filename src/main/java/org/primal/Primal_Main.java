@@ -318,7 +318,19 @@ public class Primal_Main {
                     Primal_Items.CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
                     Primal_Items.CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
                     Primal_Items.CHISELED_CROCODILE_SCUTE.get().getDefaultInstance(),
-                    Primal_Items.CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance()
+                    Primal_Items.CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance(),
+
+                    Primal_Items.ARID_CROCODILE_SCUTE_BLOCK.get().getDefaultInstance(),
+                    Primal_Items.ARID_CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
+                    Primal_Items.ARID_CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
+                    Primal_Items.ARID_CHISELED_CROCODILE_SCUTE.get().getDefaultInstance(),
+                    Primal_Items.ARID_CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance(),
+
+                    Primal_Items.HUMID_CROCODILE_SCUTE_BLOCK.get().getDefaultInstance(),
+                    Primal_Items.HUMID_CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
+                    Primal_Items.HUMID_CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
+                    Primal_Items.HUMID_CHISELED_CROCODILE_SCUTE.get().getDefaultInstance(),
+                    Primal_Items.HUMID_CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance()
             );
         }
 

@@ -58,7 +58,7 @@ public final class Primal_Sensors {
 
     public static DeferredHolder<SensorType<?>, SensorType<NearestSpecificBlockSensor>> SHARK_NEAREST_CONDUIT =
             Primal_Registries.SENSOR_TYPES.register("shark_near_conduit",
-                    () -> new SensorType<>(()-> new NearestSpecificBlockSensor(Primal_Tags.SHARK_ATTRACTORS, 24, 24)));
+                    () -> new SensorType<>(()-> new NearestSpecificBlockSensor(Primal_Tags.Block.SHARK_ATTRACTORS, 24, 24)));
 
 
     //Crocodile
@@ -76,7 +76,7 @@ public final class Primal_Sensors {
 
     public static DeferredHolder<SensorType<?>, SensorType<NearestSpecificBlockSensor>> CROCODILE_NEAREST_REED =
             Primal_Registries.SENSOR_TYPES.register("crocodile_near_reed",
-                    () -> new SensorType<>(()-> new NearestSpecificBlockSensor(Primal_Tags.CROCODILE_ATTRACTORS, 24, 3)));
+                    () -> new SensorType<>(()-> new NearestSpecificBlockSensor(Primal_Tags.Block.CROCODILE_ATTRACTORS, 24, 3)));
 
 
     //Eagle

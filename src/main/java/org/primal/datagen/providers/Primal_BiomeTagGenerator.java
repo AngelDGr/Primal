@@ -53,7 +53,7 @@ public class Primal_BiomeTagGenerator extends BiomeTagsProvider {
         //Animals
         {
             //Bear
-            this.tag(Primal_Tags.SPAWNS_BEAR)
+            this.tag(Primal_Tags.Biome.SPAWNS_BEAR)
                     .add(Biomes.BIRCH_FOREST)
                     .add(Biomes.FLOWER_FOREST)
                     .add(Biomes.DARK_FOREST)
@@ -65,63 +65,63 @@ public class Primal_BiomeTagGenerator extends BiomeTagsProvider {
                     .addOptional(old_growth_forest_edge)
                     .addOptional(boreal_forest)
                     .addOptional(dark_taiga)
-                    .addTag(Primal_Tags.SPAWNS_BLACK_BEAR);
+                    .addTag(Primal_Tags.Biome.SPAWNS_BLACK_BEAR);
 
-            this.tag(Primal_Tags.SPAWNS_BLACK_BEAR)
+            this.tag(Primal_Tags.Biome.SPAWNS_BLACK_BEAR)
                     .add(Biomes.JUNGLE).add(Biomes.SPARSE_JUNGLE)
                     .add(Biomes.WOODED_BADLANDS);
 
             //Shark
-            this.tag(Primal_Tags.SPAWNS_SHARK)
+            this.tag(Primal_Tags.Biome.SPAWNS_SHARK)
                     .addTag(BiomeTags.IS_OCEAN);
 
-            this.tag(Primal_Tags.SPAWNS_TIGER_SHARK)
+            this.tag(Primal_Tags.Biome.SPAWNS_TIGER_SHARK)
                     .add(Biomes.WARM_OCEAN);
 
-            this.tag(Primal_Tags.SPAWNS_HAMMERHEAD)
+            this.tag(Primal_Tags.Biome.SPAWNS_HAMMERHEAD)
                     .add(Biomes.LUKEWARM_OCEAN)
                     .add(Biomes.DEEP_LUKEWARM_OCEAN);
 
             //Crocodile
-            this.tag(Primal_Tags.SPAWNS_CROCODILE)
+            this.tag(Primal_Tags.Biome.SPAWNS_CROCODILE)
                     .addOptional(dark_swamp)
                     .add(Biomes.SWAMP)
 
-                    .addTag(Primal_Tags.SPAWNS_BLACK_CROCODILE);
+                    .addTag(Primal_Tags.Biome.SPAWNS_BLACK_CROCODILE);
 
-            this.tag(Primal_Tags.SPAWNS_BLACK_CROCODILE)
+            this.tag(Primal_Tags.Biome.SPAWNS_BLACK_CROCODILE)
                     .addOptional(bayou)
                     .add(Biomes.JUNGLE)
                     .add(Biomes.SPARSE_JUNGLE)
                     .add(Biomes.BAMBOO_JUNGLE)
                     .add(Biomes.MANGROVE_SWAMP);
 
-            this.tag(Primal_Tags.SPAWNS_BROWN_CROCODILE)
+            this.tag(Primal_Tags.Biome.SPAWNS_BROWN_CROCODILE)
                     .addOptional(bog)
                     .add(Biomes.DESERT)
                     .add(Biomes.SAVANNA)
                     .add(Biomes.WINDSWEPT_SAVANNA);
 
             //Eagle
-            this.tag(Primal_Tags.SPAWNS_EAGLE)
+            this.tag(Primal_Tags.Biome.SPAWNS_EAGLE)
                     .add(Biomes.FROZEN_PEAKS)
-                    .addTag(Primal_Tags.SPAWNS_GOLDEN_EAGLE)
-                    .addTag(Primal_Tags.SPAWNS_HARPY_EAGLE)
-                    .addTag(Primal_Tags.SPAWNS_PHILIPPINE_EAGLE);
+                    .addTag(Primal_Tags.Biome.SPAWNS_GOLDEN_EAGLE)
+                    .addTag(Primal_Tags.Biome.SPAWNS_HARPY_EAGLE)
+                    .addTag(Primal_Tags.Biome.SPAWNS_PHILIPPINE_EAGLE);
 
-            this.tag(Primal_Tags.SPAWNS_GOLDEN_EAGLE)
+            this.tag(Primal_Tags.Biome.SPAWNS_GOLDEN_EAGLE)
                     .add(Biomes.JAGGED_PEAKS);
 
-            this.tag(Primal_Tags.SPAWNS_HARPY_EAGLE)
+            this.tag(Primal_Tags.Biome.SPAWNS_HARPY_EAGLE)
                     .add(Biomes.STONY_PEAKS);
 
-            this.tag(Primal_Tags.SPAWNS_PHILIPPINE_EAGLE)
+            this.tag(Primal_Tags.Biome.SPAWNS_PHILIPPINE_EAGLE)
                     .add(Biomes.WINDSWEPT_SAVANNA);
         }
 
         //Flora
         {
-            this.tag(Primal_Tags.SPAWNS_RIVER_REEDS)
+            this.tag(Primal_Tags.Biome.SPAWNS_RIVER_REEDS)
                     .addOptional(lush_river)
                     .addOptional(desert_river)
                     .addOptional(blackwater_river)
@@ -130,7 +130,7 @@ public class Primal_BiomeTagGenerator extends BiomeTagsProvider {
                     .addOptional(dark_swamp)
                     .add(Biomes.MANGROVE_SWAMP);
 
-            this.tag(Primal_Tags.SPAWNS_SEASHELLS)
+            this.tag(Primal_Tags.Biome.SPAWNS_SEASHELLS)
                     .add(Biomes.BEACH)
                     .addOptional(tropical_beach)
 

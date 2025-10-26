@@ -77,6 +77,7 @@ public class CrocodileAi {
             Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get(),
             MemoryModuleType.ADMIRING_ITEM,
             Primal_MemoryModuleTypes.IS_THRASHING.get(),
+            Primal_MemoryModuleTypes.IS_EXPLODING.get(),
             Primal_MemoryModuleTypes.IS_STUNNED.get()
     );
 
@@ -98,6 +99,7 @@ public class CrocodileAi {
         initIdleActivity(brain);
         initFightActivity(brain);
         initThrashActivity(brain);
+        initExplosionActivity(brain);
         initRetreatActivity(brain);
         initLayEggActivity(brain);
         brain.setCoreActivities(ImmutableSet.of(Activity.CORE));
@@ -197,6 +199,14 @@ public class CrocodileAi {
                 Primal_MemoryModuleTypes.IS_THRASHING.get());
     }
 
+    private static void initExplosionActivity(Brain<CrocodileEntity> brain) {
+        brain.addActivityAndRemoveMemoryWhenStopped(
+                Primal_Activities.EXPLODING.get(),
+                10,
+                ImmutableList.of(new CrocodileExploding(40)),
+                Primal_MemoryModuleTypes.IS_EXPLODING.get());
+    }
+
     private static void initRetreatActivity(Brain<CrocodileEntity> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(
                 Activity.AVOID,
@@ -250,9 +260,9 @@ public class CrocodileAi {
         Brain<CrocodileEntity> brain = crocodile.getBrain();
 
         if(crocodile.isBaby())
-            brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Activity.IDLE));
+            brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.EXPLODING.get(), Activity.AVOID, Activity.IDLE));
         else
-            brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.THRASH.get(), Activity.FIGHT, Activity.LAY_SPAWN, Activity.IDLE));
+            brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.EXPLODING.get(), Primal_Activities.THRASH.get(), Activity.FIGHT, Activity.LAY_SPAWN, Activity.IDLE));
 
         crocodile.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET) || brain.hasMemoryValue(Primal_MemoryModuleTypes.IS_THRASHING.get()));
     }

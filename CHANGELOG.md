@@ -1,3 +1,32 @@
+# 1.0.6 - 1.21
+# Additions
+- Added spanish translation! (Ahuevo)
+- Added brazilian translation!
+- Added russian translation!
+- Added pirate speaking translation! (Arrrr)
+- Added bear_healing_treats item tag, it contains sweet berries, glow berries, sugar, cookies and pumpkin pie
+- Added explosive crocodiles
+- Added crocodile_explosive item tag, for items that makes a crocodile explode
+- Added arid and humid variants of crocodile blocks, made with mud for the humid one and sand for the arid one.
+- Added stone cutting recipes for the crocodile blocks
+- Added crocodile_tick_tock item tag, for items that makes a crocodile a tick-tock croc
+- Polar bear health increased from 30 to 60, with a config option to disable it
+- Added the ability to remove the barrel from a bear by interacting with it using shears while its inventory is empty
+
+# Changes
+- Fox run animation triggers depending on the fox speed, instead of triggering just when the fox is aggressive
+- Increased bear roar volume from 1 to 4, it should be heard from farther away
+- Decreased bear health from 80 to 50
+- Increased bear base speed from 0.1 to 0.14
+- The Bear now can be healed with any item from bear_healing_treats, the healing amount is 1+half the nutrition of the food
+
+# Fixes
+- Sharks no longer attack drowneds mounting other sharks
+- Animations for replaced mobs no longer trigger on the server, it should fix some crashes
+- Changed all activity names to have the suffix primal_ to avoid incompatibilities with other mods
+- Fixed chicken jockey able to spawn after a bear or shark jockey spawn
+- Fixed bears and eagles being commandable by non-owners
+
 # 1.0.5 - 1.21
 # Additions
 - Now you can use biome tags inside the config, just put a # before to be recognized as tag

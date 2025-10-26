@@ -23,6 +23,7 @@ public class FoxAnimations {
         return new AnimationController<>(animatable, state -> {
             Fox fox= animatable.getEntityFromState(state);
 
+            double speed = fox.getDeltaMovement().length();
             state.setControllerSpeed(1);
             state.getController().transitionLength(0);
 
@@ -56,7 +57,7 @@ public class FoxAnimations {
                     state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 2 : 1f));
                     return state.setAndContinue(SNEAK);
                 }
-                else if (fox.isAggressive() && !fox.isInWater()) {
+                else if ((fox.isAggressive() || speed>0.18) && !fox.isInWater()) {
                     state.getController().transitionLength(2);
                     state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 2 : 1f));
                     return state.setAndContinue(RUN);

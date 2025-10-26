@@ -17,7 +17,7 @@ public class CrocodileWarm_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.SPAWNS_BROWN_CROCODILE,
+            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_BROWN_CROCODILE,
                     Primal_Main.COMMON_CONFIG.crocodileWarmExtraBiomes.get().stream().map(Object::toString).toList(),
                     Primal_Main.COMMON_CONFIG.enableCrocodileWarmSpawn.get(),
                     Primal_Main.COMMON_CONFIG.crocodileWarmSpawnWeight.get(),

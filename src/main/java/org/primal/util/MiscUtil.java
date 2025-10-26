@@ -29,6 +29,7 @@ import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
+import org.primal.injection.IsEagleTarget;
 import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Tags;
 
@@ -110,10 +111,10 @@ public class MiscUtil {
     }
 
     /**
-        A simple check to see if the entity is from the tag {@link  Primal_Tags#NEVER_ATTACK}
+        A simple check to see if the entity is from the tag {@link  Primal_Tags.Entity#NEVER_ATTACK}
      */
     public static boolean isNotNeverAttack(LivingEntity entity) {
-        return !entity.getType().is(Primal_Tags.NEVER_ATTACK);
+        return !entity.getType().is(Primal_Tags.Entity.NEVER_ATTACK);
     }
 
     /**
@@ -129,12 +130,12 @@ public class MiscUtil {
     }
 
     public static boolean isSameEagleAttacking(LivingEntity target, LivingEntity eagle) {
-        if(target.primal$eagleAttacking().isPresent()){
+        if(((IsEagleTarget) target).primal$eagleAttacking().isPresent()){
             //So babies can have priority over other eagles
             if(eagle.isBaby())
                 return true;
             else
-                return target.primal$eagleAttacking().get() == eagle.getUUID();
+                return ((IsEagleTarget) target).primal$eagleAttacking().get() == eagle.getUUID();
         } else {
             return true;
         }

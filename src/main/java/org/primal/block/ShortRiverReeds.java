@@ -68,7 +68,7 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
 
     @Override
     protected boolean mayPlaceOn(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
-        return super.mayPlaceOn(state, level, pos) || state.is(Primal_Tags.RIVER_REED_SOIL);
+        return super.mayPlaceOn(state, level, pos) || state.is(Primal_Tags.Block.RIVER_REED_SOIL);
     }
 
     @Override

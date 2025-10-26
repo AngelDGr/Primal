@@ -20,7 +20,7 @@ public class RiverReeds_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.SPAWNS_RIVER_REEDS,
+            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_RIVER_REEDS,
                     //ExtraBiomes
                     Primal_Main.COMMON_CONFIG.riverReedsExtraBiomes.get().stream().map(Object::toString).toList(),
                     //Step

@@ -42,6 +42,18 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
         simpleBlockItem(Primal_Blocks.CROCODILE_SCUTE_STAIRS.get());
         simpleBlockItem(Primal_Blocks.CROCODILE_SCUTE_SLAB.get());
 
+        simpleBlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get());
+        simpleBlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE.get());
+        simpleBlockItem(Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE.get());
+        simpleBlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS.get());
+        simpleBlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB.get());
+
+        simpleBlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get());
+        simpleBlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE.get());
+        simpleBlockItem(Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE.get());
+        simpleBlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS.get());
+        simpleBlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB.get());
+
         basicLayered("river_reeds",
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/river_reeds"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/river_reeds_overlay"));

@@ -26,6 +26,7 @@ import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.WaterAnimal;
+import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -119,9 +120,9 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         Holder<Biome> holder = level.getBiome(this.blockPosition());
 
-        if (holder.is(Primal_Tags.SPAWNS_TIGER_SHARK)) {
+        if (holder.is(Primal_Tags.Biome.SPAWNS_TIGER_SHARK)) {
             this.setVariant(Variant.TIGER);
-        } else if (holder.is(Primal_Tags.SPAWNS_HAMMERHEAD)) {
+        } else if (holder.is(Primal_Tags.Biome.SPAWNS_HAMMERHEAD)) {
             this.setVariant(Variant.HAMMERHEAD);
         } else {
             this.setVariant(Variant.GREAT_WHITE);
@@ -293,23 +294,25 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         return super.canAttack(target)
                 //To only attack if inside water
                 && this.isInWater()
-                //Attack enemies at low health
-                && ((target.getHealth()<target.getMaxHealth() && !(target instanceof SharkEntity))
+                //Attack enemies at low health, doesn't attack other sharks or a drowned mounting a shark
+                && ((target.getHealth()<target.getMaxHealth() && !(target instanceof SharkEntity) && !(target instanceof Drowned && target.getVehicle() instanceof SharkEntity))
                 //Attack squids if it hasn't hunted in a while
-                || (!this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN) && target.getType().is(Primal_Tags.SHARK_HUNTABLE))
+                || (!this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN) && target.getType().is(Primal_Tags.Entity.SHARK_HUNTABLE))
                 //To defend itself
                 || this.getLastHurtByMob()==target
                 //To defend players near conduits
                 || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()) && (this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtMob()==target || this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtByMob()==target)))
                 //To never attack someone with conduit power
                 && !target.hasEffect(MobEffects.CONDUIT_POWER)
+                //To not attack its own rider
+                && !(this.getControllingPassenger()==target)
                 && MiscUtil.isNotNeverAttack(target);
     }
 
     @Override
     public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
         //Put the cooldown to attack squids each 600 ticks (30s)
-        if(killed.getType().is(Primal_Tags.SHARK_HUNTABLE)){
+        if(killed.getType().is(Primal_Tags.Entity.SHARK_HUNTABLE)){
             this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, 600L);
         }
 
@@ -358,7 +361,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     @Override
     protected void positionRider(@NotNull Entity passenger, @NotNull MoveFunction callback) {
         if (this.hasPassenger(passenger)) {
-//Fin -> 0.6y +0.3forward
+            //Fin -> 0.6y +0.3forward
 
             // Vertical position
             double y = this.getY()+0.2;

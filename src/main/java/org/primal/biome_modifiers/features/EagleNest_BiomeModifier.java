@@ -20,7 +20,7 @@ public class EagleNest_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.SPAWNS_EAGLE,
+            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_EAGLE,
                     //ExtraBiomes
                     Primal_Main.COMMON_CONFIG.eagleNestExtraBiomes.get().stream().map(Object::toString).toList(),
                     //Step

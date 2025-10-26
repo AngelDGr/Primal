@@ -22,24 +22,24 @@ public class Primal_BlockTagsGenerator extends BlockTagsProvider {
 
     @Override
     protected void addTags(final HolderLookup.@NotNull Provider lookup) {
-        this.tag(Primal_Tags.BEAR_REPELLENTS)
+        this.tag(Primal_Tags.Block.BEAR_REPELLENTS)
                 .addTag(BlockTags.CAMPFIRES);
 
-        this.tag(Primal_Tags.SHARK_ATTRACTORS)
+        this.tag(Primal_Tags.Block.SHARK_ATTRACTORS)
                 .add(Blocks.CONDUIT);
 
-        this.tag(Primal_Tags.CROCODILE_ATTRACTORS)
+        this.tag(Primal_Tags.Block.CROCODILE_ATTRACTORS)
                 .add(Primal_Blocks.RIVER_REEDS.get())
                 .add(Primal_Blocks.SHORT_RIVER_REEDS.get());
 
-        this.tag(Primal_Tags.IS_ANIMAL_EGG)
+        this.tag(Primal_Tags.Block.IS_ANIMAL_EGG)
                 .add(Primal_Blocks.CROCODILE_EGG.get())
                 .add(Primal_Blocks.EAGLE_EGG.get())
                 .add(Blocks.TURTLE_EGG)
                 .add(Blocks.SNIFFER_EGG)
                 .add(Blocks.DRAGON_EGG);
 
-        this.tag(Primal_Tags.RIVER_REED_SOIL)
+        this.tag(Primal_Tags.Block.RIVER_REED_SOIL)
                 .add(Blocks.GRAVEL)
                 .add(Blocks.SUSPICIOUS_GRAVEL)
                 .add(Blocks.SAND)

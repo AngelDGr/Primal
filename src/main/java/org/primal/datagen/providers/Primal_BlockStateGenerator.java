@@ -42,14 +42,23 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/seashells_4"));
 
         this.simpleBlock(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
-
         this.simpleBlock(Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get());
-
         this.simpleBlock(Primal_Blocks.CHISELED_CROCODILE_SCUTE.get());
-
         this.simpleStairs(Primal_Blocks.CROCODILE_SCUTE_STAIRS, Primal_Blocks.CROCODILE_SCUTE_BLOCK);
-
         this.simpleSlab(Primal_Blocks.CROCODILE_SCUTE_SLAB, Primal_Blocks.CROCODILE_SCUTE_BLOCK);
+
+        this.simpleBlock(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get());
+        this.simpleBlock(Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE.get());
+        this.simpleBlock(Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE.get());
+        this.simpleStairs(Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS, Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
+        this.simpleSlab(Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB, Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
+
+        this.simpleBlock(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get());
+        this.simpleBlock(Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE.get());
+        this.simpleBlock(Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE.get());
+        this.simpleStairs(Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS, Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
+        this.simpleSlab(Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB, Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
+
 
         this.getVariantBuilder(Primal_Blocks.RIVER_REEDS.get())
                 .partialState().with(RiverReeds.HALF, TripleBlockHalf.UPPER).with(RiverReeds.AGE, 0).addModels(

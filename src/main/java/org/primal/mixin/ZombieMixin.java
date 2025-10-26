@@ -1,5 +1,6 @@
 package org.primal.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
@@ -38,6 +39,9 @@ public abstract class ZombieMixin extends Monster {
         this.goalSelector.addGoal(4, new ZombieAttackEggGoal(Primal_Blocks.EAGLE_EGG.get(),this, 1.0, 3));
     }
 
+    @Unique
+    boolean primal$primalJockeySpawned =false;
+
     @Inject(method = "finalizeSpawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Zombie;setBaby(Z)V"))
     private void primal$setJockeysSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir){
         RandomSource randomsource = level.getRandom();
@@ -53,12 +57,13 @@ public abstract class ZombieMixin extends Monster {
                         shark.setSharkJockey(true);
                         this.startRiding(shark);
                         level.addFreshEntity(shark);
+                        primal$primalJockeySpawned = true;
                     }
                 }
             }
 
             //Read with Jack Black voice: BEAR JOCKEY
-            if ((double)randomsource.nextFloat() < 0.03){
+            if ((double)randomsource.nextFloat() < 0.03 && !primal$primalJockeySpawned){
                 BearEntity bear = Primal_Entities.BEAR.get().create(this.level());
                 if (bear != null) {
                     bear.setBaby(true);
@@ -67,8 +72,14 @@ public abstract class ZombieMixin extends Monster {
                     bear.setBearJockey(true);
                     this.startRiding(bear);
                     level.addFreshEntity(bear);
+                    primal$primalJockeySpawned = true;
                 }
             }
         }
+    }
+
+    @ModifyExpressionValue(method = "finalizeSpawn", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/monster/Zombie$ZombieGroupData;canSpawnJockey:Z"))
+    private boolean primal$avoidOtherJockeySpawn(boolean canSpawnJockey){
+        return canSpawnJockey && !primal$primalJockeySpawned;
     }
 }

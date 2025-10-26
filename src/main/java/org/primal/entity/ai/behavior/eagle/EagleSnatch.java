@@ -70,7 +70,7 @@ public class EagleSnatch extends Behavior<EagleEntity> {
                         );
 
         //If it is not following you, tries to retrieve the animal to the baby if is from eagle_huntable
-        if(!eagle.isFollowing() &&  eagle.getFirstPassenger()!=null && eagle.getFirstPassenger().getType().is(Primal_Tags.EAGLE_HUNTABLE)){
+        if(!eagle.isFollowing() &&  eagle.getFirstPassenger()!=null && eagle.getFirstPassenger().getType().is(Primal_Tags.Entity.EAGLE_HUNTABLE)){
             List<EagleEntity> babyEagles=
                     level.getEntitiesOfClass(EagleEntity.class, eagle.getBoundingBox().inflate(10))
                             .stream().filter(babyEagle-> babyEagle.isBaby() && !babyEagle.isFollowing()).toList();

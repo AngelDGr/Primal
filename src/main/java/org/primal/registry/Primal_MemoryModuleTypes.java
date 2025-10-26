@@ -34,6 +34,9 @@ public final class Primal_MemoryModuleTypes {
     public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> WAS_BASKING =
             Primal_Registries.MEMORY_MODULE_TYPES.register("crocodile_was_basking", () -> new MemoryModuleType<>(Optional.empty()));
 
+    public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> IS_EXPLODING =
+            Primal_Registries.MEMORY_MODULE_TYPES.register("crocodile_exploding", () -> new MemoryModuleType<>(Optional.of(Codec.BOOL)));
+
     //Eagle
     public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> IS_SNATCHING =
             Primal_Registries.MEMORY_MODULE_TYPES.register("eagle_snatching", () -> new MemoryModuleType<>(Optional.empty()));

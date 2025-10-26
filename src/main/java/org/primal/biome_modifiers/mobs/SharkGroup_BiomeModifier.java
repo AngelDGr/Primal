@@ -17,7 +17,7 @@ public class SharkGroup_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.SPAWNS_SHARK,
+            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_SHARK,
                     Primal_Main.COMMON_CONFIG.sharkGroupExtraBiomes.get().stream().map(Object::toString).toList(),
                     Primal_Main.COMMON_CONFIG.enableSharkGroupSpawn.get(),
                     Primal_Main.COMMON_CONFIG.sharkGroupSpawnWeight.get(),

@@ -31,6 +31,8 @@ public abstract class FoxMixin extends Animal implements VariantHolder<Fox.Type>
 
         @Inject(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/Fox;setFaceplanted(Z)V"))
         private void primal$triggerUnstuckAnimation(CallbackInfo ci){
+            if (!this$0.level().isClientSide) return;
+
             //This triggers the animation directly from the replacing class
             if (RenderUtil.getReplacedAnimatable(this$0.getType()) instanceof GeoReplacedEntity replacedEntity){
                 replacedEntity.triggerAnim(this$0, "base_controller", "unstuck");

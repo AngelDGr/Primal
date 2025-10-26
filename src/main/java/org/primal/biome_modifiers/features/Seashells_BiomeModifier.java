@@ -29,7 +29,7 @@ public class Seashells_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.SPAWNS_SEASHELLS,
+            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_SEASHELLS,
                     //ExtraBiomes
                     Primal_Main.COMMON_CONFIG.seaShellsExtraBiomes.get().stream().map(Object::toString).toList(),
                     //Step

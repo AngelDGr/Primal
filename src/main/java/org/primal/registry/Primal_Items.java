@@ -1,11 +1,9 @@
 package org.primal.registry;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
 import org.primal.item.Primal_Food;
 
@@ -22,13 +20,25 @@ public class Primal_Items {
 
     //Crocodile
     public static DeferredHolder<Item, Item> CROCODILE_SPAWN_EGG;
+    public static DeferredHolder<Item, Item> CROCODILE_EGG;
     public static DeferredHolder<Item, Item> CROCODILE_SCUTE;
     public static DeferredHolder<Item, Item> CROCODILE_SCUTE_BLOCK;
     public static DeferredHolder<Item, Item> CROCODILE_SCUTE_SHINGLE;
     public static DeferredHolder<Item, Item> CHISELED_CROCODILE_SCUTE;
     public static DeferredHolder<Item, Item> CROCODILE_SCUTE_STAIRS;
     public static DeferredHolder<Item, Item> CROCODILE_SCUTE_SLAB;
-    public static DeferredHolder<Item, Item> CROCODILE_EGG;
+
+    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_BLOCK;
+    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_SHINGLE;
+    public static DeferredHolder<Item, Item> ARID_CHISELED_CROCODILE_SCUTE;
+    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_STAIRS;
+    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_SLAB;
+
+    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_BLOCK;
+    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_SHINGLE;
+    public static DeferredHolder<Item, Item> HUMID_CHISELED_CROCODILE_SCUTE;
+    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_STAIRS;
+    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_SLAB;
 
     //Eagle
     public static DeferredHolder<Item, Item> EAGLE_SPAWN_EGG;
@@ -121,6 +131,38 @@ public class Primal_Items {
 
             CROCODILE_SCUTE_SLAB=register("crocodile_scute_slab",
                     ()-> new BlockItem(Primal_Blocks.CROCODILE_SCUTE_SLAB.get(), new Item.Properties()));
+
+
+            ARID_CROCODILE_SCUTE_BLOCK=register("arid_crocodile_scute_block",
+                    ()-> new BlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get(), new Item.Properties()));
+
+            ARID_CROCODILE_SCUTE_SHINGLE=register("arid_crocodile_scute_shingle",
+                    ()-> new BlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE.get(), new Item.Properties()));
+
+            ARID_CHISELED_CROCODILE_SCUTE=register("arid_chiseled_crocodile_scute",
+                    ()-> new BlockItem(Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE.get(), new Item.Properties()));
+
+            ARID_CROCODILE_SCUTE_STAIRS=register("arid_crocodile_scute_stairs",
+                    ()-> new BlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS.get(), new Item.Properties()));
+
+            ARID_CROCODILE_SCUTE_SLAB=register("arid_crocodile_scute_slab",
+                    ()-> new BlockItem(Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB.get(), new Item.Properties()));
+
+
+            HUMID_CROCODILE_SCUTE_BLOCK=register("humid_crocodile_scute_block",
+                    ()-> new BlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get(), new Item.Properties()));
+
+            HUMID_CROCODILE_SCUTE_SHINGLE=register("humid_crocodile_scute_shingle",
+                    ()-> new BlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE.get(), new Item.Properties()));
+
+            HUMID_CHISELED_CROCODILE_SCUTE=register("humid_chiseled_crocodile_scute",
+                    ()-> new BlockItem(Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE.get(), new Item.Properties()));
+
+            HUMID_CROCODILE_SCUTE_STAIRS=register("humid_crocodile_scute_stairs",
+                    ()-> new BlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS.get(), new Item.Properties()));
+
+            HUMID_CROCODILE_SCUTE_SLAB=register("humid_crocodile_scute_slab",
+                    ()-> new BlockItem(Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB.get(), new Item.Properties()));
         }
 
         //Flora
@@ -137,13 +179,13 @@ public class Primal_Items {
 
         //Misc
         {
-            PAW_BANNER_PATTERN=register("paw_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.PATTERN_ITEM_PAW, new Item.Properties()));
+            PAW_BANNER_PATTERN=register("paw_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_PAW, new Item.Properties()));
 
-            JAWS_BANNER_PATTERN=register("jaws_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.PATTERN_ITEM_JAWS, new Item.Properties()));
+            JAWS_BANNER_PATTERN=register("jaws_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_JAWS, new Item.Properties()));
 
-            MARSH_BANNER_PATTERN=register("marsh_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.PATTERN_ITEM_MARSH, new Item.Properties()));
+            MARSH_BANNER_PATTERN=register("marsh_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_MARSH, new Item.Properties()));
 
-            EYRIE_BANNER_PATTERN=register("eyrie_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.PATTERN_ITEM_EYRIE, new Item.Properties()));
+            EYRIE_BANNER_PATTERN=register("eyrie_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_EYRIE, new Item.Properties()));
 
             STRAW_BLOCK=register("straw_bale",
                     ()-> new BlockItem(Primal_Blocks.STRAW_BALE.get(), new Item.Properties()));

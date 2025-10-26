@@ -58,13 +58,13 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void primal$removeEagle(CallbackInfo ci) {
-        if(p$THIS.primal$eagleAttacking().isPresent()
+        if(((IsEagleTarget) p$THIS).primal$eagleAttacking().isPresent()
                 && !this.level().isClientSide
                 //Erase the eagle value if its null or the eagle is dead
-                && (((ServerLevel)this.level()).getEntity(p$THIS.primal$eagleAttacking().get())==null
-                || ((ServerLevel)this.level()).getEntity(p$THIS.primal$eagleAttacking().get()) instanceof LivingEntity eagle && eagle.isDeadOrDying())
+                && (((ServerLevel)this.level()).getEntity(((IsEagleTarget) p$THIS).primal$eagleAttacking().get())==null
+                || ((ServerLevel)this.level()).getEntity(((IsEagleTarget) p$THIS).primal$eagleAttacking().get()) instanceof LivingEntity eagle && eagle.isDeadOrDying())
         ){
-            p$THIS.primal$setEagleAttacking(null);
+            ((IsEagleTarget) p$THIS).primal$setEagleAttacking(null);
         }
     }
 

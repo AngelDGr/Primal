@@ -23,7 +23,7 @@ public class Primal_ItemTagsGenerator extends ItemTagsProvider {
 
     @Override
     protected void addTags(final HolderLookup.@NotNull Provider lookup) {
-        this.tag(Primal_Tags.CROCODILE_CANT_EAT)
+        this.tag(Primal_Tags.Item.CROCODILE_CANT_EAT)
                 .addTag(Tags.Items.TOOLS_BRUSH)
                 .addTag(Tags.Items.FEATHERS);
 
@@ -35,10 +35,24 @@ public class Primal_ItemTagsGenerator extends ItemTagsProvider {
                 .add(Primal_Items.GOLDEN_APPLE_FRITTER.get())
                 .add(Primal_Items.ENCHANTED_GOLDEN_APPLE_FRITTER.get());
 
-        this.tag(Primal_Tags.STRAW)
+        this.tag(Primal_Tags.Item.STRAW)
                 .add(Primal_Items.RIVER_REEDS.get())
                 .add(Primal_Items.SHORT_RIVER_REEDS.get())
                 .add(Items.SHORT_GRASS)
                 .add(Items.TALL_GRASS);
+
+        this.tag(Primal_Tags.Item.BEAR_HEALING_TREATS)
+                .add(Items.SWEET_BERRIES)
+                .add(Items.GLOW_BERRIES)
+                .add(Items.SUGAR)
+                .add(Items.COOKIE)
+                .add(Items.PUMPKIN_PIE);
+
+        this.tag(Primal_Tags.Item.MAKES_CROCODILE_EXPLODE)
+                .add(Items.TNT)
+                .add(Items.TNT_MINECART);
+
+        this.tag(Primal_Tags.Item.MAKES_CROCODILE_TICK_TOCK)
+                .add(Items.CLOCK);
     }
 }

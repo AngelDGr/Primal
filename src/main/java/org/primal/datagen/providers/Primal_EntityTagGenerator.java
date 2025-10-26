@@ -44,10 +44,10 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
 
     @Override
     protected void addTags(@NotNull Provider provider) {
-        this.tag(Primal_Tags.NEVER_ATTACK)
+        this.tag(Primal_Tags.Entity.NEVER_ATTACK)
                 .add(EntityType.CREEPER);
 
-        this.tag(Primal_Tags.BEAR_HUNTABLE)
+        this.tag(Primal_Tags.Entity.BEAR_HUNTABLE)
                 .add(
                         EntityType.PLAYER,
                         EntityType.VILLAGER,
@@ -65,7 +65,7 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                 .addOptional(deer)
                 .addOptional(moose);
 
-        this.tag(Primal_Tags.SHARK_HUNTABLE)
+        this.tag(Primal_Tags.Entity.SHARK_HUNTABLE)
                 .add(
                         EntityType.SQUID,
                         EntityType.GLOW_SQUID);
@@ -76,7 +76,7 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
         this.tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER)
                 .add(Primal_Entities.SHARK.get());
 
-        this.tag(Primal_Tags.CROCODILE_HUNTABLE)
+        this.tag(Primal_Tags.Entity.CROCODILE_HUNTABLE)
                 .add(
                         //Nether
                         EntityType.PIGLIN,
@@ -116,13 +116,13 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                 .addOptional(moose)
                 .addOptional(tortoise);
 
-        this.tag(Primal_Tags.CROCODILE_NEVER_ATTACK)
+        this.tag(Primal_Tags.Entity.CROCODILE_NEVER_ATTACK)
                 .add(EntityType.TROPICAL_FISH,
                         EntityType.SALMON,
                         EntityType.COD)
                 .addOptional(billhook_bass);
 
-        this.tag(Primal_Tags.EAGLE_HUNTABLE)
+        this.tag(Primal_Tags.Entity.EAGLE_HUNTABLE)
                 .add(
                         EntityType.CHICKEN,
                         EntityType.RABBIT,

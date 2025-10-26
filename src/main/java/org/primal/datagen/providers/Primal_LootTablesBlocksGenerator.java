@@ -40,15 +40,24 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
     @Override
     public void generate() {
         final HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup = this.registries.lookupOrThrow(Registries.ENCHANTMENT);
-
         createDropThemselves(
                 Primal_Blocks.SHARK_TOOTH.get(),
+                Primal_Blocks.STRAW_BALE.get(),
                 Primal_Blocks.CROCODILE_SCUTE_BLOCK.get(),
                 Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get(),
                 Primal_Blocks.CHISELED_CROCODILE_SCUTE.get(),
                 Primal_Blocks.CROCODILE_SCUTE_STAIRS.get(),
                 Primal_Blocks.CROCODILE_SCUTE_SLAB.get(),
-                Primal_Blocks.STRAW_BALE.get()
+                Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get(),
+                Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE.get(),
+                Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE.get(),
+                Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS.get(),
+                Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB.get(),
+                Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get(),
+                Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE.get(),
+                Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE.get(),
+                Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS.get(),
+                Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB.get()
         );
 
         this.createSingleDropShearOrSilkTouch(Primal_Blocks.SHORT_RIVER_REEDS.get());

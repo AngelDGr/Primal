@@ -47,7 +47,7 @@ public final class BearRoar extends Behavior<BearEntity> {
         } else {
             bear.setPose(Pose.ROARING);
             if(bear.getRoarSound()!=null)
-                bear.playSound(bear.getRoarSound(), 1, 1);
+                bear.playSound(bear.getRoarSound(), 4, 1);
             bear.triggerAnim("base_controller", "roar");
         }
     }

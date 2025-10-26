@@ -17,7 +17,7 @@ public class CrocodileNormal_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.SPAWNS_CROCODILE,
+            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_CROCODILE,
                     Primal_Main.COMMON_CONFIG.crocodileNormalExtraBiomes.get().stream().map(Object::toString).toList(),
                     Primal_Main.COMMON_CONFIG.enableCrocodileNormalSpawn.get(),
                     Primal_Main.COMMON_CONFIG.crocodileNormalSpawnWeight.get(),

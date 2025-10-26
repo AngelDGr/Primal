@@ -12,6 +12,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
@@ -21,13 +23,16 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.PolarBear;
 import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.animation.entity.BearAnimations;
@@ -126,8 +131,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 80f)
-                .add(Attributes.MOVEMENT_SPEED, 0.1f)
+                .add(Attributes.MAX_HEALTH, 50f)
+                .add(Attributes.MOVEMENT_SPEED, 0.14f)
                 .add(Attributes.ATTACK_DAMAGE, 8f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.8f)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f)
@@ -158,7 +163,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
         Holder<Biome> holder = level.getBiome(this.blockPosition());
 
-        if (holder.is(Primal_Tags.SPAWNS_BLACK_BEAR)) {
+        if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_BEAR)) {
             this.setVariant(Variant.WARM);
         } else {
             this.setVariant(Variant.GRIZZLY);
@@ -513,7 +518,14 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             }
 
             if(indexOfHealItem!=-1){
-                heal(2);
+                FoodProperties foodProperties = this.inventory.getItem(indexOfHealItem).getFoodProperties(this);
+                float nutrition=0;
+                if(foodProperties!=null){
+                    nutrition = foodProperties.nutrition()/2f;
+                }
+
+                this.heal(1f + nutrition);
+
                 this.inventory.setItem(indexOfHealItem, new ItemStack(this.inventory.getItem(indexOfHealItem).getItem(), this.inventory.getItem(indexOfHealItem).getCount()-1));
                 this.playEatingSound();
                 this.setHealingCooldown(50);
@@ -646,7 +658,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     public static boolean isHealFood(@NotNull ItemStack stack){
-        return stack.is(Items.SWEET_BERRIES);
+        return stack.is(Primal_Tags.Item.BEAR_HEALING_TREATS);
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
@@ -690,8 +702,24 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
 
-        //Only if tame
-        if (this.isTame()) {
+        //Only if tame and if is the owner
+        if (this.isTame() && this.isOwnedBy(player)) {
+
+            //Remove chest with a shears if empty inventory
+            if(!this.level().isClientSide && this.hasChest() && stackInHand.is(Tags.Items.TOOLS_SHEAR) && this.inventory.isEmpty()){
+                this.setChest(false);
+
+                //Emit event, damages if possible and plays sound
+                this.gameEvent(GameEvent.SHEAR, player);
+                if(stackInHand.isDamageableItem()){
+                    stackInHand.hurtAndBreak(1, player, getSlotForHand(hand));
+                }
+                this.level().playSound(null, this, SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.0F);
+
+                this.spawnAtLocation(Blocks.BARREL);
+                return InteractionResult.sidedSuccess(this.level().isClientSide());
+            }
+
             //Awake bear if it is sleeping by their own
             if(this.isBearSleeping() && !this.isSitting()) {
                 //30s of delay + 1-10 extra seconds
@@ -774,7 +802,13 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 //To heal the bear
                 if(isHealFood(stack)){
                     if (this.getHealth() < this.getMaxHealth()) {
-                        this.heal(2f);
+                        FoodProperties foodProperties = stack.getFoodProperties(this);
+                        float nutrition=0;
+                        if(foodProperties!=null){
+                            nutrition = foodProperties.nutrition()/2f;
+                        }
+
+                        this.heal(1f + nutrition);
 
                         return playEatingSound();
                     }

@@ -1,9 +1,12 @@
 package org.primal.mixin;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.NeutralMob;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.animal.Animal;
@@ -11,6 +14,7 @@ import net.minecraft.world.entity.animal.PolarBear;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import org.primal.Primal_Main;
 import org.primal.entity.animal.BearEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -58,9 +62,31 @@ public abstract class PolarBearMixin extends Animal implements NeutralMob {
     private void primal$triggerAttackAnimation(CallbackInfo ci){
         //This triggers the animation directly from the replacing class
         if(this.isStanding() && !this.isInWater()){
+            if (!this.level().isClientSide) return;
+
             if (RenderUtil.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity){
                 replacedEntity.triggerAnim(p$THIS, "base_controller", "attack");
             }
         }
+    }
+
+    @Unique
+    AttributeModifier primal$polarBearHealthIncrease=new AttributeModifier(
+            ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "polar_bear_health_increase"),
+            30,
+            AttributeModifier.Operation.ADD_VALUE);
+
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void primal$increasesHealth(CallbackInfo ci){
+
+        var healthAttribute= p$THIS.getAttribute(Attributes.MAX_HEALTH);
+
+        if(healthAttribute!=null && !healthAttribute.hasModifier(primal$polarBearHealthIncrease.id()) && Primal_Main.COMMON_CONFIG.polarBearIncreasesHealth.get()){
+            healthAttribute.addPermanentModifier(primal$polarBearHealthIncrease);
+            p$THIS.heal(this.getMaxHealth());
+        } else if (healthAttribute!=null && healthAttribute.hasModifier(primal$polarBearHealthIncrease.id()) && !Primal_Main.COMMON_CONFIG.polarBearIncreasesHealth.get()) {
+            healthAttribute.removeModifier(primal$polarBearHealthIncrease);
+        }
+
     }
 }

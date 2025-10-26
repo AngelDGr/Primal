@@ -165,9 +165,9 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
     @Override
     public void setVariantFromBiome(CrocodileEntity crocodile, Holder<Biome> holder){
-        if (holder.is(Primal_Tags.SPAWNS_BLACK_CROCODILE)) {
+        if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_CROCODILE)) {
             crocodile.setVariant(Variant.BLACK);
-        } else if(holder.is(Primal_Tags.SPAWNS_BROWN_CROCODILE)){
+        } else if(holder.is(Primal_Tags.Biome.SPAWNS_BROWN_CROCODILE)){
             crocodile.setVariant(Variant.BROWN);
         } else {
             crocodile.setVariant(Variant.GREEN);
@@ -400,6 +400,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
         if(!this.getPassengers().isEmpty())
             this.stopMoving();
+
+        if(this.hasTNT())
+            this.getBrain().setMemory(Primal_MemoryModuleTypes.IS_EXPLODING.get(), true);
+        else if(this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.IS_EXPLODING.get()))
+            this.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_EXPLODING.get());
     }
 
     @Override
@@ -584,7 +589,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
         return super.canAttack(target) &&
                 //Hunts regularly
-                ((target.getType().is(Primal_Tags.CROCODILE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN))
+                ((target.getType().is(Primal_Tags.Entity.CROCODILE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN))
                 //Attacks if it has a nearby baby
                 || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get()) && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown())
                 //To attack the last one that hurt it
@@ -598,18 +603,19 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 || (target.distanceTo(this)<8 && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown()))
                 && !this.isPacified()
                 && MiscUtil.isNotNeverAttack(target)
-                && !target.getType().is(Primal_Tags.CROCODILE_NEVER_ATTACK);
+                && !target.getType().is(Primal_Tags.Entity.CROCODILE_NEVER_ATTACK);
     }
 
     @Override
     public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
         //Put the cooldown to attack prey each 600 ticks (30s)
-        if(killed.getType().is(Primal_Tags.CROCODILE_HUNTABLE)){
+        if(killed.getType().is(Primal_Tags.Entity.CROCODILE_HUNTABLE)){
             this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, 600L);
         }
 
         return super.killedEntity(level, killed);
     }
+
 
     //Eating
     @Override
@@ -663,7 +669,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             } else if (!isFood(itemstack) && this.canEatItem(itemstack)){
 
-                if(itemstack.is(Items.CLOCK) && player instanceof ServerPlayer serverPlayer)
+                if(itemstack.is(Primal_Tags.Item.MAKES_CROCODILE_TICK_TOCK) && player instanceof ServerPlayer serverPlayer)
                     Primal_Advancements.CLOCK_CROC.get().trigger(serverPlayer);
 
                 Collection<ItemStack> stack=List.of(itemstack);
@@ -750,7 +756,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     public boolean canEatItem(ItemStack drop){
-        return this.inventory.canAddItem(drop) && !drop.is(Primal_Tags.CROCODILE_CANT_EAT) && !drop.isEmpty();
+        return this.inventory.canAddItem(drop) && !drop.is(Primal_Tags.Item.CROCODILE_CANT_EAT) && !drop.isEmpty();
     }
 
     public void addItemsToInventory(Collection<ItemStack> drops){
@@ -760,6 +766,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         }
     }
 
+    //Special Belly Items
     public Optional<GlobalPos> getCompassPos(){
         Optional<GlobalPos> compassPos=Optional.empty();
 
@@ -774,7 +781,31 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     public boolean hasClock(){
-        return this.inventory.hasAnyMatching(stack -> stack.is(Items.CLOCK));
+        return this.inventory.hasAnyMatching(stack -> stack.is(Primal_Tags.Item.MAKES_CROCODILE_TICK_TOCK));
+    }
+
+    public boolean hasTNT(){
+        return this.inventory.hasAnyMatching(stack -> stack.is(Primal_Tags.Item.MAKES_CROCODILE_EXPLODE));
+    }
+
+    public void explode() {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            float f = this.isBaby() ? 0.5F : 2.0F;
+            this.dead = true;
+            int explosionRadius= this.isBaby()? 1 : 3;
+            var explosion = this.level().explode(this, this.getX(), this.getY(), this.getZ(), (float)explosionRadius* f, Level.ExplosionInteraction.MOB);
+
+
+            for (int i=0; i<this.inventory.getContainerSize(); i++){
+                if(this.inventory.getItem(i).is(Primal_Tags.Item.MAKES_CROCODILE_EXPLODE)){
+                    this.inventory.getItem(0).shrink(1);
+                    break;
+                }
+            }
+
+            this.dropCustomDeathLoot(serverLevel, damageSources().explosion(explosion), true);
+            this.discard();
+        }
     }
 
     @Override

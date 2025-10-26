@@ -37,14 +37,22 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 .texture("cross", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/shark_tooth_tip_down"));
 
         this.createCubeAll(Primal_Blocks.CROCODILE_SCUTE_BLOCK);
-
         this.createCubeAll(Primal_Blocks.CROCODILE_SCUTE_SHINGLE);
-
         this.createCubeAll(Primal_Blocks.CHISELED_CROCODILE_SCUTE);
-
         this.simpleStairs(Primal_Blocks.CROCODILE_SCUTE_STAIRS, Primal_Blocks.CROCODILE_SCUTE_BLOCK);
-
         this.simpleSlab(Primal_Blocks.CROCODILE_SCUTE_SLAB, Primal_Blocks.CROCODILE_SCUTE_BLOCK);
+
+        this.createCubeAll(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
+        this.createCubeAll(Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE);
+        this.createCubeAll(Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE);
+        this.simpleStairs(Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS, Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
+        this.simpleSlab(Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB, Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
+
+        this.createCubeAll(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
+        this.createCubeAll(Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE);
+        this.createCubeAll(Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE);
+        this.simpleStairs(Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS, Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
+        this.simpleSlab(Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB, Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
 
         this.tintedOverlayCross("river_reeds_top_0",
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_0"),
@@ -124,8 +132,8 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()));
     }
 
-    private BlockModelBuilder singleTexture(String name, String parent, String textureKey, ResourceLocation texture) {
-        return singleTexture(name, mcLoc(parent), textureKey, texture);
+    private void singleTexture(String name, String parent, String textureKey, ResourceLocation texture) {
+        singleTexture(name, mcLoc(parent), textureKey, texture);
     }
 
     private void createEggModel(String name, String type){

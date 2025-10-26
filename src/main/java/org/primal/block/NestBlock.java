@@ -232,7 +232,7 @@ public class NestBlock extends BaseEntityBlock {
 
     public boolean isItemPlaceable(ItemStack stack){
         return stack.getItem() instanceof BlockItem blockItem &&
-                (blockItem.getBlock().defaultBlockState().is(Primal_Tags.IS_ANIMAL_EGG));
+                (blockItem.getBlock().defaultBlockState().is(Primal_Tags.Block.IS_ANIMAL_EGG));
     }
 
     public static int getMaxEggAmount(ItemStack eggStack) {
@@ -338,7 +338,7 @@ public class NestBlock extends BaseEntityBlock {
         if(!eggStack.isEmpty()){
             Optional<BlockState> eggState = NestBlock.getEggBlockState(eggStack);
 
-            if(eggState.isPresent() && eggState.get().is(Primal_Tags.IS_ANIMAL_EGG)){
+            if(eggState.isPresent() && eggState.get().is(Primal_Tags.Block.IS_ANIMAL_EGG)){
                 Optional<Property<?>> eggProperty=
                         eggState.get().getBlock().defaultBlockState().getProperties().stream().filter(
                                         property ->

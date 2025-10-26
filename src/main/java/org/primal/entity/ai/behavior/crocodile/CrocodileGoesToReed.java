@@ -26,7 +26,7 @@ public class CrocodileGoesToReed extends Behavior<CrocodileEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, CrocodileEntity owner) {
-        return level.getBlockState(owner.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Tags.CROCODILE_ATTRACTORS);
+        return level.getBlockState(owner.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Tags.Block.CROCODILE_ATTRACTORS);
     }
 
     @Override

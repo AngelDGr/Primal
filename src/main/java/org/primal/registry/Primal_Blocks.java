@@ -1,6 +1,5 @@
 package org.primal.registry;
 
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
@@ -28,6 +27,18 @@ public class Primal_Blocks {
     public static DeferredHolder<Block, Block> CHISELED_CROCODILE_SCUTE;
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_STAIRS;
     public static DeferredHolder<Block, Block> CROCODILE_SCUTE_SLAB;
+
+    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_BLOCK;
+    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_SHINGLE;
+    public static DeferredHolder<Block, Block> ARID_CHISELED_CROCODILE_SCUTE;
+    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_STAIRS;
+    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_SLAB;
+
+    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_BLOCK;
+    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_SHINGLE;
+    public static DeferredHolder<Block, Block> HUMID_CHISELED_CROCODILE_SCUTE;
+    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_STAIRS;
+    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_SLAB;
 
     public static DeferredHolder<Block, Block> STRAW_BALE;
 
@@ -87,36 +98,105 @@ public class Primal_Blocks {
                                 .pushReaction(PushReaction.NORMAL)
                                 .isRedstoneConductor(Primal_Blocks::never)));
 
-        CROCODILE_SCUTE_BLOCK=register("crocodile_scute_block",
-                ()-> new Block(BlockBehaviour.Properties.of()
-                        .instabreak()
-                        .explosionResistance(1200f)
-                        .sound(SoundType.SCAFFOLDING)));
+        {
+            CROCODILE_SCUTE_BLOCK = register("crocodile_scute_block",
+                    () -> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
 
-        CROCODILE_SCUTE_SHINGLE=register("crocodile_scute_shingle",
-                ()-> new Block(BlockBehaviour.Properties.of()
-                        .instabreak()
-                        .explosionResistance(1200f)
-                        .sound(SoundType.SCAFFOLDING)));
+            CROCODILE_SCUTE_SHINGLE = register("crocodile_scute_shingle",
+                    () -> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
 
-        CHISELED_CROCODILE_SCUTE =register("chiseled_crocodile_scute",
-                ()-> new Block(BlockBehaviour.Properties.of()
-                        .instabreak()
-                        .explosionResistance(1200f)
-                        .sound(SoundType.SCAFFOLDING)));
+            CHISELED_CROCODILE_SCUTE = register("chiseled_crocodile_scute",
+                    () -> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
 
-        CROCODILE_SCUTE_STAIRS=register("crocodile_scute_stairs",
-                ()-> new StairBlock(CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
-                        BlockBehaviour.Properties.of()
-                        .instabreak()
-                        .explosionResistance(1200f)
-                        .sound(SoundType.SCAFFOLDING)));
+            CROCODILE_SCUTE_STAIRS = register("crocodile_scute_stairs",
+                    () -> new StairBlock(CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
+                            BlockBehaviour.Properties.of()
+                                    .instabreak()
+                                    .explosionResistance(1200f)
+                                    .sound(SoundType.SCAFFOLDING)));
 
-        CROCODILE_SCUTE_SLAB=register("crocodile_scute_slab",
-                ()-> new SlabBlock(BlockBehaviour.Properties.of()
-                                .instabreak()
-                                .explosionResistance(1200f)
-                                .sound(SoundType.SCAFFOLDING)));
+            CROCODILE_SCUTE_SLAB = register("crocodile_scute_slab",
+                    () -> new SlabBlock(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+        }
+
+
+        {
+            ARID_CROCODILE_SCUTE_BLOCK=register("arid_crocodile_scute_block",
+                    ()-> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+
+            ARID_CROCODILE_SCUTE_SHINGLE=register("arid_crocodile_scute_shingle",
+                    ()-> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+
+            ARID_CHISELED_CROCODILE_SCUTE =register("arid_chiseled_crocodile_scute",
+                    ()-> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+
+            ARID_CROCODILE_SCUTE_STAIRS=register("arid_crocodile_scute_stairs",
+                    ()-> new StairBlock(ARID_CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
+                            BlockBehaviour.Properties.of()
+                                    .instabreak()
+                                    .explosionResistance(1200f)
+                                    .sound(SoundType.SCAFFOLDING)));
+
+            ARID_CROCODILE_SCUTE_SLAB=register("arid_crocodile_scute_slab",
+                    ()-> new SlabBlock(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+        }
+
+        {
+            HUMID_CROCODILE_SCUTE_BLOCK = register("humid_crocodile_scute_block",
+                    () -> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+
+            HUMID_CROCODILE_SCUTE_SHINGLE = register("humid_crocodile_scute_shingle",
+                    () -> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+
+            HUMID_CHISELED_CROCODILE_SCUTE = register("humid_chiseled_crocodile_scute",
+                    () -> new Block(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+
+            HUMID_CROCODILE_SCUTE_STAIRS = register("humid_crocodile_scute_stairs",
+                    () -> new StairBlock(HUMID_CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
+                            BlockBehaviour.Properties.of()
+                                    .instabreak()
+                                    .explosionResistance(1200f)
+                                    .sound(SoundType.SCAFFOLDING)));
+
+            HUMID_CROCODILE_SCUTE_SLAB = register("humid_crocodile_scute_slab",
+                    () -> new SlabBlock(BlockBehaviour.Properties.of()
+                            .instabreak()
+                            .explosionResistance(1200f)
+                            .sound(SoundType.SCAFFOLDING)));
+        }
 
         RIVER_REEDS=register("river_reeds",
                 ()-> new RiverReeds(BlockBehaviour.Properties.of()

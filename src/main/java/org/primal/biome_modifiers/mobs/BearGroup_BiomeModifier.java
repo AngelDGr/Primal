@@ -17,7 +17,7 @@ public class BearGroup_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.SPAWNS_BEAR,
+            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_BEAR,
                     Primal_Main.COMMON_CONFIG.bearGroupExtraBiomes.get().stream().map(Object::toString).toList(),
                     Primal_Main.COMMON_CONFIG.enableBearGroupSpawn.get(),
                     Primal_Main.COMMON_CONFIG.bearGroupSpawnWeight.get(),

@@ -4,6 +4,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.NotNull;
@@ -92,24 +93,115 @@ public class Primal_RecipesGenerator extends RecipeProvider {
                 .unlockedBy("has_eagle_egg", has(Primal_Items.EAGLE_EGG.get()))
                 .save(exporter);
 
-        twoByTwoPacker(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_BLOCK.get(), Primal_Items.CROCODILE_SCUTE.get());
+        //Croc Blocks
+        {
+            //Normal
+            {
+                ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_BLOCK.get())
+                        .requires(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get()).requires(ItemTags.SAND)
+                        .group("crocodile_scute_block")
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "humid_to_normal"));
 
-        twoByTwoPacker(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
+                ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_BLOCK.get())
+                        .requires(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get()).requires(Items.MUD)
+                        .group("crocodile_scute_block")
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "arid_to_normal"));
 
-        chiseledBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CHISELED_CROCODILE_SCUTE.get(), Ingredient.of(Primal_Blocks.CROCODILE_SCUTE_SLAB.get()))
-                .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
-                .save(exporter);
+                ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_BLOCK.get())
+                        .define('#', Primal_Items.CROCODILE_SCUTE.get()).pattern("##").pattern("##")
+                        .group("crocodile_scute_block")
+                        .unlockedBy(getHasName(Primal_Items.CROCODILE_SCUTE.get()), has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
 
-        stairBuilder(Primal_Blocks.CROCODILE_SCUTE_STAIRS.get(),  Ingredient.of(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get().asItem()))
-                .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
-                .save(exporter);
+                twoByTwoPacker(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
 
-        slabBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SLAB.get(),  Ingredient.of(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get().asItem()))
-                .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
-                .save(exporter);
+                chiseledBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CHISELED_CROCODILE_SCUTE.get(), Ingredient.of(Primal_Blocks.CROCODILE_SCUTE_SLAB.get()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                stairBuilder(Primal_Blocks.CROCODILE_SCUTE_STAIRS.get(), Ingredient.of(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get().asItem()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                slabBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SLAB.get(), Ingredient.of(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get().asItem()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                //Stone cutting
+                {
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CHISELED_CROCODILE_SCUTE.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SLAB.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get(), 2);
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_STAIRS.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
+                }
+            }
+
+            //Arid
+            {
+                ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get())
+                        .requires(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get()).requires(ItemTags.SAND)
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                twoByTwoPacker(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get());
+
+                chiseledBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE.get(), Ingredient.of(Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB.get()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                stairBuilder(Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS.get(), Ingredient.of(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get().asItem()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                slabBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB.get(), Ingredient.of(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get().asItem()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                //Stone cutting
+                {
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get());
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE.get(), Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get());
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB.get(), Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get(), 2);
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS.get(), Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get());
+                }
+            }
+
+            //Humid
+            {
+                ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get())
+                        .requires(Primal_Blocks.CROCODILE_SCUTE_BLOCK.get()).requires(Items.MUD)
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                twoByTwoPacker(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get());
+
+                chiseledBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE.get(), Ingredient.of(Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB.get()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                stairBuilder(Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS.get(), Ingredient.of(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get().asItem()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                slabBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB.get(), Ingredient.of(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get().asItem()))
+                        .unlockedBy("has_crocodile_scute", has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
+
+                //Stone cutting
+                {
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE.get(), Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get());
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE.get(), Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get());
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB.get(), Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get(), 2);
+                    stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS.get(), Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get());
+                }
+            }
+        }
+
 
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.STRAW_BALE.get(), 1)
-                .define('#', Primal_Tags.STRAW)
+                .define('#', Primal_Tags.Item.STRAW)
                 .pattern("##")
                 .pattern("##")
                 .unlockedBy("has_reeds", has(Primal_Items.RIVER_REEDS.get()))

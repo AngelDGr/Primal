@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "primal:arid_crocodile_scute_block"
+  },
+  "result": {
+    "count": 2,
+    "id": "primal:arid_crocodile_scute_slab"
+  }
+}

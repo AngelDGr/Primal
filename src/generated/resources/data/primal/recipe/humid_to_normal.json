@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "crocodile_scute_block",
+  "ingredients": [
+    {
+      "item": "primal:humid_crocodile_scute_block"
+    },
+    {
+      "tag": "minecraft:sand"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "primal:crocodile_scute_block"
+  }
+}

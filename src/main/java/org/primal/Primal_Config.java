@@ -47,6 +47,7 @@ public class Primal_Config {
 
     // --- Replaced Models ---
     public final ModConfigSpec.BooleanValue polarBearModelChange;
+    public final ModConfigSpec.BooleanValue polarBearIncreasesHealth;
     public final ModConfigSpec.BooleanValue foxModelChange;
 
     // --- World Features ---
@@ -81,6 +82,7 @@ public class Primal_Config {
             {
                 builder.comment("Toggle model replacements for certain mobs");
                 polarBearModelChange = builder.define("polarBearModelChange", true);
+                polarBearIncreasesHealth = builder.define("polarBearIncreasesHealth", true);
                 foxModelChange = builder.define("foxModelChange", true);
             }
             builder.pop();

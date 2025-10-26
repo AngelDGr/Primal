@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_crocodile_scute": {
+      "conditions": {
+        "items": [
+          {
+            "items": "primal:crocodile_scute"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "primal:humid_to_normal"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_crocodile_scute"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "primal:humid_to_normal"
+    ]
+  }
+}

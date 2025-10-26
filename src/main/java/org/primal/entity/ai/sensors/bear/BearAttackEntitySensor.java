@@ -49,7 +49,7 @@ public final class BearAttackEntitySensor extends NearestLivingEntitySensor<Bear
                             target ->
                                     Sensor.isEntityAttackable(bear, target)
                                             //To attack prey
-                                            && target.getType().is(Primal_Tags.BEAR_HUNTABLE)
+                                            && target.getType().is(Primal_Tags.Entity.BEAR_HUNTABLE)
                                             //To not attack enemies near campfires
                                             && !(target.level() instanceof ServerLevel serverLevel && BearRepellentSensor.findNearestRepellent(serverLevel, target).isPresent()))
                     .findFirst()

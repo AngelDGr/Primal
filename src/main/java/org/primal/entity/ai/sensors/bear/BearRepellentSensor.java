@@ -25,6 +25,6 @@ public class BearRepellentSensor extends Sensor<LivingEntity> {
     }
 
     public static Optional<BlockPos> findNearestRepellent(ServerLevel level, LivingEntity bear) {
-        return BlockPos.findClosestMatch(bear.blockPosition(), 8, 4, pos -> level.getBlockState(pos).is(Primal_Tags.BEAR_REPELLENTS));
+        return BlockPos.findClosestMatch(bear.blockPosition(), 8, 4, pos -> level.getBlockState(pos).is(Primal_Tags.Block.BEAR_REPELLENTS));
     }
 }

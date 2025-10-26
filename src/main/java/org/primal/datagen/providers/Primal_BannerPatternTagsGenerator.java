@@ -22,16 +22,16 @@ public class Primal_BannerPatternTagsGenerator extends TagsProvider<BannerPatter
 
     @Override
     protected void addTags(HolderLookup.@NotNull Provider provider) {
-        this.tag(Primal_Tags.PATTERN_ITEM_PAW)
+        this.tag(Primal_Tags.BannerPattern.PATTERN_ITEM_PAW)
                 .add(Primal_BannerPatterns.PAW);
 
-        this.tag(Primal_Tags.PATTERN_ITEM_JAWS)
+        this.tag(Primal_Tags.BannerPattern.PATTERN_ITEM_JAWS)
                 .add(Primal_BannerPatterns.JAWS);
 
-        this.tag(Primal_Tags.PATTERN_ITEM_MARSH)
+        this.tag(Primal_Tags.BannerPattern.PATTERN_ITEM_MARSH)
                 .add(Primal_BannerPatterns.MARSH);
 
-        this.tag(Primal_Tags.PATTERN_ITEM_EYRIE)
+        this.tag(Primal_Tags.BannerPattern.PATTERN_ITEM_EYRIE)
                 .add(Primal_BannerPatterns.EYRIE);
     }
 }
