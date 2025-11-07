@@ -1,3 +1,11 @@
+# 1.0.7 - 1.21
+# Changes
+- Modified nest logic, now it works with modded eggs if added on configuration! You only need to specify both the egg block and the entity that it will hatch from it
+- Added a new config option to add placeable eggs into the nest without modifying the animal_egg tag
+
+# Fixes
+- Fixed baby shadows being too large
+
 # 1.0.6 - 1.21
 # Additions
 - Added spanish translation! (Ahuevo)

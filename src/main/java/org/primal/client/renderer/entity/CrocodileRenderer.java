@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.CrocodileModel;
 import org.primal.entity.animal.CrocodileEntity;
@@ -25,6 +26,12 @@ public class CrocodileRenderer extends GeoEntityRenderer<CrocodileEntity> {
         });
 
         shadowRadius=1.1F;
+    }
+
+    @Override
+    protected float getShadowRadius(@NotNull CrocodileEntity entity) {
+        float f = super.getShadowRadius(entity);
+        return entity.isBaby() ? f * 0.3F : f;
     }
 
     @Override

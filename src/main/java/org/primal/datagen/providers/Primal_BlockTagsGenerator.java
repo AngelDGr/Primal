@@ -2,6 +2,7 @@ package org.primal.datagen.providers;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
@@ -37,7 +38,8 @@ public class Primal_BlockTagsGenerator extends BlockTagsProvider {
                 .add(Primal_Blocks.EAGLE_EGG.get())
                 .add(Blocks.TURTLE_EGG)
                 .add(Blocks.SNIFFER_EGG)
-                .add(Blocks.DRAGON_EGG);
+                .add(Blocks.DRAGON_EGG)
+                .addOptional(ResourceLocation.fromNamespaceAndPath("nomansland", "tortoise_egg"));
 
         this.tag(Primal_Tags.Block.RIVER_REED_SOIL)
                 .add(Blocks.GRAVEL)

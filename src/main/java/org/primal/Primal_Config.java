@@ -50,6 +50,10 @@ public class Primal_Config {
     public final ModConfigSpec.BooleanValue polarBearIncreasesHealth;
     public final ModConfigSpec.BooleanValue foxModelChange;
 
+    // --- Special Config ---
+    public final ModConfigSpec.ConfigValue<List<? extends List<? extends String>>> eggData;
+    public final ModConfigSpec.ConfigValue<List<? extends String>> extraPlaceableEggs;
+
     // --- World Features ---
     public final ModConfigSpec.BooleanValue riverReedsSpawnInWorld;
     public final ModConfigSpec.IntValue riverReedsPatchRarity;
@@ -73,6 +77,35 @@ public class Primal_Config {
 
 
     public Primal_Config(ModConfigSpec.Builder builder) {
+
+        //Misc
+        builder.comment("Misc Settings").push("misc");
+        {
+            eggData = builder
+                    .comment("""
+                            List of egg data: each entry is [block_id, entity_id].
+                            This is used for the nest block, for eggs that can hatch, add the block to the animal_egg tag to be placeable or to the next config
+                            Primal eggs are already defined""")
+                    .defineList("eggData",
+                            List.of(
+                                    List.of("minecraft:turtle_egg", "minecraft:turtle"),
+                                    List.of("minecraft:sniffer_egg", "minecraft:sniffer"),
+                                    List.of("nomansland:tortoise_egg", "nomansland:tortoise")
+                            ),
+                            obj -> {
+                                if (!(obj instanceof List<?> inner)) return false;
+                                if (inner.size() != 2) return false;
+                                return inner.get(0) instanceof String && inner.get(1) instanceof String;
+                            });
+
+            builder.comment("""
+                        To add egg blocks directly instead of modifying the animal_egg tag""");
+            extraPlaceableEggs = builder.defineList("extraPlaceableEggs",
+                    List.of(),
+                    o -> o instanceof String s && s.contains(":")
+            );
+        }
+        builder.pop();
 
         //Mobs
         builder.comment("Mob Settings").push("mob");

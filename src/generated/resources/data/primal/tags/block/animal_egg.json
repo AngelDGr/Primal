@@ -4,6 +4,10 @@
     "primal:eagle_egg",
     "minecraft:turtle_egg",
     "minecraft:sniffer_egg",
-    "minecraft:dragon_egg"
+    "minecraft:dragon_egg",
+    {
+      "id": "nomansland:tortoise_egg",
+      "required": false
+    }
   ]
 }

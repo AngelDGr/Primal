@@ -7,19 +7,17 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.VariantHolder;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
-import net.minecraft.world.entity.animal.sniffer.Sniffer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -39,12 +37,12 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.primal.Primal_Main;
 import org.primal.block_entity.NestBlockEntity;
 import org.primal.registry.Primal_BlockEntities;
 import org.primal.registry.Primal_Sounds;
@@ -52,8 +50,7 @@ import org.primal.registry.Primal_Tags;
 import org.primal.util.AnimalEgg;
 import org.primal.util.VariantHolderPrimal;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class NestBlock extends BaseEntityBlock {
     public static final MapCodec<NestBlock> CODEC = simpleCodec(NestBlock::new);
@@ -232,7 +229,7 @@ public class NestBlock extends BaseEntityBlock {
 
     public boolean isItemPlaceable(ItemStack stack){
         return stack.getItem() instanceof BlockItem blockItem &&
-                (blockItem.getBlock().defaultBlockState().is(Primal_Tags.Block.IS_ANIMAL_EGG));
+                (blockItem.getBlock().defaultBlockState().is(Primal_Tags.Block.IS_ANIMAL_EGG) || Primal_Main.COMMON_CONFIG.extraPlaceableEggs.get().contains(BuiltInRegistries.BLOCK.getKey(blockItem.getBlock()).toString()));
     }
 
     public static int getMaxEggAmount(ItemStack eggStack) {
@@ -338,7 +335,7 @@ public class NestBlock extends BaseEntityBlock {
         if(!eggStack.isEmpty()){
             Optional<BlockState> eggState = NestBlock.getEggBlockState(eggStack);
 
-            if(eggState.isPresent() && eggState.get().is(Primal_Tags.Block.IS_ANIMAL_EGG)){
+            if(eggState.isPresent() && (eggState.get().is(Primal_Tags.Block.IS_ANIMAL_EGG) || Primal_Main.COMMON_CONFIG.extraPlaceableEggs.get().contains(BuiltInRegistries.BLOCK.getKey(eggState.get().getBlock()).toString()))){
                 Optional<Property<?>> eggProperty=
                         eggState.get().getBlock().defaultBlockState().getProperties().stream().filter(
                                         property ->
@@ -351,11 +348,20 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @SuppressWarnings("unchecked")
-    protected static void randomEggTick(@NotNull BlockState nestState, @NotNull BlockState eggState, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random, @javax.annotation.Nullable IntegerProperty eggsProperty) {
-        //To not update randomly if it's not the specific classes, otherwise it would be weird
-        if ( level.random.nextInt(10) == 0 &&
-                ((eggState.getBlock() instanceof AnimalEgg) || (eggState.getBlock()== Blocks.SNIFFER_EGG) || (eggState.getBlock()== Blocks.TURTLE_EGG))
-        ) {
+    protected static void randomEggTick(@NotNull BlockState nestState, @NotNull BlockState eggState, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random, @Nullable IntegerProperty eggsProperty) {
+        Map<String, String> eggMap = new HashMap<>();
+
+        List<? extends List<? extends String>> eggDataList = Primal_Main.COMMON_CONFIG.eggData.get();
+
+        for (List<? extends String> pair : eggDataList)
+            if (pair.size() >= 2)
+                eggMap.put(pair.get(0), pair.get(1)); // block_id -> entity_id
+
+        ResourceLocation eggBlockId = BuiltInRegistries.BLOCK.getKey(eggState.getBlock());
+        Optional<EntityType<?>> entityType = BuiltInRegistries.ENTITY_TYPE.getOptional(ResourceLocation.parse(eggMap.getOrDefault(eggBlockId.toString(), "")));
+
+        if (level.random.nextInt(10) == 0 &&
+                (eggState.getBlock() instanceof AnimalEgg || eggMap.containsKey(BuiltInRegistries.BLOCK.getKey(eggState.getBlock()).toString()))) {
 
             int i = nestState.getValue(NestBlock.HATCH);
             if (i < 2) {
@@ -363,11 +369,8 @@ public class NestBlock extends BaseEntityBlock {
                 level.setBlock(pos, nestState.setValue(NestBlock.HATCH, i + 1), 2);
                 level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(nestState));
             } else {
-                //Sound
+                //Hatch Sound
                 level.playSound(null, pos, Primal_Sounds.EGG_HATCH.get(), SoundSource.BLOCKS, 0.7F, 0.9F + random.nextFloat() * 0.2F);
-
-                NestBlockEntity nestBlockEntity = NestBlock.getBlockEntity(level, pos);
-
 
                 //Spawn entities
                 if(eggsProperty!=null){
@@ -375,14 +378,13 @@ public class NestBlock extends BaseEntityBlock {
                         removeEgg(null, level, pos, nestState, false);
                         level.levelEvent(2001, pos, Block.getId(nestState));
 
-
                         //Primal eggs
                         if(eggState.getBlock() instanceof AnimalEgg animalEgg){
                             //Spawn primal animal
                             Animal animal = animalEgg.getAnimal().get().create(level);
                             if (animal != null) {
                                 Holder<Biome> holder = level.getBiome(pos);
-                                animal.setAge(-24000);
+                                animal.setBaby(true);
 
                                 if (animal instanceof VariantHolderPrimal variantWhenHatches && animal instanceof VariantHolder variantHolder) {
 
@@ -400,33 +402,37 @@ public class NestBlock extends BaseEntityBlock {
                                 level.addFreshEntity(animal);
                             }
                         }
-                        //Turtle eggs
-                        else if(eggState.getBlock() instanceof TurtleEggBlock){
-                            //Spawn turtle
-                            Turtle turtle = EntityType.TURTLE.create(level);
-                            if (turtle != null) {
-                                turtle.setAge(-24000);
-                                turtle.setHomePos(pos);
-                                turtle.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
-                                level.addFreshEntity(turtle);
+                        //Other eggs
+                        else if (entityType.isPresent()) {
+                            Entity entity = entityType.get().create(level);
+
+                            if(entity!=null){
+                                if (entity instanceof AgeableMob ageable) {
+                                    ageable.setBaby(true);
+                                    if(entity instanceof Turtle turtle)
+                                        turtle.setHomePos(pos);
+                                }
+                                entity.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
+                                level.addFreshEntity(entity);
                             }
                         }
                     }
                 }
-                //Sniffer egg
-                else if(eggState.getBlock() instanceof SnifferEggBlock) {
+                //Single eggs
+                else if(entityType.isPresent()) {
                     removeEgg(null, level, pos, nestState, false);
 
-                    //Spawn Sniffer
-                    Sniffer sniffer = EntityType.SNIFFER.create(level);
-                    if (sniffer != null) {
-                        Vec3 vec3 = pos.getCenter();
-                        sniffer.setBaby(true);
-                        sniffer.moveTo(vec3.x(), vec3.y() +1, vec3.z(), Mth.wrapDegrees(level.random.nextFloat() * 360.0F), 0.0F);
-                        level.addFreshEntity(sniffer);
+                    Entity entity = entityType.get().create(level);
+
+                    if (entity != null) {
+                        if (entity instanceof AgeableMob ageable)
+                            ageable.setBaby(true);
+                        entity.moveTo(pos.getX(), pos.getY() +1, pos.getZ(), 0.0F, 0.0F);
+                        level.addFreshEntity(entity);
                     }
                 }
 
+                NestBlockEntity nestBlockEntity = NestBlock.getBlockEntity(level, pos);
                 BlockState emptyNestState =
                         nestState
                                 .setValue(NestBlock.HAS_EGG, false)

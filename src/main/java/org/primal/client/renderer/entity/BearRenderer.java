@@ -1,17 +1,16 @@
 package org.primal.client.renderer.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 import org.primal.client.model.entity.BearModel;
 import org.primal.client.renderer.entity.layer.BearBarrelsLayer;
 import org.primal.client.renderer.entity.layer.BearCollarLayer;
 import org.primal.client.renderer.entity.layer.BearHoneyLayer;
 import org.primal.client.renderer.entity.layer.BearSleepLayer;
 import org.primal.entity.animal.BearEntity;
-
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -27,6 +26,12 @@ public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
         this.addRenderLayer(new BearSleepLayer(this));
 
         shadowRadius=1.0F;
+    }
+
+    @Override
+    protected float getShadowRadius(@NotNull BearEntity entity) {
+        float f = super.getShadowRadius(entity);
+        return entity.isBaby() ? f * 0.5F : f;
     }
 
     @Override

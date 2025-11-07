@@ -70,7 +70,6 @@ public class NestBlockEntity extends BlockEntity {
 
     //Set egg logic
     public void removeEgg(@Nullable LivingEntity target) {
-
         //This makes animals of the same egg type mad if you steal eggs
         if(getEgg().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof AnimalEgg animalEgg && target!=null){
             if(this.getLevel()!=null){

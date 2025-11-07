@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.util.Mth;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 import org.primal.client.model.entity.EagleModel;
 import org.primal.client.renderer.entity.layer.EagleCollarLayer;
 import org.primal.entity.animal.EagleEntity;
@@ -20,6 +21,12 @@ public final class EagleRenderer extends GeoEntityRenderer<EagleEntity> {
         this.addRenderLayer(new EagleCollarLayer(this));
 
         shadowRadius=0.5F;
+    }
+
+    @Override
+    protected float getShadowRadius(@NotNull EagleEntity entity) {
+        float f = super.getShadowRadius(entity);
+        return entity.isBaby() ? f * 0.3F : f;
     }
 
     @Override
