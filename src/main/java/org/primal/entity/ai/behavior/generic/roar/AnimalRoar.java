@@ -48,7 +48,6 @@ public final class AnimalRoar<T extends Mob & AnimalRoars> extends Behavior<T> {
 
     @Override
     protected void start(@NotNull ServerLevel level, @Nonnull T mob, long gameTime) {
-        stopMoving(mob);
 
         Optional<LivingEntity> target = mob.getBrain().getMemory(MemoryModuleType.ROAR_TARGET);
         target.ifPresent(entity -> BehaviorUtils.lookAtEntity(mob, entity));
@@ -80,6 +79,8 @@ public final class AnimalRoar<T extends Mob & AnimalRoars> extends Behavior<T> {
         mob.getBrain().eraseMemory(MemoryModuleType.ROAR_TARGET);
 
         if(!mob.getBrain().hasMemoryValue(MemoryModuleType.ROAR_SOUND_COOLDOWN)) mob.getBrain().setMemoryWithExpiry(MemoryModuleType.ROAR_SOUND_COOLDOWN, Unit.INSTANCE, roarCooldown);
+        if(mob instanceof GeoEntity geo)
+            geo.stopTriggeredAnim("base_controller", "roar"+(mob.isInWater() && mob.hasCustomWaterRoar()? "_swim": "") );
     }
 
     private void stopMoving(T mob){

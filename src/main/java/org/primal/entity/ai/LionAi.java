@@ -18,10 +18,7 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import org.primal.advancements.criterion.Primal_CustomCriterion;
-import org.primal.entity.ai.behavior.generic.GoesToImportantBlockSometimes;
-import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
-import org.primal.entity.ai.behavior.generic.SetLookTarget;
-import org.primal.entity.ai.behavior.generic.SetWalkTargetFromPackMemberSometimes;
+import org.primal.entity.ai.behavior.generic.*;
 import org.primal.entity.ai.behavior.generic.pet.AnimalSitting;
 import org.primal.entity.ai.behavior.generic.pet.FollowOwner;
 import org.primal.entity.ai.behavior.generic.roar.AnimalRoar;
@@ -244,10 +241,9 @@ public class LionAi {
     private static void initRoarActivity(Brain<LionEntity> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(Activity.ROAR, 10,
                 ImmutableList.of(
+                        StopMoving.create(),
                         new AnimalRoar<>(6f,
-                                l-> AnimalRoar.setAttackTargetAndNearby(
-                                        l,
-                                        LionEntity.class,
+                                l-> AnimalRoar.setAttackTargetAndNearby(l, LionEntity.class,
                                         ll->!ll.isBaby() && ll!=l && ll.isManeless()),
                                 100)
                 ),
@@ -269,7 +265,9 @@ public class LionAi {
         brain.addActivityAndRemoveMemoryWhenStopped(
                 Primal_Activities.GRAB.get(),
                 10,
-                ImmutableList.of(new LionMaul(40)),
+                ImmutableList.of(
+                        StopMoving.create(),
+                        new LionMaul(40)),
                 Primal_MemoryModuleTypes.IS_GRABBING.get());
     }
 
