@@ -1,0 +1,23 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+	"textures": {
+		"particle": "primal:block/cassowary_egg_particle"
+	},
+	"elements": [
+		{
+			"from": [4, 0, 4],
+			"to": [12, 10, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [2, 0, 4]},
+			"faces": {
+				"north": {"uv": [4, 4, 8, 9], "texture": "#egg"},
+				"east": {"uv": [0, 4, 4, 9], "texture": "#egg"},
+				"south": {"uv": [12, 4, 16, 9], "texture": "#egg"},
+				"west": {"uv": [8, 4, 12, 9], "texture": "#egg"},
+				"up": {"uv": [8, 4, 4, 0], "texture": "#egg"},
+				"down": {"uv": [12, 0, 8, 4], "texture": "#egg"}
+			}
+		}
+	]
+}

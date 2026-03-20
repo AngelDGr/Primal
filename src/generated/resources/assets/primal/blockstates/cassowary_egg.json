@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "hatch=0": {
+      "model": "primal:block/cassowary_egg"
+    },
+    "hatch=1": {
+      "model": "primal:block/cassowary_egg_chipped"
+    },
+    "hatch=2": {
+      "model": "primal:block/cassowary_egg_cracked"
+    }
+  }
+}

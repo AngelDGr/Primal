@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "A": {
+      "tag": "primal:deer_antlers"
+    },
+    "C": {
+      "item": "minecraft:cobweb"
+    },
+    "F": {
+      "tag": "c:feathers"
+    }
+  },
+  "pattern": [
+    " A ",
+    "ACA",
+    "FFF"
+  ],
+  "result": {
+    "count": 1,
+    "id": "primal:dreamcatcher"
+  }
+}

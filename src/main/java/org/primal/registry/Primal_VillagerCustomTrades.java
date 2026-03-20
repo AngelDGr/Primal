@@ -28,7 +28,15 @@ public class Primal_VillagerCustomTrades {
         NeoForge.EVENT_BUS.addListener((final WandererTradesEvent event) -> {
 
             event.getGenericTrades().add(
-                    new ItemsForEmeralds(Primal_Items.SEASHELLS.get(), 1, 1, 12, 1)
+                    new ItemsForEmeralds(Primal_Items.WARM_SEASHELLS.get(), 1, 1, 12, 1)
+            );
+
+            event.getGenericTrades().add(
+                    new ItemsForEmeralds(Primal_Items.COLD_SEASHELLS.get(), 1, 1, 12, 1)
+            );
+
+            event.getGenericTrades().add(
+                    new ItemsForEmeralds(Primal_Items.TEMPERATE_SEASHELLS.get(), 1, 1, 12, 1)
             );
 
             event.getGenericTrades().add(

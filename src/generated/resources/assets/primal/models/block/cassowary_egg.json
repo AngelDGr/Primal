@@ -1,0 +1,6 @@
+{
+  "parent": "primal:block/template_cassowary_egg",
+  "textures": {
+    "egg": "primal:block/cassowary_egg"
+  }
+}

@@ -36,12 +36,30 @@ public class Primal_BiomeModifiersGenerator {
         register(bootstrap, "spawn/crocodile", CrocodileNormal_BiomeModifier::new);
         register(bootstrap, "spawn/crocodile_warm", CrocodileWarm_BiomeModifier::new);
 
+        register(bootstrap, "spawn/walrus", WalrusNormal_BiomeModifier::new);
+        register(bootstrap, "spawn/walrus_ocean", WalrusOcean_BiomeModifier::new);
+
+        register(bootstrap, "spawn/lion", LionSavanna_BiomeModifier::new);
+        register(bootstrap, "spawn/lion_snowy", LionSnowy_BiomeModifier::new);
+
+        register(bootstrap, "spawn/snake", Snake_BiomeModifier::new);
+
+        register(bootstrap, "spawn/deer", DeerForest_BiomeModifier::new);
+        register(bootstrap, "spawn/deer_snowy", DeerSnowy_BiomeModifier::new);
+
+        register(bootstrap, "spawn/vanilla/dolphin_cold", DolphinCold_BiomeModifier::new);
+        register(bootstrap, "spawn/vanilla/rabbit_badlands", RabbitBadlands_BiomeModifier::new);
+
         //Flora
         register(bootstrap, "feature/river_reeds", RiverReeds_BiomeModifier::new);
 
+        register(bootstrap, "feature/cattails", Cattails_BiomeModifier::new);
+
         register(bootstrap, "feature/seashells", Seashells_BiomeModifier::new);
 
+        //Nests
         register(bootstrap, "feature/eagle_nest", EagleNest_BiomeModifier::new);
+        register(bootstrap, "feature/cassowary_nest", CassowaryNest_BiomeModifier::new);
     }
 
     public static void register(BootstrapContext<BiomeModifier> bootstrap, String name, Supplier<? extends BiomeModifier> sup){
@@ -96,7 +114,7 @@ public class Primal_BiomeModifiersGenerator {
     public static ResourceKey<BiomeModifier> modifierFor(final String id){
         return ResourceKey.create(
                 NeoForgeRegistries.Keys.BIOME_MODIFIERS, // The registry this key is for
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, id) // The registry name
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, id) // The registry variant
         );
     }
 }

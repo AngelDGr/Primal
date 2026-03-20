@@ -22,14 +22,14 @@ import org.primal.block.SeashellsBlock;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Tags;
 import org.primal.registry.Primal_WorldGen;
-import org.primal.util.MiscUtil;
+import org.primal.util.Primal_Util;
 
 public class Seashells_BiomeModifier implements BiomeModifier {
 
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_SEASHELLS,
+            Primal_Util.Generation.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_SEASHELLS,
                     //ExtraBiomes
                     Primal_Main.COMMON_CONFIG.seaShellsExtraBiomes.get().stream().map(Object::toString).toList(),
                     //Step
@@ -39,7 +39,7 @@ public class Seashells_BiomeModifier implements BiomeModifier {
                     //Feature
                     Feature.FLOWER,
                     //Config
-                    createSeashells(Primal_Main.COMMON_CONFIG.seaShellsPatchTries.get(), Primal_Main.COMMON_CONFIG.seaShellsPatchSpreadXZ.get(), Primal_Main.COMMON_CONFIG.seaShellsPatchSpreadY.get()),
+                    createSeashells(Primal_Main.COMMON_CONFIG.seaShellsPatchTries.get(), Primal_Main.COMMON_CONFIG.seaShellsPatchSpreadXZ.get(), Primal_Main.COMMON_CONFIG.seaShellsPatchSpreadY.get(), biome),
                     //Heightmap
                     PlacementUtils.HEIGHTMAP_TOP_SOLID,
                     //Rarity
@@ -48,14 +48,24 @@ public class Seashells_BiomeModifier implements BiomeModifier {
     }
 
     @SuppressWarnings("all")
-    private static RandomPatchConfiguration createSeashells(int tries, int xzSpread, int ySpread){
+    private static RandomPatchConfiguration createSeashells(int tries, int xzSpread, int ySpread, @NotNull Holder<Biome> biome){
         SimpleWeightedRandomList.Builder<BlockState> builder = SimpleWeightedRandomList.builder();
 
         for (int i = 1; i <= 4; i++) {
             for (Direction direction : Direction.Plane.HORIZONTAL) {
-                builder.add(
-                        Primal_Blocks.SEASHELLS.get().defaultBlockState().setValue(SeashellsBlock.AMOUNT, i).setValue(SeashellsBlock.FACING, direction), 1
-                );
+                if(biome.is(Primal_Tags.Biome.SPAWNS_SEASHELLS_COLD)){
+                    builder.add(
+                            Primal_Blocks.COLD_SEASHELLS.get().defaultBlockState().setValue(SeashellsBlock.AMOUNT, i).setValue(SeashellsBlock.FACING, direction), 1
+                    );
+                } else if(biome.is(Primal_Tags.Biome.SPAWNS_SEASHELLS_TEMPERATE)){
+                    builder.add(
+                            Primal_Blocks.TEMPERATE_SEASHELLS.get().defaultBlockState().setValue(SeashellsBlock.AMOUNT, i).setValue(SeashellsBlock.FACING, direction), 1
+                    );
+                } else {
+                    builder.add(
+                            Primal_Blocks.WARM_SEASHELLS.get().defaultBlockState().setValue(SeashellsBlock.AMOUNT, i).setValue(SeashellsBlock.FACING, direction), 1
+                    );
+                }
             }
         }
 
@@ -67,7 +77,7 @@ public class Seashells_BiomeModifier implements BiomeModifier {
 
     @Override
     public @NotNull MapCodec<? extends BiomeModifier> codec() {
-        return MiscUtil.createBiomeModifierSerializer("seashells_patch_spawn").get();
+        return Primal_Util.Generation.createBiomeModifierSerializer("seashells_patch_spawn").get();
     }
 
     public static void register() {

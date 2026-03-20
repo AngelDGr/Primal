@@ -73,7 +73,7 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
 
     @Override
     public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state) {
-        return RiverReeds.isValidPosForRiverReed(level, pos.above());
+        return ThreeTallPlantBlock.isValidPosForPlant(level, pos.above(), Primal_Blocks.RIVER_REEDS.get());
     }
 
     @Override
@@ -85,16 +85,16 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
     public void performBonemeal(@NotNull ServerLevel level, @NotNull RandomSource random, @NotNull BlockPos pos, @NotNull BlockState state) {
         BlockState defaultState = Primal_Blocks.RIVER_REEDS.get().defaultBlockState();
 
-        BlockState lowerRiverReed = defaultState.setValue(RiverReeds.HALF, TripleBlockHalf.LOWER);
-        BlockState middleRiverReed = defaultState.setValue(RiverReeds.HALF, TripleBlockHalf.MIDDLE);
-        BlockState upperRiverReed = defaultState.setValue(RiverReeds.HALF, TripleBlockHalf.UPPER);
+        BlockState lowerRiverReed = defaultState.setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.LOWER);
+        BlockState middleRiverReed = defaultState.setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.MIDDLE);
+        BlockState upperRiverReed = defaultState.setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.UPPER);
 
         BlockPos posAbove = pos.above();
         BlockPos posAboveAbove = pos.above().above();
 
-        boolean spawnTriple = level.getRandom().nextBoolean() && level.getFluidState(pos).getType()==Fluids.WATER;
+        boolean spawnTriple = level.getRandom().nextBoolean();
 
-        if(spawnTriple && RiverReeds.isValidPosForRiverReed(level, posAboveAbove)){
+        if(spawnTriple && ThreeTallPlantBlock.isValidPosForPlant(level, posAboveAbove, Primal_Blocks.RIVER_REEDS.get())){
             if(level.getFluidState(pos).getType()==Fluids.WATER)
                 lowerRiverReed=lowerRiverReed.setValue(WATERLOGGED, true);
 

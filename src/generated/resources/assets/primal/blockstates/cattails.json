@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "age=0,half=upper": {
+      "model": "primal:block/cattails_top_0"
+    },
+    "age=1,half=upper": {
+      "model": "primal:block/cattails_top_1"
+    },
+    "half=lower": {
+      "model": "primal:block/cattails_bottom"
+    },
+    "half=middle": {
+      "model": "primal:block/cattails_middle"
+    }
+  }
+}

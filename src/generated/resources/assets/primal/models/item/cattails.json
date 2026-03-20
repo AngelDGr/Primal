@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "primal:item/cattails",
+    "layer1": "primal:item/cattails_overlay"
+  }
+}

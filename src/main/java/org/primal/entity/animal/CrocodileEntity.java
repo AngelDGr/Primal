@@ -7,7 +7,6 @@ import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -30,6 +29,7 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -37,25 +37,25 @@ import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.client.animation.entity.CrocodileAnimations;
 import org.primal.entity.ai.CrocodileAi;
-import org.primal.entity.ai.controls.*;
+import org.primal.entity.ai.controls.look.CrocodileLookControl;
+import org.primal.entity.ai.controls.move.CrocodileMoveControl;
+import org.primal.entity.ai.controls.navigation.CrocodilePathNavigation;
 import org.primal.registry.*;
-import org.primal.util.HostileMount;
-import org.primal.util.MiscUtil;
-import org.primal.util.VariantHolderPrimal;
+import org.primal.util.Primal_Util;
+import org.primal.util.mob_types.AttackVillagers;
+import org.primal.util.mob_types.HostileMount;
+import org.primal.util.mob_types.SemiAquaticAnimal;
+import org.primal.util.mob_types.VariantHolderWithEgg;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Collection;
@@ -90,7 +90,7 @@ import java.util.function.IntFunction;
 //      x Entity falls faster
 //      x Sink faster in water
 //      x Inflicted from Ominous Trial Spawner’s projectile throw.
-public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, GeoEntity, ContainerListener, NeutralMob, HostileMount, VariantHolderPrimal<CrocodileEntity.Variant, CrocodileEntity> {
+public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, GeoEntity, ContainerListener, NeutralMob, HostileMount, VariantHolderWithEgg<CrocodileEntity.Variant, CrocodileEntity>, AttackVillagers, SemiAquaticAnimal {
 
     protected SimpleContainer inventory=new SimpleContainer(54);
     @Override
@@ -146,10 +146,9 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public CrocodileEntity(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
-        this.setHealth(this.getMaxHealth());
-        this.setPathfindingMalus(PathType.WATER, 1.0F);
-        this.moveControl = new WaterOrLandMoveControl(this, 85, 10, 0.18f, 0.01f, false);
-        this.lookControl = new WaterOrLandLookControl(this, 10);
+        this.setPathfindingMalus(PathType.WATER, -1.0F);
+        this.moveControl = new CrocodileMoveControl(this, 85, 10, 0.38f, 0.01f, false);
+        this.lookControl = new CrocodileLookControl<>(this, 10);
     }
 
     @Override
@@ -164,13 +163,13 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
-    public void setVariantFromBiome(CrocodileEntity crocodile, Holder<Biome> holder){
+    public void setVariantFromBiome(CrocodileEntity animal, Holder<Biome> holder){
         if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_CROCODILE)) {
-            crocodile.setVariant(Variant.BLACK);
+            animal.setVariant(Variant.BLACK);
         } else if(holder.is(Primal_Tags.Biome.SPAWNS_BROWN_CROCODILE)){
-            crocodile.setVariant(Variant.BROWN);
+            animal.setVariant(Variant.BROWN);
         } else {
-            crocodile.setVariant(Variant.GREEN);
+            animal.setVariant(Variant.GREEN);
         }
     }
 
@@ -182,15 +181,8 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(
-                CrocodileAnimations.mainController(this)
-                        .receiveTriggeredAnimations()
-                        .triggerableAnim("vomits", CrocodileAnimations.VOMITS)
-                        .triggerableAnim("basking_start", CrocodileAnimations.BASKING_START)
-                        .triggerableAnim("basking_end", CrocodileAnimations.BASKING_END),
-
-                new AnimationController<>(this, "attack", state -> PlayState.STOP)
-                        .triggerableAnim("attack", CrocodileAnimations.ATTACK)
-                        .triggerableAnim("attack_water", CrocodileAnimations.ATTACK_UNDERWATER));
+                CrocodileAnimations.mainController(this),
+                CrocodileAnimations.attackController(this));
     }
 
     @Override
@@ -228,14 +220,6 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
             float pitch = (this.tickCount / 20) % 2 == 0 ? 0.6f : 0.5f;
 
             this.playSound(Primal_Sounds.CROCODILE_CLOCK.get(), 1.0f, pitch);
-
-//            this.level().addParticle(
-//                    ParticleTypes.NOTE,
-//                    this.getX(),
-//                    this.getY() + 1.5,
-//                    this.getZ(),
-//                    0, 0.0, 0.0
-//            );
         }
 
     }
@@ -269,8 +253,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
             }
         }
         compound.put("Items", listtag);
-
-        compound.putFloat("HealthWhenStarted", this.getHealthWhenStartRiding());
+        this.addAdditionalSaveDataHostileMount(compound);
     }
 
     @Override
@@ -286,14 +269,15 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
             }
         }
-
-        this.setHealthWhenStartRiding(compound.getFloat("HealthWhenStarted"));
+        this.readAdditionalSaveDataHostileMount(compound);
     }
 
+    @Override
     public float getHealthWhenStartRiding() {
         return this.entityData.get(HEALTH_WHEN_START_RIDING);
     }
 
+    @Override
     public void setHealthWhenStartRiding(float healthWhenStartRiding) {
         this.entityData.set(HEALTH_WHEN_START_RIDING, healthWhenStartRiding);
     }
@@ -325,12 +309,12 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
     @Override
     public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
-        CrocodileEntity crocodile = Primal_Entities.CROCODILE.get().create(level);
-        if (crocodile != null) {
-            CrocodileAi.initMemories(crocodile, level.getRandom());
-        }
+        if(otherParent instanceof CrocodileEntity otherParentCasted)
+            return Primal_Util.createFromParents(Primal_Entities.CROCODILE.get(),
+                    this,
+                    otherParentCasted, c-> CrocodileAi.initMemories(c, level.getRandom()));
 
-        return crocodile;
+        return null;
     }
 
     @Override
@@ -386,11 +370,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         if(this.isSprinting() && this.isInWater())
             this.setSprinting(false);
 
-        var thrashing= this.getBrain().getMemory(Primal_MemoryModuleTypes.IS_THRASHING.get());
+        var thrashing= this.getBrain().getMemory(Primal_MemoryModuleTypes.IS_GRABBING.get());
 
         //Fallback to reset, just in case
         if(thrashing.isPresent() && thrashing.get() && this.getPassengers().isEmpty()){
-            this.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_THRASHING.get());
+            this.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_GRABBING.get());
             this.setPose(Pose.STANDING);
             if(this.isThrashing()) this.setThrashing(false);
         }
@@ -408,49 +392,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
-    protected @NotNull Vec3 collide(@NotNull Vec3 vec) {
-        AABB aabb = this.getBoundingBox();
-        List<VoxelShape> list = this.level().getEntityCollisions(this, aabb.expandTowards(vec));
-        Vec3 vec3 = vec.lengthSqr() == 0.0 ? vec : collideBoundingBox(this, vec, aabb, this.level(), list);
-        boolean flag = vec.x != vec3.x;
-        boolean flag1 = vec.y != vec3.y;
-        boolean flag2 = vec.z != vec3.z;
-        boolean flag3 = flag1 && vec.y < 0.0;
-
-        if (this.maxUpStep() > 0.0F && (flag3 || this.onGround() || (this.isInWater())) && (flag || flag2)) {
-            AABB aabb1 = flag3 ? aabb.move(0.0, vec3.y, 0.0) : aabb;
-            AABB aabb2 = aabb1.expandTowards(vec.x, this.maxUpStep(), vec.z);
-            if (!flag3) {
-                aabb2 = aabb2.expandTowards(0.0, -1.0E-5F, 0.0);
-            }
-
-            List<VoxelShape> list1 = collectColliders(this, this.level(), list, aabb2);
-            float f = (float)vec3.y;
-            float[] afloat = collectCandidateStepUpHeights(aabb1, list1, this.maxUpStep(), f);
-
-            for (float f1 : afloat) {
-                Vec3 vec31 = collideWithShapes(new Vec3(vec.x, f1, vec.z), aabb1, list1);
-                if (vec31.horizontalDistanceSqr() > vec3.horizontalDistanceSqr()) {
-                    double d0 = aabb.minY - aabb1.minY;
-                    return vec31.add(0.0, -d0, 0.0);
-                }
-            }
-        }
-
-        return vec3;
-    }
-
-    @Override
     public void travel(@NotNull Vec3 travelVector) {
         if (this.isEffectiveAi() && this.isInWater()) {
             this.moveRelative(this.getSpeed(), travelVector);
             this.move(MoverType.SELF, this.getDeltaMovement());
             this.setDeltaMovement(this.getDeltaMovement().scale(0.9));
-
-            //Avoid drowning + keep the crocodile just slightly above water
-            if(this.isUnderWater()){
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, 0.0005, 0.0));
-            }
         } else {
             super.travel(travelVector);
         }
@@ -465,19 +411,16 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         boolean hurt = super.hurt(source, amount);
 
         if(hurt){
-            //If receives more than the threshold of damage that when first got its pray, it dismounts it and gets confused for a few seconds
-            if(this.isVehicle() && this.getHealth() < (this.getHealthWhenStartRiding() - healthLossToBeReleased)){
-                this.ejectPassengers();
+            this.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.WAS_IDLE_ANIMATION.get(), true, 40);
 
-                this.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.IS_STUNNED.get(), true, 60L);
-            }
+            this.hurtAndReleasePassenger(2, 60L);
 
             if(source.getEntity()!=null && source.getEntity() instanceof ServerPlayer player && player.getMainHandItem().isEmpty()){
                 Primal_Advancements.PUNCH_CROCODILE.get().trigger(player);
             }
 
             if (source.getEntity() instanceof LivingEntity target && !(target instanceof Player player && player.isCreative())) {
-                CrocodileAi.wasHurtBy(this, target);
+                Primal_Util.Ai.wasHurtByAndAttacks(this, target, CrocodileEntity.class, false, false, true);
             }
         }
 
@@ -537,18 +480,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
     @Override
     public @NotNull Vec3 getFluidFallingAdjustedMovement(double gravity, boolean isFalling, @NotNull Vec3 deltaMovement) {
-        if (gravity != 0.0 && !this.isSprinting()) {
-            double d0;
-            if (isFalling && Math.abs(deltaMovement.y - 0.005) >= 0.003 && Math.abs(deltaMovement.y - gravity / 16.0) < 0.003) {
-                d0 = -0.0001;
-            } else {
-                d0 = deltaMovement.y - gravity / 16.0;
-            }
-
-            return new Vec3(deltaMovement.x, d0, deltaMovement.z);
-        } else {
-            return deltaMovement;
-        }
+        return deltaMovement.scale(0.90);
     }
 
     @Override
@@ -602,7 +534,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 //Attacks if it's too close
                 || (target.distanceTo(this)<8 && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown()))
                 && !this.isPacified()
-                && MiscUtil.isNotNeverAttack(target)
+                && Primal_Util.isNotNeverAttack(target)
                 && !target.getType().is(Primal_Tags.Entity.CROCODILE_NEVER_ATTACK);
     }
 
@@ -615,7 +547,6 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
         return super.killedEntity(level, killed);
     }
-
 
     //Eating
     @Override
@@ -724,30 +655,12 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     @Override
     public void handleEntityEvent(byte id) {
         if (id == 38) {
-            this.addParticlesAroundSelf(ParticleTypes.HAPPY_VILLAGER);
+            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.HAPPY_VILLAGER, 0.01, 7, 0.2, 1, 1);
         } else if(id==80) {
-            this.addSplashes();
+            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.SPLASH, 0.01, 7, 0, 0.5, 1);
         }
         else {
             super.handleEntityEvent(id);
-        }
-    }
-
-    private void addSplashes() {
-        for (int i = 0; i < 7; i++) {
-            double d0 = this.random.nextGaussian() * 0.01;
-            double d1 = this.random.nextGaussian() * 0.01;
-            double d2 = this.random.nextGaussian() * 0.01;
-            this.level().addParticle(ParticleTypes.SPLASH, this.getRandomX(0.5), this.getRandomY(), this.getRandomZ(1.0), d0, d1, d2);
-        }
-    }
-
-    private void addParticlesAroundSelf(ParticleOptions particleOption) {
-        for (int i = 0; i < 7; i++) {
-            double d0 = this.random.nextGaussian() * 0.01;
-            double d1 = this.random.nextGaussian() * 0.01;
-            double d2 = this.random.nextGaussian() * 0.01;
-            this.level().addParticle(particleOption, this.getRandomX(1.0), this.getRandomY() + 0.2, this.getRandomZ(1.0), d0, d1, d2);
         }
     }
 
@@ -868,8 +781,15 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
+    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+        if(this.isBaby())
+            return EntityDimensions.scalable(this.getType().getDimensions().width(), 1.75f).scale(this.getAgeScale());
+        return this.getType().getDimensions().scale(this.getAgeScale());
+    }
+
+    @Override
     public float getAgeScale() {
-        return this.isBaby() ? 0.3F : 1.0F;
+        return this.isBaby() ? 0.4F : 1.0F;
     }
 
     @Override
@@ -906,6 +826,25 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         return false;
     }
 
+    @Override
+    protected float getWaterSlowDown() {
+        return super.getWaterSlowDown();
+    }
+
+    @Override
+    public boolean showVehicleHealth() {
+        return false;
+    }
+
+
+    @Override
+    public boolean isTargetingVillager() {
+        return this.getTarget() instanceof Villager
+                //Last Target
+                || this.getLastHurtMob() instanceof Villager
+                //Pickup target
+                || this.getFirstPassenger() instanceof Villager;
+    }
 
     //Just to being classified as neutral
     @Override

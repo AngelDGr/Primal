@@ -1,3 +1,102 @@
+//TODO: Fix weird floating bug with shark on 1.20.1
+
+# 1.1.0 - 1.21
+# Additions
+- - Added the Cassowary!
+- - Added the Walrus!
+- - Added the Lion!
+- - Added the Snake!
+- - Added the Deer, surprise!
+- - Added rabbit remodel, changing the hitbox from vanilla 0.4 x 0.5 to 0.55 x 0.7 to fit the model, and new variants (gray and sand)
+- - Added wolf remodel, changing the hitbox from vanilla 0.6 x 0.5 to 1.0 x 1.15 to fit the model, with support for wolf variants from No Man's Land, Atmospheric and Environmental
+- - Added dolphin remodel and new variants (lukewarm, cold, warm and a retexture of No Man's Land river variant)
+- - Added fox re-remodel, changing the hitbox from vanilla 0.6 x 0.7 to 0.6 x 0.85
+- Added new mackerel shark variant on cold oceans and sleeper shark variant on frozen oceans
+- Added new temperate seashells and cold seashells
+- Added cold_seashells and temperate_seashells biome tags to determine in which biomes the new seashells spawn
+- Added new seashells item tag, it contains all seashells + No Man's Land seashells
+- Added new creative menu with custom logo
+- Added new custom baby models for bears and crocodiles!
+- Added thorned effect
+- Added exotic fruits
+- Now the polar bear and normal bear movement will be improved in water, they can swim to being able to get submerged prey!
+- Polar bears now have 1.5-step height instead of just 0.6
+- Added conch shells, powerful items that let you teleport your pets! Works even if the pet is in another dimension or in an unloaded chunk!
+- Added cattails, they generate in swamps instead of river reeds, and with 33% probability in river reeds patches
+- Added dried straw block set
+- Added thorned acacia and exploseed
+- Added chomp trap
+- Added hollow logs, they generate around the world with a probability of containing snakes
+- Added 13+ new advancements
+
+# Changes
+- Now crocodiles will also eat any item that drops the player on death
+- Improved move control for eagles, making them a lot faster and cooler
+- Iron Golems now attack crocodiles and bears that are targeting villagers
+- Tamed Bears now run when the owner gets too far away
+- Modified shark model
+- Modified shark hitbox from 1.5x1.5 to 1.75x1.30
+- Modified bear model
+- Modified crocodile black and brown textures
+- Modified heavy effect texture
+- Modified shark tooth texture
+- Modified eagle model, including bigger wings when flying
+- Modified seashells block texture
+- Modified nest model and texture
+- Tamed Eagles can teleport midair when following its owner
+- Eagle nests can generate to replace replaceable blocks, like snow layers
+- Added river reeds retexture
+- Added is_river tag to river reeds spawning
+- The nest will now also open a connection when there’s a full block on that side
+- Modified nearest important block sensor to only detect each 10 ticks, to avoid too much stress on the server
+- Increased crocodile speed on water, and now progressively slow down as they approach the water surface, helping them remain slightly submerged instead of rising too high.
+- Modified slightly shadow of the baby fox
+- Added a 3s cooldown between crocodile thrashes
+- Added salmon to entity tag bear_huntable
+- Changed name of the seashells from "Seashells" to "Warm Seashells"
+- Improved eagles sight, they will see prey from farther away (from 16 to 48 blocks)
+- Eagles will work better underwater
+- Improved eagles free movement, they should be more in the air
+- Eagles now will be scared only from entities sprinting
+- If an eagle has an egg on its home nest, it will try to remain closer
+- When thrashed by a crocodile, it will show the hunger bar correctly
+- When grabbed by an eagle, it will show the hunger bar correctly
+- Modified growth cycle of river reeds, they now can be three block tall on land too!
+- Increase river reed probability of naturally generating with a puff from 40% to 50%
+- River reeds can't naturally age anymore, to avoid all of them having yellow puffs (they still can grow into a three block)
+- Added is_forest tag to bear spawn
+- Villagers aren't longer scared of tamed bears unless they are actively damaging villagers or damaged villagers recently
+- Added straw block to the mineable_with_hoe_tag
+- Added new block tag creates_wide_smoke, that include the straw bales
+- Added the straw bale to compostables
+- Reduced default spawn weight of shark group from 5 to 2 
+- Improved water rotations for mobs
+- Added a glowing eyes to sharks when they are in a conduit trance
+- Modified bear hitbox when sleeping/sitting
+- Removed "do nothing" task from shark AI, they will move more now
+- Modified biome tags path, to be more organized
+- Increased eagle attack range, so they can attack from farther away
+- Decreased eagle hitbox, so they don't get hit too often
+- Eagles now have a 33% of doing damage the moment they grab an entity
+- Seashells are snowloggable now
+- Decreased single bear default spawn rate to 15
+
+# Fixes
+- Made the straw bale strips be consistent with the vanilla hay bale (biggest fix in primal fr)
+- Polar Bear and Bears won't consume the entire bucket when breded
+- Baby crocodiles spawned by right-clicking an adult with a spawn egg now have the correct biome variant set
+- Fixed baby polar bear shadow being too large
+- Eagles shouldn't be able to attack pets with the same owner
+- Drowneds can't longer be bear jockeys
+- River reeds can't be placed if there's no enough air/water blocks above
+- Tamed bears can't longer attack pets from the same owner
+- Now when removed an egg that isn't fully hatched from a nest it resets the hatch state properly
+- The unstuck animation for foxes now triggers correctly
+- Fixed being unable to feed knock out bears
+
+#### And a lot of other things, honestly I lost count of the amount of changes, it was a lot
+#### - Tenebris Mors
+
 # 1.0.7 - 1.21
 # Changes
 - Modified nest logic, now it works with modded eggs if added on configuration! You only need to specify both the egg block and the entity that it will hatch from it

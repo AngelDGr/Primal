@@ -1,0 +1,355 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "2|3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "3|4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "4"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "4",
+        "snowy": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1_snowy"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1_snowy",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1_snowy",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_1_snowy",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "1|2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2_snowy"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2_snowy",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2_snowy",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_2_snowy",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "2|3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3_snowy"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3_snowy",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3_snowy",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_3_snowy",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "3|4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4_snowy"
+      },
+      "when": {
+        "facing": "north",
+        "seashells_amount": "4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4_snowy",
+        "y": 90
+      },
+      "when": {
+        "facing": "east",
+        "seashells_amount": "4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4_snowy",
+        "y": 180
+      },
+      "when": {
+        "facing": "south",
+        "seashells_amount": "4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/temperate_seashells_4_snowy",
+        "y": 270
+      },
+      "when": {
+        "facing": "west",
+        "seashells_amount": "4",
+        "snowy": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "minecraft:block/snow_height2"
+      },
+      "when": {
+        "snowy": "true"
+      }
+    }
+  ]
+}

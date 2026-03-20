@@ -1,23 +1,5 @@
 {
   "values": [
-    {
-      "id": "nomansland:lush_river",
-      "required": false
-    },
-    {
-      "id": "nomansland:desert_river",
-      "required": false
-    },
-    {
-      "id": "nomansland:blackwater_river",
-      "required": false
-    },
-    "minecraft:river",
-    "minecraft:swamp",
-    {
-      "id": "nomansland:dark_swamp",
-      "required": false
-    },
-    "minecraft:mangrove_swamp"
+    "#minecraft:is_river"
   ]
 }

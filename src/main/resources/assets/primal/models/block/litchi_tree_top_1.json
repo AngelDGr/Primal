@@ -1,0 +1,6 @@
+{
+	"parent": "primal:block/template_litchi_tree_top",
+	"textures": {
+		"texture": "primal:block/litchi_tree_1"
+	}
+}

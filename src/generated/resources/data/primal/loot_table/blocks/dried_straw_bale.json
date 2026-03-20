@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "primal:dried_straw_bale"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "primal:blocks/dried_straw_bale"
+}

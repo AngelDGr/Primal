@@ -2,49 +2,56 @@ package org.primal.client.model.entity;
 
 import net.minecraft.resources.ResourceLocation;
 import org.primal.Primal_Main;
+import org.primal.client.animation.entity.EagleAnimations;
+import org.primal.client.model.defaulted.DefaultedEntityWithVariantsWithBabyGeoModel;
 import org.primal.entity.animal.EagleEntity;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import software.bernie.geckolib.cache.object.GeoBone;
 
-public class EagleModel extends DefaultedEntityGeoModel<EagleEntity> {
+public class EagleModel extends DefaultedEntityWithVariantsWithBabyGeoModel<EagleEntity, EagleEntity.Variant> {
     public EagleModel() {
-        super(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "eagle"), true);
-    }
-
-    @Override
-    public ResourceLocation getAnimationResource(EagleEntity eagle) {
-        if(eagle.isBaby()){
-            return buildFormattedAnimationPath(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "eagle_chick"));
-        }
-
-        return super.getAnimationResource(eagle);
-    }
-
-    @Override
-    public ResourceLocation getModelResource(EagleEntity eagle) {
-        if(eagle.isBaby()){
-            return buildFormattedModelPath(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "eagle_chick"));
-        }
-
-        return super.getModelResource(eagle);
-    }
-
-    @Override
-    public ResourceLocation getTextureResource(EagleEntity eagle) {
-        if(eagle.isBaby()){
-            return buildFormattedTexturePath(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "eagle/chick"));
-        }
-
-        return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/eagle/"+eagle.getVariant().getSerializedName()+".png");
+        super(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "eagle"), true, false, true);
     }
 
     @Override
     public void setCustomAnimations(EagleEntity eagle, long instanceId, AnimationState<EagleEntity> animationState) {
+        boolean applyFullRotations = !eagle.onGround() && !eagle.isBaby();
         final AnimationController<GeoAnimatable> controller = eagle.getAnimatableInstanceCache().getManagerForId(eagle.getId()).getAnimationControllers().get("base_controller");
 
-        if(eagle.onGround() || eagle.isBaby())
+        GeoBone leftIdleFeathers = getAnimationProcessor().getBone("left_idle_feathers");
+        GeoBone rightIdleFeathers = getAnimationProcessor().getBone("right_idle_feathers");
+
+        GeoBone leftFlightFeathers = getAnimationProcessor().getBone("left_flight_feathers");
+        GeoBone rightFlightFeathers = getAnimationProcessor().getBone("right_flight_feathers");
+
+        if(leftIdleFeathers != null && rightIdleFeathers!=null && leftFlightFeathers!=null && rightFlightFeathers!=null){
+            if(controller.getCurrentRawAnimation()!=null){
+                boolean flying = (controller.getCurrentRawAnimation().equals(EagleAnimations.FLY)
+                        || controller.getCurrentRawAnimation().equals(EagleAnimations.SWOOP)
+                        || controller.getCurrentRawAnimation().equals(EagleAnimations.GLIDE));
+
+                leftIdleFeathers .setHidden(flying);
+                rightIdleFeathers.setHidden(flying);
+
+                leftFlightFeathers .setHidden(!leftIdleFeathers. isHidden());
+                rightFlightFeathers.setHidden(!rightIdleFeathers.isHidden());
+
+                //Fix for field book
+                if(eagle.tickCount==0){
+                    leftFlightFeathers .setHidden(true);
+                    rightFlightFeathers.setHidden(true);
+
+                    leftIdleFeathers .setHidden(false);
+                    rightIdleFeathers.setHidden(false);
+                }
+
+
+            }
+        }
+
+        if(!applyFullRotations)
             super.setCustomAnimations(eagle, instanceId, animationState);
     }
 }

@@ -60,21 +60,22 @@ public abstract class ZombieMixin extends Monster {
                         primal$primalJockeySpawned = true;
                     }
                 }
-            }
-
-            //Read with Jack Black voice: BEAR JOCKEY
-            if ((double)randomsource.nextFloat() < 0.03 && !primal$primalJockeySpawned){
-                BearEntity bear = Primal_Entities.BEAR.get().create(this.level());
-                if (bear != null) {
-                    bear.setBaby(true);
-                    bear.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                    bear.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null);
-                    bear.setBearJockey(true);
-                    this.startRiding(bear);
-                    level.addFreshEntity(bear);
-                    primal$primalJockeySpawned = true;
+            } else {
+                //Read with Jack Black voice: BEAR JOCKEY
+                if ((double)randomsource.nextFloat() < 0.03 && !primal$primalJockeySpawned){
+                    BearEntity bear = Primal_Entities.BEAR.get().create(this.level());
+                    if (bear != null) {
+                        bear.setBaby(true);
+                        bear.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                        bear.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null);
+                        bear.setBearJockey(true);
+                        this.startRiding(bear);
+                        level.addFreshEntity(bear);
+                        primal$primalJockeySpawned = true;
+                    }
                 }
             }
+
         }
     }
 

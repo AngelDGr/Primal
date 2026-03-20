@@ -22,7 +22,7 @@ import java.util.Optional;
 
 public class TryLayEggOnLandOrNest {
     public static BehaviorControl<LivingEntity> create(Block spawnBlock){
-        return create(spawnBlock, null,0, 0);
+        return create(spawnBlock, null,1, 1);
     }
 
     public static BehaviorControl<LivingEntity> create(Block spawnBlock, @Nullable IntegerProperty eggAmountProperty, int maxEggs, int minEggs) {
@@ -37,7 +37,7 @@ public class TryLayEggOnLandOrNest {
                                 (livingEntityMemoryAccessor, walkTargetMemoryAccessor, pregnantMemoryAccessor) -> (level, entity, l) -> {
 
                                     // If it has a nest nearby, prioritizes the nest
-                                    boolean needANest = entity.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get())
+                                    boolean needANest = entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).isPresent()
                                             && level.getBlockState(entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Blocks.NEST_BLOCK)
                                             && !level.getBlockState(entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).getValue(NestBlock.HAS_EGG);
 

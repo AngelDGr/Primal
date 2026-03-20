@@ -41,18 +41,27 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.createCubeAll(Primal_Blocks.CHISELED_CROCODILE_SCUTE);
         this.simpleStairs(Primal_Blocks.CROCODILE_SCUTE_STAIRS, Primal_Blocks.CROCODILE_SCUTE_BLOCK);
         this.simpleSlab(Primal_Blocks.CROCODILE_SCUTE_SLAB, Primal_Blocks.CROCODILE_SCUTE_BLOCK);
+        this.withExistingParent(Primal_Blocks.CHOMP_TRAP_GREEN.getId().getPath(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_chomp_trap"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/chomp_trap/green"))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/crocodile_scute_block"));
 
         this.createCubeAll(Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
         this.createCubeAll(Primal_Blocks.ARID_CROCODILE_SCUTE_SHINGLE);
         this.createCubeAll(Primal_Blocks.ARID_CHISELED_CROCODILE_SCUTE);
         this.simpleStairs(Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS, Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
         this.simpleSlab(Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB, Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK);
+        this.withExistingParent(Primal_Blocks.CHOMP_TRAP_ARID.getId().getPath(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_chomp_trap"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/chomp_trap/arid"))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/arid_crocodile_scute_block"));
 
         this.createCubeAll(Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
         this.createCubeAll(Primal_Blocks.HUMID_CROCODILE_SCUTE_SHINGLE);
         this.createCubeAll(Primal_Blocks.HUMID_CHISELED_CROCODILE_SCUTE);
         this.simpleStairs(Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS, Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
         this.simpleSlab(Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB, Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK);
+        this.withExistingParent(Primal_Blocks.CHOMP_TRAP_HUMID.getId().getPath(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_chomp_trap"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/chomp_trap/humid"))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/humid_crocodile_scute_block"));
 
         this.tintedOverlayCross("river_reeds_top_0",
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_0"),
@@ -60,14 +69,21 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.tintedOverlayCross("river_reeds_top_1",
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_1"),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_top_1_overlay"));
-
         this.tintedCross("river_reeds_middle",
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_middle"));
-
         this.tintedCross("river_reeds_bottom", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/river_reeds_bottom"));
 
-        this.tintedCross(Primal_Blocks.SHORT_RIVER_REEDS.getId().getPath(),
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/short_river_reeds"));
+        this.tintedCross(Primal_Blocks.SHORT_RIVER_REEDS);
+
+        this.tintedOverlayCross("cattails_top_0",
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/cattails_top_0"),
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/cattails_top_0_overlay"));
+        this.tintedOverlayCross("cattails_top_1",
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/cattails_top_1"),
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/cattails_top_1_overlay"));
+        this.tintedCross("cattails_middle",
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/cattails_middle"));
+        this.tintedCross("cattails_bottom", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/cattails_bottom"));
 
         this.createEggModel("eagle_egg_one",         "template_one_eagle_egg");
         this.createEggModel("eagle_egg_one_chipped", "template_one_eagle_egg");
@@ -89,7 +105,40 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.createEggModel("crocodile_egg_three_chipped", "template_three_crocodile_eggs");
         this.createEggModel("crocodile_egg_three_cracked", "template_three_crocodile_eggs");
 
+        this.createEggModel("cassowary_egg",         "template_cassowary_egg");
+        this.createEggModel("cassowary_egg_chipped",         "template_cassowary_egg");
+        this.createEggModel("cassowary_egg_cracked",         "template_cassowary_egg");
+
+        this.createSeashells("seashells");
+        this.createSeashells("cold_seashells");
+        this.createSeashells("temperate_seashells");
+
         this.columBlock(Primal_Blocks.STRAW_BALE, "block/straw_bale_side", "block/straw_bale_top");
+        this.columBlock(Primal_Blocks.DRIED_STRAW_BALE, "block/dried_straw_bale_side", "block/dried_straw_bale_top");
+        this.createCubeAll(Primal_Blocks.WEAVED_STRAW);
+        this.simpleStairs(Primal_Blocks.WEAVED_STRAW_STAIRS, Primal_Blocks.WEAVED_STRAW);
+        this.simpleSlab(Primal_Blocks.WEAVED_STRAW_SLAB, Primal_Blocks.WEAVED_STRAW);
+        this.withoutParentInvisible(Primal_Blocks.STRAW_BASKET, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/weaved_straw"));
+
+        this.thornyAcacia(Primal_Blocks.THORNY_ACACIA_LOG);
+        this.thornyAcacia(Primal_Blocks.THORNY_ACACIA_WOOD);
+
+        this.hollowLog(Primal_Blocks.HOLLOW_OAK_LOG, "oak");
+        this.hollowLog(Primal_Blocks.HOLLOW_SPRUCE_LOG, "spruce");
+        this.hollowLog(Primal_Blocks.HOLLOW_BIRCH_LOG, "birch");
+        this.hollowLog(Primal_Blocks.HOLLOW_JUNGLE_LOG, "jungle");
+        this.hollowLog(Primal_Blocks.HOLLOW_ACACIA_LOG, "acacia");
+        this.hollowLog(Primal_Blocks.HOLLOW_DARK_OAK_LOG, "dark_oak");
+        this.hollowLog(Primal_Blocks.HOLLOW_MANGROVE_LOG, "mangrove");
+
+        this.cross(Primal_Blocks.THORNY_ACACIA_SAPLING.getRegisteredName(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/thorny_acacia_sapling"));
+        this.tintedCross(Primal_Blocks.LITCHI_SAPLING);
+        this.tintedCross(Primal_Blocks.KIWANO_SAPLING);
+        this.tintedCross(Primal_Blocks.STARFRUIT_SAPLING);
+
+        this.createAntlerModel(Primal_Blocks.FALLOW_DEER_ANTLER, "fallow");
+        this.createAntlerModel(Primal_Blocks.WHITETAIL_DEER_ANTLER, "whitetail");
+        this.createAntlerModel(Primal_Blocks.REINDEER_ANTLER, "reindeer");
     }
 
     private void columBlock(DeferredHolder<Block, Block> block, String side, String top){
@@ -102,6 +151,45 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, top));
     }
 
+    private void hollowLog(DeferredHolder<Block, Block> block, String name){
+        //Normal
+        this.cube(block.getRegisteredName(),
+                        //Down
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log_top"),
+                        //Up
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log_top"),
+                        //North
+                        ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/hollow_log/"+name),
+                        //South
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log"),
+                        //East
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log"),
+                        //West
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log"))
+                .texture("particle", ResourceLocation.withDefaultNamespace("block/"+name+"_log"));
+
+        //Side
+        this.cube(block.getRegisteredName()+"_side",
+                        //Down
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log_top"),
+                        //Up
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log_top"),
+                        //North
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log"),
+                        //South
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log"),
+                        //East
+                        ResourceLocation.withDefaultNamespace("block/"+name+"_log"),
+                        //West
+                        ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/hollow_log/"+name)
+                )
+                .texture("particle", ResourceLocation.withDefaultNamespace("block/"+name+"_log"));
+    }
+
+    private void tintedCross(DeferredHolder<Block, Block> block) {
+        singleTexture(block.getId().getPath(), BLOCK_FOLDER + "/tinted_cross", "cross", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()));
+    }
+
     private void tintedCross(String name, ResourceLocation cross) {
         singleTexture(name, BLOCK_FOLDER + "/tinted_cross", "cross", cross);
     }
@@ -112,6 +200,37 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 .texture("overlay", overlay);
     }
 
+    private void createSeashells(String name) {
+        withExistingParent(name+"_1", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_1"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+
+        withExistingParent(name+"_2", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_2"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+
+        withExistingParent(name+"_3", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_3"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+
+        withExistingParent(name+"_4", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_4"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+
+
+        withExistingParent(name+"_1_snowy", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_1_snowy"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+
+        withExistingParent(name+"_2_snowy", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_2_snowy"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+
+        withExistingParent(name+"_3_snowy", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_3_snowy"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+
+        withExistingParent(name+"_4_snowy", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_seashells_4_snowy"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
+    }
+
+    private void thornyAcacia(DeferredHolder<Block, Block> block) {
+        this.withExistingParent(block.getRegisteredName(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_thorny_acacia"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()));
+    }
 
     private void createCubeAll(DeferredHolder<Block, Block> block){
         this.cubeAll(block.getId().getPath(),
@@ -140,9 +259,36 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.createEggModel(name, type, name);
     }
 
+    private void withoutParentInvisible(DeferredHolder<Block, Block> name, ResourceLocation particle){
+        this.getBuilder(name.getId().getPath())
+                .texture("particle", particle);
+    }
+
     private void createEggModel(String name, String parent, String texture){
         this.withExistingParent(name, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, parent))
                 .texture("egg", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+texture));
+    }
+
+    private void createAntlerModel(DeferredHolder<Block, Block> block, String texture){
+        this.withExistingParentFalseAmbientOcclusion(block.getId().getPath(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_antler"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture+"_particle"));
+
+        this.withExistingParentFalseAmbientOcclusion(block.getId().getPath()+"_right", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_antler_right"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture+"_particle"));
+
+        this.withExistingParentFalseAmbientOcclusion(block.getId().getPath()+"_double", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_antler_double"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture+"_particle"));
+
+        this.withExistingParentFalseAmbientOcclusion(block.getId().getPath()+"_wall", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_antler_wall"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture+"_particle"));
+
+        this.withExistingParentFalseAmbientOcclusion(block.getId().getPath()+"_wall_right", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_antler_wall_right"))
+                .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture))
+                .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture+"_particle"));
     }
 
     @VisibleForTesting

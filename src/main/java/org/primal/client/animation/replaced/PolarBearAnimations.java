@@ -13,43 +13,51 @@ public class PolarBearAnimations {
     public static final RawAnimation SWIM = RawAnimation.begin().thenLoop("animation.polar_bear.swim");
 
     public static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("animation.polar_bear.attack");
+    public static final RawAnimation ATTACK_SWIM = RawAnimation.begin().thenPlay("animation.polar_bear.attack_swim");
 
     public static AnimationController<PolarBearReplaced> mainController(PolarBearReplaced animatable) {
         return new AnimationController<>(animatable, state -> {
+            state.getController().transitionLength(2);
+            state.setControllerSpeed(1);
             PolarBear polarBear= animatable.getEntityFromState(state);
 
-            state.setControllerSpeed(1);
-            state.getController().transitionLength(0);
-
-            if (state.getController().isPlayingTriggeredAnimation()) {
-                state.getController().transitionLength(5);
-                return PlayState.CONTINUE;
-            }
-
-            if (state.isMoving()) {
-                //Swim
-                if(polarBear.isInWater()){
-                    state.setControllerSpeed(1.0f);
-                    return state.setAndContinue(SWIM);
-                }
-                //Run
-                else if (polarBear.isAggressive()) {
-                    state.setControllerSpeed(state.getLimbSwingAmount() * (polarBear.isBaby() ? 2 : 1f));
-                    return state.setAndContinue(RUN);
-                }
-                //Walk
-                else {
-                    state.setControllerSpeed(state.getLimbSwingAmount() * (polarBear.isBaby() ? 5 : 2));
-
-                    return state.setAndContinue(WALK);
+            //──────────────────────────────────── Triggered ────────────────────────────────────
+            {
+                if (state.getController().isPlayingTriggeredAnimation()) {
+                    return PlayState.CONTINUE;
                 }
             }
 
+            //────────────────────────────────────  Movement ────────────────────────────────────
+            {
+                if (state.isMoving()) {
+                    //Swim
+                    if (polarBear.isInWater()) {
+                        state.setControllerSpeed(state.getLimbSwingAmount() * 2f);
+                        return state.setAndContinue(SWIM);
+                    }
+                    //Run
+                    else if (polarBear.isAggressive()) {
+                        state.setControllerSpeed(state.getLimbSwingAmount() * (polarBear.isBaby() ? 2 : 1f));
+                        return state.setAndContinue(RUN);
+                    }
+                    //Walk
+                    else {
+                        state.setControllerSpeed(state.getLimbSwingAmount() * (polarBear.isBaby() ? 5 : 2));
+                        return state.setAndContinue(WALK);
+                    }
+                }
+            }
+
+            //────────────────────────────────────    Idle   ────────────────────────────────────
             state.setControllerSpeed(polarBear.isInWater() && !state.isMoving()? 0.5f: 1f);
-            state.getController().transitionLength(20);
-            return  state.setAndContinue(polarBear.isInWater()? SWIM: IDLE);
+            return state.setAndContinue(polarBear.isInWater()? SWIM: IDLE);
+        }).receiveTriggeredAnimations();
+    }
 
-//            return state.setAndContinue(IDLE);
-        });
+    public static AnimationController<PolarBearReplaced> attackController(PolarBearReplaced animatable) {
+        return new AnimationController<>(animatable, "attack", state -> PlayState.STOP)
+                .triggerableAnim("attack", PolarBearAnimations.ATTACK)
+                .triggerableAnim("attack_swim", PolarBearAnimations.ATTACK_SWIM);
     }
 }

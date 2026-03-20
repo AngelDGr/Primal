@@ -2,6 +2,7 @@ package org.primal.entity.animal;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -10,8 +11,10 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
@@ -29,16 +32,19 @@ import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.ConduitBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.client.animation.entity.SharkAnimations;
 import org.primal.entity.ai.SharkAi;
-import org.primal.entity.ai.controls.BreachingWaterBoundPathNavigation;
+import org.primal.entity.ai.controls.navigation.BreachingWaterBoundPathNavigation;
 import org.primal.registry.*;
-import org.primal.util.MiscUtil;
+import org.primal.util.Primal_Util;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -67,9 +73,12 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
 
     //Attributes and Variants
     public enum Variant implements StringRepresentable {
-        GREAT_WHITE(0, "great_white"),
+        BLACKTIP(0, "blacktip"),
         HAMMERHEAD(1, "hammerhead"),
-        TIGER(2, "tiger");
+        TIGER(2, "tiger"),
+        SLEEPER(3, "sleeper"),
+        MACKEREL(4, "mackerel"),
+        DEEP(5, "deeeep");
 
         public static final Codec<SharkEntity.Variant> CODEC = StringRepresentable.fromEnum(SharkEntity.Variant::values);
 
@@ -110,7 +119,6 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public SharkEntity(EntityType<? extends WaterAnimal> entityType, Level level) {
         super(entityType, level);
-        this.setHealth(this.getMaxHealth());
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 0.02F, 0.1F, true);
         this.lookControl = new SmoothSwimmingLookControl(this, 10);
     }
@@ -118,24 +126,27 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     @SuppressWarnings("all")
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
-        Holder<Biome> holder = level.getBiome(this.blockPosition());
+        this.setVariantFromBiome(level.getBiome(this.blockPosition()));
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+    }
 
+    public void setVariantFromBiome(Holder<Biome> holder) {
         if (holder.is(Primal_Tags.Biome.SPAWNS_TIGER_SHARK)) {
             this.setVariant(Variant.TIGER);
         } else if (holder.is(Primal_Tags.Biome.SPAWNS_HAMMERHEAD)) {
             this.setVariant(Variant.HAMMERHEAD);
+        }  else if (holder.is(Primal_Tags.Biome.SPAWNS_MACKEREL_SHARK)) {
+            this.setVariant(Variant.MACKEREL);
+        }  else if (holder.is(Primal_Tags.Biome.SPAWNS_SLEEPER_SHARK)) {
+            this.setVariant(Variant.SLEEPER);
         } else {
-            this.setVariant(Variant.GREAT_WHITE);
+            this.setVariant(Variant.BLACKTIP);
         }
-
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(
-                SharkAnimations.mainController(this)
-                        .receiveTriggeredAnimations());
+        controllers.add(SharkAnimations.mainController(this));
     }
 
     @Override
@@ -174,13 +185,14 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     //SynchedData
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(SharkEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_JOCKEY = SynchedEntityData.defineId(SharkEntity.class, EntityDataSerializers.BOOLEAN);
-
+    private static final EntityDataAccessor<Boolean> CONDUIT_EYES = SynchedEntityData.defineId(SharkEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, SharkEntity.Variant.GREAT_WHITE.id);
+        builder.define(DATA_VARIANT_ID, SharkEntity.Variant.BLACKTIP.id);
         builder.define(IS_JOCKEY, false);
+        builder.define(CONDUIT_EYES, false);
     }
 
     @Override
@@ -189,6 +201,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         compound.putInt("Variant", this.getVariant().id);
 
         compound.putBoolean("SharkJockey", this.isSharkJockey());
+        compound.putBoolean("ConduitEyes", this.hasConduitEyes());
     }
 
     @Override
@@ -197,6 +210,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         this.setVariant(SharkEntity.Variant.byId(compound.getInt("Variant")));
 
         this.setSharkJockey(compound.getBoolean("SharkJockey"));
+        this.setConduitEyes(compound.getBoolean("ConduitEyes"));
     }
 
     @Override
@@ -215,6 +229,14 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
 
     public void setSharkJockey(boolean isJockey) {
         this.entityData.set(IS_JOCKEY, isJockey);
+    }
+
+    public boolean hasConduitEyes() {
+        return this.entityData.get(CONDUIT_EYES);
+    }
+
+    public void setConduitEyes(boolean conduitEyes) {
+        this.entityData.set(CONDUIT_EYES, conduitEyes);
     }
 
     //Movement
@@ -242,6 +264,8 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         if(this.isSharkJockey() && !this.isVehicle()){
             this.setSharkJockey(false);
         }
+
+        this.setConduitEyes(this.hasConduit());
     }
 
     @Override
@@ -291,6 +315,9 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
 
     @Override
     public boolean canAttack(@NotNull LivingEntity target) {
+        if(this.hasConduit() && target instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame())
+            return false;
+
         return super.canAttack(target)
                 //To only attack if inside water
                 && this.isInWater()
@@ -306,7 +333,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
                 && !target.hasEffect(MobEffects.CONDUIT_POWER)
                 //To not attack its own rider
                 && !(this.getControllingPassenger()==target)
-                && MiscUtil.isNotNeverAttack(target);
+                && Primal_Util.isNotNeverAttack(target);
     }
 
     @Override
@@ -436,6 +463,31 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     @Override
     public boolean removeWhenFarAway(double distanceToClosestPlayer) {
         return isSharkJockey();
+    }
+
+    public boolean hasConduit(){
+        //Players with priority
+        if(this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).isPresent())
+            return true;
+        //The conduit needs to be active
+        if(this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).isPresent()
+                && this.level().getBlockEntity(this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()) instanceof ConduitBlockEntity conduit)
+            return conduit.isActive();
+        //For compat with the tag, in case someone adds another water totem
+        return this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).isPresent() && this.level().getBlockState(this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Tags.Block.SHARK_ATTRACTORS);
+    }
+
+    public static boolean sharkSpawnRules(
+            EntityType<? extends WaterAnimal> waterAnimal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
+    ) {
+
+
+        int i = level.getSeaLevel();
+        int j = i - 13;
+        return pos.getY() >= j
+                && pos.getY() <= i
+                && level.getFluidState(pos.below()).is(FluidTags.WATER)
+                && level.getBlockState(pos.above()).is(Blocks.WATER);
     }
 
     //Just to being classified as neutral

@@ -1,0 +1,24 @@
+{
+  "values": [
+    "minecraft:villager",
+    "minecraft:pillager",
+    "minecraft:vindicator",
+    "minecraft:pig",
+    "minecraft:sheep",
+    "minecraft:chicken",
+    "minecraft:cow",
+    "minecraft:horse",
+    "minecraft:donkey",
+    "minecraft:llama",
+    "minecraft:rabbit",
+    "primal:deer",
+    {
+      "id": "nomansland:goose",
+      "required": false
+    },
+    {
+      "id": "nomansland:deer",
+      "required": false
+    }
+  ]
+}

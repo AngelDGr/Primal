@@ -1,0 +1,56 @@
+{
+  "variants": {
+    "axis=x,facing=east": {
+      "model": "primal:block/hollow_oak_log_side",
+      "x": 90,
+      "y": 90
+    },
+    "axis=x,facing=north": {
+      "model": "primal:block/hollow_oak_log",
+      "x": 270,
+      "y": 270
+    },
+    "axis=x,facing=south": {
+      "model": "primal:block/hollow_oak_log",
+      "x": 90,
+      "y": 90
+    },
+    "axis=x,facing=west": {
+      "model": "primal:block/hollow_oak_log_side",
+      "x": 270,
+      "y": 270
+    },
+    "axis=y,facing=east": {
+      "model": "primal:block/hollow_oak_log",
+      "y": 90
+    },
+    "axis=y,facing=north": {
+      "model": "primal:block/hollow_oak_log"
+    },
+    "axis=y,facing=south": {
+      "model": "primal:block/hollow_oak_log",
+      "y": 180
+    },
+    "axis=y,facing=west": {
+      "model": "primal:block/hollow_oak_log",
+      "y": 270
+    },
+    "axis=z,facing=east": {
+      "model": "primal:block/hollow_oak_log_side",
+      "x": 90,
+      "y": 180
+    },
+    "axis=z,facing=north": {
+      "model": "primal:block/hollow_oak_log",
+      "x": 270
+    },
+    "axis=z,facing=south": {
+      "model": "primal:block/hollow_oak_log",
+      "x": 90
+    },
+    "axis=z,facing=west": {
+      "model": "primal:block/hollow_oak_log_side",
+      "x": 90
+    }
+  }
+}

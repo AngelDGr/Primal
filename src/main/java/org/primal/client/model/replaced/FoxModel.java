@@ -22,6 +22,9 @@ public class FoxModel extends DefaultedEntityGeoModel<FoxReplaced> {
 
         final AnimationController<GeoAnimatable> controller = animatable.getAnimatableInstanceCache().getManagerForId(fox.getId()).getAnimationControllers().get("base_controller");
 
+        //Avoids applying head rotations
+        if (controller.isPlayingTriggeredAnimation() || controller.getCurrentRawAnimation()== FoxAnimations.SLEEP) return;
+
         //Disables tongue if it has something on the mouth
         GeoBone bone = getAnimationProcessor().getBone("tongue");
         if(bone!=null){

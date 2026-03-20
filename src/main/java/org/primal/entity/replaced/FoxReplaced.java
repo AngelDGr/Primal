@@ -27,10 +27,7 @@ public class FoxReplaced implements GeoReplacedEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(FoxAnimations.mainController(this)
-                .receiveTriggeredAnimations()
-                .triggerableAnim("unstuck", FoxAnimations.UNSTUCK)
-        );
+        controllers.add(FoxAnimations.mainController(this));
     }
 
     @Nullable

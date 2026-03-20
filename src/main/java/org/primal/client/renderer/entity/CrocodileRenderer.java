@@ -1,14 +1,13 @@
 package org.primal.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.CrocodileModel;
 import org.primal.entity.animal.CrocodileEntity;
+import org.primal.util.Primal_Util;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
@@ -21,11 +20,11 @@ public class CrocodileRenderer extends GeoEntityRenderer<CrocodileEntity> {
 
             @Override
             public ResourceLocation getTextureResource(CrocodileEntity crocodile){
-                return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/crocodile/"+crocodile.getVariant().getSerializedName()+".png");
+                return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/crocodile/"+ (animatable.isBaby()? "baby/": "") +crocodile.getVariant().getSerializedName()+".png");
             }
         });
 
-        shadowRadius=1.1F;
+        shadowRadius=0.9F;
     }
 
     @Override
@@ -35,25 +34,22 @@ public class CrocodileRenderer extends GeoEntityRenderer<CrocodileEntity> {
     }
 
     @Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, CrocodileEntity animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        if (animatable.isBaby()) {
-            widthScale = heightScale = 0.3f;
-        }
-        super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
+    protected void applyRotations(CrocodileEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+        if(animatable.isInWater())
+            Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
+        else
+            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
     }
 
     @Override
-    protected void applyRotations(CrocodileEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        if(animatable.isUnderWater())
-        {
-            float yaw = Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot());
-            poseStack.mulPose(Axis.YP.rotationDegrees(180f - yaw));
-
-            float pitch = Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot());
-            poseStack.mulPose(Axis.XP.rotationDegrees(-pitch));
-        } else {
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
+    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, CrocodileEntity animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
+        if(!Primal_Main.COMMON_CONFIG.crocodileBabyCustomModel.get()){
+            if (animatable.isBaby()) {
+                widthScale = heightScale = .5f;
+            }
         }
+
+        super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
     }
 
     @Override

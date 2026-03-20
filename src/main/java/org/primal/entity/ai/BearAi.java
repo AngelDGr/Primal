@@ -14,7 +14,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.item.ItemStack;
 import org.primal.entity.ai.behavior.bear.*;
-import org.primal.entity.ai.behavior.generic.FollowOwner;
+import org.primal.entity.ai.behavior.generic.*;
+import org.primal.entity.ai.behavior.generic.pet.FollowOwner;
+import org.primal.entity.ai.behavior.generic.roar.AnimalRoar;
+import org.primal.entity.ai.behavior.generic.roar.SetRoarTarget;
 import org.primal.registry.Primal_Activities;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Sensors;
@@ -29,15 +32,15 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
+import org.primal.util.Primal_Util;
 
 public final class BearAi {
     private static final ImmutableList<SensorType<? extends Sensor<? super BearEntity>>> SENSOR_TYPES = ImmutableList.of(
-            SensorType.NEAREST_LIVING_ENTITIES,
+            Primal_Sensors.BEAR_ENTITY_SENSOR.get(),
             SensorType.HURT_BY,
             Primal_Sensors.NEAREST_ADULT_BEAR.get(),
             Primal_Sensors.NEAREST_BABY.get(),
             SensorType.NEAREST_PLAYERS,
-            Primal_Sensors.BEAR_ATTACK_SENSOR.get(),
             Primal_Sensors.BEAR_NEAREST_BEEHIVE_SENSOR.get(),
             Primal_Sensors.BEAR_NEAREST_SWEET_BERRY_BUSH_SENSOR.get(),
             Primal_Sensors.BEAR_TEMPTATIONS_SENSOR.get(),
@@ -103,15 +106,21 @@ public final class BearAi {
                 Activity.CORE,
                 0,
                 ImmutableList.of(
-                        new Swim(0.8F),
-                        SetBearLookRoarTarget.create(),
+                        new ConditionalSwim<>(0.8f, BearEntity::isBearSleeping),
                         new LookAtTargetSink(45, 90),
-                        new MoveToTargetSink()));
+                        new MoveToTargetSink(),
+                        TryFindWaterSurface.create(16, 1, 0.90f),
+                        SetLookTarget.fromRoarTarget()));
     }
 
     private static void initRoarActivity(Brain<BearEntity> brain) {
-        brain.addActivityAndRemoveMemoryWhenStopped(Activity.ROAR, 10, ImmutableList.of(new BearRoar()), MemoryModuleType.ROAR_TARGET);
+        brain.addActivityAndRemoveMemoryWhenStopped(Activity.ROAR, 10,
+                ImmutableList.of(
+                        new AnimalRoar<>(4f, AnimalRoar::setAttackTarget, 200)
+                ),
+                MemoryModuleType.ROAR_TARGET);
     }
+
 
     private static void initIdleActivity(Brain<BearEntity> brain) {
         brain.addActivity(
@@ -119,24 +128,15 @@ public final class BearAi {
                 10,
                 ImmutableList.of(
                         new BearDefeated(),
-
                         BecomePassiveIfMemoryPresent.create(MemoryModuleType.NEAREST_REPELLENT, 200),
-
                         SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.5F, 8, true),
-
                         new BearSleep(),
-
                         new AnimalMakeLove(Primal_Entities.BEAR.get()),
                         new AnimalMakeLove(EntityType.POLAR_BEAR),
-
                         new BearBeg(),
-
-                        SetBearRoarTarget.create(),
-
+                        SetRoarTarget.create(Predicate.not(Primal_Util.Ai::lessThanMinAirSlow)),
                         new BearRaidBeehive(),
-
                         new BearRaidSweetBerryBush(),
-
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5), 4),
@@ -144,12 +144,10 @@ public final class BearAi {
                                                 BabyFollowAdult.create(ADULT_FOLLOW_RANGE, 1.0F)), 1)
                                 )
                         ),
-
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
-
                         new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
 
-                        createIdleMovementBehaviors()
+                        createIdleBehaviors()
                 )
         );
     }
@@ -160,21 +158,15 @@ public final class BearAi {
                 10,
                 ImmutableList.of(
                         new BearDefeated(),
-
                         new AnimalMakeLove(Primal_Entities.BEAR.get()),
                         new AnimalMakeLove(EntityType.POLAR_BEAR),
-
                         new BearBeg(),
-
-                        SetBearRoarTarget.create(),
-
+                        SetRoarTarget.create(),
                         new FollowOwner(pet -> pet instanceof BearEntity bear && !bear.bearCollapses()),
-
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
-
                         new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
 
-                        createIdleMovementBehaviors()
+                        createIdleBehaviors()
                 )
         );
     }
@@ -198,7 +190,7 @@ public final class BearAi {
                         MeleeAttack.create(20),
                         SetEntityLookTarget.create(50),
                         StopAttackingIfTargetInvalid.create(),
-                        EraseMemoryIf.create(bear-> bear.isInLove() || bear.bearCollapses() , MemoryModuleType.ATTACK_TARGET)),
+                        EraseMemoryIf.create(b-> b.isInLove() || b.bearCollapses() || Primal_Util.Ai.lessThanMinAirSlow(b), MemoryModuleType.ATTACK_TARGET)),
                 MemoryModuleType.ATTACK_TARGET);
     }
 
@@ -219,7 +211,7 @@ public final class BearAi {
                 10,
                 ImmutableList.of(
                         SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.2F, 20, false),
-                        createIdleMovementBehaviors(),
+                        createIdleBehaviors(),
                         SetEntityLookTargetSometimes.create(8.0F, UniformInt.of(30, 60)),
                         EraseMemoryIf.create(bear -> !bear.isBaby(), MemoryModuleType.AVOID_TARGET)
                 ),
@@ -258,7 +250,7 @@ public final class BearAi {
         return bear.level().getEntitiesOfClass(BearEntity.class, bear.getBoundingBox().inflate(20,5,20)).stream().filter(bear1 -> !bear1.isTame() && !bear1.isBaby()).toList();
     }
 
-    private static RunOne<BearEntity> createIdleMovementBehaviors() {
+    private static RunOne<BearEntity> createIdleBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
                         Pair.of(BehaviorBuilder.triggerIf(Predicate.not(BearEntity::refuseToMove), RandomStroll.stroll(1f)), 1),
@@ -272,7 +264,6 @@ public final class BearAi {
         }
         else if(bear.isFollowing()){
             bear.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.ROAR, Activity.FIGHT, Primal_Activities.FOLLOW.get()));
-            bear.setAggressive(bear.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
         }
         else if(bear.isBaby()){
             if(bear.isBearJockey())
@@ -282,8 +273,9 @@ public final class BearAi {
         }
         else {
             bear.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.ROAR, Activity.FIGHT, Activity.IDLE));
-            bear.setAggressive(bear.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
         }
+
+        bear.setAggressive(bear.getBrain().hasMemoryValue(MemoryModuleType.ATTACK_TARGET));
     }
 
     public static boolean isPosNearNearestRepellent(BearEntity bear, BlockPos pos) {

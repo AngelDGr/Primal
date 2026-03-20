@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -45,10 +46,11 @@ import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
 import org.primal.block_entity.NestBlockEntity;
 import org.primal.registry.Primal_BlockEntities;
+import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Sounds;
 import org.primal.registry.Primal_Tags;
-import org.primal.util.AnimalEgg;
-import org.primal.util.VariantHolderPrimal;
+import org.primal.util.block_types.AnimalEgg;
+import org.primal.util.mob_types.VariantHolderWithEgg;
 
 import java.util.*;
 
@@ -91,32 +93,66 @@ public class NestBlock extends BaseEntityBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        BlockGetter blockgetter = context.getLevel();
-        BlockPos blockpos = context.getClickedPos();
+        LevelAccessor level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
 
         return this.defaultBlockState()
-                .setValue(NORTH, !blockgetter.getBlockState(blockpos.north()).is(this))
-                .setValue(EAST, !blockgetter.getBlockState(blockpos.east()).is(this))
-                .setValue(SOUTH, !blockgetter.getBlockState(blockpos.south()).is(this))
-                .setValue(WEST, !blockgetter.getBlockState(blockpos.west()).is(this));
+                .setValue(NORTH, canHaveDirection(pos, level, Direction.NORTH))
+                .setValue(EAST, canHaveDirection(pos, level, Direction.EAST))
+                .setValue(SOUTH, canHaveDirection(pos, level, Direction.SOUTH))
+                .setValue(WEST, canHaveDirection(pos, level, Direction.WEST));
     }
 
     @Override
     protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
 
-        if(facing != Direction.DOWN && facing != Direction.UP){
-            return facingState.is(this)
-                    ? state.setValue(PROPERTY_BY_DIRECTION.get(facing), false)
-                    : state.setValue(PROPERTY_BY_DIRECTION.get(facing), true);
+        if (facing != Direction.DOWN && facing != Direction.UP) {
+            return state.setValue(PROPERTY_BY_DIRECTION.get(facing), canHaveDirection(currentPos, level, facing));
         }
+
 
         return state;
     }
 
+    public static boolean causesZFighting(
+            BlockState state,
+            LevelAccessor level,
+            BlockPos pos,
+            Direction side
+    ) {
+        VoxelShape shape = state.getShape(level, pos);
+        if (shape.isEmpty()) return false;
+
+        double yMin = 0.25 - 0.001;
+        double yMax = 0.25;
+
+        // Build a thin "test plane" covering the side face up to maxHeight
+        VoxelShape testFace = switch (side) {
+            case NORTH -> Block.box(0, yMin * 16, 0, 16, yMax * 16, 0.001);
+            case SOUTH -> Block.box(0, yMin * 16, 15.999, 16, yMax * 16, 16);
+            case WEST  -> Block.box(0, yMin * 16, 0, 0.001, yMax * 16, 16);
+            case EAST  -> Block.box(15.999, yMin * 16, 0, 16, yMax * 16, 16);
+            default -> Shapes.empty();
+        };
+
+        // If the shapes intersect → z-fighting
+        return Shapes.joinIsNotEmpty(
+                shape,
+                testFace,
+                BooleanOp.AND
+        );
+    }
+
+    public static boolean canHaveDirection(BlockPos nestPosition, LevelAccessor level, Direction direction){
+        BlockState directed = level.getBlockState(nestPosition.relative(direction));
+        return !directed.is(Primal_Blocks.NEST_BLOCK) && !NestBlock.causesZFighting(directed, level, nestPosition.relative(direction), direction.getOpposite())
+                || directed.is(Primal_Tags.Block.NEVER_OBSTRUCT_NEST);
+    }
+
+
     @Override
     protected @NotNull BlockState rotate(BlockState state, Rotation rotation) {
         return state
-
                 .setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.NORTH)), state.getValue(NORTH))
                 .setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.SOUTH)), state.getValue(SOUTH))
                 .setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.EAST)), state.getValue(EAST))
@@ -187,7 +223,7 @@ public class NestBlock extends BaseEntityBlock {
         }
     }
 
-    private static boolean removeEgg(@Nullable LivingEntity entity, Level level, BlockPos pos, BlockState state, boolean pop) {
+    public static boolean removeEgg(@Nullable LivingEntity entity, Level level, BlockPos pos, BlockState state, boolean pop) {
         if (level.getBlockEntity(pos) instanceof NestBlockEntity nestBlockEntity) {
 
             ItemStack eggStack= new ItemStack(nestBlockEntity.getEgg().getItem(), 1);
@@ -195,13 +231,15 @@ public class NestBlock extends BaseEntityBlock {
             nestBlockEntity.removeEgg(entity);
 
             if(nestBlockEntity.getEgg().isEmpty()){
-                BlockState blockstate = state.setValue(HAS_EGG, false);
+                BlockState blockstate = state.setValue(HAS_EGG, false).setValue(HATCH, 0);
                 level.setBlock(pos, blockstate, 3);
                 level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(entity, blockstate));
             }
 
-            if(pop)
+            if(pop){
                 popResource(level, pos, eggStack);
+                level.playSound(null, pos, Primal_Sounds.REMOVE_EGG.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+            }
 
             return true;
         }
@@ -347,7 +385,6 @@ public class NestBlock extends BaseEntityBlock {
         }
     }
 
-    @SuppressWarnings("unchecked")
     protected static void randomEggTick(@NotNull BlockState nestState, @NotNull BlockState eggState, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random, @Nullable IntegerProperty eggsProperty) {
         Map<String, String> eggMap = new HashMap<>();
 
@@ -373,64 +410,12 @@ public class NestBlock extends BaseEntityBlock {
                 level.playSound(null, pos, Primal_Sounds.EGG_HATCH.get(), SoundSource.BLOCKS, 0.7F, 0.9F + random.nextFloat() * 0.2F);
 
                 //Spawn entities
-                if(eggsProperty!=null){
-                    for (int j = 0; j < eggState.getValue(eggsProperty); j++) {
-                        removeEgg(null, level, pos, nestState, false);
-                        level.levelEvent(2001, pos, Block.getId(nestState));
-
-                        //Primal eggs
-                        if(eggState.getBlock() instanceof AnimalEgg animalEgg){
-                            //Spawn primal animal
-                            Animal animal = animalEgg.getAnimal().get().create(level);
-                            if (animal != null) {
-                                Holder<Biome> holder = level.getBiome(pos);
-                                animal.setBaby(true);
-
-                                if (animal instanceof VariantHolderPrimal variantWhenHatches && animal instanceof VariantHolder variantHolder) {
-
-                                    var variantHolderCast =((VariantHolderPrimal<StringRepresentable, Animal>) variantWhenHatches);
-
-                                    if(variantHolderCast.getRareVariant(animal)!=null && variantWhenHatches.getRareVariantProbability(level)){
-                                        variantHolder.setVariant(variantHolderCast.getRareVariant(animal));
-                                    } else {
-                                        variantHolderCast.setVariantFromBiome(animal, holder);
-                                    }
-                                }
-
-
-                                animal.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
-                                level.addFreshEntity(animal);
-                            }
-                        }
-                        //Other eggs
-                        else if (entityType.isPresent()) {
-                            Entity entity = entityType.get().create(level);
-
-                            if(entity!=null){
-                                if (entity instanceof AgeableMob ageable) {
-                                    ageable.setBaby(true);
-                                    if(entity instanceof Turtle turtle)
-                                        turtle.setHomePos(pos);
-                                }
-                                entity.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
-                                level.addFreshEntity(entity);
-                            }
-                        }
-                    }
-                }
+                if(eggsProperty!=null)
+                    for (int j = 0; j < eggState.getValue(eggsProperty); j++)
+                        eggHatch(nestState, eggState, level, pos, random, eggsProperty, entityType, j);
                 //Single eggs
-                else if(entityType.isPresent()) {
-                    removeEgg(null, level, pos, nestState, false);
-
-                    Entity entity = entityType.get().create(level);
-
-                    if (entity != null) {
-                        if (entity instanceof AgeableMob ageable)
-                            ageable.setBaby(true);
-                        entity.moveTo(pos.getX(), pos.getY() +1, pos.getZ(), 0.0F, 0.0F);
-                        level.addFreshEntity(entity);
-                    }
-                }
+                else
+                    eggHatch(nestState, eggState, level, pos, random, null, entityType, 0);
 
                 NestBlockEntity nestBlockEntity = NestBlock.getBlockEntity(level, pos);
                 BlockState emptyNestState =
@@ -441,6 +426,50 @@ public class NestBlock extends BaseEntityBlock {
                 level.setBlock(pos, emptyNestState, 3);
                 level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(emptyNestState));
                 nestBlockEntity.updateBlock();
+            }
+        }
+    }
+
+    private static void eggHatch(@NotNull BlockState nestState, @NotNull BlockState eggState, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random, @Nullable IntegerProperty eggsProperty, @Nullable Optional<EntityType<?>> entityType, int j){
+        removeEgg(null, level, pos, nestState, false);
+        level.levelEvent(2001, pos, Block.getId(nestState));
+
+        //Primal eggs
+        if(eggState.getBlock() instanceof AnimalEgg animalEgg){
+            //Spawn primal animal
+            Animal animal = animalEgg.getAnimal().get().create(level);
+            if (animal != null) {
+                Holder<Biome> holder = level.getBiome(pos);
+                animal.setBaby(true);
+
+                if (animal instanceof VariantHolderWithEgg variantWhenHatches && animal instanceof VariantHolder variantHolder) {
+
+                    var variantHolderCast =((VariantHolderWithEgg<StringRepresentable, Animal>) variantWhenHatches);
+
+                    if(variantHolderCast.getRareVariant(animal)!=null && variantWhenHatches.getRareVariantProbability(level)){
+                        variantHolder.setVariant(variantHolderCast.getRareVariant(animal));
+                    } else {
+                        variantHolderCast.setVariantFromBiome(animal, holder);
+                    }
+                }
+
+
+                animal.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
+                level.addFreshEntity(animal);
+            }
+        }
+        //Other eggs
+        else if (entityType.isPresent()) {
+            Entity entity = entityType.get().create(level);
+
+            if(entity!=null){
+                if (entity instanceof AgeableMob ageable) {
+                    ageable.setBaby(true);
+                    if(entity instanceof Turtle turtle)
+                        turtle.setHomePos(pos);
+                }
+                entity.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
+                level.addFreshEntity(entity);
             }
         }
     }

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/mangrove_log_top",
+    "east": "minecraft:block/mangrove_log",
+    "north": "primal:block/hollow_log/mangrove",
+    "particle": "minecraft:block/mangrove_log",
+    "south": "minecraft:block/mangrove_log",
+    "up": "minecraft:block/mangrove_log_top",
+    "west": "minecraft:block/mangrove_log"
+  }
+}

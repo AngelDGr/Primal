@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "walrus_plays": {
+      "trigger": "primal:primal/walrus_plays"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.walrus_plays.description"
+    },
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "count": 1,
+      "id": "primal:warm_conch_shell"
+    },
+    "title": {
+      "translate": "advancements.primal.walrus_plays.title"
+    }
+  },
+  "requirements": [
+    [
+      "walrus_plays"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

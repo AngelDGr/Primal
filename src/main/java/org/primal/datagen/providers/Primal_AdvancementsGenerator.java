@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Parrot;
 import net.minecraft.world.entity.raid.Raid;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BannerPattern;
 import net.neoforged.neoforge.common.data.AdvancementProvider;
@@ -20,6 +21,8 @@ import org.primal.advancements.criterion.Primal_CustomCriterion;
 import org.primal.advancements.criterion.SharkKillsEntity;
 import org.primal.entity.animal.BearEntity;
 import org.primal.entity.animal.EagleEntity;
+import org.primal.item.HelmetDecorationType;
+import org.primal.item.component.HelmetDecorationComponent;
 import org.primal.registry.Primal_Advancements;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Items;
@@ -30,33 +33,8 @@ import java.util.function.Consumer;
 
 public class Primal_AdvancementsGenerator extends AdvancementProvider {
 
-    //xTODO: Advancements
-    // --- Eagle ---
-    // “FREEDOM!!!!!”
-    //      Evade the Exile by killing a Pillager Captain using your Eagle.
-    // “Birds Of Feathers” (Challenge Advancement)
-    //      Tame all Birds including their variants. (Parrots & Eagle)
-    //xxx Crocodile xxx
-    //“Tick Tock Croc” (Secret Advancement)
-    //      Feed a crocodile with a Clock, then let them devour a Drowned.
-    //“Floridian Shenanigans”
-    //      Hit a crocodile.
-    //xxx Shark xxx
-    // “Test The Waters”
-    //      Get back to full health, after facing its attack.
-    // “One Hungry Shark” (Challenge Advancement)
-    //      Bring all marine mobs to the shark's table.
-    // “A Sense Of Empowerment”
-    //      Power the sea with Conduit and tip your supremacy over sharks.
-    //“Parrot and the Bats” <- Added automatically
-    //xxx Bear xxx
-    // “Friend-Shaped Beast”
-    //       Had strong enough confidence to tame a bear.
-    // “We Bare Bears” (Challenge Advancement)
-    //      Bring all the bears from different climates to your base.
     //--- Vanilla ---
     // "Two by Two" <- Probably impossible to add the mod animals to this because the advancements are already generated as data - Tenebris
-
     public Primal_AdvancementsGenerator(final PackOutput output, final CompletableFuture<HolderLookup.Provider> lookupProvider, final ExistingFileHelper existingFileHelper) {
         super(output, lookupProvider, existingFileHelper, List.of(new Generator()));
     }
@@ -118,7 +96,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                                 true, // Announce to chat
                                 false // Hidden in the advancement tab
                         )
-                        .addCriterion("survive_shark", Primal_CustomCriterion.Conditions.createSurviveShark())
+                        .addCriterion("survive_shark", Primal_CustomCriterion.Conditions.create(Primal_Advancements.SURVIVE_SHARK))
                         .save(consumer, Primal_Main.MOD_ID + "/survive_shark");
 
                 addMarineAnimalsToFeedShark(Advancement.Builder.advancement())
@@ -148,7 +126,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                                 true, // Announce to chat
                                 false // Hidden in the advancement tab
                         )
-                        .addCriterion("swim_with_shark", Primal_CustomCriterion.Conditions.createSwimWithShark())
+                        .addCriterion("swim_with_shark", Primal_CustomCriterion.Conditions.create(Primal_Advancements.SWIM_WITH_SHARK))
                         .save(consumer, Primal_Main.MOD_ID + "/swim_with_shark");
             }
 
@@ -166,7 +144,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                                 true, // Announce to chat
                                 false // Hidden in the advancement tab
                         )
-                        .addCriterion("punch_crocodile", Primal_CustomCriterion.Conditions.createPunchCrocodile())
+                        .addCriterion("punch_crocodile", Primal_CustomCriterion.Conditions.create(Primal_Advancements.PUNCH_CROCODILE))
                         .save(consumer, Primal_Main.MOD_ID + "/punch_crocodile");
 
                 Advancement.Builder.advancement()
@@ -181,7 +159,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                                 true, // Announce to chat
                                 true // Hidden in the advancement tab
                         )
-                        .addCriterion("clock_croc", Primal_CustomCriterion.Conditions.createClockCroc())
+                        .addCriterion("clock_croc", Primal_CustomCriterion.Conditions.create(Primal_Advancements.CLOCK_CROC))
                         .save(consumer, Primal_Main.MOD_ID + "/clock_croc");
 
                 Advancement.Builder.advancement()
@@ -196,7 +174,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                                 true, // Announce to chat
                                 false // Hidden in the advancement tab
                         )
-                        .addCriterion("tickle_crocodile", Primal_CustomCriterion.Conditions.createTickleCrocodile())
+                        .addCriterion("tickle_crocodile", Primal_CustomCriterion.Conditions.create(Primal_Advancements.TICKLE_CROC))
                         .save(consumer, Primal_Main.MOD_ID + "/tickle_crocodile");
             }
 
@@ -216,7 +194,7 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                                 true, // Announce to chat
                                 false // Hidden in the advancement tab
                         )
-                        .addCriterion("kill_captain", Primal_CustomCriterion.Conditions.createKillCaptain())
+                        .addCriterion("kill_captain", Primal_CustomCriterion.Conditions.create(Primal_Advancements.KILL_CAPTAIN))
                         .save(consumer, Primal_Main.MOD_ID + "/kill_captain");
 
                 Advancement.Builder.advancement()
@@ -258,6 +236,194 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         )
                         .addCriterion("eagle_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Primal_Items.EAGLE_EGG.get()))
                         .save(consumer, Primal_Main.MOD_ID + "/get_eagle_egg");
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Items.CACTUS, // The display icon
+                                Component.translatable("advancements.primal.eagle_attacks_snake.title"), // The title
+                                Component.translatable("advancements.primal.eagle_attacks_snake.description"), // The description
+                                null,
+                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                true // Hidden in the advancement tab
+                        )
+                        .addCriterion("eagle_attacks_snake", Primal_CustomCriterion.Conditions.create(Primal_Advancements.EAGLE_ATTACKS_SNAKE))
+                        .rewards(AdvancementRewards.Builder.experience(50))
+                        .save(consumer, Primal_Main.MOD_ID + "/eagle_attacks_snake");
+            }
+
+            //Cassowary
+            {
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Primal_Items.CASSOWARY_EGG.get(), // The display icon
+                                Component.translatable("advancements.primal.get_cassowary_egg.title"), // The title
+                                Component.translatable("advancements.primal.get_cassowary_egg.description"), // The description
+                                null,
+                                AdvancementType.TASK, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("get_cassowary_egg", InventoryChangeTrigger.TriggerInstance.hasItems(Primal_Items.CASSOWARY_EGG.get()))
+                        .save(consumer, Primal_Main.MOD_ID + "/get_cassowary_egg");
+
+                final AdvancementHolder feedFruit = Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Primal_Items.PETRIFIED_FRUIT.get(), // The display icon
+                                Component.translatable("advancements.primal.give_petrified_fruit.title"), // The title
+                                Component.translatable("advancements.primal.give_petrified_fruit.description"), // The description
+                                null,
+                                AdvancementType.TASK, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("give_petrified_fruit", Primal_CustomCriterion.Conditions.create(Primal_Advancements.FEED_PETRIFIED))
+                        .save(consumer, Primal_Main.MOD_ID + "/give_petrified_fruit");
+
+                Advancement.Builder.advancement()
+                        .parent(feedFruit)
+                        .display(
+                                Primal_Items.WEIRD_APPLE.get(), // The display icon
+                                Component.translatable("advancements.primal.all_exotic_fruits.title"), // The title
+                                Component.translatable("advancements.primal.all_exotic_fruits.description"), // The description
+                                null,
+                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                true // Hidden in the advancement tab
+                        )
+                        .rewards(AdvancementRewards.Builder.experience(50))
+                        .addCriterion("all_exotic_fruits", InventoryChangeTrigger.TriggerInstance.hasItems(
+                                Primal_Items.KIWANO.get(),
+                                Primal_Items.LITCHI.get(),
+                                Primal_Items.STARFRUIT.get()))
+                        .save(consumer, Primal_Main.MOD_ID + "/all_exotic_fruits");
+            }
+
+            //Walrus
+            {
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/tame_an_animal"))
+                        .display(
+                                Primal_Items.COLD_SEASHELLS.get(), // The display icon
+                                Component.translatable("advancements.primal.tame_walrus.title"), // The title
+                                Component.translatable("advancements.primal.tame_walrus.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("tame_walrus",
+                                TameAnimalTrigger.TriggerInstance.tamedAnimal(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(Primal_Entities.WALRUS.get()))))
+                        .save(consumer, Primal_Main.MOD_ID + "/tame_walrus");
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Primal_Items.WARM_CONCH_SHELL.get(), // The display icon
+                                Component.translatable("advancements.primal.walrus_plays.title"), // The title
+                                Component.translatable("advancements.primal.walrus_plays.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                true // Hidden in the advancement tab
+                        )
+                        .addCriterion("walrus_plays", Primal_CustomCriterion.Conditions.create(Primal_Advancements.WALRUS_PLAYS))
+                        .save(consumer, Primal_Main.MOD_ID + "/walrus_plays");
+            }
+
+            //Lion
+            {
+                final AdvancementHolder tameLion = Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/tame_an_animal"))
+                        .display(
+                                Items.BEEF, // The display icon
+                                Component.translatable("advancements.primal.tame_lion.title"), // The title
+                                Component.translatable("advancements.primal.tame_lion.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("tame_lion",
+                                TameAnimalTrigger.TriggerInstance.tamedAnimal(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(Primal_Entities.LION.get()))))
+                        .save(consumer, Primal_Main.MOD_ID + "/tame_lion");
+
+                Advancement.Builder.advancement()
+                        .parent(tameLion)
+                        .display(
+                                Items.ORANGE_BED, // The display icon
+                                Component.translatable("advancements.primal.lion_nap.title"), // The title
+                                Component.translatable("advancements.primal.lion_nap.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("lion_nap", Primal_CustomCriterion.Conditions.create(Primal_Advancements.LION_NAP))
+                        .save(consumer, Primal_Main.MOD_ID + "/lion_nap");
+            }
+
+            //Snake
+            {
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Items.CHEST, // The display icon
+                                Component.translatable("advancements.primal.snake_chest.title"), // The title
+                                Component.translatable("advancements.primal.snake_chest.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                true // Hidden in the advancement tab
+                        )
+                        .addCriterion("snake_chest", Primal_CustomCriterion.Conditions.create(Primal_Advancements.SNAKE_CHEST))
+                        .save(consumer, Primal_Main.MOD_ID + "/snake_chest");
+
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Items.POTION, // The display icon
+                                Component.translatable("advancements.primal.snake_fill_bottle.title"), // The title
+                                Component.translatable("advancements.primal.snake_fill_bottle.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("snake_fill_bottle", Primal_CustomCriterion.Conditions.create(Primal_Advancements.SNAKE_FILL_BOTTLE))
+                        .save(consumer, Primal_Main.MOD_ID + "/snake_fill_bottle");
+            }
+
+            //Deer
+            {
+                Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("husbandry/root"))
+                        .display(
+                                Items.LIGHTNING_ROD, // The display icon
+                                Component.translatable("advancements.primal.deer_disc.title"), // The title
+                                Component.translatable("advancements.primal.deer_disc.description"), // The description
+                                null,
+                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                true // Hidden in the advancement tab
+                        )
+                        .rewards(AdvancementRewards.Builder.experience(50))
+                        .addCriterion("deer_disc", Primal_CustomCriterion.Conditions.create(Primal_Advancements.DEER_DISC))
+                        .save(consumer, Primal_Main.MOD_ID + "/deer_disc");
             }
 
             //Misc
@@ -276,6 +442,36 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                         )
                         .addCriterion("eat_apple_fritter", ConsumeItemTrigger.TriggerInstance.usedItem(Primal_Items.APPLE_FRITTER.get()))
                         .save(consumer, Primal_Main.MOD_ID + "/eat_apple_fritter");
+
+                var helmet= Advancement.Builder.advancement()
+                        .parent(ResourceLocation.withDefaultNamespace("adventure/root"))
+                        .display(
+                                getHelmetWithDecorations(), // The display icon
+                                Component.translatable("advancements.primal.add_helmet_decoration.title"), // The title
+                                Component.translatable("advancements.primal.add_helmet_decoration.description"), // The description
+                                null,
+                                AdvancementType.GOAL, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                false // Hidden in the advancement tab
+                        )
+                        .addCriterion("add_helmet_decoration", Primal_CustomCriterion.Conditions.create(Primal_Advancements.ADD_HELMET_DECORATION))
+                        .save(consumer, Primal_Main.MOD_ID + "/add_helmet_decoration");
+
+                Advancement.Builder.advancement()
+                        .parent(helmet)
+                        .display(
+                                getHelmetDragonborn(), // The display icon
+                                Component.translatable("advancements.primal.add_helmet_horns.title"), // The title
+                                Component.translatable("advancements.primal.add_helmet_horns.description"), // The description
+                                null,
+                                AdvancementType.CHALLENGE, // Options: TASK, CHALLENGE, GOAL
+                                true, // Show toast top right
+                                true, // Announce to chat
+                                true // Hidden in the advancement tab
+                        )
+                        .addCriterion("add_helmet_horns", Primal_CustomCriterion.Conditions.create(Primal_Advancements.ADD_HELMET_HORNS))
+                        .save(consumer, Primal_Main.MOD_ID + "/add_helmet_horns");
             }
         }
     }
@@ -289,5 +485,17 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
                 )
         );
         return builder;
+    }
+
+    public static ItemStack getHelmetWithDecorations() {
+        var icon = Items.DIAMOND_HELMET.getDefaultInstance();
+        icon.set(Primal_Items.Components.HELMET_DECORATION, new HelmetDecorationComponent(HelmetDecorationType.FALLOW_DEER, HelmetDecorationType.FALLOW_DEER));
+        return icon;
+    }
+
+    public static ItemStack getHelmetDragonborn() {
+        var icon = Items.NETHERITE_HELMET.getDefaultInstance();
+        icon.set(Primal_Items.Components.HELMET_DECORATION, new HelmetDecorationComponent(HelmetDecorationType.GOAT, HelmetDecorationType.GOAT));
+        return icon;
     }
 }

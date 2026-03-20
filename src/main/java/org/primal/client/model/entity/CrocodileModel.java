@@ -3,20 +3,15 @@ package org.primal.client.model.entity;
 import net.minecraft.resources.ResourceLocation;
 import org.primal.Primal_Main;
 import org.primal.client.animation.entity.CrocodileAnimations;
+import org.primal.client.model.defaulted.DefaultedEntityWithVariantsWithBabyGeoModel;
 import org.primal.entity.animal.CrocodileEntity;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class CrocodileModel extends DefaultedEntityGeoModel<CrocodileEntity> {
+public class CrocodileModel extends DefaultedEntityWithVariantsWithBabyGeoModel<CrocodileEntity, CrocodileEntity.Variant> {
     public CrocodileModel() {
-        super(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "crocodile"), true);
-    }
-
-    @Override
-    public ResourceLocation getTextureResource(CrocodileEntity animatable) {
-        return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/crocodile/"+animatable.getVariant().getSerializedName()+".png");
+        super(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "crocodile"), true, true, Primal_Main.COMMON_CONFIG.crocodileBabyCustomModel.get());
     }
 
     @Override
@@ -28,11 +23,14 @@ public class CrocodileModel extends DefaultedEntityGeoModel<CrocodileEntity> {
                 || controller.getCurrentRawAnimation() == CrocodileAnimations.SWIM_IDLE
                 || controller.getCurrentRawAnimation() == CrocodileAnimations.TRASH
                 || controller.getCurrentRawAnimation() == CrocodileAnimations.TRASH_UNDERWATER
-                || controller.getCurrentRawAnimation() == CrocodileAnimations.BASKING) {
+
+                || controller.getCurrentRawAnimation() == CrocodileAnimations.BASKING_END
+                || controller.getCurrentRawAnimation() == CrocodileAnimations.BASKING
+                || controller.getCurrentRawAnimation() == CrocodileAnimations.BASKING_START) {
             return;
         }
 
-        if(!crocodile.isUnderWater())
+        if(!crocodile.isInWater())
             super.setCustomAnimations(crocodile, instanceId, animationState);
     }
 }

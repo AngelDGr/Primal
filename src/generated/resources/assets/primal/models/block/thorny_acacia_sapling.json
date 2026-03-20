@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "primal:block/thorny_acacia_sapling"
+  }
+}

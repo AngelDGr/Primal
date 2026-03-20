@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "primal:block/kiwano_juvenile"
+    },
+    "age=1": {
+      "model": "primal:block/kiwano_full"
+    }
+  }
+}

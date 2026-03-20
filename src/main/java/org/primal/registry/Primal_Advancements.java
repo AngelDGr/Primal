@@ -59,6 +59,39 @@ public class Primal_Advancements {
             EntityType.DOLPHIN
     );
 
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> EAGLE_ATTACKS_SNAKE =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/eagle_attacks_snake", Primal_CustomCriterion::new);
+
+    //Cassowary
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> FEED_PETRIFIED =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/feed_petrified", Primal_CustomCriterion::new);
+
+    //Walrus
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> WALRUS_PLAYS =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/walrus_plays", Primal_CustomCriterion::new);
+
+    //Lion
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> LION_NAP =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/lion_nap", Primal_CustomCriterion::new);
+
+    //Snake
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> SNAKE_CHEST =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/snake_chest", Primal_CustomCriterion::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> SNAKE_FILL_BOTTLE =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/snake_fill_bottle", Primal_CustomCriterion::new);
+
+    //Deer
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> DEER_DISC =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/deer_disc", Primal_CustomCriterion::new);
+
+    //Misc
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> ADD_HELMET_DECORATION =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/add_helmet_decoration", Primal_CustomCriterion::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, Primal_CustomCriterion> ADD_HELMET_HORNS =
+            Primal_Registries.CRITERIA.register(Primal_Main.MOD_ID+"/add_helmet_horns", Primal_CustomCriterion::new);
+
     public static void initCriteria() {}
 
     //EntitySubPredicates

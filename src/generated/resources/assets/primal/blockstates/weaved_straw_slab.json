@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "primal:block/weaved_straw_slab"
+    },
+    "type=double": {
+      "model": "primal:block/weaved_straw"
+    },
+    "type=top": {
+      "model": "primal:block/weaved_straw_slab_top"
+    }
+  }
+}

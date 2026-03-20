@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "primal:helmet_decoration/item/whitetail_antler_l"
+  }
+}

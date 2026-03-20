@@ -1,0 +1,6 @@
+{
+  "parent": "primal:item/tooting_conch_shell",
+  "textures": {
+    "texture": "primal:item/conch_shell_warm"
+  }
+}

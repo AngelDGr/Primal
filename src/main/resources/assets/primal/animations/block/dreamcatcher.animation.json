@@ -1,0 +1,64 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"idle": {
+			"loop": true,
+			"animation_length": 2,
+			"bones": {
+				"string": {
+					"rotation": {
+						"vector": [0, 0, "math.cos((query.anim_time -0.0)*180)*2"]
+					}
+				}
+			}
+		},
+		"shake": {
+			"loop": true,
+			"animation_length": 0.25,
+			"bones": {
+				"string": {
+					"rotation": {
+						"vector": [0, "-math.cos((query.anim_time -0.5)*1440)*4", "math.cos((query.anim_time -0.3)*2880)*6"]
+					}
+				},
+				"catcher": {
+					"rotation": {
+						"vector": [0, "-math.cos((query.anim_time -0.2)*1440)*1", "math.cos((query.anim_time -0.0)*2880)*2"]
+					}
+				}
+			}
+		},
+		"attack": {
+			"animation_length": 0.25,
+			"bones": {
+				"string": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.125": {
+							"vector": [0, "-math.cos((query.anim_time -0.5)*1440)*4", "math.cos((query.anim_time -0.3)*2880)*10"]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"catcher": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.125": {
+							"vector": [0, "-math.cos((query.anim_time -0.5)*1440)*4", "math.cos((query.anim_time -0.0)*2880)*6"]
+						},
+						"0.25": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}

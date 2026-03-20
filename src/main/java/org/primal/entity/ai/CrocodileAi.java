@@ -4,11 +4,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -16,29 +16,28 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import org.primal.entity.ai.behavior.crocodile.*;
+import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
+import org.primal.entity.ai.behavior.generic.GoesToImportantBlockSometimes;
 import org.primal.entity.ai.behavior.generic.TryFindWaterSurface;
 import org.primal.entity.ai.behavior.generic.TryLayEggOnLandOrNest;
 import org.primal.entity.animal.CrocodileEntity;
 import org.primal.registry.*;
-import org.primal.util.MiscUtil;
+import org.primal.util.Primal_Util;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 public class CrocodileAi {
 
     private static final ImmutableList<SensorType<? extends Sensor<? super CrocodileEntity>>> SENSOR_TYPES = ImmutableList.of(
-            SensorType.NEAREST_LIVING_ENTITIES,
+            Primal_Sensors.GENERIC_ATTACK_SENSOR.get(),
             SensorType.HURT_BY,
             Primal_Sensors.NEAREST_BABY.get(),
             SensorType.NEAREST_PLAYERS,
             SensorType.NEAREST_ADULT,
-            Primal_Sensors.CROCODILE_ATTACK_SENSOR.get(),
             Primal_Sensors.CROCODILE_TEMPTATIONS_SENSOR.get(),
             Primal_Sensors.CROCODILE_NEAREST_EGG.get(),
             Primal_Sensors.CROCODILE_NEAREST_REED.get());
@@ -70,13 +69,12 @@ public class CrocodileAi {
             MemoryModuleType.NEAREST_REPELLENT,
             MemoryModuleType.IS_PREGNANT,
             MemoryModuleType.PACIFIED,
-
-            Primal_MemoryModuleTypes.WAS_BASKING.get(),
+            Primal_MemoryModuleTypes.WAS_IDLE_ANIMATION.get(),
 
             Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get(),
             Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get(),
-            MemoryModuleType.ADMIRING_ITEM,
-            Primal_MemoryModuleTypes.IS_THRASHING.get(),
+            Primal_MemoryModuleTypes.WAS_TOWARDS_IMPORTANT_BLOCK.get(),
+            Primal_MemoryModuleTypes.IS_GRABBING.get(),
             Primal_MemoryModuleTypes.IS_EXPLODING.get(),
             Primal_MemoryModuleTypes.IS_STUNNED.get()
     );
@@ -114,7 +112,15 @@ public class CrocodileAi {
                 0,
                 ImmutableList.of(
                         new LookAtTargetSink(45, 90),
-                        new MoveToTargetSink()
+                        new MoveToTargetSink(),
+                        TryFindWaterSurface.create(16, 1,
+                                croc -> {
+                                    if(croc.isBaby())
+                                        return (croc.getTarget() == null && croc.getPassengers().isEmpty() && croc.getAirSupply()<croc.getMaxAirSupply()*0.9f) || Primal_Util.Ai.lessThanMinAir(croc);
+
+                                    return (croc.getTarget() == null && croc.getPassengers().isEmpty()) || Primal_Util.Ai.lessThanMinAir(croc);
+                                },
+                                CrocodileThrash::stopThrashing)
                 )
         );
     }
@@ -126,9 +132,8 @@ public class CrocodileAi {
                 ImmutableList.of(
                         StartAttacking.create(CrocodileAi::findNearestValidAttackTarget),
                         new AnimalMakeLove(Primal_Entities.CROCODILE.get()),
-                        TryFindWaterSurface.create(16, 1),
                         new CrocodileGoesToCompass(),
-                        new CrocodileGoesToEgg(),
+                        GoesToImportantBlockSometimes.create(10, 5, mob -> !mob.isBaby(), 200, 100),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
                         new RunOne<>(
                                 ImmutableList.of(
@@ -137,7 +142,7 @@ public class CrocodileAi {
                                                 BabyFollowAdult.create(ADULT_FOLLOW_RANGE, 1.0F)), 1)
                                 )
                         ),
-                        new CrocodileGoesToReed(),
+                        GoesToImportantBlockSometimes.create(2, 1, 400, 100),
                         createIdleMovementBehaviors()
                 )
         );
@@ -152,51 +157,16 @@ public class CrocodileAi {
                         new CrocodileStartAttack(20),
                         SetEntityLookTarget.create(50),
                         StopAttackingIfTargetInvalid.create(),
-                        EraseMemoryIf.create(Animal::isInLove, MemoryModuleType.ATTACK_TARGET)),
+                        EraseMemoryIf.create(c -> c.isInLove() || Primal_Util.Ai.lessThanMinAirSlow(c), MemoryModuleType.ATTACK_TARGET)),
                 MemoryModuleType.ATTACK_TARGET);
-    }
-
-    private static final UniformInt RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
-    public static void wasHurtBy(CrocodileEntity crocodile, LivingEntity target) {
-        Brain<CrocodileEntity> brain = crocodile.getBrain();
-        brain.eraseMemory(MemoryModuleType.PACIFIED);
-        brain.eraseMemory(MemoryModuleType.BREED_TARGET);
-        if (crocodile.isBaby()) {
-            retreatFromNearestTarget(crocodile, target);
-            for(CrocodileEntity nearCrocodile: getNearestAdultCrocodiles(crocodile)){
-                nearCrocodile.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
-            }
-
-        } else {
-            crocodile.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
-        }
-    }
-
-    private static List<CrocodileEntity> getNearestAdultCrocodiles(CrocodileEntity crocodile) {
-
-        return crocodile.level().getEntitiesOfClass(CrocodileEntity.class, crocodile.getBoundingBox().inflate(30,5,30))
-                .stream().filter(crocodile1 -> !crocodile1.isBaby()).toList();
-    }
-
-    private static void retreatFromNearestTarget(CrocodileEntity crocodile, LivingEntity target) {
-        Brain<CrocodileEntity> brain = crocodile.getBrain();
-        LivingEntity avoidTarget = BehaviorUtils.getNearestTarget(crocodile, brain.getMemory(MemoryModuleType.AVOID_TARGET), target);
-        avoidTarget = BehaviorUtils.getNearestTarget(crocodile, brain.getMemory(MemoryModuleType.ATTACK_TARGET), avoidTarget);
-        setAvoidTarget(crocodile, avoidTarget);
-    }
-
-    private static void setAvoidTarget(CrocodileEntity crocodile, LivingEntity target) {
-        crocodile.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
-        crocodile.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        crocodile.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, target, RETREAT_DURATION.sample(crocodile.level().random));
     }
 
     private static void initThrashActivity(Brain<CrocodileEntity> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(
-                Primal_Activities.THRASH.get(),
+                Primal_Activities.GRAB.get(),
                 10,
                 ImmutableList.of(new CrocodileThrash(100)),
-                Primal_MemoryModuleTypes.IS_THRASHING.get());
+                Primal_MemoryModuleTypes.IS_GRABBING.get());
     }
 
     private static void initExplosionActivity(Brain<CrocodileEntity> brain) {
@@ -225,7 +195,7 @@ public class CrocodileAi {
         brain.addActivityWithConditions(
                 Activity.LAY_SPAWN,
                 ImmutableList.of(
-                        Pair.of(1, TryLayEggOnLandOrNest.create(Primal_Blocks.CROCODILE_EGG.get(), MiscUtil.EGGS_3, 3, 1)),
+                        Pair.of(1, TryLayEggOnLandOrNest.create(Primal_Blocks.CROCODILE_EGG.get(), Primal_Util.EGGS_3, 3, 1)),
                         Pair.of(2, TryFindLand.create(16, 1)),
                         Pair.of(
                                 3,
@@ -247,13 +217,17 @@ public class CrocodileAi {
     private static RunOne<CrocodileEntity> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
-                        Pair.of(new CrocodileBasking(20), 1),
+                        Pair.of(IdlePoseAnimationBehavior.create("basking", Pose.INHALING,
+                                        Primal_Util.toTicks(5), Primal_Util.toTicks(10),
+                                        c -> IdlePoseAnimationBehavior.basicCanStart(c) && c.level().isDay() && !c.isInWater(),
+                                        Primal_Util.toTicks(40)),
+                                1),
 
                         Pair.of(BehaviorBuilder.triggerIf(Predicate.not(
-                                crocodile -> crocodile.isAggressive() || (crocodile.isUnderWater() && crocodile.getAirSupply()>3500)),
-                                RandomStroll.stroll(1f)), 1),
+                                crocodile -> crocodile.isAggressive() || (crocodile.isUnderWater() && crocodile.getAirSupply()<3500)),
+                                RandomStroll.stroll(1f)), 2),
 
-                        Pair.of(new DoNothing(30, 60), 1)));
+                        Pair.of(new DoNothing(30, 60), 2)));
     }
 
     public static void updateActivity(CrocodileEntity crocodile) {
@@ -262,12 +236,12 @@ public class CrocodileAi {
         if(crocodile.isBaby())
             brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.EXPLODING.get(), Activity.AVOID, Activity.IDLE));
         else
-            brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.EXPLODING.get(), Primal_Activities.THRASH.get(), Activity.FIGHT, Activity.LAY_SPAWN, Activity.IDLE));
+            brain.setActiveActivityToFirstValid(ImmutableList.of(Primal_Activities.EXPLODING.get(), Primal_Activities.GRAB.get(), Activity.FIGHT, Activity.LAY_SPAWN, Activity.IDLE));
 
-        crocodile.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET) || brain.hasMemoryValue(Primal_MemoryModuleTypes.IS_THRASHING.get()));
+        crocodile.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET) || brain.hasMemoryValue(Primal_MemoryModuleTypes.IS_GRABBING.get()));
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(CrocodileEntity crocodile) {
-        return BehaviorUtils.isBreeding(crocodile) || crocodile.isBaby() || crocodile.isPacified() ? Optional.empty() : crocodile.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE);
+        return BehaviorUtils.isBreeding(crocodile) || crocodile.isBaby() || crocodile.isPacified() || Primal_Util.Ai.lessThanMinAir(crocodile) ? Optional.empty() : crocodile.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE);
     }
 }

@@ -13,13 +13,19 @@ public class Primal_Activities {
 
     public static final DeferredHolder<Activity, Activity> BEACHED = register("primal_beached");
 
-    public static final DeferredHolder<Activity, Activity> THRASH = register("primal_thrash");
     public static final DeferredHolder<Activity, Activity> EXPLODING = register("primal_exploding");
 
-    public static final DeferredHolder<Activity, Activity> SNATCH = register("primal_snatch");
     public static final DeferredHolder<Activity, Activity> NESTED = register("primal_nested");
 
+    public static final DeferredHolder<Activity, Activity> PLAY = register("primal_play");
+    public static final DeferredHolder<Activity, Activity> ESCAPE = register("primal_escape");
 
+    public static final DeferredHolder<Activity, Activity> STALK = register("primal_stalk");
+    public static final DeferredHolder<Activity, Activity> CAUTIOUS = register("primal_cautious");
+
+    public static final DeferredHolder<Activity, Activity> GRAB = register("primal_grab");
+
+    public static final DeferredHolder<Activity, Activity> DANCING = register("primal_dancing");
     public static void init() {}
 
     private static @NotNull DeferredHolder<Activity, Activity> register(String key) {

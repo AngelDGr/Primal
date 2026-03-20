@@ -1,12 +1,12 @@
 package org.primal.entity.ai;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -20,12 +20,20 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
+import org.primal.block.NestBlock;
 import org.primal.entity.ai.behavior.eagle.*;
 import org.primal.entity.ai.behavior.generic.*;
+import org.primal.entity.ai.behavior.generic.bird.*;
+import org.primal.entity.ai.behavior.generic.home.AnimalGoesToBlock;
+import org.primal.entity.ai.behavior.generic.home.AnimalRemoveHome;
+import org.primal.entity.ai.behavior.generic.home.AnimalReturnHome;
+import org.primal.entity.ai.behavior.generic.home.AnimalSearchHome;
+import org.primal.entity.ai.behavior.generic.pet.AnimalSitting;
+import org.primal.entity.ai.behavior.generic.pet.FollowOwner;
 import org.primal.entity.animal.EagleEntity;
 import org.primal.injection.IsEagleTarget;
 import org.primal.registry.*;
-import org.primal.util.MiscUtil;
+import org.primal.util.Primal_Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +44,11 @@ import java.util.function.Predicate;
 @SuppressWarnings("deprecation")
 public class EagleAi {
     private static final ImmutableList<SensorType<? extends Sensor<? super EagleEntity>>> SENSOR_TYPES = ImmutableList.of(
-            SensorType.NEAREST_LIVING_ENTITIES,
+            Primal_Sensors.EAGLE_ENTITY_SENSOR.get(),
             SensorType.HURT_BY,
             Primal_Sensors.NEAREST_BABY.get(),
             SensorType.NEAREST_PLAYERS,
             SensorType.NEAREST_ADULT,
-            Primal_Sensors.EAGLE_ATTACK_SENSOR.get(),
             Primal_Sensors.EAGLE_TEMPTATIONS_SENSOR.get(),
             Primal_Sensors.EAGLE_SCARE_SENSOR.get(),
             Primal_Sensors.EAGLE_HOSTILE_SENSOR.get(),
@@ -75,31 +82,33 @@ public class EagleAi {
             MemoryModuleType.IS_PREGNANT,
             MemoryModuleType.PACIFIED,
 
-            MemoryModuleType.ADMIRING_ITEM,
-
             MemoryModuleType.NEAREST_HOSTILE,
             Primal_MemoryModuleTypes.CHIRP_COOLDOWN.get(),
 
             Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get(),
             Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get(),
             Primal_MemoryModuleTypes.IS_STUNNED.get(),
-            Primal_MemoryModuleTypes.IS_SNATCHING.get(),
+            Primal_MemoryModuleTypes.IS_GRABBING.get(),
             Primal_MemoryModuleTypes.AMOUNT_ATTACKED.get(),
             Primal_MemoryModuleTypes.NEAREST_SCARED.get(),
+            Primal_MemoryModuleTypes.HURT_RECENTLY.get(),
 
             MemoryModuleType.HOME,
             MemoryModuleType.RAM_COOLDOWN_TICKS,
 
             Primal_MemoryModuleTypes.ATTACKED_LIST.get(),
-            Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()
-    );
+            Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(),
 
-    private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
+            Primal_MemoryModuleTypes.REST_NEEDED.get(),
+            Primal_MemoryModuleTypes.RESTED_TIME.get(),
+            Primal_MemoryModuleTypes.LANDING_POS.get()
+    );
 
     public static Predicate<ItemStack> getTemptations() {
         return EagleEntity::isMatingFood;
     }
 
+    @SuppressWarnings("unused")
     public static void initMemories(EagleEntity eagle, RandomSource random) {
     }
 
@@ -128,7 +137,7 @@ public class EagleAi {
                 Activity.CORE,
                 0,
                 ImmutableList.of(
-                        new ConditionalSwim(0.8F, eagle-> eagle.isBaby() || eagle.getBrain().isActive(Primal_Activities.SIT.get())),
+                        new ConditionalSwim<>(0.8F, EagleEntity::isAffectedByFluids),
                         new LookAtTargetSink(45, 90),
                         new MoveToTargetSink()
                 )
@@ -141,16 +150,44 @@ public class EagleAi {
                 10,
                 ImmutableList.of(
                         StartAttacking.create(EagleAi::findNearestValidAttackTarget),
-                        new EagleRemoveHome(),
-                        new EagleSearchHome(),
-                        new BirdReturnHome(1600, 25, true),
+                        TryFindWaterSurface.create(16, 1, e->!e.isAggressive()),
+                        AnimalRemoveHome.basicNest(150),
+                        AnimalSearchHome.fromNest(),
+                        new AnimalReturnHome<>(60, 10, true),
+                        //If it has an egg, remains closer
+                        new AnimalReturnHome<>(20, 3, true, e->
+                        {
+                            var home= e.getBrain().getMemory(MemoryModuleType.HOME);
+
+                            if(home.isPresent()){
+                                var state = e.level().getBlockState(home.get().pos());
+
+                                return state.is(Primal_Blocks.NEST_BLOCK) && state.getValue(NestBlock.HAS_EGG);
+                            }
+
+                            return false;
+                        }),
                         new AnimalMakeLove(Primal_Entities.EAGLE.get()),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
                         new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5),
-                        new AnimalWanderFromScared(5, 8, 5, 10),
+                        new AnimalWanderFromScared(5, 8, 5, 10, e->!e.isAggressive()),
                         createIdleMovementBehaviors()
                 )
         );
+    }
+
+    private static GateBehavior<EagleEntity> createIdleMovementBehaviors() {
+        return new GateBehavior<>(
+                ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT),
+                ImmutableSet.of(),
+                GateBehavior.OrderPolicy.ORDERED,
+                GateBehavior.RunningPolicy.TRY_ALL,
+                ImmutableList.of(
+                        Pair.of(BirdStrollFlyGetTired.create(1, 30, 35, Predicate.not(EagleEntity::isBaby), UniformInt.of(1, 3)), 1),
+                        Pair.of(BirdDescending.create(1, 12, Predicate.not(EagleEntity::isBaby), UniformInt.of(2, 5)), 1),
+                        Pair.of(BehaviorBuilder.triggerIf(Primal_Util.Ai::isBabyWithoutNest, RandomStroll.stroll(0.9F, true)), 1),
+                        Pair.of(new ConditionalDoNothing<>(20, 60, Predicate.not(EagleEntity::isFlying)), 1)
+                ));
     }
 
     private static void initFightActivity(Brain<EagleEntity> brain) {
@@ -159,7 +196,7 @@ public class EagleAi {
                 10,
                 ImmutableList.of(
                         SetWalkTargetFromAttackTargetIfTargetOutOfReach.create(1.0F),
-                        SetEntityLookTarget.create(50),
+                        SetLookTarget.fromAttackTarget(),
                         new EagleStartAttack(10),
                         StopAttackingIfTargetInvalid.create(),
                         EraseMemoryIf.create(eagle -> {
@@ -172,21 +209,22 @@ public class EagleAi {
                                             Optional.of(living):
                                             Optional.empty();
 
-                            if(lastEntity.isPresent() && !eagle.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, lastEntity.get())){
+                            if(lastEntity.isPresent() && (!eagle.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, lastEntity.get()) || !eagle.canAttack(lastEntity.get())))
                                 return true;
-                            }
 
-                            return eagle.isInLove() || !eagle.getPassengers().isEmpty();
+
+                            return eagle.isInLove() || !eagle.getPassengers().isEmpty() ||
+                                    (eagle.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isPresent() && !eagle.canAttack(eagle.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get()));
                         }, MemoryModuleType.ATTACK_TARGET)),
                 MemoryModuleType.ATTACK_TARGET);
     }
 
     private static void initSnatchActivity(Brain<EagleEntity> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(
-                Primal_Activities.SNATCH.get(),
+                Primal_Activities.GRAB.get(),
                 10,
-                ImmutableList.of(new EagleSnatch(60)),
-                Primal_MemoryModuleTypes.IS_SNATCHING.get());
+                ImmutableList.of(new EagleSnatch(30)),
+                Primal_MemoryModuleTypes.IS_GRABBING.get());
     }
 
     private static void initFollowActivity(Brain<EagleEntity> brain) {
@@ -195,8 +233,8 @@ public class EagleAi {
                 10,
                 ImmutableList.of(
                         StartAttacking.create(EagleAi::findNearestValidAttackTarget),
-                        new EagleRemoveHome(),
-                        new EagleSearchHome(),
+                        AnimalRemoveHome.basicNest(150),
+                        AnimalSearchHome.fromNest(),
                         new EagleDetectHostile(),
                         new AnimalMakeLove(Primal_Entities.EAGLE.get()),
                         new FollowOwner(),
@@ -217,14 +255,24 @@ public class EagleAi {
         );
     }
 
-    private static final UniformInt RETREAT_DURATION = TimeUtil.rangeOfSeconds(5, 20);
     private static void initRetreatActivity(Brain<EagleEntity> brain) {
         brain.addActivityAndRemoveMemoryWhenStopped(
                 Activity.AVOID,
                 10,
                 ImmutableList.of(
-                        new BirdAvoidWhileAscending(),
-                        SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.0F, 20, false)
+                        new RunOne<>(
+                                ImmutableMap.of(MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT),
+                                ImmutableList.of(
+                                        Pair.of(BehaviorBuilder.triggerIf((EagleEntity::isBaby),
+                                                SetWalkTargetAwayFrom.entity(MemoryModuleType.AVOID_TARGET, 1.0F, 20, false)), 1),
+                                        Pair.of(BehaviorBuilder.triggerIf(Predicate.not(EagleEntity::isBaby),
+                                                BirdAvoidWhileAscending.entity(MemoryModuleType.AVOID_TARGET, 1.0F, 30, false)), 1)
+                                )
+                        ),
+                        EraseMemoryIf.create(eagle ->
+                                        eagle.getBrain().getMemory(MemoryModuleType.AVOID_TARGET).isPresent()
+                                                && !eagle.getBrain().getMemory(MemoryModuleType.AVOID_TARGET).get().canBeSeenAsEnemy(),
+                                MemoryModuleType.AVOID_TARGET)
                 ),
                 MemoryModuleType.AVOID_TARGET
         );
@@ -236,62 +284,29 @@ public class EagleAi {
                 10,
                 ImmutableList.of(
                         StartAttacking.create(EagleAi::findNearestValidAttackTarget),
-                        new EagleRemoveHome(),
-                        new EagleSearchHome(),
+                        AnimalRemoveHome.basicNest(150),
+                        AnimalSearchHome.fromNest(),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 3.0F, UniformInt.of(30, 60)),
                         SetEntityLookTargetSometimes.create(Primal_Entities.EAGLE.get(), 16.0F, UniformInt.of(30, 60)),
                         new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
-                        new BirdReturnHome(1, 1, false),
+                        new AnimalReturnHome<>(1, 1, false),
                         createIdleMovementBehaviors()
                 )
         );
-    }
-
-    public static void wasHurtBy(EagleEntity eagle, LivingEntity target) {
-        Brain<EagleEntity> brain = eagle.getBrain();
-        brain.eraseMemory(MemoryModuleType.PACIFIED);
-        brain.eraseMemory(MemoryModuleType.BREED_TARGET);
-        if (eagle.isBaby()) {
-            retreatFromNearestTarget(eagle, target);
-            for(EagleEntity nearEagle: getNearestAdultEagles(eagle)){
-                nearEagle.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
-            }
-
-        } else {
-            eagle.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
-        }
-    }
-
-    private static List<EagleEntity> getNearestAdultEagles(EagleEntity eagle) {
-        return eagle.level().getEntitiesOfClass(EagleEntity.class, eagle.getBoundingBox().inflate(30,5,30))
-                .stream().filter(crocodile1 -> !crocodile1.isBaby()).toList();
-    }
-
-    private static void retreatFromNearestTarget(EagleEntity eagle, LivingEntity target) {
-        Brain<EagleEntity> brain = eagle.getBrain();
-        LivingEntity avoidTarget = BehaviorUtils.getNearestTarget(eagle, brain.getMemory(MemoryModuleType.AVOID_TARGET), target);
-        avoidTarget = BehaviorUtils.getNearestTarget(eagle, brain.getMemory(MemoryModuleType.ATTACK_TARGET), avoidTarget);
-        setAvoidTarget(eagle, avoidTarget);
-    }
-
-    private static void setAvoidTarget(EagleEntity eagle, LivingEntity target) {
-        eagle.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
-        eagle.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        eagle.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, target, RETREAT_DURATION.sample(eagle.level().random));
     }
 
     private static void initLayEggActivity(Brain<EagleEntity> brain) {
         brain.addActivityWithConditions(
                 Activity.LAY_SPAWN,
                 ImmutableList.of(
-                        Pair.of(0, new AnimalGoesToNest()),
-                        Pair.of(1, TryLayEggOnLandOrNest.create(Primal_Blocks.EAGLE_EGG.get(), MiscUtil.EGGS_2, 2, 1)),
+                        Pair.of(0, AnimalGoesToBlock.toNest()),
+                        Pair.of(1, TryLayEggOnLandOrNest.create(Primal_Blocks.EAGLE_EGG.get(), Primal_Util.EGGS_2, 2, 1)),
                         Pair.of(2, TryFindLand.create(16, 1)),
                         Pair.of(
                                 3,
                                 new RunOne<>(
                                         ImmutableList.of(
-                                                Pair.of(RandomStroll.stroll(1.0F), 2),
+                                                Pair.of(Primal_Util.Ai.fly(1f, 30, 10), 2),
                                                 Pair.of(SetWalkTargetFromLookTarget.create(1.0F, 3), 1),
                                                 Pair.of(BehaviorBuilder.triggerIf(Entity::onGround), 1)
                                         )
@@ -304,13 +319,6 @@ public class EagleAi {
         );
     }
 
-    private static RunOne<EagleEntity> createIdleMovementBehaviors() {
-        return new RunOne<>(
-                ImmutableList.of(
-                        Pair.of(BehaviorBuilder.triggerIf(Predicate.not(eagle -> eagle.isAggressive() || (eagle.isBaby() && eagle.getBrain().hasMemoryValue(MemoryModuleType.HOME))), RandomStroll.stroll(1f)), 1),
-                        Pair.of(new DoNothing(30, 60), 1)));
-    }
-
     public static void updateActivity(EagleEntity eagle) {
         Brain<EagleEntity> brain = eagle.getBrain();
 
@@ -318,15 +326,15 @@ public class EagleAi {
             eagle.getBrain().setActiveActivityIfPossible(Primal_Activities.SIT.get());
         }
         else if(eagle.isFollowing()){
-            eagle.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Primal_Activities.SNATCH.get(), Activity.FIGHT, Activity.LAY_SPAWN, Primal_Activities.FOLLOW.get()));
+            eagle.getBrain().setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Primal_Activities.GRAB.get(), Activity.FIGHT, Activity.LAY_SPAWN, Primal_Activities.FOLLOW.get()));
         } else {
             if(eagle.isBaby())
                 brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Activity.FIGHT, Primal_Activities.NESTED.get()));
             else
-                brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Primal_Activities.SNATCH.get(), Activity.FIGHT, Activity.LAY_SPAWN, Activity.IDLE));
+                brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.AVOID, Primal_Activities.GRAB.get(), Activity.FIGHT, Activity.LAY_SPAWN, Activity.IDLE));
         }
 
-        eagle.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET) || brain.hasMemoryValue(Primal_MemoryModuleTypes.IS_SNATCHING.get()));
+        eagle.setAggressive(brain.hasMemoryValue(MemoryModuleType.ATTACK_TARGET) || brain.hasMemoryValue(Primal_MemoryModuleTypes.IS_GRABBING.get()));
 
         handleEagleQueue(brain, eagle);
 
@@ -341,7 +349,7 @@ public class EagleAi {
                 && brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()
                 //If is not the same, it means that changed target
                 && !brain.isMemoryValue(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), brain.getMemory(MemoryModuleType.ATTACK_TARGET).get())
-                && MiscUtil.isSameEagleAttacking(brain.getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).get(), eagle)){
+                && Primal_Util.isSameEagleAttacking(brain.getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).get(), eagle)){
 
             ((IsEagleTarget) brain.getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).get()).primal$setEagleAttacking(null);
         }
@@ -349,8 +357,11 @@ public class EagleAi {
 
     private static void handleEagleQueue(Brain<EagleEntity> brain, EagleEntity eagle){
         //This adds to the queue
-        if(eagle.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_ATTACKABLE)){
-            List<UUID> attackedList= brain.hasMemoryValue(Primal_MemoryModuleTypes.ATTACKED_LIST.get())? brain.getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).get() : Lists.newArrayList();
+        if(brain.getMemory(MemoryModuleType.NEAREST_ATTACKABLE).isPresent()){
+            List<UUID> attackedList=
+                    brain.hasMemoryValue(Primal_MemoryModuleTypes.ATTACKED_LIST.get())?
+                            brain.getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).get() :
+                            Lists.newArrayList();
 
             //This put the nearest attackable in the last place
             if(!attackedList.contains(brain.getMemory(MemoryModuleType.NEAREST_ATTACKABLE).get().getUUID())){
@@ -366,12 +377,14 @@ public class EagleAi {
         }
 
         //This remove from the queue
-        if(brain.hasMemoryValue(Primal_MemoryModuleTypes.ATTACKED_LIST.get())){
+        if(brain.getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).isPresent()){
             List<UUID> attackedList = new ArrayList<>(
                     brain.getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).get()
             );
 
-            attackedList.removeIf(uuid -> (((ServerLevel) eagle.level()).getEntity(uuid) instanceof LivingEntity target && target.isDeadOrDying()) || ((ServerLevel) eagle.level()).getEntity(uuid) == null);
+            attackedList.removeIf(uuid ->
+                    (((ServerLevel) eagle.level()).getEntity(uuid) instanceof LivingEntity target && target.isDeadOrDying())
+                            || ((ServerLevel) eagle.level()).getEntity(uuid) == null);
 
             if(attackedList.isEmpty()){
                 brain.eraseMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get());
@@ -387,7 +400,7 @@ public class EagleAi {
             return Optional.empty();
         }
 
-        if(eagle.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.ATTACKED_LIST.get())){
+        if(eagle.getBrain().getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).isPresent()){
             List<UUID> attackedList = eagle.getBrain().getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).get();
 
             if(((ServerLevel) eagle.level()).getEntity(attackedList.getLast()) instanceof LivingEntity target){

@@ -12,7 +12,8 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.NotNull;
-import org.primal.block.RiverReeds;
+import org.primal.Primal_Main;
+import org.primal.block.ThreeTallPlantBlock;
 import org.primal.block.properties.TripleBlockHalf;
 import org.primal.registry.Primal_Blocks;
 
@@ -49,15 +50,18 @@ public class RiverReedsFeature extends Feature<RandomPatchCustomConfig> {
         int verticalDistance = randomPatchConfiguration.ySpread() + 1;
 
         BlockState defaultStateShortReeds= Primal_Blocks.SHORT_RIVER_REEDS.get().defaultBlockState();
-        BlockState defaultStateLongReeds= Primal_Blocks.RIVER_REEDS.get().defaultBlockState();
 
-        // Create noise generator (best to keep this as a field, not per-call!)
+
+        // Create noise generator
         PerlinSimplexNoise reedsNoise = new PerlinSimplexNoise(randomsource, List.of(0));
 
         for (int dx = -lateralDistance; dx <= lateralDistance; dx++) {
             for (int dz = -lateralDistance; dz <= lateralDistance; dz++) {
                 for (int dy = -verticalDistance; dy <= verticalDistance; dy++) {
 
+                    BlockState defaultStateLongReeds= level.getRandom().nextDouble()>= Primal_Main.COMMON_CONFIG.cattailsAlongsideRiverReedsProbability.get()?
+                            Primal_Blocks.RIVER_REEDS.get().defaultBlockState():
+                            Primal_Blocks.CATTAILS.get().defaultBlockState();
                     // Sample noise at world position (scaled to avoid blocky look)
                     double noiseValue = reedsNoise.getValue(
                             (origin.getX() + dx) * 0.1, // scale factor controls patch size
@@ -77,8 +81,8 @@ public class RiverReedsFeature extends Feature<RandomPatchCustomConfig> {
                             boolean generateShort=level.getRandom().nextInt(0,3)==0;
 
                             if(!generateShort) {
-                                //40% probability of being a plant with flowers -> 40/100 -> 20/50 -> 10/25 - >2/5
-                                int age=level.getRandom().nextInt(1, 5)>=4? 1: 0;
+                                //50% probability of being a plant with flowers
+                                int age=level.getRandom().nextBoolean()? 1: 0;
                                 //33%% probability of being a double instead of triple
                                 boolean generateDouble=level.getRandom().nextInt(0, 3)==0;
 
@@ -89,21 +93,21 @@ public class RiverReedsFeature extends Feature<RandomPatchCustomConfig> {
                                     if(!(isUnderwater && isUnderwaterAbove && isUnderwaterAboveAbove))
                                         if(level.setBlock(desiredPosition,
                                                 defaultStateLongReeds
-                                                        .setValue(RiverReeds.HALF, TripleBlockHalf.LOWER)
-                                                        .setValue(RiverReeds.AGE, age)
-                                                        .setValue(RiverReeds.WATERLOGGED, isUnderwater), 2) &&
+                                                        .setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.LOWER)
+                                                        .setValue(ThreeTallPlantBlock.AGE, age)
+                                                        .setValue(ThreeTallPlantBlock.WATERLOGGED, isUnderwater), 2) &&
 
                                                 level.setBlock(desiredPosition.above(),
                                                         defaultStateLongReeds
-                                                                .setValue(RiverReeds.HALF, TripleBlockHalf.MIDDLE)
-                                                                .setValue(RiverReeds.AGE, age)
-                                                                .setValue(RiverReeds.WATERLOGGED, isUnderwaterAbove), 2) &&
+                                                                .setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.MIDDLE)
+                                                                .setValue(ThreeTallPlantBlock.AGE, age)
+                                                                .setValue(ThreeTallPlantBlock.WATERLOGGED, isUnderwaterAbove), 2) &&
 
                                                 level.setBlock(desiredPosition.above().above(),
                                                         defaultStateLongReeds
-                                                                .setValue(RiverReeds.HALF, TripleBlockHalf.UPPER)
-                                                                .setValue(RiverReeds.AGE, age)
-                                                                .setValue(RiverReeds.WATERLOGGED, isUnderwaterAboveAbove), 2)) {
+                                                                .setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.UPPER)
+                                                                .setValue(ThreeTallPlantBlock.AGE, age)
+                                                                .setValue(ThreeTallPlantBlock.WATERLOGGED, isUnderwaterAboveAbove), 2)) {
 
                                             i++;
                                         }
@@ -113,21 +117,21 @@ public class RiverReedsFeature extends Feature<RandomPatchCustomConfig> {
                                     if(!(isUnderwater && isUnderwaterAbove))
                                         if(level.setBlock(desiredPosition,
                                                 defaultStateLongReeds
-                                                        .setValue(RiverReeds.HALF, TripleBlockHalf.LOWER)
-                                                        .setValue(RiverReeds.AGE, age)
-                                                        .setValue(RiverReeds.WATERLOGGED, isUnderwater), 2) &&
+                                                        .setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.LOWER)
+                                                        .setValue(ThreeTallPlantBlock.AGE, age)
+                                                        .setValue(ThreeTallPlantBlock.WATERLOGGED, isUnderwater), 2) &&
 
                                                 level.setBlock(desiredPosition.above(),
                                                         defaultStateLongReeds
-                                                                .setValue(RiverReeds.HALF, TripleBlockHalf.UPPER)
-                                                                .setValue(RiverReeds.AGE, age)
-                                                                .setValue(RiverReeds.WATERLOGGED, isUnderwaterAbove), 2)) {
+                                                                .setValue(ThreeTallPlantBlock.HALF, TripleBlockHalf.UPPER)
+                                                                .setValue(ThreeTallPlantBlock.AGE, age)
+                                                                .setValue(ThreeTallPlantBlock.WATERLOGGED, isUnderwaterAbove), 2)) {
 
                                             i++;
                                         }
 
                                         else {
-                                            if(level.setBlock(desiredPosition, defaultStateShortReeds.setValue(RiverReeds.WATERLOGGED, isUnderwater), 2)){
+                                            if(level.setBlock(desiredPosition, defaultStateShortReeds.setValue(ThreeTallPlantBlock.WATERLOGGED, isUnderwater), 2)){
                                                 i++;
                                             }
                                         }
@@ -138,85 +142,6 @@ public class RiverReedsFeature extends Feature<RandomPatchCustomConfig> {
                 }
             }
         }
-
-
-//
-//        for (int l = 0; l < randomPatchConfiguration.tries(); l++) {
-//            desiredPosition = desiredPosition.setWithOffset(
-//                    origin,
-//                    randomsource.nextInt(lateralDistance) - randomsource.nextInt(lateralDistance),
-//                    randomsource.nextInt(verticalDistance) - randomsource.nextInt(verticalDistance),
-//                    randomsource.nextInt(lateralDistance) - randomsource.nextInt(lateralDistance)
-//            );
-//
-//            if (defaultStateLongReeds.canSurvive(level, desiredPosition) && canGenerateHere(level, desiredPosition)) {
-//
-//                boolean isUnderwater=level.getBlockState(desiredPosition).is(Blocks.WATER);
-//                boolean isUnderwaterAbove=level.getBlockState(desiredPosition.above()).is(Blocks.WATER);
-//                boolean isUnderwaterAboveAbove=level.getBlockState(desiredPosition.above().above()).is(Blocks.WATER);
-//                //33% probability of generating short instead of tall
-//                boolean generateShort=level.getRandom().nextInt(0,3)==0;
-//
-//                if(!generateShort) {
-//                    //40% probability of being a plant with flowers -> 40/100 -> 20/50 -> 10/25 - >2/5
-//                    int age=level.getRandom().nextInt(1, 5)>=4? 1: 0;
-//                    //33%% probability of being a double instead of triple
-//                    boolean generateDouble=level.getRandom().nextInt(0, 3)==0;
-//
-//                    if(isUnderwater && !generateDouble
-//                    //Checks the tree upper blocks to not destroy other blocks
-//                            && canGenerateHere(level, desiredPosition) && canGenerateHere(level, desiredPosition.above()) && canGenerateHere(level, desiredPosition.above().above())) {
-//                        //Avoids generating if all underwater
-//                        if(!(isUnderwater && isUnderwaterAbove && isUnderwaterAboveAbove))
-//                            if(level.setBlock(desiredPosition,
-//                                    defaultStateLongReeds
-//                                            .setValue(RiverReeds.HALF, TripleBlockHalf.LOWER)
-//                                            .setValue(RiverReeds.AGE, age)
-//                                            .setValue(RiverReeds.WATERLOGGED, isUnderwater), 2) &&
-//
-//                                    level.setBlock(desiredPosition.above(),
-//                                            defaultStateLongReeds
-//                                                    .setValue(RiverReeds.HALF, TripleBlockHalf.MIDDLE)
-//                                                    .setValue(RiverReeds.AGE, age)
-//                                                    .setValue(RiverReeds.WATERLOGGED, isUnderwaterAbove), 2) &&
-//
-//                                    level.setBlock(desiredPosition.above().above(),
-//                                            defaultStateLongReeds
-//                                                    .setValue(RiverReeds.HALF, TripleBlockHalf.UPPER)
-//                                                    .setValue(RiverReeds.AGE, age)
-//                                                    .setValue(RiverReeds.WATERLOGGED, isUnderwaterAboveAbove), 2)) {
-//
-//                                i++;
-//                            }
-//
-//                    } else if(canGenerateHere(level, desiredPosition) && canGenerateHere(level, desiredPosition.above())) {
-//                        //Avoids generating if all underwater
-//                        if(!(isUnderwater && isUnderwaterAbove))
-//                            if(level.setBlock(desiredPosition,
-//                                    defaultStateLongReeds
-//                                            .setValue(RiverReeds.HALF, TripleBlockHalf.LOWER)
-//                                            .setValue(RiverReeds.AGE, age)
-//                                            .setValue(RiverReeds.WATERLOGGED, isUnderwater), 2) &&
-//
-//                                    level.setBlock(desiredPosition.above(),
-//                                            defaultStateLongReeds
-//                                                    .setValue(RiverReeds.HALF, TripleBlockHalf.UPPER)
-//                                                    .setValue(RiverReeds.AGE, age)
-//                                                    .setValue(RiverReeds.WATERLOGGED, isUnderwaterAbove), 2)) {
-//
-//                                i++;
-//                            }
-//
-//                        else {
-//                                if(level.setBlock(desiredPosition, defaultStateShortReeds.setValue(RiverReeds.WATERLOGGED, isUnderwater), 2)){
-//                                    i++;
-//                                }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-
         return i > 0;
     }
 

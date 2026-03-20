@@ -1,0 +1,7 @@
+{
+  "parent": "primal:block/template_chomp_trap",
+  "textures": {
+    "particle": "primal:block/humid_crocodile_scute_block",
+    "texture": "primal:block/chomp_trap/humid"
+  }
+}

@@ -11,7 +11,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
-import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -27,17 +26,14 @@ import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Sensors;
 
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class SharkAi {
 
     protected static final ImmutableList<SensorType<? extends Sensor<? super SharkEntity>>> SENSOR_TYPES = ImmutableList.of(
-            SensorType.NEAREST_LIVING_ENTITIES,
+            Primal_Sensors.GENERIC_ATTACK_SENSOR.get(),
             SensorType.NEAREST_PLAYERS,
             SensorType.HURT_BY,
             SensorType.FROG_TEMPTATIONS,
-
-            Primal_Sensors.SHARK_ATTACK_SENSOR.get(),
             Primal_Sensors.SHARK_NEAR_CONDUIT_PLAYER.get(),
             Primal_Sensors.SHARK_NEAREST_CONDUIT.get()
     );
@@ -64,6 +60,7 @@ public class SharkAi {
             MemoryModuleType.HAS_HUNTING_COOLDOWN,
             Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get(),
             Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get(),
+            Primal_MemoryModuleTypes.WAS_TOWARDS_IMPORTANT_BLOCK.get(),
             MemoryModuleType.ADMIRING_ITEM,
             Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()
     );
@@ -174,8 +171,7 @@ public class SharkAi {
     private static RunOne<SharkEntity> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
-                        Pair.of(BehaviorBuilder.triggerIf(Predicate.not(SharkEntity::isAggressive), RandomStroll.stroll(1f)), 1),
-                        Pair.of(new DoNothing(30, 60), 1)));
+                        Pair.of(RandomStroll.swim(1f), 1)));
     }
 
     public static void wasHurtBy(SharkEntity bear, LivingEntity target) {

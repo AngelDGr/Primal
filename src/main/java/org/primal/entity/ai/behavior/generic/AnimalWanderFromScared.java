@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_MemoryModuleTypes;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 public class AnimalWanderFromScared extends Behavior<Mob> {
     final int yMinWander;
@@ -20,7 +21,9 @@ public class AnimalWanderFromScared extends Behavior<Mob> {
     final int xzMinWander;
     final int xzMaxWander;
 
-    public AnimalWanderFromScared(int yMinWander, int yMaxWander, int xzMinWander, int xzMaxWander) {
+    final Predicate<Mob> canUse;
+
+    public AnimalWanderFromScared(int yMinWander, int yMaxWander, int xzMinWander, int xzMaxWander, Predicate<Mob> canUse) {
         super(ImmutableMap.of(
                 Primal_MemoryModuleTypes.NEAREST_SCARED.get(),
                 MemoryStatus.VALUE_PRESENT));
@@ -28,16 +31,17 @@ public class AnimalWanderFromScared extends Behavior<Mob> {
         this.xzMaxWander=xzMaxWander;
         this.yMinWander=yMinWander;
         this.yMaxWander=yMaxWander;
+        this.canUse=canUse;
     }
 
     //For not flying or aquatic mobs
     public AnimalWanderFromScared(int xzMinWander, int xzMaxWander) {
-        this(0, 0, xzMinWander, xzMaxWander);
+        this(0, 0, xzMinWander, xzMaxWander,m-> true);
     }
 
     @Override
     protected boolean canStillUse(@NotNull ServerLevel level, @NotNull Mob entity, long gameTime) {
-        return hasRequiredMemories(entity);
+        return hasRequiredMemories(entity) && canUse.test(entity);
     }
 
     @Override

@@ -4,12 +4,11 @@ import com.google.common.collect.ImmutableSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_MemoryModuleTypes;
+import org.primal.util.Primal_Util;
 
-import java.util.Optional;
 import java.util.Set;
 
 public class BabySensor extends Sensor<AgeableMob> {
@@ -18,16 +17,9 @@ public class BabySensor extends Sensor<AgeableMob> {
         return ImmutableSet.of(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get(), MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
     }
 
-    protected void doTick(@NotNull ServerLevel level, AgeableMob entity) {
-        entity.getBrain()
-            .getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)
-            .ifPresent(nearestVisibleLivingEntities -> this.setNearestVisibleBaby(entity, nearestVisibleLivingEntities));
-    }
-
-    private void setNearestVisibleBaby(AgeableMob mob, NearestVisibleLivingEntities nearbyEntities) {
-        Optional<AgeableMob> optional = nearbyEntities.findClosest(livingEntity ->
-                        (livingEntity.getType() == mob.getType()) && livingEntity.isBaby())
-                .map(AgeableMob.class::cast);
-        mob.getBrain().setMemory(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get(), optional);
+    protected void doTick(@NotNull ServerLevel level, @NotNull AgeableMob entity) {
+        Primal_Util.Ai.setMemoryFromVisibleEntity(entity, livingEntity ->
+                (livingEntity.getType() == entity.getType()) && livingEntity.isBaby(),
+                Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get());
     }
 }

@@ -1,41 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_reeds": {
+    "has_straw": {
       "conditions": {
         "items": [
           {
-            "items": "primal:river_reeds"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_short_grass": {
-      "conditions": {
-        "items": [
-          {
-            "items": "minecraft:short_grass"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_short_reeds": {
-      "conditions": {
-        "items": [
-          {
-            "items": "primal:short_river_reeds"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_tall_grass": {
-      "conditions": {
-        "items": [
-          {
-            "items": "minecraft:tall_grass"
+            "items": "#primal:straw"
           }
         ]
       },
@@ -51,10 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_reeds",
-      "has_short_reeds",
-      "has_short_grass",
-      "has_tall_grass"
+      "has_straw"
     ]
   ],
   "rewards": {

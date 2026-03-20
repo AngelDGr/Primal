@@ -23,6 +23,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.primal.block.properties.SharkToothThickness;
 import org.primal.registry.Primal_DamageTypes;
+import org.primal.util.Primal_Util;
 
 import javax.annotation.Nullable;
 import java.util.Map;
@@ -207,8 +208,7 @@ public class SharkToothBlock extends Block {
         if (!blockBox.intersects(entityBox)) return; // not touching
 
         // Distances from faces
-        Direction face = getDirection(entityBox, blockBox);
-
+        Direction face = Primal_Util.getFaceTouchedByEntity(entityBox, blockBox);
 
 
         if (face != null) {
@@ -218,28 +218,6 @@ public class SharkToothBlock extends Block {
                 entity.hurt(Primal_DamageTypes.sharkTooth(level), 2.0f);
         }
     }
-
-    private static @Nullable Direction getDirection(AABB eBox, AABB blockBox) {
-        double dxWest   = eBox.maxX - blockBox.minX;
-        double dxEast   = blockBox.maxX - eBox.minX;
-        double dzNorth  = eBox.maxZ - blockBox.minZ;
-        double dzSouth  = blockBox.maxZ - eBox.minZ;
-        double dyDown   = eBox.maxY - blockBox.minY;
-        double dyUp     = blockBox.maxY - eBox.minY;
-
-        // Find nearest face
-        double min = Double.MAX_VALUE;
-        Direction face = null;
-
-        if (dxWest >= 0 && dxWest < min) { min = dxWest; face = Direction.WEST; }
-        if (dxEast >= 0 && dxEast < min) { min = dxEast; face = Direction.EAST; }
-        if (dzNorth >= 0 && dzNorth < min) { min = dzNorth; face = Direction.NORTH; }
-        if (dzSouth >= 0 && dzSouth < min) { min = dzSouth; face = Direction.SOUTH; }
-        if (dyDown >= 0 && dyDown < min) { min = dyDown; face = Direction.DOWN; }
-        if (dyUp >= 0 && dyUp < min) { min = dyUp; face = Direction.UP; }
-        return face;
-    }
-
 
     @Override
     protected boolean isPathfindable(@NotNull BlockState state, @NotNull PathComputationType pathComputationType) {

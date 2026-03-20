@@ -2,7 +2,6 @@ package org.primal.worldgen;
 
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
@@ -20,6 +19,7 @@ import org.primal.entity.animal.EagleEntity;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Items;
+import org.primal.util.Primal_Util;
 
 public class EagleNestFeature extends Feature<RandomPatchCustomConfig> {
     public EagleNestFeature(final Codec<RandomPatchCustomConfig> configCodec) {
@@ -67,19 +67,7 @@ public class EagleNestFeature extends Feature<RandomPatchCustomConfig> {
                     BlockState finalState=defaultStateNest;
 
                     //Update connections when generating the nest
-                    for (Direction direction: Direction.Plane.HORIZONTAL){
-                        BlockPos blockPosAround = desiredPosition.relative(direction);
-
-                        if(level.getBlockState(blockPosAround).is(Primal_Blocks.NEST_BLOCK)){
-                            finalState= finalState.setValue(NestBlock.PROPERTY_BY_DIRECTION.get(direction),false);
-
-
-                            level.setBlock(
-                                    blockPosAround,
-                                    level.getBlockState(blockPosAround).setValue(NestBlock.PROPERTY_BY_DIRECTION.get(direction.getOpposite()),false),
-                                    Block.UPDATE_CLIENTS);
-                        }
-                    }
+                    finalState= Primal_Util.Generation.updateNest(level, desiredPosition, finalState);
 
                     //To put eggs with a 33% of probability
                     if (level.getRandom().nextInt(3) == 0) {
@@ -114,7 +102,6 @@ public class EagleNestFeature extends Feature<RandomPatchCustomConfig> {
                     }
 
 
-
                     i++;
                 }
 
@@ -126,6 +113,6 @@ public class EagleNestFeature extends Feature<RandomPatchCustomConfig> {
 
 
     public boolean canGenerateHere(WorldGenLevel level, BlockPos pos){
-        return level.getBlockState(pos).isAir() && level.getBlockState(pos.below()).isCollisionShapeFullBlock(level, pos);
+        return (level.getBlockState(pos).isAir() || level.getBlockState(pos).canBeReplaced()) && level.getBlockState(pos.below()).isCollisionShapeFullBlock(level, pos);
     }
 }

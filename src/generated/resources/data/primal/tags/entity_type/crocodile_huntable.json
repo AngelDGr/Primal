@@ -29,6 +29,7 @@
     "minecraft:panda",
     "minecraft:trader_llama",
     "minecraft:wolf",
+    "primal:deer",
     {
       "id": "nomansland:deer",
       "required": false

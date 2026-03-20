@@ -26,14 +26,14 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.CrocodileEntity;
 import org.primal.registry.Primal_Entities;
-import org.primal.util.AnimalEgg;
-import org.primal.util.MiscUtil;
+import org.primal.util.block_types.AnimalEgg;
+import org.primal.util.Primal_Util;
 
 import javax.annotation.Nullable;
 
 public class CrocodileEgg extends Block implements AnimalEgg {
     public static final MapCodec<CrocodileEgg> CODEC = simpleCodec(CrocodileEgg::new);
-    public static final IntegerProperty EGGS = MiscUtil.EGGS_3;
+    public static final IntegerProperty EGGS = Primal_Util.EGGS_3;
 
     public CrocodileEgg(Properties properties) {
         super(properties);
@@ -59,9 +59,8 @@ public class CrocodileEgg extends Block implements AnimalEgg {
 
     @Override
     public void stepOn(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, Entity entity) {
-        if (!entity.isSteppingCarefully()) {
+        if (!entity.isSteppingCarefully())
             this.destroyEgg(level, state, pos, entity, 100, this, EGGS);
-        }
 
         super.stepOn(level, pos, state, entity);
     }

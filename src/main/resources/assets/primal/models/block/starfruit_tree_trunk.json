@@ -1,0 +1,32 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"texture_size": [128, 128],
+	"textures": {
+		"texture": "primal:block/starfruit_tree_1",
+		"particle": "primal:block/starfruit_juvenile"
+	},
+	"elements": [
+		{
+			"from": [6.5, 0, 6.5],
+			"to": [9.5, 16, 9.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6.5, 0, 6.5]},
+			"faces": {
+				"north": {"uv": [5.75, 4.5, 6.125, 6.5], "texture": "#texture"},
+				"east": {"uv": [5.75, 4.5, 6.125, 6.5], "texture": "#texture"},
+				"south": {"uv": [5.75, 4.5, 6.125, 6.5], "texture": "#texture"},
+				"west": {"uv": [5.75, 4.5, 6.125, 6.5], "texture": "#texture"},
+				"up": {"uv": [7.375, 3, 7, 2.625], "texture": "#texture"},
+				"down": {"uv": [7.5, 0.625, 7.125, 1], "texture": "#texture"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "bottom",
+			"origin": [6.5, 0, 6.5],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

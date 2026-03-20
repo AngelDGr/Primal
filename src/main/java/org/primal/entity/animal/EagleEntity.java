@@ -4,16 +4,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
@@ -22,34 +19,38 @@ import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.*;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.client.animation.entity.EagleAnimations;
 import org.primal.entity.ai.EagleAi;
-import org.primal.entity.ai.controls.EagleMoveControl;
+import org.primal.entity.ai.controls.look.EagleLookControl;
+import org.primal.entity.ai.controls.move.EagleMoveControl;
+import org.primal.entity.ai.controls.navigation.EaglePathNavigation;
 import org.primal.registry.*;
-import org.primal.util.HostileMount;
-import org.primal.util.MiscUtil;
-import org.primal.util.VariantHolderPrimal;
+import org.primal.util.Primal_Util;
+import org.primal.util.mob_types.DetectsFartherAway;
+import org.primal.util.mob_types.HostileMount;
+import org.primal.util.mob_types.PrimalTamable;
+import org.primal.util.mob_types.VariantHolderWithEgg;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -75,7 +76,7 @@ import java.util.function.IntFunction;
 // x Loud chirp when spot a threat, applies glowing to that threat
 // x Attack when you steal an egg
 
-public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEntity.Variant>, GeoEntity, NeutralMob, VariantHolderPrimal<EagleEntity.Variant, EagleEntity>, HostileMount, FlyingAnimal {
+public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEntity.Variant>, GeoEntity, NeutralMob, VariantHolderWithEgg<EagleEntity.Variant, EagleEntity>, HostileMount, FlyingAnimal, DetectsFartherAway, PrimalTamable {
 
     //Attributes and Variants
     public enum Variant implements StringRepresentable {
@@ -116,7 +117,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20f)
                 .add(Attributes.MOVEMENT_SPEED, 0.24f)
-                .add(Attributes.ATTACK_DAMAGE, 3f)
+                .add(Attributes.ATTACK_DAMAGE, 1.5f)
                 .add(Attributes.FLYING_SPEED, 0.4F)
                 .add(Attributes.FOLLOW_RANGE, 48.0F)
                 .add(Attributes.STEP_HEIGHT, 2.0f);
@@ -126,10 +127,12 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public EagleEntity(EntityType<EagleEntity> entityType, Level level) {
         super(entityType, level);
-        this.setHealth(this.getMaxHealth());
-        this.moveControl = new EagleMoveControl(this, 10, false);
+        this.moveControl = new EagleMoveControl(this);
+        this.lookControl = new EagleLookControl(this);
         this.setPathfindingMalus(PathType.DANGER_FIRE, -1.0F);
         this.setPathfindingMalus(PathType.DAMAGE_FIRE, -1.0F);
+        this.setPathfindingMalus(PathType.LEAVES, 1.0F);
+        this.setPathfindingMalus(PathType.WATER, 0.0F);
     }
 
     @Override
@@ -139,15 +142,15 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     }
 
     @Override
-    public void setVariantFromBiome(EagleEntity eagle, Holder<Biome> holder){
+    public void setVariantFromBiome(EagleEntity animal, Holder<Biome> holder){
         if (holder.is(Primal_Tags.Biome.SPAWNS_GOLDEN_EAGLE)) {
-            eagle.setVariant(Variant.GOLDEN);
+            animal.setVariant(Variant.GOLDEN);
         } else if(holder.is(Primal_Tags.Biome.SPAWNS_HARPY_EAGLE)){
-            eagle.setVariant(Variant.HARPY);
+            animal.setVariant(Variant.HARPY);
         } else if(holder.is(Primal_Tags.Biome.SPAWNS_PHILIPPINE_EAGLE)) {
-            eagle.setVariant(Variant.PHILIPPINE);
+            animal.setVariant(Variant.PHILIPPINE);
         } else {
-            eagle.setVariant(Variant.BALD);
+            animal.setVariant(Variant.BALD);
         }
     }
 
@@ -155,7 +158,6 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(
                 EagleAnimations.mainController(this)
-                        .receiveTriggeredAnimations()
         );
     }
 
@@ -195,7 +197,6 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     private static final EntityDataAccessor<Integer> DATA_COLLAR_COLOR = SynchedEntityData.defineId(EagleEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FOLLOWER_STATE = SynchedEntityData.defineId(EagleEntity.class, EntityDataSerializers.INT);
 
-
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
@@ -208,39 +209,25 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-
         compound.putInt("Variant", this.getVariant().id);
-
-        compound.putFloat("HealthWhenStarted", this.getHealthWhenStartRiding());
-
-        if(this.getOwnerUUID()!=null){
-            compound.putInt("FollowerState", this.getFollowerState());
-        }
-
-        compound.putByte("CollarColor", (byte)this.getCollarColor().getId());
+        this.addAdditionalSaveDataHostileMount(compound);
+        this.addAdditionalSaveDataTamable(compound);
     }
 
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-
         this.setVariant(EagleEntity.Variant.byId(compound.getInt("Variant")));
-
-        this.setHealthWhenStartRiding(compound.getFloat("HealthWhenStarted"));
-
-        if (compound.hasUUID("Owner")) {
-            this.setFollowerState(compound.getInt("FollowerState"));
-        }
-
-        if (compound.contains("CollarColor", 99)) {
-            this.setCollarColor(DyeColor.byId(compound.getInt("CollarColor")));
-        }
+        this.readAdditionalSaveDataHostileMount(compound);
+        this.readAdditionalSaveDataTamable(compound);
     }
 
+    @Override
     public float getHealthWhenStartRiding() {
         return this.entityData.get(HEALTH_WHEN_START_RIDING);
     }
 
+    @Override
     public void setHealthWhenStartRiding(float healthWhenStartRiding) {
         this.entityData.set(HEALTH_WHEN_START_RIDING, healthWhenStartRiding);
     }
@@ -255,32 +242,25 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         return EagleEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
     }
 
+    @Override
     public DyeColor getCollarColor() {
         return DyeColor.byId(this.entityData.get(DATA_COLLAR_COLOR));
     }
 
-    private void setCollarColor(DyeColor collarColor) {
+    @Override
+    public void setCollarColor(DyeColor collarColor) {
         this.entityData.set(DATA_COLLAR_COLOR, collarColor.getId());
     }
 
+    @Override
     public int getFollowerState() {
         return this.entityData.get(FOLLOWER_STATE);
     }
 
+    @Override
     public void setFollowerState(int state) {
         this.entityData.set(FOLLOWER_STATE, state);
-    }
-
-    public boolean isSitting() {
-        return this.getFollowerState() == 2;
-    }
-
-    public boolean isFollowing() {
-        return this.getFollowerState() == 1;
-    }
-
-    public boolean isWandering() {
-        return this.getFollowerState() == 0;
+        this.setInSittingPose(state==2);
     }
 
     //Breeding
@@ -292,12 +272,12 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
     @Override
     public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
-        EagleEntity eagle = Primal_Entities.EAGLE.get().create(level);
-        if (eagle != null) {
-            EagleAi.initMemories(eagle, level.getRandom());
-        }
+        if(otherParent instanceof EagleEntity otherParentCasted)
+            return Primal_Util.createFromParents(Primal_Entities.EAGLE.get(),
+                    this,
+                    otherParentCasted, c-> EagleAi.initMemories(c, level.getRandom()));
 
-        return eagle;
+        return null;
     }
 
     @Override
@@ -320,11 +300,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     //Movement
     @Override
     protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
-        FlyingPathNavigation flyingpathnavigation = new FlyingPathNavigation(this, level);
-        flyingpathnavigation.setCanOpenDoors(false);
-        flyingpathnavigation.setCanFloat(true);
-        flyingpathnavigation.setCanPassDoors(true);
-        return flyingpathnavigation;
+        return new EaglePathNavigation(this, level);
     }
 
     @Override
@@ -344,7 +320,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     }
 
     @Override
-    protected boolean isAffectedByFluids() {
+    public boolean isAffectedByFluids() {
         return this.isBaby() || this.getBrain().isActive(Primal_Activities.SIT.get());
     }
 
@@ -354,11 +330,11 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
         Brain<EagleEntity> brain = this.getBrain();
         brain.tick((ServerLevel) this.level(), this);
-        var snatching= this.getBrain().getMemory(Primal_MemoryModuleTypes.IS_SNATCHING.get());
+        var snatching= this.getBrain().getMemory(Primal_MemoryModuleTypes.IS_GRABBING.get());
 
         //Fallback to reset, just in case
         if(snatching.isPresent() && snatching.get() && this.getPassengers().isEmpty()){
-            this.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_SNATCHING.get());
+            this.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_GRABBING.get());
             this.setPose(Pose.STANDING);
         }
 
@@ -371,153 +347,142 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     @Override
     public void aiStep() {
         super.aiStep();
-
-        if(!this.isBaby()){
-            Vec3 vec3 = this.getDeltaMovement();
-            if (!this.onGround() && vec3.y < 0.0) {
-                this.setDeltaMovement(vec3.multiply(1.0, this.getXRot()> 50? 1.1: 0.6, 1.0));
-            }
-        }
     }
 
-    @Override
-    public void travel(@NotNull Vec3 travelVector) {
-        if (this.isControlledByLocalInstance()) {
-            double d0 = this.getGravity();
-            boolean flag = this.getDeltaMovement().y <= 0.0;
-            if (flag && this.hasEffect(MobEffects.SLOW_FALLING)) {
-                d0 = Math.min(d0, 0.01);
-            }
-
-            FluidState fluidstate = this.level().getFluidState(this.blockPosition());
-            if ((this.isInWater() || (this.isInFluidType(fluidstate) && fluidstate.getFluidType() != net.neoforged.neoforge.common.NeoForgeMod.LAVA_TYPE.value())) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidstate)) {
-                if (this.isInWater() || (this.isInFluidType(fluidstate) && !this.moveInFluid(fluidstate, travelVector, d0))) {
-                    double d9 = this.getY();
-                    float f4 = this.isSprinting() ? 0.9F : this.getWaterSlowDown();
-                    float f5 = 0.02F;
-                    float f6 = (float)this.getAttributeValue(Attributes.WATER_MOVEMENT_EFFICIENCY);
-                    if (!this.onGround()) {
-                        f6 *= 0.5F;
-                    }
-
-                    if (f6 > 0.0F) {
-                        f4 += (0.54600006F - f4) * f6;
-                        f5 += (this.getSpeed() - f5) * f6;
-                    }
-
-                    if (this.hasEffect(MobEffects.DOLPHINS_GRACE)) {
-                        f4 = 0.96F;
-                    }
-
-                    f5 *= (float)this.getAttributeValue(net.neoforged.neoforge.common.NeoForgeMod.SWIM_SPEED);
-                    this.moveRelative(f5, travelVector);
-                    this.move(MoverType.SELF, this.getDeltaMovement());
-                    Vec3 vec36 = this.getDeltaMovement();
-                    if (this.horizontalCollision && this.onClimbable()) {
-                        vec36 = new Vec3(vec36.x, 0.2, vec36.z);
-                    }
-
-                    this.setDeltaMovement(vec36.multiply(f4, 0.8F, f4));
-                    Vec3 vec32 = this.getFluidFallingAdjustedMovement(d0, flag, this.getDeltaMovement());
-                    this.setDeltaMovement(vec32);
-                    if (this.horizontalCollision && this.isFree(vec32.x, vec32.y + 0.6F - this.getY() + d9, vec32.z)) {
-                        this.setDeltaMovement(vec32.x, 0.3F, vec32.z);
-                    }
-                }
-            } else if (this.isInLava() && this.isAffectedByFluids() && !this.canStandOnFluid(fluidstate)) {
-                double d8 = this.getY();
-                this.moveRelative(0.02F, travelVector);
-                this.move(MoverType.SELF, this.getDeltaMovement());
-                if (this.getFluidHeight(FluidTags.LAVA) <= this.getFluidJumpThreshold()) {
-                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.8F, 0.5));
-                    Vec3 vec33 = this.getFluidFallingAdjustedMovement(d0, flag, this.getDeltaMovement());
-                    this.setDeltaMovement(vec33);
-                } else {
-                    this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
-                }
-
-                if (d0 != 0.0) {
-                    this.setDeltaMovement(this.getDeltaMovement().add(0.0, -d0 / 4.0, 0.0));
-                }
-
-                Vec3 vec34 = this.getDeltaMovement();
-                if (this.horizontalCollision && this.isFree(vec34.x, vec34.y + 0.6F - this.getY() + d8, vec34.z)) {
-                    this.setDeltaMovement(vec34.x, 0.3F, vec34.z);
-                }
-            } else if (this.isFallFlying()) {
-                this.checkSlowFallDistance();
-                Vec3 vec3 = this.getDeltaMovement();
-                Vec3 vec31 = this.getLookAngle();
-                float f = this.getXRot() * (float) (Math.PI / 180.0);
-                double d1 = Math.sqrt(vec31.x * vec31.x + vec31.z * vec31.z);
-                double d3 = vec3.horizontalDistance();
-                double d4 = vec31.length();
-                double d5 = Math.cos(f);
-                d5 = d5 * d5 * Math.min(1.0, d4 / 0.4);
-                vec3 = this.getDeltaMovement().add(0.0, d0 * (-1.0 + d5 * 0.75), 0.0);
-                if (vec3.y < 0.0 && d1 > 0.0) {
-                    double d6 = vec3.y * -0.1 * d5;
-                    vec3 = vec3.add(vec31.x * d6 / d1, d6, vec31.z * d6 / d1);
-                }
-
-                if (f < 0.0F && d1 > 0.0) {
-                    double d10 = d3 * (double)(-Mth.sin(f)) * 0.04;
-                    vec3 = vec3.add(-vec31.x * d10 / d1, d10 * 3.2, -vec31.z * d10 / d1);
-                }
-
-                if (d1 > 0.0) {
-                    vec3 = vec3.add((vec31.x / d1 * d3 - vec3.x) * 0.1, 0.0, (vec31.z / d1 * d3 - vec3.z) * 0.1);
-                }
-
-                this.setDeltaMovement(vec3.multiply(0.99F, 0.98F, 0.99F));
-                this.move(MoverType.SELF, this.getDeltaMovement());
-                if (this.horizontalCollision && !this.level().isClientSide) {
-                    double d11 = this.getDeltaMovement().horizontalDistance();
-                    double d7 = d3 - d11;
-                    float f1 = (float)(d7 * 10.0 - 3.0);
-                    if (f1 > 0.0F) {
-                        this.playSound(this.getFallDamageSound((int)f1), 1.0F, 1.0F);
-                        this.hurt(this.damageSources().flyIntoWall(), f1);
-                    }
-                }
-
-                if (this.onGround() && !this.level().isClientSide) {
-                    this.setSharedFlag(7, false);
-                }
-            } else {
-                BlockPos blockpos = this.getBlockPosBelowThatAffectsMyMovement();
-                float f2 = this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getFriction(level(), this.getBlockPosBelowThatAffectsMyMovement(), this);
-                float f3 = this.onGround() ? f2 * 0.91F : 0.98F;
-                Vec3 vec35 = this.handleRelativeFrictionAndCalculateMovement(travelVector, f2);
-                double d2 = vec35.y;
-                if (this.hasEffect(MobEffects.LEVITATION)) {
-                    d2 += (0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - vec35.y) * 0.2;
-                } else if (!this.level().isClientSide || this.level().hasChunkAt(blockpos)) {
-                    d2 -= d0;
-                } else if (this.getY() > (double)this.level().getMinBuildHeight()) {
-                    d2 = -0.1;
-                } else {
-                    d2 = 0.0;
-                }
-
-                if (this.shouldDiscardFriction()) {
-                    this.setDeltaMovement(vec35.x, d2, vec35.z);
-                } else {
-                    this.setDeltaMovement(vec35.x * (double)f3, this instanceof FlyingAnimal ? d2 * (double)f3 : d2 * 0.98F, vec35.z * (double)f3);
-                }
-            }
-        }
-
-        this.calculateEntityAnimation(this instanceof FlyingAnimal);
-    }
-
-    private SoundEvent getFallDamageSound(int height) {
-        return height > 4 ? this.getFallSounds().big() : this.getFallSounds().small();
-    }
+//    @Override
+//    public void travel(@NotNull Vec3 travelVector) {
+//        if (this.isControlledByLocalInstance()) {
+//            double d0 = this.getGravity();
+//            boolean flag = this.getDeltaMovement().y <= 0.0;
+//            if (flag && this.hasEffect(MobEffects.SLOW_FALLING)) {
+//                d0 = Math.min(d0, 0.01);
+//            }
+//
+//            FluidState fluidstate = this.level().getFluidState(this.blockPosition());
+//            if ((this.isInWater() || (this.isInFluidType(fluidstate) && fluidstate.getFluidType() != net.neoforged.neoforge.common.NeoForgeMod.LAVA_TYPE.value())) && this.isAffectedByFluids() && !this.canStandOnFluid(fluidstate)) {
+//                if (this.isInWater() || (this.isInFluidType(fluidstate) && !this.moveInFluid(fluidstate, travelVector, d0))) {
+//                    double d9 = this.getY();
+//                    float f4 = this.isSprinting() ? 0.9F : this.getWaterSlowDown();
+//                    float f5 = 0.02F;
+//                    float f6 = (float)this.getAttributeValue(Attributes.WATER_MOVEMENT_EFFICIENCY);
+//                    if (!this.onGround()) {
+//                        f6 *= 0.5F;
+//                    }
+//
+//                    if (f6 > 0.0F) {
+//                        f4 += (0.54600006F - f4) * f6;
+//                        f5 += (this.getSpeed() - f5) * f6;
+//                    }
+//
+//                    if (this.hasEffect(MobEffects.DOLPHINS_GRACE)) {
+//                        f4 = 0.96F;
+//                    }
+//
+//                    f5 *= (float)this.getAttributeValue(net.neoforged.neoforge.common.NeoForgeMod.SWIM_SPEED);
+//                    this.moveRelative(f5, travelVector);
+//                    this.move(MoverType.SELF, this.getDeltaMovement());
+//                    Vec3 vec36 = this.getDeltaMovement();
+//                    if (this.horizontalCollision && this.onClimbable()) {
+//                        vec36 = new Vec3(vec36.x, 0.2, vec36.z);
+//                    }
+//
+//                    this.setDeltaMovement(vec36.multiply(f4, 0.8F, f4));
+//                    Vec3 vec32 = this.getFluidFallingAdjustedMovement(d0, flag, this.getDeltaMovement());
+//                    this.setDeltaMovement(vec32);
+//                    if (this.horizontalCollision && this.isFree(vec32.x, vec32.y + 0.6F - this.getY() + d9, vec32.z)) {
+//                        this.setDeltaMovement(vec32.x, 0.3F, vec32.z);
+//                    }
+//                }
+//            } else if (this.isInLava() && this.isAffectedByFluids() && !this.canStandOnFluid(fluidstate)) {
+//                double d8 = this.getY();
+//                this.moveRelative(0.02F, travelVector);
+//                this.move(MoverType.SELF, this.getDeltaMovement());
+//                if (this.getFluidHeight(FluidTags.LAVA) <= this.getFluidJumpThreshold()) {
+//                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.5, 0.8F, 0.5));
+//                    Vec3 vec33 = this.getFluidFallingAdjustedMovement(d0, flag, this.getDeltaMovement());
+//                    this.setDeltaMovement(vec33);
+//                } else {
+//                    this.setDeltaMovement(this.getDeltaMovement().scale(0.5));
+//                }
+//
+//                if (d0 != 0.0) {
+//                    this.setDeltaMovement(this.getDeltaMovement().add(0.0, -d0 / 4.0, 0.0));
+//                }
+//
+//                Vec3 vec34 = this.getDeltaMovement();
+//                if (this.horizontalCollision && this.isFree(vec34.x, vec34.y + 0.6F - this.getY() + d8, vec34.z)) {
+//                    this.setDeltaMovement(vec34.x, 0.3F, vec34.z);
+//                }
+//            } else if (this.isFallFlying()) {
+//                this.checkSlowFallDistance();
+//                Vec3 vec3 = this.getDeltaMovement();
+//                Vec3 vec31 = this.getLookAngle();
+//                float f = this.getXRot() * (float) (Math.PI / 180.0);
+//                double d1 = Math.sqrt(vec31.x * vec31.x + vec31.z * vec31.z);
+//                double d3 = vec3.horizontalDistance();
+//                double d4 = vec31.length();
+//                double d5 = Math.cos(f);
+//                d5 = d5 * d5 * Math.min(1.0, d4 / 0.4);
+//                vec3 = this.getDeltaMovement().add(0.0, d0 * (-1.0 + d5 * 0.75), 0.0);
+//                if (vec3.y < 0.0 && d1 > 0.0) {
+//                    double d6 = vec3.y * -0.1 * d5;
+//                    vec3 = vec3.add(vec31.x * d6 / d1, d6, vec31.z * d6 / d1);
+//                }
+//
+//                if (f < 0.0F && d1 > 0.0) {
+//                    double d10 = d3 * (double)(-Mth.sin(f)) * 0.04;
+//                    vec3 = vec3.add(-vec31.x * d10 / d1, d10 * 3.2, -vec31.z * d10 / d1);
+//                }
+//
+//                if (d1 > 0.0) {
+//                    vec3 = vec3.add((vec31.x / d1 * d3 - vec3.x) * 0.1, 0.0, (vec31.z / d1 * d3 - vec3.z) * 0.1);
+//                }
+//
+//                this.setDeltaMovement(vec3.multiply(0.99F, 0.98F, 0.99F));
+//                this.move(MoverType.SELF, this.getDeltaMovement());
+//                if (this.horizontalCollision && !this.level().isClientSide) {
+//                    double d11 = this.getDeltaMovement().horizontalDistance();
+//                    double d7 = d3 - d11;
+//                    float f1 = (float)(d7 * 10.0 - 3.0);
+//                    if (f1 > 0.0F) {
+//                        this.playSound(this.getFallDamageSound((int)f1), 1.0F, 1.0F);
+//                        this.hurt(this.damageSources().flyIntoWall(), f1);
+//                    }
+//                }
+//
+//                if (this.onGround() && !this.level().isClientSide) {
+//                    this.setSharedFlag(7, false);
+//                }
+//            } else {
+//                BlockPos blockpos = this.getBlockPosBelowThatAffectsMyMovement();
+//                float f2 = this.level().getBlockState(this.getBlockPosBelowThatAffectsMyMovement()).getFriction(level(), this.getBlockPosBelowThatAffectsMyMovement(), this);
+//                float f3 = this.onGround() ? f2 * 0.91F : 0.98F;
+//                Vec3 vec35 = this.handleRelativeFrictionAndCalculateMovement(travelVector, f2);
+//                double d2 = vec35.y;
+//                if (this.hasEffect(MobEffects.LEVITATION)) {
+//                    d2 += (0.05 * (double)(this.getEffect(MobEffects.LEVITATION).getAmplifier() + 1) - vec35.y) * 0.2;
+//                } else if (!this.level().isClientSide || this.level().hasChunkAt(blockpos)) {
+//                    d2 -= d0;
+//                } else if (this.getY() > (double)this.level().getMinBuildHeight()) {
+//                    d2 = -0.1;
+//                } else {
+//                    d2 = 0.0;
+//                }
+//
+//                if (this.shouldDiscardFriction()) {
+//                    this.setDeltaMovement(vec35.x, d2, vec35.z);
+//                } else {
+//                    this.setDeltaMovement(vec35.x * (double)f3, this instanceof FlyingAnimal ? d2 * (double)f3 : d2 * 0.98F, vec35.z * (double)f3);
+//                }
+//            }
+//        }
+//
+//        this.calculateEntityAnimation(this instanceof FlyingAnimal);
+//    }
 
     @Override
     public boolean shouldDiscardFriction() {
-        return false;
+        return super.shouldDiscardFriction();
     }
 
     @Override
@@ -571,14 +536,20 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
                         Optional.of(living):
                         Optional.empty();
 
-        if(lastEntity.isPresent() && lastEntity.get()==target && super.canAttack(target) && MiscUtil.isSameEagleAttacking(target, this))
+        if(super.canAttack(target) && lastEntity.isPresent() && !lastEntity.get().isDeadOrDying() && lastEntity.get()==target && Primal_Util.isSameEagleAttacking(target, this))
+            return true;
+
+        if((this.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target))
+                && super.canAttack(target)
+                && Primal_Util.isSameEagleAttacking(target, this))
             return true;
 
         //Pass to the sensor to handle tamed logic
         if(this.isTame())
-            return super.canAttack(target) && MiscUtil.isNotNeverAttack(target) && MiscUtil.isSameEagleAttacking(target, this);
+            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target) && Primal_Util.isSameEagleAttacking(target, this);
 
-        return super.canAttack(target) && MiscUtil.isNotNeverAttack(target)
+        return super.canAttack(target)
+                && Primal_Util.isNotNeverAttack(target)
                 //Don't attack an eagle unless that eagle attacks first
                 && (!(target instanceof EagleEntity) && this.getLastHurtByMob()!=target)
                 &&
@@ -586,7 +557,9 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
                         ((target.getType().is(Primal_Tags.Entity.EAGLE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN))
                         //To attack the last one that hurt it
                         || this.getLastHurtByMob()==target)
-                && MiscUtil.isSameEagleAttacking(target, this);
+                //To no set attackable underwater
+                && !this.isUnderWater()
+                && Primal_Util.isSameEagleAttacking(target, this);
     }
 
     public boolean canPickUpEntity(@NotNull Entity target){
@@ -602,7 +575,6 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         //Eagle Size: 1.0166666507720947 * 1.049 = 1.0664833166599272
         return target.getBoundingBox().getSize()<this.getBoundingBox().getSize()*1.049 && this.isBaby();
     }
-
 
     @Override
     public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
@@ -623,12 +595,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         boolean hurt = super.hurt(source, amount);
 
         if(hurt){
-            //If receives more than the threshold of damage that when first got its pray, it dismounts it and gets confused for a few seconds
-            if(this.isVehicle() && this.getHealth() < (this.getHealthWhenStartRiding() - healthLossToBeReleased)){
-                this.ejectPassengers();
-
-                this.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.IS_STUNNED.get(), true, 60L);
-            }
+            this.hurtAndReleasePassenger(2, 60L);
 
             if (source.getEntity() instanceof LivingEntity target
                     //Not be angry with creative player
@@ -638,11 +605,11 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
                     //Not be angry other owned eagle
                     && !(target instanceof EagleEntity eagle2 && eagle2.getOwner()!=null && eagle2.getOwner()==this.getOwner())
             ) {
-                EagleAi.wasHurtBy(this, target);
+                Primal_Util.Ai.wasHurtByAndAttacks(this, target, EagleEntity.class, false, false, true);
             }
 
             if(source.getEntity()!=null && source.getEntity() instanceof LivingEntity target)
-                this.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, target, this.level().getRandom().nextIntBetweenInclusive(60, 100));
+                this.getBrain().setMemoryWithExpiry(MemoryModuleType.AVOID_TARGET, target, this.level().getRandom().nextIntBetweenInclusive(20, 80));
         }
 
         return hurt;
@@ -696,21 +663,15 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         ItemStack stackInHand = player.getItemInHand(hand);
 
         //To handle dye collar logic
-        if (stackInHand.getItem() instanceof DyeItem dyeitem && this.isOwnedBy(player)) {
-            DyeColor dyecolor = dyeitem.getDyeColor();
-            if (dyecolor != this.getCollarColor()) {
-                this.setCollarColor(dyecolor);
-                stackInHand.consume(1, player);
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
-            }
-        }
+        if (this.dyeCollar(player, hand))
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
 
         //To handle food logic
         if(this.isFood(stackInHand)){
             boolean wasFeed = this.handleEating(player, stackInHand);
             if (wasFeed) {
-                stackInHand.consume(1, player);
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
+                this.usePlayerItem(player, hand, stackInHand);
+                return InteractionResult.SUCCESS;
             }
         }
 
@@ -721,29 +682,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         return InteractionResult.PASS;
     }
 
-    public InteractionResult changeFollowState(Player player, InteractionHand hand){
-        if(player!=this.getOwner()){
-            if (this.level().isClientSide) {
-                return InteractionResult.CONSUME;
-            } else {
-                return InteractionResult.PASS;
-            }
-        }
-
-        if(!this.level().isClientSide && hand.equals(InteractionHand.MAIN_HAND)){
-            this.setFollowerState(this.isWandering()? 1: this.isFollowing()? 2: 0);
-
-            player.displayClientMessage(Component.translatable(
-                    this.isFollowing()? "primal.gui.animal_following":
-                            this.isSitting()? "primal.gui.animal_sitting":
-                                    "primal.gui.animal_wandering",
-                    this.getName()), true);
-        }
-
-        return InteractionResult.sidedSuccess(this.level().isClientSide());
-    }
-
-    protected boolean handleEating(@NotNull Player player, @NotNull ItemStack stack) {
+    public boolean handleEating(@NotNull Player player, @NotNull ItemStack stack) {
         if (this.isFood(stack)) {
             //To try to mate
             if(isMatingFood(stack) && !this.level().isClientSide){
@@ -795,29 +734,116 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
     //Misc
     @Override
+    protected @NotNull Vec3 getLeashOffset() {
+        return new Vec3(0.0, this.getEyeHeight()*0.7f, this.getBbWidth() * 0.2F);
+    }
+
+    @Override
     public void handleEntityEvent(byte id) {
         if (id == 13) {
-            this.addParticlesAroundSelf(ParticleTypes.ANGRY_VILLAGER);
+            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.ANGRY_VILLAGER, 5);
         } else if (id == 14) {
-            this.addParticlesAroundSelf(ParticleTypes.HAPPY_VILLAGER);
+            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.HAPPY_VILLAGER, 5);
         } else {
             super.handleEntityEvent(id);
         }
     }
 
     @Override
-    public boolean shouldTryTeleportToOwner() {
-        LivingEntity livingentity = this.getOwner();
-        return livingentity != null && this.distanceToSqr(this.getOwner()) >= 225.0;
+    public boolean isEntityTargetable(LivingEntity attacker, LivingEntity target) {
+        return attacker.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target)
+                ? Primal_Util.Ai.getTargetConditions(48, true).test(attacker, target)
+                : Primal_Util.Ai.getTargetConditions(48, false).test(attacker, target);
     }
 
-    protected void addParticlesAroundSelf(ParticleOptions particleOption) {
+    @Override
+    public boolean isEntityAttackable(LivingEntity attacker, LivingEntity target) {
+        return attacker.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target)
+                ? Primal_Util.Ai.getTargetConditions(48, true).test(attacker, target)
+                : Primal_Util.Ai.getTargetConditions(48, false).test(attacker, target);
+    }
+
+    @Override
+    public boolean shouldTryTeleportToOwner() {
+        LivingEntity owner = this.getOwner();
+        if(owner == null) return false;
+
+        if(this.onGround())
+            return this.distanceToSqr(this.getOwner()) >= (15*15);
+        else
+            return this.distanceToSqr(this.getOwner()) >= (25*25);
+    }
+
+    @Override
+    protected void teleportToAroundBlockPos(@NotNull BlockPos pos) {
+        // ---- PASS 1: prefer ground ----
         for (int i = 0; i < 5; i++) {
-            double d0 = this.random.nextGaussian() * 0.02;
-            double d1 = this.random.nextGaussian() * 0.02;
-            double d2 = this.random.nextGaussian() * 0.02;
-            this.level().addParticle(particleOption, this.getRandomX(1.0), this.getRandomY() + 1.0, this.getRandomZ(1.0), d0, d1, d2);
+            int j = this.random.nextIntBetweenInclusive(-3, 3);
+            int k = this.random.nextIntBetweenInclusive(-3, 3);
+
+            if (Math.abs(j) >= 2 || Math.abs(k) >= 2) {
+                int x = pos.getX() + j;
+                int z = pos.getZ() + k;
+
+                // find ground below owner Y
+                int y = findGroundY(x, pos.getY(), z);
+
+                if (y != Integer.MIN_VALUE) {
+                    if (this.maybeTeleportTo(x, y, z)) {
+                        return;
+                    }
+                }
+            }
         }
+
+        // ---- PASS 2: allow air teleport (elytra / flying follow) ----
+        for (int i = 0; i < 10; i++) {
+            int j = this.random.nextIntBetweenInclusive(-3, 3);
+            int k = this.random.nextIntBetweenInclusive(-3, 3);
+
+            if (Math.abs(j) >= 2 || Math.abs(k) >= 2) {
+                int l = this.random.nextIntBetweenInclusive(-1, 1);
+                if (this.maybeTeleportTo(pos.getX() + j, pos.getY() + l, pos.getZ() + k)) {
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public @NotNull AABB getHitbox() {
+        return super.getHitbox().inflate(-0.2);
+    }
+
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity entity) {
+        return this.getAttackBoundingBox().inflate(0.5).intersects(entity.getHitbox());
+    }
+
+    private int findGroundY(int x, int startY, int z) {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, startY, z);
+
+        int minY = Math.max(startY - 2, this.level().getMinBuildHeight());
+
+        for (int y = startY; y >= minY; y--) {
+            pos.setY(y);
+
+            BlockState state = this.level().getBlockState(pos);
+            BlockState below = this.level().getBlockState(pos.below());
+
+            if (state.isAir() && below.isSolid()) {
+                return y;
+            }
+        }
+
+        return Integer.MIN_VALUE;
+    }
+
+    //Teleports to any block, even air blocks
+    @Override
+    protected boolean canTeleportTo(@NotNull BlockPos pos) {
+        BlockPos blockpos = pos.subtract(this.blockPosition());
+        return this.level().noCollision(this, this.getBoundingBox().move(blockpos));
     }
 
     protected boolean playEatingSound(){
@@ -833,6 +859,11 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         }
 
         return true;
+    }
+
+    @Override
+    public boolean showVehicleHealth() {
+        return false;
     }
 
     //Sounds

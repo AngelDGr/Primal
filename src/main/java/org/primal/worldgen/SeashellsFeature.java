@@ -3,6 +3,7 @@ package org.primal.worldgen;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.SimpleBlockConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.primal.block.SeashellsBlock;
+import org.primal.util.block_types.Snowloggable;
 
 public class SeashellsFeature extends Feature<SimpleBlockConfiguration> {
     public SeashellsFeature(Codec<SimpleBlockConfiguration> codec) {
@@ -24,8 +26,12 @@ public class SeashellsFeature extends Feature<SimpleBlockConfiguration> {
         BlockState blockstate = simpleblockconfiguration.toPlace().getState(context.random(), blockpos);
         if (blockstate.canSurvive(level, blockpos)) {
 
+            Biome biome = level.getBiome(blockpos).value();
             if(level.getBlockState(blockpos).is(Blocks.WATER))
                 blockstate= blockstate.setValue(SeashellsBlock.WATERLOGGED, true);
+            else if (biome.shouldSnow(level, blockpos)) {
+                blockstate = blockstate.setValue(Snowloggable.SNOWY, true);
+            }
 
             level.setBlock(blockpos, blockstate, 2);
 

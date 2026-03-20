@@ -1,0 +1,8 @@
+{
+  "comparator_output": 10,
+  "description": {
+    "translate": "jukebox_song.primal.oh_deer"
+  },
+  "length_in_seconds": 175.0,
+  "sound_event": "primal:music_disc.oh_deer"
+}

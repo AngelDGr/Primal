@@ -1,0 +1,11 @@
+{
+  "values": [
+    "minecraft:cold_ocean",
+    "minecraft:deep_cold_ocean",
+    "minecraft:snowy_beach",
+    {
+      "id": "nomansland:frozen_shore",
+      "required": false
+    }
+  ]
+}

@@ -26,14 +26,14 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.EagleEntity;
 import org.primal.registry.Primal_Entities;
-import org.primal.util.AnimalEgg;
-import org.primal.util.MiscUtil;
+import org.primal.util.block_types.AnimalEgg;
+import org.primal.util.Primal_Util;
 
 import javax.annotation.Nullable;
 
 public class EagleEgg extends Block implements AnimalEgg {
     public static final MapCodec<EagleEgg> CODEC = simpleCodec(EagleEgg::new);
-    public static final IntegerProperty EGGS = MiscUtil.EGGS_2;
+    public static final IntegerProperty EGGS = Primal_Util.EGGS_2;
 
     public EagleEgg(Properties properties) {
         super(properties);

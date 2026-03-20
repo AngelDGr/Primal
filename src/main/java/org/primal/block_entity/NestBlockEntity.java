@@ -21,7 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
-import org.primal.util.AnimalEgg;
+import org.primal.util.block_types.AnimalEgg;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -48,7 +48,7 @@ public class NestBlockEntity extends BlockEntity {
 
     @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
-        return this.saveCustomOnly(registries); // what you already had
+        return this.saveCustomOnly(registries);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class NestBlockEntity extends BlockEntity {
                 //Get all entities nearby, then filters them by the same type as the egg
                 List<Entity> allEntitiesList = this.getLevel().getEntitiesOfClass(
                                 Entity.class,
-                                new AABB(this.getBlockPos()).inflate(10))
+                                new AABB(this.getBlockPos()).inflate(40))
                         .stream().filter(
                                 entity -> entity.getType() == animalEgg.getAnimal().get())
                         .toList();

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "primal:block/thorny_acacia_log",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "primal:block/thorny_acacia_log"
+    },
+    "axis=z": {
+      "model": "primal:block/thorny_acacia_log",
+      "x": 90
+    }
+  }
+}

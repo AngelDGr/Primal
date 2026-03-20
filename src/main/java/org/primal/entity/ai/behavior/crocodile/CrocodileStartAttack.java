@@ -57,7 +57,7 @@ public class CrocodileStartAttack extends Behavior<CrocodileEntity> {
             target.startRiding(crocodile);
             crocodile.setHealthWhenStartRiding(crocodile.getHealth());
             crocodile.setPose(Pose.SPIN_ATTACK);
-            crocodile.getBrain().setMemory(Primal_MemoryModuleTypes.IS_THRASHING.get(), true);
+            crocodile.getBrain().setMemory(Primal_MemoryModuleTypes.IS_GRABBING.get(), true);
 
             stop(level, crocodile, gameTime);
         } else {

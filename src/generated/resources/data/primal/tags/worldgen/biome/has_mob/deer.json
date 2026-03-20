@@ -1,0 +1,12 @@
+{
+  "values": [
+    "minecraft:birch_forest",
+    "minecraft:old_growth_birch_forest",
+    "minecraft:flower_forest",
+    "minecraft:meadow",
+    "minecraft:cherry_grove",
+    "#primal:has_mob/has_variant/deer/musk",
+    "#primal:has_mob/has_variant/deer/reindeer",
+    "#primal:has_mob/has_variant/deer/whitetail"
+  ]
+}

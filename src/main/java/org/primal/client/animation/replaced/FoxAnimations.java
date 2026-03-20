@@ -21,60 +21,56 @@ public class FoxAnimations {
 
     public static AnimationController<FoxReplaced> mainController(FoxReplaced animatable) {
         return new AnimationController<>(animatable, state -> {
-            Fox fox= animatable.getEntityFromState(state);
-
-            double speed = fox.getDeltaMovement().length();
+            state.getController().transitionLength(2);
             state.setControllerSpeed(1);
-            state.getController().transitionLength(0);
+            Fox fox= animatable.getEntityFromState(state);
+            double speed = fox.getDeltaMovement().length();
 
-            if (state.getController().isPlayingTriggeredAnimation()) {
-                state.getController().transitionLength(5);
-                return PlayState.CONTINUE;
-            }
-
-            if(fox.isFaceplanted()){
-                state.getController().transitionLength(0);
-                state.setControllerSpeed(1);
-                return state.setAndContinue(STUCK);
-            }
-            else if(fox.isSitting()){
-                state.getController().transitionLength(0);
-                state.setControllerSpeed(1);
-                return state.setAndContinue(SIT);
-            } else if(fox.isPouncing()){
-                state.getController().transitionLength(5);
-                state.setControllerSpeed(1);
-                return state.setAndContinue(POUNCE);
-            } else if(fox.isSleeping()){
-                state.getController().transitionLength(5);
-                state.setControllerSpeed(1);
-                return state.setAndContinue(SLEEP);
-            }
-
-            if (state.isMoving()) {
-                if(fox.isCrouching() || fox.isInterested()){
-                    state.getController().transitionLength(5);
-                    state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 2 : 1f));
-                    return state.setAndContinue(SNEAK);
-                }
-                else if ((fox.isAggressive() || speed>0.18) && !fox.isInWater()) {
-                    state.getController().transitionLength(2);
-                    state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 2 : 1f));
-                    return state.setAndContinue(RUN);
-                }
-                //Walk
-                else {
-                    state.getController().transitionLength(2);
-                    state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 8 : 5));
-                    return state.setAndContinue(WALK);
+            //──────────────────────────────────── Triggered ────────────────────────────────────
+            {
+                if (state.getController().isPlayingTriggeredAnimation()) {
+                    state.getController().transitionLength(0);
+                    return PlayState.CONTINUE;
                 }
             }
 
+            //────────────────────────────────────    Pose   ────────────────────────────────────
+            {
+                if (fox.isFaceplanted()) {
+                    return state.setAndContinue(STUCK);
+                } else if (fox.isSitting()) {
+                    return state.setAndContinue(SIT);
+                } else if (fox.isPouncing() && !fox.onGround()) {
+                    return state.setAndContinue(POUNCE);
+                } else if (fox.isSleeping()) {
+                    return state.setAndContinue(SLEEP);
+                }
+            }
 
+            //────────────────────────────────────  Movement ────────────────────────────────────
+            {
+                if (state.isMoving()) {
+                    if (fox.isCrouching() || fox.isInterested()) {
+                        state.getController().transitionLength(5);
+                        state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 2 : 1f));
+                        return state.setAndContinue(SNEAK);
+                    } else if ((fox.isAggressive() || speed > 0.18) && !fox.isInWater()) {
+                        state.getController().transitionLength(2);
+                        state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 2 : 1f));
+                        return state.setAndContinue(RUN);
+                    }
+                    else {
+                        state.getController().transitionLength(2);
+                        state.setControllerSpeed(state.getLimbSwingAmount() * (fox.isBaby() ? 8 : 5));
+                        return state.setAndContinue(WALK);
+                    }
+                }
+            }
+
+            //────────────────────────────────────    Idle   ────────────────────────────────────
             state.setControllerSpeed(fox.isInWater()? 0.3f: 1f);
-            state.getController().transitionLength(20);
             return state.setAndContinue(fox.isInWater()? WALK :IDLE);
-        });
+        }).receiveTriggeredAnimations()
+                .triggerableAnim("unstuck", FoxAnimations.UNSTUCK);
     }
-
 }

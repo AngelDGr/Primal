@@ -1,4 +1,66 @@
 {
+  "block.chomp_trap.break": {
+    "sounds": [
+      "random/break"
+    ],
+    "subtitle": "subtitles.primal.block.chomp_trap.break"
+  },
+  "block.chomp_trap.close": {
+    "sounds": [
+      "primal:entity/crocodile/crocodile_attack1",
+      "primal:entity/crocodile/crocodile_attack2",
+      "primal:entity/crocodile/crocodile_attack3"
+    ],
+    "subtitle": "subtitles.primal.block.chomp_trap.close"
+  },
+  "block.chomp_trap.repair": {
+    "sounds": [
+      "block/smithing_table/smithing_table1",
+      "block/smithing_table/smithing_table2",
+      "block/smithing_table/smithing_table3"
+    ],
+    "subtitle": "subtitles.primal.block.chomp_trap.repair"
+  },
+  "block.dreamcatcher.attack": {
+    "sounds": [
+      "block/conduit/attack1",
+      "block/conduit/attack2",
+      "block/conduit/attack3"
+    ],
+    "subtitle": "subtitles.primal.block.dreamcatcher.attack"
+  },
+  "block.hollow_log.offspring": {
+    "sounds": [
+      {
+        "name": "mob/chicken/plop",
+        "pitch": 0.6
+      },
+      {
+        "name": "mob/chicken/plop",
+        "pitch": 0.7
+      },
+      {
+        "name": "mob/chicken/plop",
+        "pitch": 0.8
+      }
+    ],
+    "subtitle": "subtitles.primal.block.hollow_log.offspring"
+  },
+  "block.nest.places_egg": {
+    "sounds": [
+      "mob/chicken/plop"
+    ],
+    "subtitle": "subtitles.primal.block.nest.places_egg"
+  },
+  "block.nest.removes_egg": {
+    "sounds": [
+      {
+        "name": "mob/chicken/plop",
+        "pitch": 0.4
+      }
+    ],
+    "subtitle": "subtitles.primal.block.nest.removes_egg"
+  },
   "entity.bear.death": {
     "sounds": [
       "primal:entity/bear/bear_death1",
@@ -61,6 +123,50 @@
       "primal:entity/bear/bear_wake_up1"
     ],
     "subtitle": "subtitles.primal.entity.bear.wake_up"
+  },
+  "entity.cassowary.death": {
+    "sounds": [
+      "primal:entity/cassowary/cassowary_death1"
+    ],
+    "subtitle": "subtitles.primal.entity.cassowary.death"
+  },
+  "entity.cassowary.eat": {
+    "sounds": [
+      "mob/parrot/eat1",
+      "mob/parrot/eat2",
+      "mob/parrot/eat3"
+    ],
+    "subtitle": "subtitles.primal.entity.cassowary.eat"
+  },
+  "entity.cassowary.hurt": {
+    "sounds": [
+      "primal:entity/cassowary/cassowary_hurt1",
+      "primal:entity/cassowary/cassowary_hurt2",
+      "primal:entity/cassowary/cassowary_hurt3",
+      "primal:entity/cassowary/cassowary_hurt4"
+    ],
+    "subtitle": "subtitles.primal.entity.cassowary.hurt"
+  },
+  "entity.cassowary.idle": {
+    "sounds": [
+      "primal:entity/cassowary/cassowary_idle1",
+      "primal:entity/cassowary/cassowary_idle2",
+      "primal:entity/cassowary/cassowary_idle3"
+    ],
+    "subtitle": "subtitles.primal.entity.cassowary.idle"
+  },
+  "entity.cassowary.lunge": {
+    "sounds": [
+      "primal:entity/cassowary/cassowary_lunge1",
+      "primal:entity/cassowary/cassowary_lunge2"
+    ],
+    "subtitle": "subtitles.primal.entity.cassowary.lunge"
+  },
+  "entity.cassowary.plop": {
+    "sounds": [
+      "mob/chicken/plop"
+    ],
+    "subtitle": "subtitles.primal.entity.cassowary.plop"
   },
   "entity.crocodile.attack": {
     "sounds": [
@@ -129,6 +235,56 @@
       "primal:entity/crocodile/crocodile_vomit4"
     ],
     "subtitle": "subtitles.primal.entity.crocodile.vomit"
+  },
+  "entity.deer.antler_break": {
+    "sounds": [
+      "mob/goat/horn_break1",
+      "mob/goat/horn_break2",
+      "mob/goat/horn_break3",
+      "mob/goat/horn_break4"
+    ],
+    "subtitle": "subtitles.primal.entity.deer.antler_break"
+  },
+  "entity.deer.death": {
+    "sounds": [
+      "primal:entity/deer/deer_death1"
+    ],
+    "subtitle": "subtitles.primal.entity.deer.death"
+  },
+  "entity.deer.eat": {
+    "sounds": [
+      "mob/panda/eat1",
+      "mob/panda/eat2",
+      "mob/panda/eat3",
+      "mob/panda/eat4",
+      "mob/panda/eat5",
+      "mob/panda/eat6"
+    ],
+    "subtitle": "subtitles.primal.entity.deer.eat"
+  },
+  "entity.deer.hurt": {
+    "sounds": [
+      "primal:entity/deer/deer_hurt1",
+      "primal:entity/deer/deer_hurt2",
+      "primal:entity/deer/deer_hurt3",
+      "primal:entity/deer/deer_hurt4"
+    ],
+    "subtitle": "subtitles.primal.entity.deer.hurt"
+  },
+  "entity.deer.idle": {
+    "sounds": [
+      "primal:entity/deer/deer_idle1",
+      "primal:entity/deer/deer_idle2",
+      "primal:entity/deer/deer_idle3"
+    ],
+    "subtitle": "subtitles.primal.entity.deer.idle"
+  },
+  "entity.deer.ram_impact": {
+    "sounds": [
+      "mob/goat/impact1",
+      "mob/goat/impact2"
+    ],
+    "subtitle": "subtitles.primal.entity.deer.ram_impact"
   },
   "entity.eagle.death": {
     "sounds": [
@@ -222,11 +378,59 @@
     ],
     "subtitle": "subtitles.primal.entity.generic.lays_egg"
   },
-  "entity.generic.places_egg": {
+  "entity.lion.death": {
     "sounds": [
-      "mob/chicken/plop"
+      "primal:entity/lion/lion_death1"
     ],
-    "subtitle": "subtitles.primal.entity.generic.places_egg"
+    "subtitle": "subtitles.primal.entity.lion.death"
+  },
+  "entity.lion.eat": {
+    "sounds": [
+      "mob/sniffer/eat1",
+      "mob/sniffer/eat2",
+      "mob/sniffer/eat3"
+    ],
+    "subtitle": "subtitles.primal.entity.lion.eat"
+  },
+  "entity.lion.hurt": {
+    "sounds": [
+      "primal:entity/lion/lion_hurt1",
+      "primal:entity/lion/lion_hurt2",
+      "primal:entity/lion/lion_hurt3"
+    ],
+    "subtitle": "subtitles.primal.entity.lion.hurt"
+  },
+  "entity.lion.idle": {
+    "sounds": [
+      "primal:entity/lion/lion_idle1",
+      "primal:entity/lion/lion_idle2",
+      "primal:entity/lion/lion_idle3"
+    ],
+    "subtitle": "subtitles.primal.entity.lion.idle"
+  },
+  "entity.lion.idle_angry": {
+    "sounds": [
+      "primal:entity/lion/lion_idle_angry1",
+      "primal:entity/lion/lion_idle_angry2",
+      "primal:entity/lion/lion_idle_angry3"
+    ],
+    "subtitle": "subtitles.primal.entity.lion.idle_angry"
+  },
+  "entity.lion.roar": {
+    "sounds": [
+      "primal:entity/lion/lion_roar1",
+      "primal:entity/lion/lion_roar2"
+    ],
+    "subtitle": "subtitles.primal.entity.lion.roar"
+  },
+  "entity.lion.snoring": {
+    "sounds": [
+      "primal:entity/lion/lion_snoring1",
+      "primal:entity/lion/lion_snoring2",
+      "primal:entity/lion/lion_snoring3",
+      "primal:entity/lion/lion_snoring4"
+    ],
+    "subtitle": "subtitles.primal.entity.lion.snoring"
   },
   "entity.shark.attack": {
     "sounds": [
@@ -269,6 +473,196 @@
     ],
     "subtitle": "subtitles.primal.entity.shark.idle"
   },
+  "entity.snake.break_skin": {
+    "sounds": [
+      {
+        "name": "block/sweet_berry_bush/break1",
+        "pitch": 1.4
+      },
+      {
+        "name": "block/sweet_berry_bush/break2",
+        "pitch": 1.4
+      },
+      {
+        "name": "block/sweet_berry_bush/break3",
+        "pitch": 1.4
+      },
+      {
+        "name": "block/sweet_berry_bush/break4",
+        "pitch": 1.4
+      }
+    ],
+    "subtitle": "subtitles.primal.entity.snake.break_skin"
+  },
+  "entity.snake.death": {
+    "sounds": [
+      "primal:entity/snake/snake_death1"
+    ],
+    "subtitle": "subtitles.primal.entity.snake.death"
+  },
+  "entity.snake.gulp": {
+    "sounds": [
+      "item/bottle/drink_honey1",
+      "item/bottle/drink_honey2"
+    ],
+    "subtitle": "subtitles.primal.entity.snake.gulp"
+  },
+  "entity.snake.hurt": {
+    "sounds": [
+      "primal:entity/snake/snake_hurt1",
+      "primal:entity/snake/snake_hurt2",
+      "primal:entity/snake/snake_hurt3"
+    ],
+    "subtitle": "subtitles.primal.entity.snake.hurt"
+  },
+  "entity.snake.idle": {
+    "sounds": [
+      "primal:entity/snake/snake_idle1",
+      "primal:entity/snake/snake_idle2",
+      "primal:entity/snake/snake_idle3",
+      "primal:entity/snake/snake_idle4"
+    ],
+    "subtitle": "subtitles.primal.entity.snake.idle"
+  },
+  "entity.snake.pop_in": {
+    "sounds": [
+      {
+        "attenuation_distance": 14,
+        "name": "primal:entity/snake/snake_pop_in1",
+        "pitch": 0.7
+      },
+      {
+        "attenuation_distance": 14,
+        "name": "primal:entity/snake/snake_pop_in1",
+        "pitch": 0.8
+      }
+    ],
+    "subtitle": "subtitles.primal.entity.snake.pop_in"
+  },
+  "entity.snake.pop_out": {
+    "sounds": [
+      {
+        "attenuation_distance": 14,
+        "name": "primal:entity/snake/snake_pop_out1"
+      },
+      {
+        "attenuation_distance": 14,
+        "name": "primal:entity/snake/snake_pop_out1",
+        "pitch": 0.9
+      },
+      {
+        "attenuation_distance": 14,
+        "name": "primal:entity/snake/snake_pop_out1",
+        "pitch": 1.1
+      }
+    ],
+    "subtitle": "subtitles.primal.entity.snake.pop_out"
+  },
+  "entity.snake.snoring": {
+    "sounds": [
+      {
+        "attenuation_distance": 12,
+        "name": "primal:entity/snake/snake_snoring1",
+        "volume": 0.6
+      },
+      {
+        "attenuation_distance": 12,
+        "name": "primal:entity/snake/snake_snoring2",
+        "volume": 0.6
+      },
+      {
+        "attenuation_distance": 12,
+        "name": "primal:entity/snake/snake_snoring3",
+        "volume": 0.6
+      },
+      {
+        "attenuation_distance": 12,
+        "name": "primal:entity/snake/snake_snoring4",
+        "volume": 0.6
+      }
+    ],
+    "subtitle": "subtitles.primal.entity.snake.snoring"
+  },
+  "entity.walrus.death": {
+    "sounds": [
+      "primal:entity/walrus/walrus_death1"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.death"
+  },
+  "entity.walrus.eat": {
+    "sounds": [
+      {
+        "name": "mob/dolphin/eat1",
+        "pitch": 0.5
+      },
+      {
+        "name": "mob/dolphin/eat2",
+        "pitch": 0.5
+      },
+      {
+        "name": "mob/dolphin/eat3",
+        "pitch": 0.5
+      }
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.eat"
+  },
+  "entity.walrus.hurt": {
+    "sounds": [
+      "primal:entity/walrus/walrus_hurt1",
+      "primal:entity/walrus/walrus_hurt2",
+      "primal:entity/walrus/walrus_hurt3"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.hurt"
+  },
+  "entity.walrus.idle": {
+    "sounds": [
+      "primal:entity/walrus/walrus_idle1",
+      "primal:entity/walrus/walrus_idle2",
+      "primal:entity/walrus/walrus_idle3",
+      "primal:entity/walrus/walrus_idle4",
+      "primal:entity/walrus/walrus_idle5"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.idle"
+  },
+  "entity.walrus.slam": {
+    "sounds": [
+      "primal:entity/walrus/walrus_slam1",
+      "primal:entity/walrus/walrus_slam2"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.slam"
+  },
+  "entity.walrus.step": {
+    "sounds": [
+      "primal:entity/walrus/walrus_step1",
+      "primal:entity/walrus/walrus_step2",
+      "primal:entity/walrus/walrus_step3",
+      "primal:entity/walrus/walrus_step4",
+      "primal:entity/walrus/walrus_step5",
+      "primal:entity/walrus/walrus_step6"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.step"
+  },
+  "entity.walrus.whirlwind": {
+    "sounds": [
+      "primal:entity/walrus/walrus_whirlwind1",
+      "primal:entity/walrus/walrus_whirlwind2"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.whirlwind"
+  },
+  "entity.walrus.whistle": {
+    "sounds": [
+      "primal:entity/walrus/walrus_whistle1",
+      "primal:entity/walrus/walrus_whistle2",
+      "primal:entity/walrus/walrus_whistle3"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.whistle"
+  },
+  "entity.walrus.whistle_rare": {
+    "sounds": [
+      "primal:entity/walrus/walrus_whistle_rare1"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.whistle_rare"
+  },
   "entity.zombie.destroy_generic_egg": {
     "sounds": [
       "mob/turtle/egg/jump_egg1",
@@ -277,5 +671,99 @@
       "mob/turtle/egg/jump_egg4"
     ],
     "subtitle": "subtitles.primal.entity.zombie.destroy_generic_egg"
+  },
+  "item.conch_shell.bind": {
+    "sounds": [
+      "block/conduit/activate"
+    ],
+    "subtitle": "subtitles.primal.item.conch_shell.bind"
+  },
+  "item.conch_shell.call": {
+    "sounds": [
+      "primal:item/conch_shell/call1",
+      "primal:item/conch_shell/call2",
+      "primal:item/conch_shell/call3"
+    ],
+    "subtitle": "subtitles.primal.item.conch_shell.call"
+  },
+  "item.exploseed.throw": {
+    "sounds": [
+      "random/bow"
+    ],
+    "subtitle": "subtitles.primal.item.exploseed.throw"
+  },
+  "music_disc.oh_deer": {
+    "sounds": [
+      {
+        "name": "primal:records/oh_deer",
+        "stream": true
+      }
+    ]
+  },
+  "walrus.song.crab": {
+    "sounds": [
+      "primal:records/walrus/crab"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.driftveil_city": {
+    "sounds": [
+      "primal:records/walrus/driftveil_city"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.fur_elise": {
+    "sounds": [
+      "primal:records/walrus/fur_elise"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.megalovania": {
+    "sounds": [
+      "primal:records/walrus/megalovania"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.oiia_oiia": {
+    "sounds": [
+      "primal:records/walrus/oiia_oiia"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.rasputin": {
+    "sounds": [
+      "primal:records/walrus/rasputin"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.revenge": {
+    "sounds": [
+      "primal:records/walrus/revenge"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.rickroll": {
+    "sounds": [
+      "primal:records/walrus/rickroll"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.saria": {
+    "sounds": [
+      "primal:records/walrus/saria"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.tes": {
+    "sounds": [
+      "primal:records/walrus/tes"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
+  },
+  "walrus.song.tloz": {
+    "sounds": [
+      "primal:records/walrus/tloz"
+    ],
+    "subtitle": "subtitles.primal.entity.walrus.song"
   }
 }

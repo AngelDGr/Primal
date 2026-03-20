@@ -1,0 +1,6 @@
+{
+  "parent": "primal:block/template_seashells_1",
+  "textures": {
+    "texture": "primal:block/cold_seashells"
+  }
+}

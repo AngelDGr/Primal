@@ -1,7 +1,6 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench - Natsirt",
-	"parent": "crocodile_egg",
 	"texture_size": [32, 32],
 	"textures": {
 		"particle": "primal:block/crocodile_egg_particle"

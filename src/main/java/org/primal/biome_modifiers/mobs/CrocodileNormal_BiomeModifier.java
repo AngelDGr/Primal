@@ -10,14 +10,14 @@ import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Tags;
-import org.primal.util.MiscUtil;
+import org.primal.util.Primal_Util;
 
 public class CrocodileNormal_BiomeModifier implements BiomeModifier {
 
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_CROCODILE,
+            Primal_Util.Generation.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_CROCODILE,
                     Primal_Main.COMMON_CONFIG.crocodileNormalExtraBiomes.get().stream().map(Object::toString).toList(),
                     Primal_Main.COMMON_CONFIG.enableCrocodileNormalSpawn.get(),
                     Primal_Main.COMMON_CONFIG.crocodileNormalSpawnWeight.get(),
@@ -29,7 +29,7 @@ public class CrocodileNormal_BiomeModifier implements BiomeModifier {
 
     @Override
     public @NotNull MapCodec<? extends BiomeModifier> codec() {
-        return MiscUtil.createBiomeModifierSerializer("crocodile_normal_spawn").get();
+        return Primal_Util.Generation.createBiomeModifierSerializer("crocodile_normal_spawn").get();
     }
 
     public static void register() {

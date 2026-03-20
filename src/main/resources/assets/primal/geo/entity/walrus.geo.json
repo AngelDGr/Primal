@@ -1,0 +1,154 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 168,
+				"texture_height": 168,
+				"visible_bounds_width": 5,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "walrus",
+					"pivot": [0, 8, 2]
+				},
+				{
+					"name": "body_rear",
+					"parent": "walrus",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "body",
+					"parent": "body_rear",
+					"pivot": [0, 10.05, 2]
+				},
+				{
+					"name": "body_squish",
+					"parent": "body",
+					"pivot": [0, 0.05, 2],
+					"cubes": [
+						{"origin": [-8, 0.05, -11], "size": [16, 16, 28], "uv": [0, 39]},
+						{"origin": [-8.5, 9.8, 3], "size": [17, 7, 12], "uv": [68, 8]},
+						{"origin": [-8.5, 16.8, 12], "size": [17, 2, 3], "uv": [88, 0]}
+					]
+				},
+				{
+					"name": "head",
+					"parent": "body",
+					"pivot": [0, 8.05, -4],
+					"cubes": [
+						{"origin": [-7, 4.05, -12], "size": [14, 25, 15], "uv": [60, 27]}
+					]
+				},
+				{
+					"name": "tiny_head",
+					"parent": "head",
+					"pivot": [0, 23.975, -10],
+					"cubes": [
+						{"origin": [-5, 19.025, -15], "size": [10, 10, 7], "uv": [9, 84]},
+						{"origin": [-5.5, 25.025, -16], "size": [11, 3, 4], "uv": [86, 79]}
+					]
+				},
+				{
+					"name": "snout",
+					"parent": "tiny_head",
+					"pivot": [0, 21.975, -15],
+					"cubes": [
+						{"origin": [-6.5, 19.025, -19], "size": [5, 1, 4], "uv": [38, 121], "mirror": true},
+						{"origin": [-5.5, 12.025, -19], "size": [2, 7, 2], "uv": [56, 116], "mirror": true},
+						{"origin": [-6.5, 20.025, -19], "size": [13, 5, 4], "uv": [52, 107]},
+						{"origin": [6.5, 18.025, -17], "size": [6, 7, 0], "uv": [40, 109]},
+						{"origin": [-12.5, 18.025, -17], "size": [6, 7, 0], "uv": [40, 109], "mirror": true},
+						{"origin": [1.5, 19.025, -19], "size": [5, 1, 4], "uv": [38, 121]},
+						{"origin": [3.5, 12.025, -19], "size": [2, 7, 2], "uv": [56, 116]}
+					]
+				},
+				{
+					"name": "mouth",
+					"parent": "tiny_head",
+					"pivot": [0, 20.05, -17],
+					"cubes": [
+						{"origin": [-2.5, 19.05, -18], "size": [5, 3, 3], "uv": [24, 109]}
+					]
+				},
+				{
+					"name": "rear",
+					"parent": "body_rear",
+					"pivot": [0, 4, 17],
+					"cubes": [
+						{"origin": [-5.5, 0.05, 17], "size": [11, 9, 7], "uv": [39, 23]}
+					]
+				},
+				{
+					"name": "right_foot",
+					"parent": "rear",
+					"pivot": [-5, 0, 23],
+					"cubes": [
+						{"origin": [-15, 0, 20], "size": [12, 0, 7], "uv": [52, 98], "mirror": true}
+					]
+				},
+				{
+					"name": "left_foot",
+					"parent": "rear",
+					"pivot": [5, 0, 23],
+					"cubes": [
+						{"origin": [3, 0, 20], "size": [12, 0, 7], "uv": [52, 98]}
+					]
+				},
+				{
+					"name": "right_arm",
+					"parent": "walrus",
+					"pivot": [-8, 8, -4],
+					"cubes": [
+						{"origin": [-10, 0, -9], "size": [2, 9, 10], "uv": [0, 109], "mirror": true}
+					]
+				},
+				{
+					"name": "right_hand",
+					"parent": "right_arm",
+					"pivot": [-10, 0, -5],
+					"cubes": [
+						{"origin": [-19, 0, -9], "size": [9, 0, 15], "uv": [52, 83], "mirror": true}
+					]
+				},
+				{
+					"name": "right_item",
+					"parent": "right_hand",
+					"pivot": [-14, 0, 4]
+				},
+				{
+					"name": "left_arm",
+					"parent": "walrus",
+					"pivot": [8, 8, -4],
+					"cubes": [
+						{"origin": [8, 0, -9], "size": [2, 9, 10], "uv": [0, 109]}
+					]
+				},
+				{
+					"name": "left_hand",
+					"parent": "left_arm",
+					"pivot": [10, 0, -5],
+					"cubes": [
+						{"origin": [10, 0, -9], "size": [9, 0, 15], "uv": [52, 83]}
+					]
+				},
+				{
+					"name": "left_item",
+					"parent": "left_hand",
+					"pivot": [14, 0, 4]
+				},
+				{
+					"name": "whirlpool",
+					"parent": "walrus",
+					"pivot": [0, 9, 5],
+					"cubes": [
+						{"origin": [-8.5, 5.5, 10.75], "size": [17, 33, 17], "inflate": 1, "pivot": [0.5, 7.5, 18.75], "rotation": [90, 0, 0], "uv": [100, 118]}
+					]
+				}
+			]
+		}
+	]
+}

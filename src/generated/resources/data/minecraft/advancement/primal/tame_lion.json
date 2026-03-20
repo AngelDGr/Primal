@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:husbandry/tame_an_animal",
+  "criteria": {
+    "tame_lion": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "primal:lion"
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:tame_animal"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.primal.tame_lion.description"
+    },
+    "frame": "goal",
+    "icon": {
+      "count": 1,
+      "id": "minecraft:beef"
+    },
+    "title": {
+      "translate": "advancements.primal.tame_lion.title"
+    }
+  },
+  "requirements": [
+    [
+      "tame_lion"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

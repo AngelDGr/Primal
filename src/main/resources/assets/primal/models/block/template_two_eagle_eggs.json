@@ -1,7 +1,6 @@
 {
 	"format_version": "1.21.6",
 	"credit": "Made with Blockbench",
-	"parent": "eagle_egg",
 	"texture_size": [64, 64],
 	"textures": {
 		"particle": "primal:block/eagle_egg_particle"

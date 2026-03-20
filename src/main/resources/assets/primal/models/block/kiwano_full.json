@@ -1,0 +1,98 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"texture_size": [128, 128],
+	"textures": {
+		"texture": "primal:block/kiwano_full",
+		"particle": "primal:block/kiwano_full_particle"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [7.75, 3, 9.75, 5], "texture": "#texture"},
+				"east": {"uv": [7.75, 3, 9.75, 5], "texture": "#texture"},
+				"south": {"uv": [7.75, 3, 9.75, 5], "texture": "#texture"},
+				"west": {"uv": [7.75, 3, 9.75, 5], "texture": "#texture"},
+				"up": {"uv": [11, 7, 9, 5], "texture": "#texture"},
+				"down": {"uv": [8, 9, 6, 11], "texture": "#texture"}
+			}
+		},
+		{
+			"from": [8, -3, -4],
+			"to": [8, 19, 20],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-8, 0, 0]},
+			"faces": {
+				"east": {"uv": [3, 6.125, 6, 8.875], "texture": "#texture"},
+				"west": {"uv": [3, 6.125, 6, 8.875], "texture": "#texture"}
+			}
+		},
+		{
+			"from": [-4, -3, 8],
+			"to": [20, 19, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [16, 0, -8]},
+			"faces": {
+				"north": {"uv": [6, 6.125, 9, 8.875], "texture": "#texture"},
+				"south": {"uv": [6, 6.125, 9, 8.875], "texture": "#texture"}
+			}
+		},
+		{
+			"from": [2.61701, -3, 17.98959],
+			"to": [31.61701, 19, 17.98959],
+			"rotation": {"angle": -45, "axis": "y", "origin": [24.61701, 0, 1.98959]},
+			"faces": {
+				"north": {"uv": [0.125, 3.125, 3.625, 5.875], "texture": "#texture"},
+				"south": {"uv": [0.125, 3.125, 3.625, 5.875], "texture": "#texture"}
+			}
+		},
+		{
+			"from": [-1.98959, -3, 2.61701],
+			"to": [-1.98959, 19, 31.61701],
+			"rotation": {"angle": -45, "axis": "y", "origin": [14.01041, 0, 24.61701]},
+			"faces": {
+				"east": {"uv": [4.125, 3.125, 7.625, 5.875], "texture": "#texture"},
+				"west": {"uv": [4.125, 3.125, 7.625, 5.875], "texture": "#texture"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, 45, 0],
+			"translation": [0, 2.5, 0],
+			"scale": [0.375, 0.375, 0.375]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, 45, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, -135, 0],
+			"scale": [0.4, 0.4, 0.4]
+		},
+		"ground": {
+			"translation": [0, 3, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"gui": {
+			"rotation": [30, -135, 0],
+			"scale": [0.625, 0.625, 0.625]
+		},
+		"fixed": {
+			"scale": [0.5, 0.5, 0.5]
+		}
+	},
+	"groups": [
+		{
+			"name": "kiwano",
+			"origin": [0, 0, 0],
+			"color": 0,
+			"children": [0, 1, 2, 3, 4]
+		}
+	]
+}

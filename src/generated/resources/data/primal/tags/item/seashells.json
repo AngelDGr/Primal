@@ -1,0 +1,11 @@
+{
+  "values": [
+    "primal:seashells",
+    "primal:cold_seashells",
+    "primal:temperate_seashells",
+    {
+      "id": "nomansland:seashells",
+      "required": false
+    }
+  ]
+}

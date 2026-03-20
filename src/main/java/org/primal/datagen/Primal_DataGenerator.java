@@ -19,16 +19,20 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.primal.Primal_Main;
 import org.primal.datagen.providers.*;
+import org.primal.datagen.providers.tag.*;
+import org.primal.registry.Primal_JukeboxSongs;
 import org.primal.registry.Primal_WorldGen;
 
+@SuppressWarnings("removal")
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Primal_Main.MOD_ID)
 public final class Primal_DataGenerator {
 
     private static final RegistrySetBuilder BUILDER =
             new RegistrySetBuilder()
 //                    .add(Registries.DAMAGE_TYPE, Primal_DamageTypes::boostrapDamageTypes)
-//                    .add(Registries.BANNER_PATTERN, Primal_BannerPatterns::bootstrap)
-
+                    .add(Registries.JUKEBOX_SONG, Primal_JukeboxSongs::bootstrap)
+                    .add(Registries.CONFIGURED_FEATURE, Primal_WorldGen.ConfiguredFeatures::boostrap)
+                    .add(Registries.PLACED_FEATURE, Primal_WorldGen.PlacedFeatures::boostrap)
                     .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Primal_BiomeModifiersGenerator::bootstrap);
 
     @SubscribeEvent
@@ -48,6 +52,9 @@ public final class Primal_DataGenerator {
 
             //Item Model
             generator.addProvider(event.includeClient(), new Primal_ItemModelGenerator(output, existingFileHelper));
+
+            //Helmet Decoration Model
+            generator.addProvider(event.includeClient(), new Primal_HelmetDecorationModelGenerator(output, existingFileHelper));
 
             //Sounds
             generator.addProvider(event.includeClient(), new Primal_SoundsJsonGenerator(output, existingFileHelper));
@@ -74,6 +81,8 @@ public final class Primal_DataGenerator {
             generator.addProvider(event.includeServer(), new Primal_ItemTagsGenerator(output, lookupProvider, blockTagGenerator.contentsGetter(), existingFileHelper));
             //Banner Pattern Tags
             generator.addProvider(event.includeServer(), new Primal_BannerPatternTagsGenerator(output, lookupProvider, existingFileHelper));
+            //Game Events Tags
+            generator.addProvider(event.includeServer(), new Primal_GameEventTagsGenerator(output, lookupProvider, existingFileHelper));
 
 
             //Recipes
@@ -89,7 +98,7 @@ public final class Primal_DataGenerator {
 
 
 
-            //NeoForge Datamaps
+            //NeoForge DataMaps
             generator.addProvider(event.includeServer(), new Primal_DataMapGenerator(output, lookupProvider));
         }
     }
@@ -98,7 +107,9 @@ public final class Primal_DataGenerator {
         return new LootTableProvider(output, Set.of(),
                 List.of(
                         new LootTableProvider.SubProviderEntry(Primal_LootTablesBlocksGenerator::new, LootContextParamSets.BLOCK),
-                        new LootTableProvider.SubProviderEntry(Primal_LootTablesEntitiesGenerator::new, LootContextParamSets.ENTITY)),
+                        new LootTableProvider.SubProviderEntry(Primal_LootTablesEntitiesGenerator::new, LootContextParamSets.ENTITY),
+                        new LootTableProvider.SubProviderEntry(Primal_LootTablesGiftGenerator::new, LootContextParamSets.GIFT),
+                        new LootTableProvider.SubProviderEntry(Primal_LootTablesArcheologyGenerator::new, LootContextParamSets.ARCHAEOLOGY)),
                 lookupProvider
         );
     }

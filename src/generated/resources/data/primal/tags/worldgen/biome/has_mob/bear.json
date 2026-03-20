@@ -1,14 +1,11 @@
 {
   "values": [
-    "minecraft:birch_forest",
-    "minecraft:flower_forest",
-    "minecraft:dark_forest",
+    "#minecraft:is_forest",
     "minecraft:taiga",
     "minecraft:old_growth_spruce_taiga",
     "minecraft:old_growth_pine_taiga",
-    "minecraft:old_growth_birch_forest",
     "minecraft:windswept_forest",
-    "minecraft:grove",
+    "#primal:has_mob/has_variant/bear/black",
     {
       "id": "nomansland:old_growth_forest",
       "required": false
@@ -24,7 +21,6 @@
     {
       "id": "nomansland:dark_taiga",
       "required": false
-    },
-    "#primal:has_mob/has_variant/black_bear_variant"
+    }
   ]
 }

@@ -12,7 +12,7 @@ import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
 import org.primal.registry.Primal_Tags;
 import org.primal.registry.Primal_WorldGen;
-import org.primal.util.MiscUtil;
+import org.primal.util.Primal_Util;
 import org.primal.worldgen.RandomPatchCustomConfig;
 
 public class RiverReeds_BiomeModifier implements BiomeModifier {
@@ -20,7 +20,7 @@ public class RiverReeds_BiomeModifier implements BiomeModifier {
     @Override
     public void modify(@NotNull Holder<Biome> biome, @NotNull Phase phase, ModifiableBiomeInfo.BiomeInfo.@NotNull Builder builder) {
         if (phase == Phase.ADD) {
-            MiscUtil.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_RIVER_REEDS,
+            Primal_Util.Generation.createBiomeModifier(biome, builder, Primal_Tags.Biome.SPAWNS_RIVER_REEDS,
                     //ExtraBiomes
                     Primal_Main.COMMON_CONFIG.riverReedsExtraBiomes.get().stream().map(Object::toString).toList(),
                     //Step
@@ -40,7 +40,7 @@ public class RiverReeds_BiomeModifier implements BiomeModifier {
 
     @Override
     public @NotNull MapCodec<? extends BiomeModifier> codec() {
-        return MiscUtil.createBiomeModifierSerializer("river_reeds_patch_spawn").get();
+        return Primal_Util.Generation.createBiomeModifierSerializer("river_reeds_patch_spawn").get();
     }
 
     public static void register() {

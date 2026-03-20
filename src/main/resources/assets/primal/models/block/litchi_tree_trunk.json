@@ -1,0 +1,31 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"texture": "primal:block/litchi_tree_1",
+		"particle": "primal:block/litchi_juvenile"
+	},
+	"elements": [
+		{
+			"from": [6.5, 0, 6.5],
+			"to": [9.5, 16, 9.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6.5, 0, 6.5]},
+			"faces": {
+				"north": {"uv": [0.375, 6.875, 0.75, 8.875], "texture": "#texture"},
+				"east": {"uv": [0.375, 6.875, 0.75, 8.875], "texture": "#texture"},
+				"south": {"uv": [0.375, 6.875, 0.75, 8.875], "texture": "#texture"},
+				"west": {"uv": [0.375, 6.875, 0.75, 8.875], "texture": "#texture"},
+				"up": {"uv": [0.75, 6.875, 0.375, 6.5], "texture": "#texture"},
+				"down": {"uv": [1.125, 6.5, 0.75, 6.875], "texture": "#texture"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "bottom",
+			"origin": [6.5, 0, 6.5],
+			"color": 0,
+			"children": [0]
+		}
+	]
+}

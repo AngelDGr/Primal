@@ -12,6 +12,8 @@
     "minecraft:donkey",
     "minecraft:llama",
     "minecraft:rabbit",
+    "minecraft:salmon",
+    "primal:deer",
     {
       "id": "nomansland:goose",
       "required": false

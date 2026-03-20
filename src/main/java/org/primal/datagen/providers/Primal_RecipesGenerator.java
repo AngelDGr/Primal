@@ -1,12 +1,19 @@
 package org.primal.datagen.providers;
 
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SmokingRecipe;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
+import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.registry.Primal_Blocks;
@@ -136,6 +143,18 @@ public class Primal_RecipesGenerator extends RecipeProvider {
                     stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_SLAB.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get(), 2);
                     stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.CROCODILE_SCUTE_STAIRS.get(), Primal_Blocks.CROCODILE_SCUTE_BLOCK.get());
                 }
+
+                ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, Primal_Blocks.CHOMP_TRAP_GREEN.get())
+                        .define('#', Primal_Items.CROCODILE_SCUTE.get())
+                        .define('S', Primal_Items.SHARK_TOOTH.get())
+                        .define('R', Items.REDSTONE)
+                        .define('B', Primal_Items.CROCODILE_SCUTE_BLOCK.get())
+                        .pattern("#S#")
+                        .pattern("#S#")
+                        .pattern("RBR")
+                        .group("chomp_trap")
+                        .unlockedBy(getHasName(Primal_Items.CROCODILE_SCUTE.get()), has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
             }
 
             //Arid
@@ -166,6 +185,18 @@ public class Primal_RecipesGenerator extends RecipeProvider {
                     stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_SLAB.get(), Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get(), 2);
                     stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.ARID_CROCODILE_SCUTE_STAIRS.get(), Primal_Blocks.ARID_CROCODILE_SCUTE_BLOCK.get());
                 }
+
+                ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, Primal_Blocks.CHOMP_TRAP_ARID.get())
+                        .define('#', Primal_Items.CROCODILE_SCUTE.get())
+                        .define('S', Primal_Items.SHARK_TOOTH.get())
+                        .define('R', Items.REDSTONE)
+                        .define('B', Primal_Items.ARID_CROCODILE_SCUTE_BLOCK.get())
+                        .pattern("#S#")
+                        .pattern("#S#")
+                        .pattern("RBR")
+                        .group("chomp_trap")
+                        .unlockedBy(getHasName(Primal_Items.CROCODILE_SCUTE.get()), has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
             }
 
             //Humid
@@ -196,18 +227,143 @@ public class Primal_RecipesGenerator extends RecipeProvider {
                     stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_SLAB.get(), Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get(), 2);
                     stonecutterResultFromBase(exporter, RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.HUMID_CROCODILE_SCUTE_STAIRS.get(), Primal_Blocks.HUMID_CROCODILE_SCUTE_BLOCK.get());
                 }
+
+                ShapedRecipeBuilder.shaped(RecipeCategory.REDSTONE, Primal_Blocks.CHOMP_TRAP_HUMID.get())
+                        .define('#', Primal_Items.CROCODILE_SCUTE.get())
+                        .define('S', Primal_Items.SHARK_TOOTH.get())
+                        .define('R', Items.REDSTONE)
+                        .define('B', Primal_Items.HUMID_CROCODILE_SCUTE_BLOCK.get())
+                        .pattern("#S#")
+                        .pattern("#S#")
+                        .pattern("RBR")
+                        .group("chomp_trap")
+                        .unlockedBy(getHasName(Primal_Items.CROCODILE_SCUTE.get()), has(Primal_Items.CROCODILE_SCUTE.get()))
+                        .save(exporter);
             }
         }
-
 
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.STRAW_BALE.get(), 1)
                 .define('#', Primal_Tags.Item.STRAW)
                 .pattern("##")
                 .pattern("##")
-                .unlockedBy("has_reeds", has(Primal_Items.RIVER_REEDS.get()))
-                .unlockedBy("has_short_reeds", has(Primal_Items.SHORT_RIVER_REEDS.get()))
-                .unlockedBy("has_short_grass", has(Items.SHORT_GRASS))
-                .unlockedBy("has_tall_grass", has(Items.TALL_GRASS))
+                .unlockedBy("has_straw", has(Primal_Tags.Item.STRAW))
                 .save(exporter);
+
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(Primal_Blocks.STRAW_BALE.get()),
+                        RecipeCategory.BUILDING_BLOCKS,
+                        Primal_Blocks.DRIED_STRAW_BALE.get(),
+                        0.35F,
+                        200)
+                .unlockedBy("has_straw_bale", has(Primal_Blocks.STRAW_BALE.get()))
+                .save(exporter);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.WEAVED_STRAW.get(), 4)
+                .define('#', Primal_Blocks.DRIED_STRAW_BALE.get())
+                .pattern("##")
+                .pattern("##")
+                .unlockedBy("has_straw", has(Primal_Blocks.DRIED_STRAW_BALE.get()))
+                .save(exporter);
+
+        stairBuilder(Primal_Blocks.WEAVED_STRAW_STAIRS.get(), Ingredient.of(Primal_Blocks.WEAVED_STRAW.get().asItem()))
+                .unlockedBy("has_straw", has(Primal_Blocks.DRIED_STRAW_BALE.get()))
+                .save(exporter);
+
+        slabBuilder(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.WEAVED_STRAW_SLAB.get(), Ingredient.of(Primal_Blocks.WEAVED_STRAW.get().asItem()))
+                .unlockedBy("has_straw", has(Primal_Blocks.DRIED_STRAW_BALE.get()))
+                .save(exporter);
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.STRAW_BASKET.get())
+                .define('W', Primal_Blocks.WEAVED_STRAW.get())
+                .pattern("WWW")
+                .pattern("W W")
+                .pattern("WWW")
+                .unlockedBy("has_straw", has(Primal_Blocks.DRIED_STRAW_BALE.get()))
+                .save(exporter);
+
+        //Conch Shell
+        {
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Primal_Items.WARM_CONCH_SHELL.get(), 1)
+                    .define('T', Primal_Items.SHARK_TOOTH.get())
+                    .define('N', Items.NAUTILUS_SHELL)
+                    .define('H', Items.HEART_OF_THE_SEA)
+                    .define('S', Primal_Items.WARM_SEASHELLS.get())
+                    .pattern("SHS")
+                    .pattern("TNT")
+                    .pattern("STS")
+                    .unlockedBy("has_nautilus", has(Items.NAUTILUS_SHELL))
+                    .save(exporter);
+
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Primal_Items.TEMPERATE_CONCH_SHELL.get(), 1)
+                    .define('T', Primal_Items.SHARK_TOOTH.get())
+                    .define('N', Items.NAUTILUS_SHELL)
+                    .define('H', Items.HEART_OF_THE_SEA)
+                    .define('S', Primal_Items.TEMPERATE_SEASHELLS.get())
+                    .pattern("SHS")
+                    .pattern("TNT")
+                    .pattern("STS")
+                    .unlockedBy("has_nautilus", has(Items.NAUTILUS_SHELL))
+                    .save(exporter);
+
+            ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, Primal_Items.COLD_CONCH_SHELL.get(), 1)
+                    .define('T', Primal_Items.SHARK_TOOTH.get())
+                    .define('N', Items.NAUTILUS_SHELL)
+                    .define('H', Items.HEART_OF_THE_SEA)
+                    .define('S', Primal_Items.COLD_SEASHELLS.get())
+                    .pattern("SHS")
+                    .pattern("TNT")
+                    .pattern("STS")
+                    .unlockedBy("has_nautilus", has(Items.NAUTILUS_SHELL))
+                    .save(exporter);
+        }
+
+        //Hollow Blocks
+        {
+            planksFromHollowLog(exporter, Blocks.OAK_PLANKS, Primal_Items.HOLLOW_OAK_LOG.get());
+            planksFromHollowLog(exporter, Blocks.SPRUCE_PLANKS, Primal_Items.HOLLOW_SPRUCE_LOG.get());
+            planksFromHollowLog(exporter, Blocks.BIRCH_PLANKS, Primal_Items.HOLLOW_BIRCH_LOG.get());
+            planksFromHollowLog(exporter, Blocks.JUNGLE_PLANKS, Primal_Items.HOLLOW_JUNGLE_LOG.get());
+            planksFromHollowLog(exporter, Blocks.ACACIA_PLANKS, Primal_Items.HOLLOW_ACACIA_LOG.get());
+            planksFromHollowLog(exporter, Blocks.DARK_OAK_PLANKS, Primal_Items.HOLLOW_DARK_OAK_LOG.get());
+            planksFromHollowLog(exporter, Blocks.MANGROVE_PLANKS, Primal_Items.HOLLOW_MANGROVE_LOG.get());
+        }
+
+        woodFromLogs(exporter, Primal_Blocks.THORNY_ACACIA_WOOD.get(), Primal_Blocks.THORNY_ACACIA_LOG.get());
+
+        createCookFood(exporter, Primal_Items.VENISON.get(), Primal_Items.COOKED_VENISON.get());
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, Primal_Blocks.DREAMCATCHER.get())
+                .define('A', Primal_Tags.Item.DEER_ANTLERS)
+                .define('C', Items.COBWEB)
+                .define('F', Tags.Items.FEATHERS)
+                .pattern(" A ")
+                .pattern("ACA")
+                .pattern("FFF")
+                .unlockedBy("has_antler", has(Primal_Tags.Item.DEER_ANTLERS))
+                .save(exporter);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.BONE_MEAL, 9)
+                .requires(Primal_Tags.Item.DEER_ANTLERS)
+                .group("bonemeal")
+                .unlockedBy("has_antler", has(Primal_Tags.Item.DEER_ANTLERS))
+                .save(exporter, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "antler_bonemeal"));
+    }
+
+    protected static void createCookFood(RecipeOutput exporter,ItemLike rawItem, ItemLike cookedItem) {
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(rawItem), RecipeCategory.FOOD, cookedItem, 0.35F, 200)
+                .unlockedBy(getHasName(rawItem), has(rawItem))
+                .save(exporter);
+
+        simpleCookingRecipe(exporter, "smoking", RecipeSerializer.SMOKING_RECIPE, SmokingRecipe::new, 100, rawItem, cookedItem, 0.35F);
+        simpleCookingRecipe(exporter, "campfire_cooking", RecipeSerializer.CAMPFIRE_COOKING_RECIPE, CampfireCookingRecipe::new, 600, rawItem, cookedItem, 0.35F);
+    }
+
+    protected static void planksFromHollowLog(RecipeOutput recipeOutput, ItemLike planks, ItemLike log) {
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, planks, 2)
+                .requires(log)
+                .group("planks")
+                .unlockedBy("has_log", has(log))
+                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
+                        //oak_planks_from_hollow
+                        BuiltInRegistries.ITEM.getKey(planks.asItem()).getPath()+ "_from_hollow"));
     }
 }

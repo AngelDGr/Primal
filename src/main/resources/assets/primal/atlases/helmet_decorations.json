@@ -1,0 +1,9 @@
+{
+  "sources": [
+    {
+      "type": "directory",
+      "source": "helmet_decoration",
+      "prefix": "helmet_decoration/"
+    }
+  ]
+}

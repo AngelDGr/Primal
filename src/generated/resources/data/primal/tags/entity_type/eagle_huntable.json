@@ -4,6 +4,7 @@
     "minecraft:rabbit",
     "minecraft:salmon",
     "minecraft:cod",
+    "primal:snake",
     {
       "id": "nomansland:billhook_bass",
       "required": false

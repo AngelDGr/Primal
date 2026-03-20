@@ -1,0 +1,84 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 2,
+				"visible_bounds_height": 2.5,
+				"visible_bounds_offset": [0, 0.75, 0]
+			},
+			"bones": [
+				{
+					"name": "bearby",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "body",
+					"parent": "bearby",
+					"pivot": [0, 3, 1],
+					"cubes": [
+						{"origin": [-3.5, 3, -3.5], "size": [7, 6, 8], "uv": [0, 0]}
+					]
+				},
+				{
+					"name": "tail",
+					"parent": "body",
+					"pivot": [0, 7.5, 4.5],
+					"cubes": [
+						{"origin": [-1.5, 6, 4.5], "size": [3, 3, 3], "uv": [22, 20]}
+					]
+				},
+				{
+					"name": "head",
+					"parent": "body",
+					"pivot": [0, 8, -2.5],
+					"cubes": [
+						{"origin": [-3, 6, -6.5], "size": [6, 6, 5], "uv": [0, 14]},
+						{"origin": [-3, 12, -4.5], "size": [1, 1, 2], "uv": [20, 26]},
+						{"origin": [2, 12, -4.5], "size": [1, 1, 2], "uv": [20, 26], "mirror": true},
+						{"origin": [-2, 6, -8.5], "size": [4, 3, 2], "uv": [0, 25]}
+					]
+				},
+				{
+					"name": "left_front_leg",
+					"parent": "bearby",
+					"pivot": [-1.75, 3, -1.75],
+					"cubes": [
+						{"origin": [0.25, 0, -3.25], "size": [3, 3, 3], "uv": [22, 14]},
+						{"origin": [0.25, 0, -4.25], "size": [3, 1, 1], "uv": [12, 25]}
+					]
+				},
+				{
+					"name": "right_front_leg",
+					"parent": "bearby",
+					"pivot": [1.75, 3, -1.75],
+					"cubes": [
+						{"origin": [-3.25, 0, -3.25], "size": [3, 3, 3], "uv": [22, 14], "mirror": true},
+						{"origin": [-3.25, 0, -4.25], "size": [3, 1, 1], "uv": [12, 25], "mirror": true}
+					]
+				},
+				{
+					"name": "right_back_leg",
+					"parent": "bearby",
+					"pivot": [-1.75, 3, 3.25],
+					"cubes": [
+						{"origin": [-3.25, 0, 1.75], "size": [3, 3, 3], "uv": [22, 14], "mirror": true},
+						{"origin": [-3.25, 0, 0.75], "size": [3, 1, 1], "uv": [12, 25], "mirror": true}
+					]
+				},
+				{
+					"name": "left_back_leg",
+					"parent": "bearby",
+					"pivot": [1.75, 3, 3.25],
+					"cubes": [
+						{"origin": [0.25, 0, 1.75], "size": [3, 3, 3], "uv": [22, 14]},
+						{"origin": [0.25, 0, 0.75], "size": [3, 1, 1], "uv": [12, 25]}
+					]
+				}
+			]
+		}
+	]
+}

@@ -2,6 +2,7 @@ package org.primal.entity.ai.behavior.eagle;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,12 +24,11 @@ import java.util.Objects;
 public class EagleSnatch extends Behavior<EagleEntity> {
 
     private long endTimestamp=10;
-
     private final int defaultDuration;
 
     public EagleSnatch(int defaultDuration) {
         super(ImmutableMap.of(
-                        Primal_MemoryModuleTypes.IS_SNATCHING.get(), MemoryStatus.VALUE_PRESENT,
+                        Primal_MemoryModuleTypes.IS_GRABBING.get(), MemoryStatus.VALUE_PRESENT,
                         Primal_MemoryModuleTypes.IS_STUNNED.get(), MemoryStatus.VALUE_ABSENT),
                 defaultDuration);
 
@@ -53,8 +53,12 @@ public class EagleSnatch extends Behavior<EagleEntity> {
             strengthAddition=(4*(amplifier+1));
 
             //2s extra for each strength level
-            finalDuration=finalDuration+(2*(amplifier+1));
+            finalDuration=finalDuration+(40*(amplifier+1));
         }
+
+        //+2s if underwater
+        if(eagle.isUnderWater())
+            finalDuration=finalDuration+40;
 
         double verticalAddition = 20 + strengthAddition;
         this.endTimestamp = gameTime + (long)finalDuration;
@@ -84,6 +88,19 @@ public class EagleSnatch extends Behavior<EagleEntity> {
         }
 
         BlockPos flyTo = BlockPos.containing(targetPos);
+
+        // If target is inside water, move it upward until it isn't
+        if (!level.getFluidState(flyTo).isEmpty()) {
+            BlockPos.MutableBlockPos mutable = flyTo.mutable();
+
+            // Move up until not water (limit to avoid infinite loop)
+            int maxChecks = 48;
+            while (maxChecks-- > 0 && !level.getFluidState(mutable).isEmpty()) {
+                mutable.move(Direction.UP);
+            }
+
+            flyTo = mutable.immutable();
+        }
 
         eagle.stopMoving();
 
@@ -129,7 +146,7 @@ public class EagleSnatch extends Behavior<EagleEntity> {
             eagle.ejectPassengers();
         }
         eagle.setPose(Pose.STANDING);
-        eagle.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_SNATCHING.get());
+        eagle.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_GRABBING.get());
         eagle.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.IS_STUNNED.get(), true, 20);
         eagle.getBrain().setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, 10);
     }

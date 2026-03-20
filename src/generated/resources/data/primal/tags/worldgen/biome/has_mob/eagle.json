@@ -1,8 +1,8 @@
 {
   "values": [
     "minecraft:frozen_peaks",
-    "#primal:has_mob/has_variant/golden_eagle_variant",
-    "#primal:has_mob/has_variant/harpy_eagle_variant",
-    "#primal:has_mob/has_variant/philippine_eagle_variant"
+    "#primal:has_mob/has_variant/eagle/golden",
+    "#primal:has_mob/has_variant/eagle/harpy",
+    "#primal:has_mob/has_variant/eagle/philippine"
   ]
 }

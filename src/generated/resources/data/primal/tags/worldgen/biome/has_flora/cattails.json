@@ -1,0 +1,10 @@
+{
+  "values": [
+    "minecraft:swamp",
+    {
+      "id": "nomansland:dark_swamp",
+      "required": false
+    },
+    "minecraft:mangrove_swamp"
+  ]
+}

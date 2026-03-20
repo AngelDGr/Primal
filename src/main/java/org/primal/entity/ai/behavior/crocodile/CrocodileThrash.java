@@ -14,7 +14,7 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
 
     public CrocodileThrash(int maxDuration) {
         super(ImmutableMap.of(
-                Primal_MemoryModuleTypes.IS_THRASHING.get(), MemoryStatus.VALUE_PRESENT,
+                Primal_MemoryModuleTypes.IS_GRABBING.get(), MemoryStatus.VALUE_PRESENT,
                 Primal_MemoryModuleTypes.IS_STUNNED.get(), MemoryStatus.VALUE_ABSENT),
                 maxDuration);
     }
@@ -28,9 +28,9 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
     protected void start(@NotNull ServerLevel level, @NotNull CrocodileEntity crocodile, long gameTime) {
         crocodile.setThrashing(true);
         crocodile.setPose(Pose.SPIN_ATTACK);
-        if (!crocodile.isSilent()) {
+        if (!crocodile.isSilent())
             crocodile.level().broadcastEntityEvent(crocodile, CrocodileEntity.CROCODILE_THRASHING);
-        }
+
         crocodile.stopMoving();
     }
 
@@ -53,7 +53,6 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
         if(crocodile.isInWater() && !crocodile.isUnderWater())
             crocodile.level().broadcastEntityEvent(crocodile, (byte)80);
 
-
         //It hurt the picked entity each 2 ticks
         if(gameTime%2==0){
             target.hurt(crocodile.level().damageSources().mobAttack(crocodile), 2);
@@ -62,9 +61,14 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
 
     @Override
     protected void stop(@NotNull ServerLevel level, @NotNull CrocodileEntity crocodile, long gameTime) {
-        if(!crocodile.getPassengers().isEmpty()){ crocodile.ejectPassengers(); }
+        stopThrashing(crocodile);
+    }
+
+    public static void stopThrashing(CrocodileEntity crocodile){
+        if(!crocodile.getPassengers().isEmpty()) crocodile.ejectPassengers();
         crocodile.setPose(Pose.STANDING);
-        crocodile.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_THRASHING.get());
+        crocodile.getBrain().eraseMemory(Primal_MemoryModuleTypes.IS_GRABBING.get());
+        crocodile.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.IS_STUNNED.get(), true, 60L);
         crocodile.setThrashing(false);
     }
 }

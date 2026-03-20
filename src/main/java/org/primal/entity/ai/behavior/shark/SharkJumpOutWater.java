@@ -26,18 +26,6 @@ public class SharkJumpOutWater extends Behavior<SharkEntity> {
     @Override
     protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull SharkEntity shark) {
         var target= shark.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
-
-        Direction direction = shark.getMotionDirection();
-        int i = direction.getStepX();
-        int j = direction.getStepZ();
-        BlockPos blockpos = shark.blockPosition();
-
-//        for (int k : STEPS_TO_CHECK) {
-//            if (!waterIsClear(shark, blockpos, i, j, k) || !surfaceIsClear(shark, blockpos, i, j, k)) {
-//                System.out.println("HER");
-//                return false;
-//            }
-//        }
         
         return target.isPresent() && !target.get().isInWater() && shark.isInWater();
     }

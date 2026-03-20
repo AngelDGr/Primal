@@ -1,0 +1,6 @@
+{
+  "parent": "primal:block/template_seashells_4_snowy",
+  "textures": {
+    "texture": "primal:block/seashells"
+  }
+}

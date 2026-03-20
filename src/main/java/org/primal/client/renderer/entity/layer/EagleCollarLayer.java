@@ -24,7 +24,7 @@ public class EagleCollarLayer extends GeoRenderLayer<EagleEntity> {
 
         RenderType collarRenderType = RenderType.entityCutoutNoCull(
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
-                        "textures/entity/eagle/"+ (animatable.isBaby()?"b_":"") +"collar"+ (animatable.isLeftHanded()? "_l": "_r") +".png"));
+                        "textures/entity/eagle/"+(animatable.isBaby()? "baby/": "")+"collar"+ (animatable.isLeftHanded()? "_l": "_r") +".png"));
 
         int i = animatable.getCollarColor().getTextureDiffuseColor();
 

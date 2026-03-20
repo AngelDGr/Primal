@@ -1,75 +1,79 @@
 package org.primal.entity.animal;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.IntFunction;
-
-import javax.annotation.Nullable;
-
+import com.google.common.collect.ImmutableList;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.*;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.Brain.Provider;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUtils;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.animation.entity.BearAnimations;
 import org.primal.entity.ai.BearAi;
-
-import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.Dynamic;
-
-import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.ByIdMap;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.ai.Brain;
-import net.minecraft.world.entity.ai.Brain.Provider;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.biome.Biome;
-import org.primal.registry.*;
-import org.primal.util.MiscUtil;
+import org.primal.entity.ai.controls.look.WaterOrLandLookControl;
+import org.primal.entity.ai.controls.move.WaterOrLandMoveControl;
+import org.primal.registry.Primal_Entities;
+import org.primal.registry.Primal_MemoryModuleTypes;
+import org.primal.registry.Primal_Sounds;
+import org.primal.registry.Primal_Tags;
+import org.primal.util.Primal_Util;
+import org.primal.util.mob_types.AnimalRoars;
+import org.primal.util.mob_types.AttackVillagers;
+import org.primal.util.mob_types.PrimalTamable;
+import org.primal.util.mob_types.SemiAquaticAnimal;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.animation.AnimatableManager.ControllerRegistrar;
 import software.bernie.geckolib.util.GeckoLibUtil;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.IntFunction;
+import java.util.function.Predicate;
 
 //xTODO
 // x Add Grolar implementation, breeding with a polar bear
@@ -88,14 +92,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 // x Have colored collars
 // x Make it untargetable if faint
 // x Fix the look
-public class BearEntity extends TamableAnimal implements VariantHolder<BearEntity.Variant>, GeoEntity, ContainerListener, HasCustomInventoryScreen, OwnableEntity, NeutralMob {
+public class BearEntity extends TamableAnimal implements VariantHolder<BearEntity.Variant>, GeoEntity, ContainerListener, HasCustomInventoryScreen, OwnableEntity, NeutralMob, AnimalRoars, PrimalTamable, AttackVillagers, SemiAquaticAnimal {
 
-    protected SimpleContainer inventory=new SimpleContainer(27);
-    @Override
-    public void containerChanged(@NotNull Container container) {
-    }
-
-    //Attributes and Variants
+    //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
         GRIZZLY(0, "grizzly"),
         WARM(1, "warm"),
@@ -129,6 +128,36 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         }
     }
 
+    @Override
+    public void setVariant(Variant variant) {
+        this.entityData.set(DATA_VARIANT_ID, variant.id);
+    }
+
+    @Override
+    public @NotNull Variant getVariant() {
+        return Variant.byId(this.entityData.get(DATA_VARIANT_ID));
+    }
+
+    public void setVariantFromBiome(BearEntity animal, Holder<Biome> holder) {
+        if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_BEAR))
+            animal.setVariant(Variant.WARM);
+        else
+            animal.setVariant(Variant.GRIZZLY);
+    }
+
+    @Override
+    protected @NotNull Component getTypeName() {
+        return Primal_Util.getCustomVariantName(this, super.getTypeName(), Variant.GROLAR);
+    }
+
+    //──────────────────────────────────── Init ────────────────────────────────────
+    public BearEntity(EntityType<BearEntity> entityType, Level level) {
+        super(entityType, level);
+        this.getNavigation().setCanFloat(true);
+        this.moveControl = new WaterOrLandMoveControl<>(this, 85, 50, 0.15f, 0.01f, false, Predicate.not(BearEntity::isBearSleeping));
+        this.lookControl = new WaterOrLandLookControl<>(this, 10, Predicate.not(BearEntity::isBearSleeping));
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 50f)
@@ -139,138 +168,11 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 .add(Attributes.STEP_HEIGHT, 1.5f);
     }
 
-    //Init
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public BearEntity(EntityType<BearEntity> entityType, Level level) {
-        super(entityType, level);
-        this.setHealth(this.getMaxHealth());
-        this.getNavigation().setCanFloat(true);
-    }
-
+    protected SimpleContainer inventory=new SimpleContainer(27);
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
-        if (spawnGroupData == null) {
-            spawnGroupData = new AgeableMob.AgeableMobGroupData(false);
-        }
-
-        AgeableMob.AgeableMobGroupData ageableData = (AgeableMob.AgeableMobGroupData) spawnGroupData;
-
-        // Alternate baby/adult based on group size, only if is more than 1
-        if(ageableData.getGroupSize()>0){
-
-            this.setBaby(ageableData.getGroupSize() % 2 != 0);
-        }
-
-        Holder<Biome> holder = level.getBiome(this.blockPosition());
-
-        if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_BEAR)) {
-            this.setVariant(Variant.WARM);
-        } else {
-            this.setVariant(Variant.GRIZZLY);
-        }
-
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+    public void containerChanged(@NotNull Container container) {
     }
 
-    @Override
-    public void registerControllers(ControllerRegistrar controllers) {
-        controllers.add(
-                BearAnimations.mainController(this)
-                        .receiveTriggeredAnimations()
-                        .triggerableAnim("roar", BearAnimations.ROAR)
-                        .triggerableAnim("beg_end", RawAnimation.begin().thenPlay("animation.grizzly_bear.beg_end"))
-                        .triggerableAnim("sleep_start", RawAnimation.begin().thenPlay("animation.grizzly_bear.sleep_start"))
-                        .triggerableAnim("sleep_end", RawAnimation.begin().thenPlay("animation.grizzly_bear.sleep_end")),
-
-                new AnimationController<>(this, "alt_idle", state -> PlayState.STOP).triggerableAnim("alt_idle", BearAnimations.IDLE_ALT),
-                new AnimationController<>(this, "attack", state -> PlayState.STOP).triggerableAnim("attack", BearAnimations.ATTACK).triggerableAnim("attack2", BearAnimations.ATTACK_ALT));
-    }
-
-    @Override
-    public int getMaxHeadYRot() {
-        return 35;
-    }
-
-    @Override
-    public int getMaxHeadXRot() {
-        return 35;
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
-    }
-
-    @Override
-    public void swing(@NotNull InteractionHand hand) {
-        this.triggerAnim("attack", this.getRandom().nextBoolean() ? "attack" : "attack2");
-        super.swing(hand);
-    }
-
-    @Override
-    public boolean doHurtTarget(@NotNull Entity entity) {
-        boolean hurt = super.doHurtTarget(entity);
-
-        List<Entity> attackablesEntities =
-                new ArrayList<>(this.level().getEntities(this, this.getBoundingBox().inflate(1))
-                        .stream().filter(
-                                //Is seeing the target
-                                target -> MiscUtil.isSeeingTarget(target, this, -0.8f)
-                                //Is not owned bear
-                                && !(target instanceof BearEntity bear2 && bear2.getOwner()!=null && bear2.getOwner()==this.getOwner()))
-                        .toList());
-
-        // To not attack more than 5 entities at the same time
-        if (attackablesEntities.size() > 5) {
-            attackablesEntities = attackablesEntities.subList(0, 5);
-        }
-
-        for(Entity otherEntity: attackablesEntities) {
-            doHurtOther(otherEntity);
-        }
-
-        return hurt;
-    }
-
-    public void doHurtOther(@NotNull Entity entity){
-        float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE)*0.6f;
-        DamageSource damagesource = this.damageSources().mobAttack(this);
-        if (this.level() instanceof ServerLevel serverlevel) {
-            f = EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), entity, damagesource, f);
-        }
-
-        boolean flag = entity.hurt(damagesource, f);
-        if (flag) {
-            float f1 = this.getKnockback(entity, damagesource);
-            if (f1 > 0.0F && entity instanceof LivingEntity livingentity) {
-                livingentity.knockback(
-                        f1 * 0.2F,
-                        Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
-                        -Mth.cos(this.getYRot() * (float) (Math.PI / 180.0))
-                );
-                this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0, 0.6));
-            }
-
-            if (this.level() instanceof ServerLevel serverLevel1) {
-                EnchantmentHelper.doPostAttackEffects(serverLevel1, entity, damagesource);
-            }
-        }
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-
-        if (this.level().isClientSide()) {
-            if (this.tickCount % (20 * 15) == 0 && this.getRandom().nextBoolean()) {
-                this.triggerAnim("alt_idle", "alt_idle");
-            }
-        } else {
-            setCounters();
-        }
-    }
-
-    //SynchedData
     private static final EntityDataAccessor<Boolean> BEAR_SLEEPING = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_HONEY_COUNTER = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
@@ -290,75 +192,9 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         builder.define(AWAKE_COUNTER, 0);
         builder.define(HEALING_COOLDOWN, 0);
         builder.define(HAS_CHEST, false);
+        builder.define(IS_JOCKEY, false);
         builder.define(FOLLOWER_STATE, 0);
         builder.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
-        builder.define(IS_JOCKEY, false);
-    }
-
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-        compound.putInt("Variant", this.getVariant().id);
-        compound.putInt("HoneyCounter", this.getHoneyCounter());
-        compound.putInt("AwakeCounter", this.getAwakeCounter());
-        compound.putInt("HealingCooldown", this.getHealingCooldown());
-        compound.putBoolean("IsSleeping", this.isBearSleeping());
-        compound.putBoolean("HasChest", this.hasChest());
-        if(this.getOwnerUUID()!=null){
-            compound.putInt("FollowerState", this.getFollowerState());
-        }
-
-        if (this.hasChest()) {
-            ListTag listtag = new ListTag();
-
-            for (int i = 0; i < this.inventory.getContainerSize(); i++) {
-                ItemStack itemstack = this.inventory.getItem(i);
-                if (!itemstack.isEmpty()) {
-                    CompoundTag compoundtag = new CompoundTag();
-                    compoundtag.putByte("Slot", (byte)(i));
-                    listtag.add(itemstack.save(this.registryAccess(), compoundtag));
-                }
-            }
-
-            compound.put("Items", listtag);
-        }
-
-        compound.putByte("CollarColor", (byte)this.getCollarColor().getId());
-
-        compound.putBoolean("BearJockey", this.isBearJockey());
-    }
-
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        this.setVariant(Variant.byId(compound.getInt("Variant")));
-        this.setHoneyCounter(compound.getInt("HoneyCounter"));
-        this.setAwakeCounter(compound.getInt("AwakeCounter"));
-        this.setBearSleeping(compound.getBoolean("IsSleeping"));
-        this.setHealingCooldown(compound.getInt("HealingCooldown"));
-        this.setChest(compound.getBoolean("HasChest"));
-
-        if (compound.hasUUID("Owner")) {
-            this.setFollowerState(compound.getInt("FollowerState"));
-        }
-
-        if (this.hasChest()) {
-            ListTag listtag = compound.getList("Items", 10);
-
-            for (int i = 0; i < listtag.size(); i++) {
-                CompoundTag compoundtag = listtag.getCompound(i);
-                int j = compoundtag.getByte("Slot") & 255;
-                if (j < this.inventory.getContainerSize()) {
-                    this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
-                }
-            }
-        }
-
-        if (compound.contains("CollarColor", 99)) {
-            this.setCollarColor(DyeColor.byId(compound.getInt("CollarColor")));
-        }
-
-        this.setBearJockey(compound.getBoolean("BearJockey"));
     }
 
     public boolean isBearSleeping() { return this.entityData.get(BEAR_SLEEPING);}
@@ -385,14 +221,6 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         this.entityData.set(HAS_CHEST, chested);
     }
 
-    public DyeColor getCollarColor() {
-        return DyeColor.byId(this.entityData.get(DATA_COLLAR_COLOR));
-    }
-
-    private void setCollarColor(DyeColor collarColor) {
-        this.entityData.set(DATA_COLLAR_COLOR, collarColor.getId());
-    }
-
     public boolean isBearJockey() {
         return this.entityData.get(IS_JOCKEY);
     }
@@ -401,96 +229,116 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         this.entityData.set(IS_JOCKEY, isJockey);
     }
 
+    @Override
+    public DyeColor getCollarColor() {
+        return DyeColor.byId(this.entityData.get(DATA_COLLAR_COLOR));
+    }
+
+    @Override
+    public void setCollarColor(DyeColor collarColor) {
+        this.entityData.set(DATA_COLLAR_COLOR, collarColor.getId());
+    }
+
+    @Override
     public int getFollowerState() {
         return this.entityData.get(FOLLOWER_STATE);
     }
 
+    @Override
     public void setFollowerState(int state) {
         this.entityData.set(FOLLOWER_STATE, state);
-    }
-
-    public boolean isSitting() {
-        return this.getFollowerState() == 2;
-    }
-
-    public boolean isFollowing() {
-        return this.getFollowerState() == 1;
-    }
-
-    public boolean isWandering() {
-        return this.getFollowerState() == 0;
+        this.setInSittingPose(state==2);
     }
 
     @Override
-    public void setVariant(Variant variant) {
-        this.entityData.set(DATA_VARIANT_ID, variant.id);
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+        if (spawnGroupData == null) {
+            spawnGroupData = new AgeableMob.AgeableMobGroupData(false);
+        }
+
+        AgeableMob.AgeableMobGroupData ageableData = (AgeableMob.AgeableMobGroupData) spawnGroupData;
+
+        // Alternate baby/adult based on group size, only if is more than 1
+        if(ageableData.getGroupSize()>0) this.setBaby(ageableData.getGroupSize() % 2 != 0);
+
+        this.setVariantFromBiome(this, level.getBiome(this.blockPosition()));
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
     @Override
-    public @NotNull Variant getVariant() {
-        return Variant.byId(this.entityData.get(DATA_VARIANT_ID));
-    }
+    public void addAdditionalSaveData(@NotNull CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putInt("Variant", this.getVariant().id);
+        compound.putInt("HoneyCounter", this.getHoneyCounter());
+        compound.putInt("AwakeCounter", this.getAwakeCounter());
+        compound.putInt("HealingCooldown", this.getHealingCooldown());
+        compound.putBoolean("IsSleeping", this.isBearSleeping());
+        compound.putBoolean("HasChest", this.hasChest());
+        if (this.hasChest()) {
+            ListTag listtag = new ListTag();
 
-    private void setCounters(){
-        if (this.getHoneyCounter() > 0) {
-            this.setHoneyCounter(this.getHoneyCounter() - 1);
-        }
-
-        if (this.getAwakeCounter() > 0 && !this.isAggressive() && !this.getBrain().isActive(Activity.ROAR)) {
-            this.setAwakeCounter(this.getAwakeCounter() - 1);
-        }
-
-        if (this.getHealingCooldown() > 0) {
-            this.setHealingCooldown(this.getHealingCooldown()- 1);
-        }
-    }
-
-    //Breeding
-    @Override
-    public boolean canMate(@NotNull Animal otherAnimal) {
-        //Breed with other bear
-        if (otherAnimal instanceof BearEntity bear && bear.canParent() && this.canParent()) {
-            return true;
-        }
-        //Breed with polar bear only if Grizzly
-        else return otherAnimal instanceof PolarBear polarBear && polarBear.canMate(this) && this.canParent() && this.getVariant() == Variant.GRIZZLY;
-    }
-
-    public boolean canParent() {
-        return !this.isVehicle() && !this.isPassenger() && !this.isBaby() && this.isInLove();
-    }
-
-    @Override
-    public AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
-        return createFromParents(this, otherParent);
-    }
-
-    public static BearEntity createFromParents(AgeableMob parent, AgeableMob otherParent){
-        BearEntity offspring = Primal_Entities.BEAR.get().create(parent.level());
-
-        if(offspring!=null){
-            //To being randomly of one of the parents variant
-            if(parent instanceof BearEntity bear1 && otherParent instanceof BearEntity bear2) {
-                offspring.setVariant(offspring.random.nextBoolean()? bear1.getVariant() : bear2.getVariant());
+            for (int i = 0; i < this.inventory.getContainerSize(); i++) {
+                ItemStack itemstack = this.inventory.getItem(i);
+                if (!itemstack.isEmpty()) {
+                    CompoundTag compoundtag = new CompoundTag();
+                    compoundtag.putByte("Slot", (byte)(i));
+                    listtag.add(itemstack.save(this.registryAccess(), compoundtag));
+                }
             }
-            //To being a Grolar if one of the parents is a polar bear
-            else if(parent instanceof PolarBear || otherParent instanceof PolarBear) {
-                offspring.setVariant(Variant.GROLAR);
+
+            compound.put("Items", listtag);
+        }
+        compound.putBoolean("BearJockey", this.isBearJockey());
+        this.addAdditionalSaveDataTamable(compound);
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.setVariant(Variant.byId(compound.getInt("Variant")));
+        this.setHoneyCounter(compound.getInt("HoneyCounter"));
+        this.setAwakeCounter(compound.getInt("AwakeCounter"));
+        this.setBearSleeping(compound.getBoolean("IsSleeping"));
+        this.setHealingCooldown(compound.getInt("HealingCooldown"));
+        this.setChest(compound.getBoolean("HasChest"));
+        if (this.hasChest()) {
+            ListTag listtag = compound.getList("Items", 10);
+
+            for (int i = 0; i < listtag.size(); i++) {
+                CompoundTag compoundtag = listtag.getCompound(i);
+                int j = compoundtag.getByte("Slot") & 255;
+                if (j < this.inventory.getContainerSize()) {
+                    this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
+                }
             }
         }
-
-        return offspring;
+        this.setBearJockey(compound.getBoolean("BearJockey"));
+        this.readAdditionalSaveDataTamable(compound);
     }
 
-    //Movement
-    public boolean refuseToMove() {
-        return ImmutableList.of(Pose.ROARING, Pose.SNIFFING, Pose.CROAKING).contains(this.getPose());
+    @Override
+    public @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+        return pose.equals(Pose.CROAKING)? EntityDimensions.scalable(1.5f, 1.25f).withEyeHeight(0.8f).scale(getAgeScale()): super.getDefaultDimensions(pose);
     }
 
-    public void stopMoving(){
-        this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        this.getNavigation().stop();
-        this.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
+    //──────────────────────────────────── AI & Movement ────────────────────────────────────
+    @Override
+    protected void registerGoals() {}
+
+    @Override
+    protected @NotNull Provider<BearEntity> brainProvider() {
+        return BearAi.brainProvider();
+    }
+
+    @Override
+    protected @NotNull Brain<?> makeBrain(@NotNull Dynamic<?> dynamic) {
+        return BearAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public @NotNull Brain<BearEntity> getBrain() {
+        return (Brain<BearEntity>) super.getBrain();
     }
 
     @Override
@@ -500,10 +348,15 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         Brain<BearEntity> brain = this.getBrain();
         brain.tick((ServerLevel) this.level(), this);
 
-        if(!this.isInWater())
+        //Sprint when attacking
+        if(!this.isInWater() && (this.isAggressive()))
             this.setSprinting(brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent());
+
+        //Removes sprint if swimming
         if(this.isSprinting() && this.isInWater())
             this.setSprinting(false);
+
+        this.sprintWhenFollowing(8, 3, 0.087);
 
         BearAi.updateActivity(this);
 
@@ -545,8 +398,38 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new AmphibiousPathNavigation(this, level){
+            @Override
+            public void setCanFloat(boolean canSwim) {
+                this.nodeEvaluator.setCanFloat(canSwim);
+            }
+        };
+    }
+
+    @Override
+    public void travel(@NotNull Vec3 travelVector) {
+        if (this.isEffectiveAi() && this.isInWater() && !this.isBearSleeping()) {
+            this.moveRelative(this.getSpeed(), travelVector);
+            this.move(MoverType.SELF, this.getDeltaMovement());
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.9));
+        }
+        else super.travel(travelVector);
+    }
+
+    public boolean refuseToMove() {
+        return ImmutableList.of(Pose.ROARING, Pose.SNIFFING, Pose.CROAKING).contains(this.getPose());
+    }
+
+    @Override
     public float getSpeed() {
         return this.isSprinting()? super.getSpeed()*1.3f : this.getPose().equals(Pose.ROARING)? 0: super.getSpeed() ;
+    }
+
+    public void stopMoving(){
+        this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        this.getNavigation().stop();
+        this.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
     }
 
     public AttributeModifier createSpeedModifier(float amount){
@@ -571,43 +454,40 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
-    public float getWalkTargetValue(@NotNull BlockPos pos, @NotNull LevelReader level) {
-        if (BearAi.isPosNearNearestRepellent(this, pos)) {
-            return -1.0F;
-        } else {
-            return level.getBlockState(pos.below()).is(Blocks.GRASS_BLOCK) ? 10.0F : level.getPathfindingCostFromLightLevels(pos);
-        }
+    public boolean canRoarAtEntity(LivingEntity target) {
+        return !(this.isBaby() || this.bearCollapses())
+                //To detect attackable
+                && this.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE).isPresent() && this.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE).get()==target
+                //To see if Bear can attack (If it is near a baby or is tamed it attacks normally, otherwise only attacks at less than <8 blocks without shifting)
+                && ((this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get()))
+                || (this.isTame())
+                || (target.distanceTo(this)<8 && !target.isShiftKeyDown()))
+                //To not double trigger the moments the enemy is dying and is attackable
+                && target.getHealth()>0 && target.canBeSeenAsEnemy() && Primal_Util.isNotNeverAttack(target);
     }
 
     @Override
-    protected float getWaterSlowDown() {
-        return this.getVariant()==Variant.GROLAR? 0.96F: 0.9f;
-    }
-
-    //AI
-    @Override
-    protected void registerGoals() {}
-
-    @Override
-    protected @NotNull Provider<BearEntity> brainProvider() {
-        return BearAi.brainProvider();
+    public boolean hasCustomWaterRoar() {
+        return true;
     }
 
     @Override
-    protected @NotNull Brain<?> makeBrain(@NotNull Dynamic<?> dynamic) {
-        return BearAi.makeBrain(this.brainProvider().makeBrain(dynamic));
+    protected @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
+        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick)
+                .add(new Vec3(0.0, -0.1, -0.2f)
+                        .yRot(-this.getYRot() * Mth.DEG_TO_RAD));
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public @NotNull Brain<BearEntity> getBrain() {
-        return (Brain<BearEntity>) super.getBrain();
-    }
-
+    //──────────────────────────────────── Combat ────────────────────────────────────
     @Nullable
     @Override
     public LivingEntity getTarget() {
         return this.getTargetFromBrain();
+    }
+
+    @Override
+    public boolean canAttack(@NotNull LivingEntity target) {
+        return super.canAttack(target);
     }
 
     @Override
@@ -628,63 +508,71 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         }
     }
 
-    public boolean canTargetEntity(LivingEntity target) {
-        return !(this.isBaby() || this.bearCollapses())
-                //To detect attackable
-                && this.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE).isPresent() && this.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE).get()==target
-                //To see if Bear can attack (If it is near a baby or is tamed it attacks normally, otherwise only attacks at less than <8 blocks without shifting)
-                && ((this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get()))
-                || (this.isTame())
-                || (target.distanceTo(this)<8 && !target.isShiftKeyDown()))
-                //To not double trigger the moments the enemy is dying and is attackable
-                && target.getHealth()>0 && target.canBeSeenAsEnemy() && MiscUtil.isNotNeverAttack(target);
-    }
-
-    public void setAttackTarget(LivingEntity attackTarget) {
-        this.getBrain().eraseMemory(MemoryModuleType.ROAR_TARGET);
-        this.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, attackTarget);
-        this.getBrain().eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-    }
-
-    //Feeding
     @Override
-    public boolean isFood(@NotNull ItemStack stack) {
-        //Tame/Heal/Mating
-        return isTameFood(stack) || isHealFood(stack) || isMatingFood(stack);
+    public boolean doHurtTarget(@NotNull Entity entity) {
+        boolean hurt = super.doHurtTarget(entity);
+
+        List<Entity> attackableEntities =
+                new ArrayList<>(this.level().getEntities(this, this.getBoundingBox().inflate(1))
+                        .stream().filter(
+                                //Is seeing the target
+                                target -> Primal_Util.isSeeingTarget(target, this, -0.8f)
+                                        //Is not owned bear
+                                        && !(target instanceof BearEntity bear2 && bear2.getOwner()!=null && bear2.getOwner()==this.getOwner()))
+                        .toList());
+
+        // To not attack more than 5 entities at the same time
+        if (attackableEntities.size() > 5) {
+            attackableEntities = attackableEntities.subList(0, 5);
+        }
+
+        for(Entity otherEntity: attackableEntities) {
+            doHurtOther(otherEntity);
+        }
+
+        return hurt;
     }
 
-    public static boolean isTameFood(@NotNull ItemStack stack){
-        return stack.is(Items.HONEYCOMB);
+    public void doHurtOther(@NotNull Entity entity){
+        float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE)*0.6f;
+        DamageSource damagesource = this.damageSources().mobAttack(this);
+        if (this.level() instanceof ServerLevel serverlevel) {
+            f = EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), entity, damagesource, f);
+        }
+
+        boolean flag = entity.hurt(damagesource, f);
+        if (flag) {
+            float f1 = this.getKnockback(entity, damagesource);
+            if (f1 > 0.0F && entity instanceof LivingEntity livingentity) {
+                livingentity.knockback(
+                        f1 * 0.2F,
+                        Mth.sin(this.getYRot() * (float) (Math.PI / 180.0)),
+                        -Mth.cos(this.getYRot() * (float) (Math.PI / 180.0))
+                );
+                this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0, 0.6));
+            }
+
+            if (this.level() instanceof ServerLevel serverLevel1) {
+                EnchantmentHelper.doPostAttackEffects(serverLevel1, entity, damagesource);
+            }
+        }
     }
 
-    public static boolean isHealFood(@NotNull ItemStack stack){
-        return stack.is(Primal_Tags.Item.BEAR_HEALING_TREATS);
-    }
-
-    public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.SALMON_BUCKET);
-    }
-
+    //──────────────────────────────────── Feeding & Interaction ────────────────────────────────────
     @Override
     public @NotNull InteractionResult mobInteract(Player player, @NotNull InteractionHand hand) {
         ItemStack stackInHand = player.getItemInHand(hand);
 
         //To handle dye collar logic
-        if (stackInHand.getItem() instanceof DyeItem dyeitem && this.isOwnedBy(player)) {
-            DyeColor dyecolor = dyeitem.getDyeColor();
-            if (dyecolor != this.getCollarColor()) {
-                this.setCollarColor(dyecolor);
-                stackInHand.consume(1, player);
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
-            }
-        }
+        if (this.dyeCollar(player, hand))
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
 
         //To handle food logic
         if(this.isFood(stackInHand)){
             boolean wasFeed = this.handleEating(player, stackInHand);
             if (wasFeed) {
-                stackInHand.consume(1, player);
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
+                this.usePlayerItem(player, hand, stackInHand);
+                return InteractionResult.SUCCESS;
             }
         }
 
@@ -708,14 +596,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             //Remove chest with a shears if empty inventory
             if(!this.level().isClientSide && this.hasChest() && stackInHand.is(Tags.Items.TOOLS_SHEAR) && this.inventory.isEmpty()){
                 this.setChest(false);
-
-                //Emit event, damages if possible and plays sound
-                this.gameEvent(GameEvent.SHEAR, player);
-                if(stackInHand.isDamageableItem()){
-                    stackInHand.hurtAndBreak(1, player, getSlotForHand(hand));
-                }
-                this.level().playSound(null, this, SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.0F);
-
+                Primal_Util.useShearsOnEntityAndDamage(this, player, stackInHand, hand);
                 this.spawnAtLocation(Blocks.BARREL);
                 return InteractionResult.sidedSuccess(this.level().isClientSide());
             }
@@ -735,40 +616,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         return InteractionResult.PASS;
     }
 
-    public InteractionResult changeFollowState(Player player, InteractionHand hand){
-        if(player!=this.getOwner()){
-            if (this.level().isClientSide) {
-                return InteractionResult.CONSUME;
-            } else {
-                return InteractionResult.PASS;
-            }
-        }
-
-        if(!this.level().isClientSide && hand.equals(InteractionHand.MAIN_HAND)){
-            this.setFollowerState(this.isWandering()? 1: this.isFollowing()? 2: 0);
-
-            player.displayClientMessage(Component.translatable(
-                    this.isFollowing()? "primal.gui.animal_following":
-                            this.isSitting()? "primal.gui.animal_sitting":
-                                    "primal.gui.animal_wandering",
-                    this.getName()), true);
-        }
-
-        return InteractionResult.sidedSuccess(this.level().isClientSide());
-    }
-
-    @Override
-    public void openCustomInventoryScreen(@NotNull Player player) {
-        if(this.hasChest()){
-            player.openMenu(
-                    new SimpleMenuProvider(
-                            (i, inventory, player1) -> ChestMenu.threeRows(i, inventory, this.inventory), this.getName()
-                    )
-            );
-        }
-    }
-
-    protected boolean handleEating(@NotNull Player player, @NotNull ItemStack stack) {
+    private int tameAttempts = 0;
+    public boolean handleEating(@NotNull Player player, @NotNull ItemStack stack) {
         if (this.isFood(stack)) {
             //To try to mate
             if(isMatingFood(stack) && !this.isBearSleeping() && !this.level().isClientSide){
@@ -780,7 +629,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             }
 
             //To try to tame it, unless it is sleeping
-            if (!this.isTame() && isTameFood(stack) && !this.isBearSleeping() && !this.level().isClientSide) {
+            if (!this.isTame() && isTameFood(stack) && (!this.isBearSleeping() || this.bearCollapses()) && !this.level().isClientSide) {
                 tameAttempts++;
 
                 boolean canTameNow = tameAttempts >= 10 && this.random.nextInt(21 - tameAttempts) == 0;
@@ -827,9 +676,67 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         return false;
     }
 
-    private int tameAttempts = 0;
+    @Override
+    protected void usePlayerItem(@NotNull Player player, @NotNull InteractionHand hand, ItemStack stack) {
+        if (stack.is(Items.SALMON_BUCKET)) player.setItemInHand(hand, ItemUtils.createFilledResult(stack, player, new ItemStack(Items.WATER_BUCKET)));
+        else super.usePlayerItem(player, hand, stack);
+    }
 
-    //Sounds
+    @Override
+    public boolean isFood(@NotNull ItemStack stack) {
+        //Tame/Heal/Mating
+        return isTameFood(stack) || isHealFood(stack) || isMatingFood(stack);
+    }
+
+    public static boolean isTameFood(@NotNull ItemStack stack){
+        return stack.is(Items.HONEYCOMB);
+    }
+
+    public static boolean isHealFood(@NotNull ItemStack stack){
+        return stack.is(Primal_Tags.Item.BEAR_HEALING_TREATS);
+    }
+
+    public static boolean isMatingFood(@NotNull ItemStack stack){
+        return stack.is(Items.SALMON_BUCKET);
+    }
+
+    @Override
+    public boolean canMate(@NotNull Animal otherAnimal) {
+        //Breed with other bear
+        if (otherAnimal instanceof BearEntity bear && bear.canParent() && this.canParent()) {
+            return true;
+        }
+        //Breed with polar bear only if Grizzly
+        else return otherAnimal instanceof PolarBear polarBear && polarBear.canMate(this) && this.canParent() && this.getVariant() == Variant.GRIZZLY;
+    }
+
+    public boolean canParent() {
+        return !this.isVehicle() && !this.isPassenger() && !this.isBaby() && this.isInLove();
+    }
+
+    @Override
+    public AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
+        return createFromParents(this, otherParent);
+    }
+
+    public static BearEntity createFromParents(AgeableMob parent, AgeableMob otherParent){
+        BearEntity offspring = Primal_Entities.BEAR.get().create(parent.level());
+
+        if(offspring!=null){
+            //To being randomly of one of the parents variant
+            if(parent instanceof BearEntity bear1 && otherParent instanceof BearEntity bear2) {
+                offspring.setVariant(offspring.random.nextBoolean()? bear1.getVariant() : bear2.getVariant());
+            }
+            //To being a Grolar if one of the parents is a polar bear
+            else if(parent instanceof PolarBear || otherParent instanceof PolarBear) {
+                offspring.setVariant(Variant.GROLAR);
+            }
+        }
+
+        return offspring;
+    }
+
+    //──────────────────────────────────── Sounds ────────────────────────────────────
     @Override
     protected @Nullable SoundEvent getAmbientSound() {
         return this.getBrain().isActive(Activity.ROAR)? null: this.isBearSleeping()? Primal_Sounds.BEAR_SNORING.get(): this.isAggressive()? Primal_Sounds.BEAR_IDLE_ANGRY.get() : Primal_Sounds.BEAR_IDLE.get();
@@ -845,12 +752,17 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         return Primal_Sounds.BEAR_DEATH.get();
     }
 
+    @Override
     public @Nullable SoundEvent getRoarSound() {
         return Primal_Sounds.BEAR_ROAR.get();
     }
 
     public @Nullable SoundEvent getWakeUpSound() {
         return Primal_Sounds.BEAR_WAKE_UP.get();
+    }
+
+    public SoundEvent getEatingSound() {
+        return Primal_Sounds.BEAR_EAT.get();
     }
 
     protected boolean playEatingSound(){
@@ -872,28 +784,97 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         this.playSound(Primal_Sounds.ANIMAL_CHEST.get(), 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
     }
 
-    public SoundEvent getEatingSound() {
-        return Primal_Sounds.BEAR_EAT.get();
+    //──────────────────────────────────── GeckoLib & Visuals ────────────────────────────────────
+    @Override
+    public void registerControllers(ControllerRegistrar controllers) {
+        controllers.add(
+                BearAnimations.mainController(this),
+                BearAnimations.attackController(this));
     }
 
-    //Misc
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     @Override
-    public boolean isPushable() {
-        return super.isPushable() && !this.isBearSleeping();
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
     }
 
     @Override
-    public void knockback(double strength, double x, double z) {
-        if(this.isBearSleeping())
-            return;
+    public void swing(@NotNull InteractionHand hand) {
+        this.triggerAnim("attack", this.getRandom().nextBoolean() ? "attack" : "attack2");
+        super.swing(hand);
+    }
 
-        super.knockback(strength, x, z);
+    @Override
+    public void tick() {
+        super.tick();
+
+        if(!this.level().isClientSide){
+            if (this.getHoneyCounter() > 0) {
+                this.setHoneyCounter(this.getHoneyCounter() - 1);
+            }
+
+            if (this.getAwakeCounter() > 0 && !this.isAggressive() && !this.getBrain().isActive(Activity.ROAR)) {
+                this.setAwakeCounter(this.getAwakeCounter() - 1);
+            }
+
+            if (this.getHealingCooldown() > 0) {
+                this.setHealingCooldown(this.getHealingCooldown()- 1);
+            }
+        }
+    }
+
+    //──────────────────────────────────── Misc ────────────────────────────────────
+    @Override
+    public float getWalkTargetValue(@NotNull BlockPos pos, @NotNull LevelReader level) {
+        if (BearAi.isPosNearNearestRepellent(this, pos)) {
+            return -1.0F;
+        } else {
+            return level.getBlockState(pos.below()).is(Blocks.GRASS_BLOCK) ? 10.0F : level.getPathfindingCostFromLightLevels(pos);
+        }
+    }
+
+    @Override
+    public int getMaxHeadYRot() {
+        return this.isInWater()? 10: 35;
+    }
+
+    @Override
+    public int getMaxHeadXRot() {
+        return this.isInWater()? 20: 35;
+    }
+
+    @Override
+    public int getMaxAirSupply() {
+        if(this.tickCount<=0) return 1200;
+
+        return this.getVariant() ==Variant.GROLAR? 2000: 1200;
+    }
+
+    @Override
+    protected float getWaterSlowDown() {
+        return this.getVariant()==Variant.GROLAR? 0.96F: 0.9f;
+    }
+
+    @Override
+    public void openCustomInventoryScreen(@NotNull Player player) {
+        if(this.hasChest()){
+            player.openMenu(
+                    new SimpleMenuProvider(
+                            (i, inventory, player1) -> ChestMenu.threeRows(i, inventory, this.inventory), this.getName()
+                    )
+            );
+        }
+    }
+
+    @Override
+    public float getAgeScale() {
+        return this.isBaby() ? 0.4F : 1.0F;
     }
 
     @Override
     public boolean shouldTryTeleportToOwner() {
         LivingEntity livingentity = this.getOwner();
-        return livingentity != null && this.distanceToSqr(this.getOwner()) >= 625.0;
+        return livingentity != null && this.distanceToSqr(this.getOwner()) >= (25*25);
     }
 
     @Override
@@ -917,6 +898,23 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
+    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
+        return this.isBearJockey();
+    }
+
+    @Override
+    public boolean isPushable() {
+        return super.isPushable() && !this.isBearSleeping();
+    }
+
+    @Override
+    public void knockback(double strength, double x, double z) {
+        if(this.isBearSleeping()) return;
+
+        super.knockback(strength, x, z);
+    }
+
+    @Override
     public boolean canBeSeenAsEnemy() {
         return super.canBeSeenAsEnemy() && !this.isBearSleeping();
     }
@@ -932,11 +930,15 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
-    public boolean removeWhenFarAway(double distanceToClosestPlayer) {
-        return this.isBearJockey();
+    public boolean isTargetingVillager() {
+        return this.getTarget() instanceof Villager
+                //Last Target
+                || this.getLastHurtMob() instanceof Villager
+                //Roared target
+                || (this.getBrain().getMemory(MemoryModuleType.ROAR_TARGET).isPresent() && this.getBrain().getMemory(MemoryModuleType.ROAR_TARGET).get() instanceof Villager);
     }
 
-    //Just to being classified as neutral
+    //──────────────────────────────────── Neutral Behavior ────────────────────────────────────
     @Override
     public int getRemainingPersistentAngerTime() {return 0;}
 
@@ -944,10 +946,10 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     public void setRemainingPersistentAngerTime(int remainingPersistentAngerTime) {}
 
     @Override
-    public @Nullable UUID getPersistentAngerTarget() {return null;}
+    public @org.jetbrains.annotations.Nullable UUID getPersistentAngerTarget() {return null;}
 
     @Override
-    public void setPersistentAngerTarget(@Nullable UUID persistentAngerTarget) {}
+    public void setPersistentAngerTarget(@org.jetbrains.annotations.Nullable UUID persistentAngerTarget) {}
 
     @Override
     public void startPersistentAngerTimer() {}

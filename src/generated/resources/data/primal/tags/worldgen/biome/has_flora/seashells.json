@@ -1,14 +1,12 @@
 {
   "values": [
-    "minecraft:beach",
+    "minecraft:warm_ocean",
     {
       "id": "nomansland:tropical_beach",
       "required": false
     },
-    "minecraft:ocean",
-    "minecraft:deep_ocean",
-    "minecraft:lukewarm_ocean",
-    "minecraft:deep_lukewarm_ocean",
-    "minecraft:warm_ocean"
+    "minecraft:beach",
+    "#primal:has_flora/has_variant/seashells/cold_seashells",
+    "#primal:has_flora/has_variant/seashells/temperate_seashells"
   ]
 }

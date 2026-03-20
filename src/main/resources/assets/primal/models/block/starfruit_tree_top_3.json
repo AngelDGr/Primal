@@ -1,0 +1,6 @@
+{
+	"parent": "primal:block/template_starfruit_tree_top",
+	"textures": {
+		"texture": "primal:block/starfruit_tree_3"
+	}
+}

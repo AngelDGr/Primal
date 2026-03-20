@@ -1,0 +1,6 @@
+{
+  "parent": "primal:block/template_thorny_acacia",
+  "textures": {
+    "texture": "primal:block/thorny_acacia_log"
+  }
+}

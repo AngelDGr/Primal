@@ -1,0 +1,12 @@
+{
+  "values": [
+    "#primal:has_mob/has_variant/snake/verdant",
+    "#primal:has_mob/has_variant/snake/lumber",
+    "#primal:has_mob/has_variant/snake/tenebrous",
+    "#primal:has_mob/has_variant/snake/dusty",
+    "#primal:has_mob/has_variant/snake/browed",
+    "#primal:has_mob/has_variant/snake/cerulean",
+    "#primal:has_mob/has_variant/snake/brackish",
+    "#primal:has_mob/has_variant/snake/aposematic"
+  ]
+}

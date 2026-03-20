@@ -22,10 +22,9 @@ public class PolarBearReplaced implements GeoReplacedEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(PolarBearAnimations.mainController(this)
-                        .receiveTriggeredAnimations()
-                        .triggerableAnim("attack", PolarBearAnimations.ATTACK)
-                        );
+        controllers.add(
+                PolarBearAnimations.mainController(this),
+                PolarBearAnimations.attackController(this));
     }
 
     @Override

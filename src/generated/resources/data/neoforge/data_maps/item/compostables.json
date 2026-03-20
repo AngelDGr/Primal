@@ -1,5 +1,17 @@
 {
   "values": {
+    "primal:cattails": {
+      "chance": 0.5
+    },
+    "primal:cold_seashells": {
+      "chance": 0.3
+    },
+    "primal:dried_straw_bale": {
+      "chance": 0.85
+    },
+    "primal:exploseed": {
+      "chance": 0.65
+    },
     "primal:river_reeds": {
       "chance": 0.5
     },
@@ -8,6 +20,27 @@
     },
     "primal:short_river_reeds": {
       "chance": 0.3
+    },
+    "primal:straw_bale": {
+      "chance": 0.85
+    },
+    "primal:straw_basket": {
+      "chance": 0.85
+    },
+    "primal:temperate_seashells": {
+      "chance": 0.3
+    },
+    "primal:thorny_acacia_leaves": {
+      "chance": 0.3
+    },
+    "primal:weaved_straw": {
+      "chance": 0.85
+    },
+    "primal:weaved_straw_slab": {
+      "chance": 0.35
+    },
+    "primal:weaved_straw_stairs": {
+      "chance": 0.35
     }
   }
 }

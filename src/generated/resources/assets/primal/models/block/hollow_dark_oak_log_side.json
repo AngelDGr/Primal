@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/dark_oak_log_top",
+    "east": "minecraft:block/dark_oak_log",
+    "north": "minecraft:block/dark_oak_log",
+    "particle": "minecraft:block/dark_oak_log",
+    "south": "minecraft:block/dark_oak_log",
+    "up": "minecraft:block/dark_oak_log_top",
+    "west": "primal:block/hollow_log/dark_oak"
+  }
+}

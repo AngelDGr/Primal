@@ -11,10 +11,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
 import org.primal.client.model.replaced.FoxModel;
 import org.primal.entity.replaced.FoxReplaced;
+import org.primal.util.Primal_Util;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
@@ -63,37 +65,23 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
             }
         });
 
-        shadowRadius=0.4F;
+        shadowRadius=0.3F;
+    }
+
+    @Override
+    protected float getShadowRadius(@NotNull Fox entity) {
+        float f = super.getShadowRadius(entity);
+        return entity.isBaby() ? f * 0.6F : f;
     }
 
     @Override
     public ResourceLocation getTextureLocation(FoxReplaced animatable) {
         Fox fox = this.currentEntity;
         CompoundTag mainTag = new CompoundTag();
-
         fox.saveWithoutId(mainTag);
-        CompoundTag neoforgeAttachments= mainTag.getCompound("neoforge:attachments");
-        var variantTag = neoforgeAttachments.get("mixed_litter:variants");
 
-        //If it has nomansland variation, it set the location differently, so it can use nomansland textures
-        if(variantTag!=null && variantTag.getAsString().contains("nomansland")){
-            String raw = variantTag.getAsString();
-
-            // Defensive check: only parse if format looks correct
-            if (raw.contains("/")) {
-                String[] variantSplit = raw.split("/");
-                if (variantSplit.length > 1) {
-                    String[] quoteSplit = variantSplit[1].split("\"");
-                    if (quoteSplit.length > 0 && !quoteSplit[0].isEmpty()) {
-                        String variant = quoteSplit[0];
-                        //Support only for cream and forest, to avoid missing textures
-                        if(variant.equals("cream") || variant.equals("forest"))
-                           return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
-                                   "textures/entity/fox/nomansland/"+variant +(fox.isSleeping()?"_sleep":"")+ ".png");
-                    }
-                }
-            }
-        }
+        var variant = Primal_Util.Visuals.getNomanslandVariant(mainTag, "fox", (fox.isSleeping() ? "_sleep" : ""), "cream", "forest");
+        if (variant != null) return variant;
 
         return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/fox/"+fox.getVariant().getSerializedName()+(fox.isSleeping()?"_sleep":"")+ ".png");
     }
@@ -127,6 +115,6 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
 
     @Override
     public float getMotionAnimThreshold(FoxReplaced animatable) {
-        return this.currentEntity.isInWater()? 0.0015f: 0.0015f;
+        return 0.0015f;
     }
 }

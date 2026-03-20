@@ -8,6 +8,7 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.WalkTarget;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.CrocodileEntity;
+import org.primal.registry.Primal_MemoryModuleTypes;
 
 public class CrocodileGoesToCompass extends Behavior<CrocodileEntity> {
 
@@ -15,7 +16,7 @@ public class CrocodileGoesToCompass extends Behavior<CrocodileEntity> {
         super(ImmutableMap.of(
                 MemoryModuleType.ATTACK_TARGET,
                 MemoryStatus.VALUE_ABSENT,
-                MemoryModuleType.ADMIRING_ITEM,
+                Primal_MemoryModuleTypes.WAS_TOWARDS_IMPORTANT_BLOCK.get(),
                 MemoryStatus.VALUE_ABSENT)
         );
     }
@@ -42,6 +43,6 @@ public class CrocodileGoesToCompass extends Behavior<CrocodileEntity> {
 
     @Override
     protected void stop(@NotNull ServerLevel level, CrocodileEntity crocodile, long gameTime) {
-        crocodile.getBrain().setMemoryWithExpiry(MemoryModuleType.ADMIRING_ITEM, true,  level.getRandom().nextIntBetweenInclusive(0, 100)+ 200L);
+        crocodile.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.WAS_TOWARDS_IMPORTANT_BLOCK.get(), true,  level.getRandom().nextIntBetweenInclusive(0, 100)+ 200L);
     }
 }

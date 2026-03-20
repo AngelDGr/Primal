@@ -1,0 +1,231 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler"
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "north",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler",
+        "y": 90
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "east",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler",
+        "y": 180
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "south",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler",
+        "y": 270
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "west",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_right"
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "north",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_right",
+        "y": 90
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "east",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_right",
+        "y": 180
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "south",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_right",
+        "y": 270
+      },
+      "when": {
+        "attached": "false",
+        "double": "false",
+        "facing": "west",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall"
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "north",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall",
+        "y": 90
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "east",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall",
+        "y": 180
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "south",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall",
+        "y": 270
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "west",
+        "right": "false"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall_right"
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "north",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall_right",
+        "y": 90
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "east",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall_right",
+        "y": 180
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "south",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_wall_right",
+        "y": 270
+      },
+      "when": {
+        "attached": "true",
+        "double": "false",
+        "facing": "west",
+        "right": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_double"
+      },
+      "when": {
+        "double": "true",
+        "facing": "north"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_double",
+        "y": 90
+      },
+      "when": {
+        "double": "true",
+        "facing": "east"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_double",
+        "y": 180
+      },
+      "when": {
+        "double": "true",
+        "facing": "south"
+      }
+    },
+    {
+      "apply": {
+        "model": "primal:block/fallow_deer_antler_double",
+        "y": 270
+      },
+      "when": {
+        "double": "true",
+        "facing": "west"
+      }
+    }
+  ]
+}

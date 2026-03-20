@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "minecraft:block/spruce_log_top",
+    "east": "minecraft:block/spruce_log",
+    "north": "minecraft:block/spruce_log",
+    "particle": "minecraft:block/spruce_log",
+    "south": "minecraft:block/spruce_log",
+    "up": "minecraft:block/spruce_log_top",
+    "west": "primal:block/hollow_log/spruce"
+  }
+}

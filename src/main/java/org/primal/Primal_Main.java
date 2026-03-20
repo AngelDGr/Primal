@@ -1,14 +1,18 @@
 package org.primal;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -19,38 +23,51 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SetPotionFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.AnvilUpdateEvent;
+import net.neoforged.neoforge.event.GrindstoneEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
-import org.primal.biome_modifiers.features.EagleNest_BiomeModifier;
-import org.primal.biome_modifiers.features.RiverReeds_BiomeModifier;
-import org.primal.biome_modifiers.features.Seashells_BiomeModifier;
+import org.primal.biome_modifiers.features.*;
 import org.primal.biome_modifiers.mobs.*;
-import org.primal.entity.animal.BearEntity;
-import org.primal.entity.animal.CrocodileEntity;
-import org.primal.entity.animal.EagleEntity;
-import org.primal.entity.animal.SharkEntity;
+import org.primal.block.ChompTrapBlock;
+import org.primal.block_entity.ChompTrapBlockEntity;
+import org.primal.entity.animal.*;
+import org.primal.item.ConchShellItem;
+import org.primal.item.HelmetDecorationType;
+import org.primal.item.SnakeItem;
+import org.primal.item.component.HelmetDecorationComponent;
+import org.primal.networking.DelayedTasks;
+import org.primal.networking.Primal_HandlePackets;
+import org.primal.networking.packets.WalrusJumpPacket;
 import org.primal.registry.*;
-
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.common.Mod;
-import org.primal.util.MiscUtil;
+import org.primal.server_data.ConchShellsData;
+import org.primal.util.Primal_Util;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
+@SuppressWarnings("removal")
 @EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 @Mod(Primal_Main.MOD_ID)
 public class Primal_Main {
@@ -68,15 +85,25 @@ public class Primal_Main {
     public static class ConfigCache {
         public static boolean foxModelChange;
         public static boolean polarBearModelChange;
+        public static boolean rabbitModelChange;
+        public static boolean wolfModelChange;
+        public static boolean dolphinModelChange;
 
         public static void load() {
             foxModelChange = Primal_Main.COMMON_CONFIG.foxModelChange.get();
             polarBearModelChange = Primal_Main.COMMON_CONFIG.polarBearModelChange.get();
+            rabbitModelChange = Primal_Main.COMMON_CONFIG.rabbitModelChange.get();
+            wolfModelChange = Primal_Main.COMMON_CONFIG.wolfModelChange.get();
+            dolphinModelChange = Primal_Main.COMMON_CONFIG.dolphinModelChange.get();
         }
     }
 
     public Primal_Main(IEventBus modEventBus) {
-        ModList.get().getModContainerById(Primal_Main.MOD_ID).get().registerConfig(ModConfig.Type.COMMON, COMMON_SPEC);
+        ModList.get().getModContainerById(Primal_Main.MOD_ID)
+                .ifPresent(
+                        modContainer ->
+                                modContainer.registerConfig(ModConfig.Type.COMMON, COMMON_SPEC)
+                );
 
         //AI
         Primal_Sensors.init(); Primal_Registries.SENSOR_TYPES.register(modEventBus);
@@ -101,6 +128,7 @@ public class Primal_Main {
         //Items
         Primal_Items.initItems(); Primal_Registries.ITEMS.register(modEventBus);
         Primal_Items.initGroups(); Primal_Registries.CREATIVE_MODE_TABS.register(modEventBus);
+        Primal_Items.Components.init(); Primal_Registries.DATA_COMPONENTS.register(modEventBus);
 
         //Advancements
         Primal_Advancements.initCriteria(); Primal_Registries.CRITERIA.register(modEventBus);
@@ -108,11 +136,16 @@ public class Primal_Main {
 
         //World Gen
         Primal_WorldGen.init(); Primal_Registries.FEATURES.register(modEventBus);
+        Primal_WorldGen.TreeDecorators.init(); Primal_Registries.TREE_DECORATORS.register(modEventBus);
+        Primal_WorldGen.BlockStateProviders.init(); Primal_Registries.BLOCK_STATE_PROVIDERS.register(modEventBus);
 
         Primal_VillagerCustomTrades.init();
 
         //Biome Modifiers
         createBiomeModifiers(); Primal_Registries.BIOME_MODIFIERS.register(modEventBus);
+
+        //Particles
+        Primal_Particles.init(); Primal_Registries.PARTICLES.register(modEventBus);
     }
 
     public static void createBiomeModifiers() {
@@ -124,20 +157,30 @@ public class Primal_Main {
             CrocodileWarm_BiomeModifier.register();
             SharkSingle_BiomeModifier.register();
             SharkGroup_BiomeModifier.register();
+            WalrusNormal_BiomeModifier.register();
+            WalrusOcean_BiomeModifier.register();
+            LionSavanna_BiomeModifier.register();
+            LionSnowy_BiomeModifier.register();
+            Snake_BiomeModifier.register();
+            DeerForest_BiomeModifier.register();
+            DeerSnowy_BiomeModifier.register();
+            DolphinCold_BiomeModifier.register();
+            RabbitBadlands_BiomeModifier.register();
         }
 
         //Features
         {
             RiverReeds_BiomeModifier.register();
+            Cattails_BiomeModifier.register();
             Seashells_BiomeModifier.register();
             EagleNest_BiomeModifier.register();
+            CassowaryNest_BiomeModifier.register();
         }
     }
 
     @SubscribeEvent
     public static void registerCommonEvent(final FMLCommonSetupEvent event){
         setFlammables();
-
         ConfigCache.load();
     }
 
@@ -145,9 +188,13 @@ public class Primal_Main {
         FireBlock fireblock = (FireBlock) Blocks.FIRE;
         fireblock.setFlammable(Primal_Blocks.SHORT_RIVER_REEDS.get(), 30, 60);
         fireblock.setFlammable(Primal_Blocks.RIVER_REEDS.get(), 30, 60);
+        fireblock.setFlammable(Primal_Blocks.CATTAILS.get(), 30, 60);
         fireblock.setFlammable(Primal_Blocks.NEST_BLOCK.get(), 30, 60);
 
-        fireblock.setFlammable(Primal_Blocks.STRAW_BALE.get(), 100, 200);
+        fireblock.setFlammable(Primal_Blocks.STRAW_BALE.get(), 70, 100);
+        fireblock.setFlammable(Primal_Blocks.DRIED_STRAW_BALE.get(), 80, 120);
+        fireblock.setFlammable(Primal_Blocks.WEAVED_STRAW.get(), 80, 120);
+        fireblock.setFlammable(Primal_Blocks.STRAW_BASKET.get(), 80, 120);
     }
 
     @SuppressWarnings("unused")
@@ -155,27 +202,62 @@ public class Primal_Main {
     private static class Primal_MainGameBus {
 
         @SubscribeEvent
-        public static void captureDropsForCrocodile(@NotNull LivingDropsEvent event) {
-            //If killed by a crocodile
-            if(event.getSource().getEntity()!=null &&event.getSource().getEntity() instanceof CrocodileEntity crocodile && !(event.getEntity() instanceof Player)){
-                Collection<ItemStack> stacks=new ArrayList<>();
-                Collection<ItemEntity> stacksEaten=new ArrayList<>();
-                for (ItemEntity itemEntity : event.getDrops()){
-                    //If it can actually fit on the crocodile
-                    if(crocodile.canEatItem(itemEntity.getItem())){
-                        //Adds the item to the stacks that will eat
-                        stacks.add(itemEntity.getItem());
+        public static void dropsEvent(@NotNull LivingDropsEvent event) {
+            //Chomp
+            if(event.getSource().is(Primal_DamageTypes.CHOMP_TRAP)){
+                if(event.getSource().getSourcePosition()==null) return;
+                var pos = event.getSource().getSourcePosition();
 
-                        //Add the entity to removal list
-                        stacksEaten.add(itemEntity);
-                    }
+                if(event.getEntity().level().getBlockState(BlockPos.containing(pos)).getBlock() instanceof ChompTrapBlock){
+                    captureDropsForChompTrap(event.getEntity().level(), BlockPos.containing(pos), event.getDrops());
                 }
-
-                for(ItemEntity itemEntity: stacksEaten)
-                    event.getDrops().remove(itemEntity);
-
-                crocodile.addItemsToInventory(stacks);
             }
+
+            //If killed by a crocodile
+            if(event.getSource().getEntity()!=null &&event.getSource().getEntity() instanceof CrocodileEntity crocodile){
+                captureDropsForCrocodile(crocodile, event.getDrops());
+            }
+        }
+
+        private static void captureDropsForChompTrap(Level level, BlockPos pos, Collection<ItemEntity> drops){
+            Collection<ItemStack> stacks=new ArrayList<>();
+            Collection<ItemEntity> stacksEaten=new ArrayList<>();
+            if(!(level.getBlockEntity(pos) instanceof ChompTrapBlockEntity chompTrapBlockEntity)) return;
+
+            for (ItemEntity itemEntity : drops){
+//                if(chompTrapBlockEntity.canFit(itemEntity.getItem())){
+                    //Adds the item to the stacks that will eat
+                    stacks.add(itemEntity.getItem());
+
+                    //Add the entity to removal list
+                    stacksEaten.add(itemEntity);
+//                }
+            }
+
+            for(ItemEntity itemEntity: stacksEaten)
+                drops.remove(itemEntity);
+
+            stacks.forEach(chompTrapBlockEntity::insertItem);
+        }
+
+        private static void captureDropsForCrocodile(CrocodileEntity crocodile, Collection<ItemEntity> drops){
+            Collection<ItemStack> stacks=new ArrayList<>();
+            Collection<ItemEntity> stacksEaten=new ArrayList<>();
+            for (ItemEntity itemEntity : drops){
+                //If it can actually fit on the crocodile
+                if(crocodile.canEatItem(itemEntity.getItem())){
+                    //Adds the item to the stacks that will eat
+                    stacks.add(itemEntity.getItem());
+
+                    //Add the entity to removal list
+                    stacksEaten.add(itemEntity);
+                }
+            }
+
+            for(ItemEntity itemEntity: stacksEaten)
+                drops.remove(itemEntity);
+
+            crocodile.addItemsToInventory(stacks);
         }
 
         @SubscribeEvent
@@ -190,13 +272,31 @@ public class Primal_Main {
 
                     Primal_Potions.HEAVINESS
             );
+
+            builder.addMix(
+                    Potions.AWKWARD,
+                    Primal_Items.EXPLOSEED.get(),
+                    Primal_Potions.THORNED
+            );
+
+            builder.addMix(
+                    Primal_Potions.THORNED,
+                    Items.GLOWSTONE_DUST,
+                    Primal_Potions.STRONG_THORNED
+            );
+
+            builder.addMix(
+                    Primal_Potions.THORNED,
+                    Items.REDSTONE,
+                    Primal_Potions.LONG_THORNED
+            );
         }
 
         @SubscribeEvent
         public static void modifyLootTables(LootTableLoadEvent event) {
 
             //Heaviness potion to trial chambers
-            if(event.getName().equals(BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS.location())){
+            if(Primal_Util.isLootTable(event, BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS)){
 
                 var originalTable= event.getTable();
 
@@ -209,18 +309,22 @@ public class Primal_Main {
                                     .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
                                     .apply(SetPotionFunction.setPotion(Primal_Potions.HEAVINESS)).build();
 
-                    MiscUtil.extendLootPool(originalPool, List.of(heaviness_potion));
+                    Primal_Util.extendLootPool(originalPool, List.of(heaviness_potion));
                 }
             }
 
-            //1-3 Shark tooth in the small chest
-            if(event.getName().equals(BuiltInLootTables.UNDERWATER_RUIN_SMALL.location())){
+            if(Primal_Util.isLootTable(event, BuiltInLootTables.UNDERWATER_RUIN_SMALL)){
 
                 var originalTable= event.getTable();
 
-                var originalPool= originalTable.getPool("pool1");
+//                var firstPool= originalTable.getPool("pool0");
+                var secondPool= originalTable.getPool("pool1");
 
-                if(originalPool!=null){
+                //Add snakes to pool
+                event.getTable().addPool(SnakeItem.getMarineSnakePool(0.20f));
+
+                //1-3 Shark tooth in the small chest
+                if(secondPool!=null){
 
                     LootPoolEntryContainer shark_tooth =
                             LootItem.lootTableItem(Primal_Items.SHARK_TOOTH.get())
@@ -228,132 +332,76 @@ public class Primal_Main {
                                     .setWeight(2)
                                     .build();
 
-                    MiscUtil.extendLootPool(originalPool, List.of(shark_tooth));
+                    Primal_Util.extendLootPool(secondPool, List.of(shark_tooth));
                 }
             }
-        }
-    }
 
+            SnakeItem.addMarineSnakeToLootTable(event, BuiltInLootTables.UNDERWATER_RUIN_BIG, 0.10f);
 
-    @SubscribeEvent
-    public static void addToCreativeTabs(@NotNull BuildCreativeModeTabContentsEvent event) {
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.SIMPLE_DUNGEON, 0.05f);
 
-        if(event.getTabKey().equals(CreativeModeTabs.FOOD_AND_DRINKS)){
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.ABANDONED_MINESHAFT, 0.20f);
 
-            MiscUtil.insertItemsAfter(event,
-                    Items.ENCHANTED_GOLDEN_APPLE.getDefaultInstance(),
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.STRONGHOLD_LIBRARY, 0.10f);
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.STRONGHOLD_CROSSING, 0.15f);
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.STRONGHOLD_CORRIDOR, 0.15f);
 
-                    Primal_Items.APPLE_FRITTER.get().getDefaultInstance(),
-                    Primal_Items.GOLDEN_APPLE_FRITTER.get().getDefaultInstance(),
-                    Primal_Items.ENCHANTED_GOLDEN_APPLE_FRITTER.get().getDefaultInstance());
-        }
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.DESERT_PYRAMID, 0.25f);
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.JUNGLE_TEMPLE, 0.25f);
 
-        if(event.getTabKey().equals(CreativeModeTabs.NATURAL_BLOCKS)){
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.SHORT_GRASS.getDefaultInstance(),
-                    Primal_Items.SHORT_RIVER_REEDS.get().getDefaultInstance()
-            );
+            SnakeItem.addMarineSnakeToLootTable(event, BuiltInLootTables.SHIPWRECK_MAP, 0.10f);
+            SnakeItem.addMarineSnakeToLootTable(event, BuiltInLootTables.SHIPWRECK_SUPPLY, 0.15f);
+            SnakeItem.addMarineSnakeToLootTable(event, BuiltInLootTables.SHIPWRECK_TREASURE, 0.05f);
 
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.TALL_GRASS.getDefaultInstance(),
-                    Primal_Items.RIVER_REEDS.get().getDefaultInstance()
-            );
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.RUINED_PORTAL, 0.15f);
 
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.FROGSPAWN.getDefaultInstance(),
-                    Primal_Items.NEST.get().getDefaultInstance()
-            );
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_SUPPLY, 0.15f);
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_CORRIDOR, 0.10f);
+            if(Primal_Util.isLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_CORRIDOR_POT)){
+                var originalTable= event.getTable();
+                var pool = originalTable.getPool("main");
 
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.TURTLE_EGG.getDefaultInstance(),
-                    Primal_Items.CROCODILE_EGG.get().getDefaultInstance(),
-                    Primal_Items.EAGLE_EGG.get().getDefaultInstance()
-            );
-
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.LILY_PAD.getDefaultInstance(),
-                    Primal_Items.SEASHELLS.get().getDefaultInstance()
-            );
-
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.HAY_BLOCK.getDefaultInstance(),
-                    Primal_Items.STRAW_BLOCK.get().getDefaultInstance()
-            );
+                if(pool!=null) Primal_Util.extendLootPool(pool, List.of(SnakeItem.getSnakeItemEntry().setWeight(10).build()));
+            }
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_INTERSECTION, 0.10f);
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_INTERSECTION_BARREL, 0.10f);
+            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_ENTRANCE, 0.05f);
         }
 
-        if(event.getTabKey().equals(CreativeModeTabs.INGREDIENTS)){
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.TURTLE_SCUTE.getDefaultInstance(),
-                    Primal_Items.CROCODILE_SCUTE.get().getDefaultInstance()
-            );
+        @SubscribeEvent
+        public static void anvilUpdateEvent(AnvilUpdateEvent event){
+            if(event.getLeft().is(Primal_Tags.Item.HELMET_ATTACHMENTS) && event.getRight().is(ItemTags.HEAD_ARMOR)){
+                var helmet = event.getRight().copy();
+                HelmetDecorationComponent.of(helmet, event.getLeft(), true);
 
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.PRISMARINE_CRYSTALS.getDefaultInstance(),
-                    Primal_Items.SHARK_TOOTH.get().getDefaultInstance()
-            );
+                event.setOutput(helmet);
+                event.setCost(1);
+                event.setMaterialCost(1);
+            }
 
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.FLOWER_BANNER_PATTERN.getDefaultInstance(),
-                    Primal_Items.PAW_BANNER_PATTERN.get().getDefaultInstance(),
-                    Primal_Items.JAWS_BANNER_PATTERN.get().getDefaultInstance(),
-                    Primal_Items.MARSH_BANNER_PATTERN.get().getDefaultInstance(),
-                    Primal_Items.EYRIE_BANNER_PATTERN.get().getDefaultInstance()
-            );
+            if(event.getRight().is(Primal_Tags.Item.HELMET_ATTACHMENTS) && event.getLeft().is(ItemTags.HEAD_ARMOR)){
+                var helmet = event.getLeft().copy();
+                HelmetDecorationComponent.of(helmet, event.getRight(), false);
+
+                event.setOutput(helmet);
+                event.setCost(1);
+                event.setMaterialCost(1);
+            }
         }
 
-        if(event.getTabKey().equals(CreativeModeTabs.BUILDING_BLOCKS)){
-            MiscUtil.insertItemsAfter(
-                    event,
-                    Items.DARK_PRISMARINE_SLAB.getDefaultInstance(),
-                    Primal_Items.CROCODILE_SCUTE_BLOCK.get().getDefaultInstance(),
-                    Primal_Items.CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
-                    Primal_Items.CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
-                    Primal_Items.CHISELED_CROCODILE_SCUTE.get().getDefaultInstance(),
-                    Primal_Items.CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance(),
+        @SubscribeEvent
+        public static void anvilRemoveEvent(AnvilRepairEvent event){
+            var decorations = event.getOutput().get(Primal_Items.Components.HELMET_DECORATION);
 
-                    Primal_Items.ARID_CROCODILE_SCUTE_BLOCK.get().getDefaultInstance(),
-                    Primal_Items.ARID_CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
-                    Primal_Items.ARID_CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
-                    Primal_Items.ARID_CHISELED_CROCODILE_SCUTE.get().getDefaultInstance(),
-                    Primal_Items.ARID_CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance(),
+            if(event.getEntity() instanceof ServerPlayer serverPlayer && decorations!=null){
+                //Triggers advancement
+                Primal_Advancements.ADD_HELMET_DECORATION.get().trigger(serverPlayer);
 
-                    Primal_Items.HUMID_CROCODILE_SCUTE_BLOCK.get().getDefaultInstance(),
-                    Primal_Items.HUMID_CROCODILE_SCUTE_STAIRS.get().getDefaultInstance(),
-                    Primal_Items.HUMID_CROCODILE_SCUTE_SLAB.get().getDefaultInstance(),
-                    Primal_Items.HUMID_CHISELED_CROCODILE_SCUTE.get().getDefaultInstance(),
-                    Primal_Items.HUMID_CROCODILE_SCUTE_SHINGLE.get().getDefaultInstance()
-            );
-        }
-
-        if(event.getTabKey().equals(CreativeModeTabs.SPAWN_EGGS)){
-            //Bat -> Bear -> Bee
-            event.insertAfter(Items.BAT_SPAWN_EGG.getDefaultInstance(),
-                    Primal_Items.BEAR_SPAWN_EGG.get().getDefaultInstance(),
-                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-
-            //Creeper -> Crocodile
-            event.insertAfter(Items.CREEPER_SPAWN_EGG.getDefaultInstance(),
-                    Primal_Items.CROCODILE_SPAWN_EGG.get().getDefaultInstance(),
-                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-
-            //Drowned -> Eagle -> Elder Guardian
-            event.insertAfter(Items.DROWNED_SPAWN_EGG.getDefaultInstance(),
-                    Primal_Items.EAGLE_SPAWN_EGG.get().getDefaultInstance(),
-                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-
-            //Salmon -> Shark -> Sheep
-            event.insertAfter(Items.SALMON_SPAWN_EGG.getDefaultInstance(),
-                    Primal_Items.SHARK_SPAWN_EGG.get().getDefaultInstance(),
-                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+                //Triggers advancement
+                if(decorations.right().equals(HelmetDecorationType.GOAT) && decorations.left().equals(HelmetDecorationType.GOAT)){
+                    Primal_Advancements.ADD_HELMET_HORNS.get().trigger(serverPlayer);
+                }
+            }
         }
     }
 
@@ -363,24 +411,121 @@ public class Primal_Main {
         event.put(Primal_Entities.SHARK.get(), SharkEntity.createAttributes().build());
         event.put(Primal_Entities.CROCODILE.get(), CrocodileEntity.createAttributes().build());
         event.put(Primal_Entities.EAGLE.get(), EagleEntity.createAttributes().build());
+        event.put(Primal_Entities.CASSOWARY.get(), CassowaryEntity.createAttributes().build());
+        event.put(Primal_Entities.WALRUS.get(), WalrusEntity.createAttributes().build());
+        event.put(Primal_Entities.LION.get(), LionEntity.createAttributes().build());
+        event.put(Primal_Entities.SNAKE.get(), SnakeEntity.createAttributes().build());
+        event.put(Primal_Entities.DEER.get(), DeerEntity.createAttributes().build());
     }
 
     @SubscribeEvent
     public static void registerSpawnPlacements(final @NotNull RegisterSpawnPlacementsEvent event){
+        //For natural generation
         //Bear
         event.register(Primal_Entities.BEAR.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 BearEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
         //Shark
         event.register(Primal_Entities.SHARK.get(), SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                SharkEntity::checkSurfaceWaterAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+                SharkEntity::sharkSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
         //Crocodile
         event.register(Primal_Entities.CROCODILE.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                 CrocodileEntity::checkCrocodileSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
 
         //Eagle
-        event.register(Primal_Entities.EAGLE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                BearEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.EAGLE.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                EagleEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        //Cassowary
+        event.register(Primal_Entities.CASSOWARY.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                CassowaryEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        //Walrus
+        event.register(Primal_Entities.WALRUS.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                WalrusEntity::checkWalrusSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        //Lion
+        event.register(Primal_Entities.LION.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                LionEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        //Snake
+        event.register(Primal_Entities.SNAKE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                SnakeEntity::checkSnakeSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+
+        //Deer
+        event.register(Primal_Entities.DEER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                DeerEntity::checkDeerSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+    }
+
+    @SubscribeEvent
+    public static void registerNetworking(final RegisterPayloadHandlersEvent event) {
+        // Sets the current network version
+        final PayloadRegistrar mainThread = event.registrar("1");
+
+        mainThread.playToServer(
+                WalrusJumpPacket.TYPE,
+                WalrusJumpPacket.STREAM_CODEC,
+                Primal_HandlePackets.OnServer::handleWalrusJumpPacket
+        );
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event) {
+        ServerLevel serverLevel = event.getServer().overworld();
+        ConchShellsData conchShellsData = ConchShellsData.get(serverLevel);
+
+        List<Entity> toRemove = new ArrayList<>();
+
+        for (UUID uuid: conchShellsData.getPets().keySet()){
+            var dimension = conchShellsData.getDimension(uuid);
+            var dimensionLevel = event.getServer().getLevel(dimension);
+            if(dimensionLevel==null) continue;
+
+            var pet = dimensionLevel.getEntity(uuid);
+            if(pet==null) continue;
+
+            conchShellsData.addPet(pet);
+
+            if (!pet.isAlive()) toRemove.add(pet);
+        }
+
+        for (Entity entity : toRemove) conchShellsData.removePet(entity);
+
+        DelayedTasks.tick();
+    }
+
+    @SubscribeEvent
+    public static void entityJoinLevel(EntityJoinLevelEvent event) {}
+
+    @SubscribeEvent
+    public static void entityLeavesLevel(EntityLeaveLevelEvent event) {
+
+        //If variantFromBiome dies
+        if(event.getEntity().getRemovalReason() !=null && event.getEntity().getRemovalReason().equals(Entity.RemovalReason.KILLED)){
+
+            if(event.getLevel().getServer()==null) return;
+            MinecraftServer server = event.getLevel().getServer();
+
+            ServerLevel serverLevel = server.overworld();
+            ConchShellsData conchShellsData = ConchShellsData.get(serverLevel);
+
+            if(conchShellsData.hasPet(event.getEntity())){
+                conchShellsData.removePet(event.getEntity());
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void onGrindstonePlace(GrindstoneEvent.OnPlaceItem event) {
+        ItemStack outputStack = ItemStack.EMPTY;
+
+        if(event.getTopItem().getItem() instanceof ConchShellItem && event.getBottomItem().isEmpty())
+            outputStack = ConchShellItem.removePet(event.getTopItem().copy());
+
+        if(event.getBottomItem().getItem() instanceof ConchShellItem && event.getTopItem().isEmpty())
+            outputStack = ConchShellItem.removePet(event.getBottomItem().copy());
+
+        event.setOutput(outputStack);
     }
 }

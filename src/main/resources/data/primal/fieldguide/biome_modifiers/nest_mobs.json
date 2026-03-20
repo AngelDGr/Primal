@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "additions": [
+    {
+      "entry": "primal:eagle",
+      "value": "#primal:has_mob/eagle"
+    },
+    {
+      "entry": "primal:cassowary",
+      "value": "#primal:has_mob/cassowary"
+    }
+  ]
+}

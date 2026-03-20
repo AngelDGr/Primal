@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "primal:block/thorny_acacia_leaves"
+  }
+}

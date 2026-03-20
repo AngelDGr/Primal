@@ -1,0 +1,52 @@
+{
+  "values": [
+    {
+      "id": "primal:thorny_acacia_sapling",
+      "structure_nbt": "primal:thorny_acacia",
+      "components": [
+        "primal:thorny_acacia_log",
+        "primal:thorny_acacia_leaves"
+      ]
+    },
+
+    {
+      "id": "primal:cattails",
+      "structure_nbt": "primal:cattails",
+      "components": [
+        "primal:cattails"
+      ]
+    },
+    {
+      "id": "primal:river_reeds",
+      "structure_nbt": "primal:river_reeds",
+      "components": [
+        "primal:river_reeds"
+      ]
+    },
+
+
+    {
+      "id": "primal:starfruit_tree",
+      "structure_nbt": "primal:starfruit_tree",
+      "components": [
+        "primal:starfruit_sapling",
+        "primal:starfruit_tree"
+      ]
+    },
+    {
+      "id": "primal:litchi_tree",
+      "structure_nbt": "primal:litchi_tree",
+      "components": [
+        "primal:litchi_sapling",
+        "primal:litchi_tree"
+      ]
+    },
+    {
+      "id": "primal:kiwano_bulk",
+      "components": [
+        "primal:kiwano_sapling",
+        "primal:kiwano_bulk"
+      ]
+    }
+  ]
+}

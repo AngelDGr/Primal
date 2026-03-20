@@ -1,0 +1,14 @@
+{
+  "parent": "primal:item/conch_shell",
+  "overrides": [
+    {
+      "model": "primal:item/cold_conch_shell_tooting",
+      "predicate": {
+        "minecraft:tooting": 1.0
+      }
+    }
+  ],
+  "textures": {
+    "texture": "primal:item/conch_shell_cold"
+  }
+}
