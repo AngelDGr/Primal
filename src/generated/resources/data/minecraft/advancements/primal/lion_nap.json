@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:primal/tame_lion",
+  "criteria": {
+    "lion_nap": {
+      "conditions": {},
+      "trigger": "primal:lion_nap"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.lion_nap.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:orange_bed"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.lion_nap.title"
+    }
+  },
+  "requirements": [
+    [
+      "lion_nap"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

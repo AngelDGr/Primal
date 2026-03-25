@@ -1,23 +1,18 @@
 package org.primal.item;
 
-import net.minecraft.Util;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Position;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.misc.ExploseedEntity;
 import org.primal.registry.Primal_Sounds;
 
-public class ExploseedItem extends Item implements ProjectileItem {
+public class ExploseedItem extends Item {
 
     public ExploseedItem(Properties properties) {
         super(properties);
@@ -26,7 +21,7 @@ public class ExploseedItem extends Item implements ProjectileItem {
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(final Level world, final Player user, @NotNull final InteractionHand hand) {
         final ItemStack itemStack = user.getItemInHand(hand);
-        world.playSound(null, user.getX(), user.getY(), user.getZ(), Primal_Sounds.EXPLOSEED_THROW, SoundSource.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
+        world.playSound(null, user.getX(), user.getY(), user.getZ(), Primal_Sounds.EXPLOSEED_THROW.get(), SoundSource.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
 
         if (!world.isClientSide) {
             final ExploseedEntity exploseedEntity = new ExploseedEntity(world, user);
@@ -39,10 +34,5 @@ public class ExploseedItem extends Item implements ProjectileItem {
             itemStack.shrink(1);
         }
         return InteractionResultHolder.sidedSuccess(itemStack, world.isClientSide());
-    }
-
-    @Override
-    public @NotNull Projectile asProjectile(@NotNull final Level world, final Position pos, @NotNull final ItemStack stack, @NotNull final Direction direction) {
-        return Util.make(new ExploseedEntity(world, pos.x(), pos.y(), pos.z()), entity -> entity.setItem(stack));
     }
 }

@@ -1,15 +1,17 @@
 package org.primal.datagen.providers;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.client.model.generators.ItemModelBuilder;
+import net.minecraftforge.client.model.generators.ItemModelProvider;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.primal.Primal_Main;
-import org.primal.Primal_Registries;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Items;
 
@@ -140,11 +142,11 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
 
     protected void eggItem(final Item eggItem) {
         getBuilder(
-                Objects.requireNonNull(Primal_Registries.ITEMS.getRegistry().get().getKey(eggItem)).toString())
+                Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(eggItem)).toString())
                 .parent(new ModelFile.UncheckedModelFile("item/template_spawn_egg"));
     }
 
-    private void conchShell(DeferredHolder<Item, Item> item, String texture){
+    private void conchShell(RegistryObject<Item> item, String texture){
         var tooting= this.withExistingParent(item.getId().getPath()+"_tooting", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/tooting_conch_shell"))
                 .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, texture));
 
@@ -167,17 +169,25 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
         }
     }
 
-    private void withParent(DeferredHolder<Item, Item> item, ResourceLocation parent, ResourceLocation texture){
+    public void simpleBlockItem(Block block) {
+        simpleBlockItem(Objects.requireNonNull(BuiltInRegistries.BLOCK.getKey(block)));
+    }
+
+    public void simpleBlockItem(ResourceLocation block) {
+        withExistingParent(block.toString(), ResourceLocation.fromNamespaceAndPath(block.getNamespace(), "block/" + block.getPath()));
+    }
+
+    private void withParent(RegistryObject<Item> item, ResourceLocation parent, ResourceLocation texture){
         this.withExistingParent(item.getId().getPath(), parent)
                 .texture("texture", texture);
     }
 
-    private void musicDisc(DeferredHolder<Item, Item> item){
+    private void musicDisc(RegistryObject<Item> item){
         this.withExistingParent(item.getId().getPath(), ResourceLocation.withDefaultNamespace("item/template_music_disc"))
                 .texture("layer0", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/"+item.getId().getPath()));
     }
 
-    public ItemModelBuilder chestItem(DeferredHolder<Item, Item> item, ResourceLocation base) {
+    public ItemModelBuilder chestItem(RegistryObject<Item> item, ResourceLocation base) {
         return getBuilder(item.getId().getPath())
                 .parent(new ModelFile.UncheckedModelFile("item/chest"))
                 .texture("particle", base);

@@ -1,6 +1,5 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -22,7 +21,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.CrocodileEntity;
 import org.primal.registry.Primal_Entities;
@@ -32,7 +31,6 @@ import org.primal.util.Primal_Util;
 import javax.annotation.Nullable;
 
 public class CrocodileEgg extends Block implements AnimalEgg {
-    public static final MapCodec<CrocodileEgg> CODEC = simpleCodec(CrocodileEgg::new);
     public static final IntegerProperty EGGS = Primal_Util.EGGS_3;
 
     public CrocodileEgg(Properties properties) {
@@ -48,7 +46,7 @@ public class CrocodileEgg extends Block implements AnimalEgg {
     }
 
     @Override
-    public DeferredHolder<EntityType<?>, ? extends EntityType<? extends Animal>> getAnimal() {
+    public RegistryObject<? extends EntityType<? extends Animal>> getAnimal() {
         return Primal_Entities.CROCODILE;
     }
 
@@ -90,25 +88,20 @@ public class CrocodileEgg extends Block implements AnimalEgg {
     }
 
     @Override
-    protected boolean canBeReplaced(@NotNull BlockState state, BlockPlaceContext useContext) {
+    public boolean canBeReplaced(@NotNull BlockState state, BlockPlaceContext useContext) {
         return !useContext.isSecondaryUseActive() && useContext.getItemInHand().is(this.asItem()) && state.getValue(EGGS) < 3
                 || super.canBeReplaced(state, useContext);
     }
 
     @Override
-    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         randomTick(state, level, pos, random, EGGS);
     }
 
     private static final VoxelShape ONE_EGG_AABB = Block.box(1.0, 0.0, 1.0, 7.0, 6.0, 7.0);
     private static final VoxelShape MULTIPLE_EGGS_AABB = Block.box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
     @Override
-    protected @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return state.getValue(EGGS) > 1 ? MULTIPLE_EGGS_AABB : ONE_EGG_AABB;
-    }
-
-    @Override
-    protected @NotNull MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 }

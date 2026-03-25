@@ -1,24 +1,27 @@
 package org.primal.advancements.criterion;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.ContextAwarePredicate;
-import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
+import com.google.gson.JsonObject;
+import net.minecraft.advancements.critereon.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.storage.loot.LootContext;
 import org.jetbrains.annotations.NotNull;
-import org.primal.registry.Primal_Advancements;
+import org.primal.Primal_Main;
 
 import java.util.Optional;
 
 public class SharkKillsEntity extends SimpleCriterionTrigger<SharkKillsEntity.Conditions> {
 
     @Override
-    public @NotNull Codec<SharkKillsEntity.Conditions> codec() {
-        return SharkKillsEntity.Conditions.CODEC;
+    protected @NotNull Conditions createInstance(@NotNull JsonObject jsonObject, @NotNull ContextAwarePredicate contextAwarePredicate, @NotNull DeserializationContext deserializationContext) {
+        ContextAwarePredicate lootContextPredicate2 = EntityPredicate.fromJson(jsonObject, "entity", deserializationContext);
+        return new SharkKillsEntity.Conditions(contextAwarePredicate, Optional.of(lootContextPredicate2));
+    }
+
+    @Override
+    public @NotNull ResourceLocation getId() {
+        return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "feed_shark");
     }
 
     public void trigger(final ServerPlayer player, final LivingEntity entity) {
@@ -28,23 +31,23 @@ public class SharkKillsEntity extends SimpleCriterionTrigger<SharkKillsEntity.Co
                 .orElse(false));
     }
 
-    public record Conditions(Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> entity) implements SimpleInstance {
+    public static class Conditions extends AbstractCriterionTriggerInstance {
+        Optional<ContextAwarePredicate> entity;
 
-        public static final Codec<SharkKillsEntity.Conditions> CODEC =
-                RecordCodecBuilder.create(instance ->
-                        instance.group(
-                                        EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player")
-                                                .forGetter(SharkKillsEntity.Conditions::player),
-                                        EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("entity")
-                                                .forGetter(SharkKillsEntity.Conditions::entity))
-                                .apply(instance, SharkKillsEntity.Conditions::new));
-
-        public static Criterion<SharkKillsEntity.Conditions> create(final EntityPredicate.Builder entity) {
-            return Primal_Advancements.FEED_SHARK.get().createCriterion(
-                    new SharkKillsEntity.Conditions(
-                            Optional.empty(),
-                            Optional.of(EntityPredicate.wrap(entity))));
+        public Conditions(ContextAwarePredicate contextAwarePredicate, Optional<ContextAwarePredicate> optional) {
+            super(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "feed_shark"), contextAwarePredicate);
+            entity=optional;
         }
 
+        public static Conditions create(final EntityPredicate.Builder entity) {
+            return new SharkKillsEntity.Conditions(ContextAwarePredicate.ANY, Optional.of(EntityPredicate.wrap(entity.build())));
+        }
+
+        @Override
+        public @NotNull JsonObject serializeToJson(@NotNull SerializationContext serializationContext) {
+            JsonObject jsonObject = super.serializeToJson(serializationContext);
+            jsonObject.add("entity", this.entity.get().toJson(serializationContext));
+            return jsonObject;
+        }
     }
 }

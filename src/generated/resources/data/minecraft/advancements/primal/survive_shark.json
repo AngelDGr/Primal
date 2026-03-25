@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "survive_shark": {
+      "conditions": {},
+      "trigger": "primal:survive_shark"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.survive_shark.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:water_bucket"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.survive_shark.title"
+    }
+  },
+  "requirements": [
+    [
+      "survive_shark"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

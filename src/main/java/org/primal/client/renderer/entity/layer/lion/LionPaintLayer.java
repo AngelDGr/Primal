@@ -26,8 +26,12 @@ public class LionPaintLayer extends GeoRenderLayer<LionEntity> {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
                         "textures/entity/lion/"+(animatable.isBaby()? "baby/": "")+ "paint" + ".png"));
 
-        int i = animatable.getCollarColor().getTextureDiffuseColor();
+        float[] i = animatable.getCollarColor().getTextureDiffuseColors();
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, i);
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY,
+                i[0],
+                i[1],
+                i[2],
+                1);
     }
 }

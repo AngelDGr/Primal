@@ -6,8 +6,8 @@ import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
 import org.primal.block.DreamcatcherBlock;
 import org.primal.block_entity.DreamcatcherBlockEntity;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.DefaultedBlockGeoModel;
 
 public class DreamcatcherModel extends DefaultedBlockGeoModel<DreamcatcherBlockEntity> {
@@ -23,9 +23,9 @@ public class DreamcatcherModel extends DefaultedBlockGeoModel<DreamcatcherBlockE
 
     @Override
     public void setCustomAnimations(DreamcatcherBlockEntity animatable, long instanceId, AnimationState<DreamcatcherBlockEntity> animationState) {
-        GeoBone catcher = getAnimationProcessor().getBone("catcher");
+        CoreGeoBone catcher = getAnimationProcessor().getBone("catcher");
 
-        GeoBone rope = getAnimationProcessor().getBone("rope");
+        CoreGeoBone rope = getAnimationProcessor().getBone("rope");
         boolean hanging = animatable.getBlockState().getValue(DreamcatcherBlock.HANGING);
 
 

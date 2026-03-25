@@ -1,0 +1,86 @@
+{
+  "parent": "minecraft:primal/tame_bear",
+  "criteria": {
+    "tame_grizzly": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "bear",
+                "variant": "grizzly"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:tame_animal"
+    },
+    "tame_grolar": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "bear",
+                "variant": "grolar"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:tame_animal"
+    },
+    "tame_warm": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "bear",
+                "variant": "warm"
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:tame_animal"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.tame_all_bears.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:barrel"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.tame_all_bears.title"
+    }
+  },
+  "requirements": [
+    [
+      "tame_grizzly"
+    ],
+    [
+      "tame_grolar"
+    ],
+    [
+      "tame_warm"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  },
+  "sends_telemetry_event": true
+}

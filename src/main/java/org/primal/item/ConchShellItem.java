@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -20,15 +19,21 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.primal.client.item.ConchShellClientExtension;
 import org.primal.item.component.ConchShellComponent;
 import org.primal.networking.DelayedTasks;
 import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_Sounds;
 import org.primal.server_data.ConchShellsData;
+import org.primal.util.Primal_Util;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class ConchShellItem extends Item {
 
@@ -41,7 +46,7 @@ public class ConchShellItem extends Item {
 
     @Override
     public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack, @NotNull Player player, @NotNull LivingEntity target, @NotNull InteractionHand usedHand) {
-        if(target instanceof OwnableEntity ownedEntity && ownedEntity.getOwner()!=null && ownedEntity.getOwner().equals(player) && !stack.has(Primal_Items.Components.CONCH_SHELL)){
+        if(target instanceof OwnableEntity ownedEntity && ownedEntity.getOwner()!=null && ownedEntity.getOwner().equals(player) && !Primal_Util.OneTwentyEquivalent.Components.has(stack, Primal_Items.Components.CONCH_SHELL)){
             if (player.level() instanceof ServerLevel serverLevel) {
                 assignPet(serverLevel, stack, target);
 
@@ -64,7 +69,7 @@ public class ConchShellItem extends Item {
     @Override
     public void releaseUsing(@NotNull ItemStack itemstack, @NotNull Level level, @NotNull LivingEntity livingEntity, int timeCharged) {
         if(livingEntity instanceof Player player){
-            var conchShellComponent = itemstack.get(Primal_Items.Components.CONCH_SHELL);
+            var conchShellComponent = Primal_Util.OneTwentyEquivalent.Components.get(itemstack, Primal_Items.Components.CONCH_SHELL);
 
             if(conchShellComponent!=null && (ConchShellItem.MAX_DURATION - timeCharged)>= ConchShellItem.RELEASE_TIME){
 
@@ -100,7 +105,7 @@ public class ConchShellItem extends Item {
 
                         // Update UUID
                         assignPet(serverLevel, itemstack, teleported);
-                        teleported.playSound(SoundEvents.PLAYER_TELEPORT);
+                        teleported.playSound(SoundEvents.ENDERMAN_TELEPORT);
                     });
 
                     //Unload chunk later, just in case
@@ -123,7 +128,7 @@ public class ConchShellItem extends Item {
     @Override
     public void onUseTick(@NotNull Level level, @NotNull LivingEntity livingEntity, @NotNull ItemStack itemstack, int remainingUseDuration) {
         if(livingEntity instanceof Player player){
-            var conchShellComponent = itemstack.get(Primal_Items.Components.CONCH_SHELL);
+            var conchShellComponent = Primal_Util.OneTwentyEquivalent.Components.get(itemstack, Primal_Items.Components.CONCH_SHELL);
 
             if(conchShellComponent!=null)
                 if(player.level() instanceof ServerLevel serverLevel)
@@ -134,7 +139,7 @@ public class ConchShellItem extends Item {
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, @NotNull Player player, @NotNull InteractionHand usedHand) {
         ItemStack itemstack = player.getItemInHand(usedHand);
-        var conchShellComponent = itemstack.get(Primal_Items.Components.CONCH_SHELL);
+        var conchShellComponent = Primal_Util.OneTwentyEquivalent.Components.get(itemstack, Primal_Items.Components.CONCH_SHELL);
 
         if(conchShellComponent!=null){
             if(player.level() instanceof ServerLevel serverLevel){
@@ -219,46 +224,61 @@ public class ConchShellItem extends Item {
         var pet = dimensionLevel.getEntity(conchShellComponent.pet());
         if(pet==null) return null;
 
-        return new Pair<>(pet, new GlobalPos(data.getDimension(conchShellComponent.pet()), pos));
+        return new Pair<>(pet, GlobalPos.of(data.getDimension(conchShellComponent.pet()), pos));
+    }
+
+    @Override
+    public boolean isFoil(@NotNull ItemStack itemStack) {
+        return super.isFoil(itemStack) || Primal_Util.OneTwentyEquivalent.Components.has(itemStack, Primal_Items.Components.CONCH_SHELL);
+    }
+
+    @Override
+    public @NotNull Rarity getRarity(@NotNull ItemStack itemStack) {
+        if(Primal_Util.OneTwentyEquivalent.Components.has(itemStack, Primal_Items.Components.CONCH_SHELL))
+            return Rarity.RARE;
+
+        return super.getRarity(itemStack);
     }
 
     public static ItemStack removePet(ItemStack stack){
-        stack.remove(Primal_Items.Components.CONCH_SHELL.get());
-        stack.remove(DataComponents.ENCHANTMENT_GLINT_OVERRIDE);
-        stack.remove(DataComponents.RARITY);
+        Primal_Util.OneTwentyEquivalent.Components.remove(stack, Primal_Items.Components.CONCH_SHELL);
         return stack;
     }
 
     public static void assignPet(ServerLevel serverLevel, ItemStack stack, Entity target){
-        stack.set(Primal_Items.Components.CONCH_SHELL.get(), new ConchShellComponent(target.getDisplayName(), target.getUUID()));
-        stack.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true);
-        stack.set(DataComponents.RARITY, Rarity.RARE);
+        Primal_Util.OneTwentyEquivalent.Components.set(stack, new ConchShellComponent(target.getDisplayName(), target.getUUID()));
         ConchShellsData.get(serverLevel).addPet(target);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
-        if(!stack.has(Primal_Items.Components.CONCH_SHELL))
+    public void appendHoverText(@NotNull ItemStack stack, Level level, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        if(!Primal_Util.OneTwentyEquivalent.Components.has(stack, Primal_Items.Components.CONCH_SHELL))
             tooltipComponents.add(Component.translatable("item.primal.conch_shell.tooltip").withStyle(ChatFormatting.DARK_GRAY));
     }
 
     @Override
     public @NotNull Component getName(@NotNull ItemStack stack) {
-        return stack.has(Primal_Items.Components.CONCH_SHELL)? Component.translatable("item.primal.bound_conch_shell") : super.getName(stack);
+        return Primal_Util.OneTwentyEquivalent.Components.has(stack, Primal_Items.Components.CONCH_SHELL)? Component.translatable("item.primal.bound_conch_shell") : super.getName(stack);
     }
 
     @Override
     public boolean canGrindstoneRepair(ItemStack stack) {
-        return stack.has(Primal_Items.Components.CONCH_SHELL);
+        return Primal_Util.OneTwentyEquivalent.Components.has(stack, Primal_Items.Components.CONCH_SHELL);
     }
 
     @Override
-    public int getUseDuration(@NotNull ItemStack itemstack, @NotNull LivingEntity entity) {
+    public int getUseDuration(@NotNull ItemStack itemstack) {
         return ConchShellItem.MAX_DURATION;
     }
 
     @Override
     public @NotNull UseAnim getUseAnimation(@NotNull ItemStack stack) {
         return UseAnim.TOOT_HORN;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new ConchShellClientExtension());
     }
 }

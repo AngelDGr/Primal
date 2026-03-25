@@ -1,6 +1,6 @@
 package org.primal.worldgen.blockstate_provider;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +17,7 @@ import org.primal.registry.Primal_WorldGen;
 import java.util.List;
 
 public class HollowLogBlockProvider extends BlockStateProvider {
-    public static final MapCodec<HollowLogBlockProvider> CODEC = RecordCodecBuilder.mapCodec((instance) ->
+    public static final Codec<HollowLogBlockProvider> CODEC = RecordCodecBuilder.create((instance) ->
             instance.group(
                     BlockState.CODEC.fieldOf("state")
                             .forGetter((hollowRotated)-> hollowRotated.block.defaultBlockState()),

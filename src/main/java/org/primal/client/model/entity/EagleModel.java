@@ -5,10 +5,10 @@ import org.primal.Primal_Main;
 import org.primal.client.animation.entity.EagleAnimations;
 import org.primal.client.model.defaulted.DefaultedEntityWithVariantsWithBabyGeoModel;
 import org.primal.entity.animal.EagleEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 
 public class EagleModel extends DefaultedEntityWithVariantsWithBabyGeoModel<EagleEntity, EagleEntity.Variant> {
     public EagleModel() {
@@ -20,11 +20,11 @@ public class EagleModel extends DefaultedEntityWithVariantsWithBabyGeoModel<Eagl
         boolean applyFullRotations = !eagle.onGround() && !eagle.isBaby();
         final AnimationController<GeoAnimatable> controller = eagle.getAnimatableInstanceCache().getManagerForId(eagle.getId()).getAnimationControllers().get("base_controller");
 
-        GeoBone leftIdleFeathers = getAnimationProcessor().getBone("left_idle_feathers");
-        GeoBone rightIdleFeathers = getAnimationProcessor().getBone("right_idle_feathers");
+        CoreGeoBone leftIdleFeathers = getAnimationProcessor().getBone("left_idle_feathers");
+        CoreGeoBone rightIdleFeathers = getAnimationProcessor().getBone("right_idle_feathers");
 
-        GeoBone leftFlightFeathers = getAnimationProcessor().getBone("left_flight_feathers");
-        GeoBone rightFlightFeathers = getAnimationProcessor().getBone("right_flight_feathers");
+        CoreGeoBone leftFlightFeathers = getAnimationProcessor().getBone("left_flight_feathers");
+        CoreGeoBone rightFlightFeathers = getAnimationProcessor().getBone("right_flight_feathers");
 
         if(leftIdleFeathers != null && rightIdleFeathers!=null && leftFlightFeathers!=null && rightFlightFeathers!=null){
             if(controller.getCurrentRawAnimation()!=null){

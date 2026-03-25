@@ -2,10 +2,10 @@ package org.primal.datagen.providers;
 
 import net.minecraft.data.PackOutput;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.common.data.SoundDefinition;
-import net.neoforged.neoforge.common.data.SoundDefinitionsProvider;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.SoundDefinition;
+import net.minecraftforge.common.data.SoundDefinitionsProvider;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Main;
 import org.primal.registry.Primal_Sounds;
 
@@ -96,6 +96,9 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
         addSpecificSound(Primal_Sounds.CROCODILE_CLOCK,
                 "minecraft:note/hat"
         );
+        addSpecificSound(Primal_Sounds.ARMADILLO_BRUSH,
+                sound("primal:entity/common/armadillo_brush1"),
+                sound("primal:entity/common/armadillo_brush2"));
 
         addSoundEntity(Primal_Sounds.EAGLE_IDLE, 5);
         addSoundEntity(Primal_Sounds.EAGLE_HURT, 4);
@@ -240,7 +243,7 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
         addMusicDisc(Primal_Sounds.OH_DEER);
     }
 
-    private void addSpecificSound(final DeferredHolder<SoundEvent, SoundEvent> sound, SoundDefinition.Sound... soundData) {
+    private void addSpecificSound(final RegistryObject<SoundEvent> sound, SoundDefinition.Sound... soundData) {
         final SoundDefinition definition = definition().subtitle("subtitles." + Primal_Main.MOD_ID + "." + sound.getId().getPath());
 
         for (SoundDefinition.Sound soundDatum : soundData) {
@@ -250,7 +253,7 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
         this.add(sound.get(), definition);
     }
 
-    private void addSpecificSound(final DeferredHolder<SoundEvent, SoundEvent> sound, final String... sounds) {
+    private void addSpecificSound(final RegistryObject<SoundEvent> sound, final String... sounds) {
         final SoundDefinition definition = definition().subtitle("subtitles." + Primal_Main.MOD_ID + "." + sound.getId().getPath());
 
         for(final String name: sounds){
@@ -261,7 +264,7 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
     }
 
     @SuppressWarnings("all")
-    private void addSoundItem(final DeferredHolder<SoundEvent, SoundEvent> sound, final int soundVariationAmount) {
+    private void addSoundItem(final RegistryObject<SoundEvent> sound, final int soundVariationAmount) {
         final SoundDefinition definition = definition().subtitle("subtitles." + Primal_Main.MOD_ID + "." + sound.getId().getPath());
 
         String[] soundPathSplitted= sound.getId().getPath().split("\\.");
@@ -277,7 +280,7 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
         this.add(sound.get(), definition);
     }
 
-    private void addSoundEntity(final DeferredHolder<SoundEvent, SoundEvent> sound, final int soundVariationAmount) {
+    private void addSoundEntity(final RegistryObject<SoundEvent> sound, final int soundVariationAmount) {
         final SoundDefinition definition = definition().subtitle("subtitles." + Primal_Main.MOD_ID + "." + sound.getId().getPath());
 
         String[] soundPathSplitted= sound.getId().getPath().split("\\.");
@@ -293,7 +296,7 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
         this.add(sound.get(), definition);
     }
 
-    private void addWalrusSong(final DeferredHolder<SoundEvent, SoundEvent> sound) {
+    private void addWalrusSong(final RegistryObject<SoundEvent> sound) {
         final SoundDefinition definition = definition().subtitle("subtitles.primal.entity.walrus.song");
 
         String[] soundPathSplitted= sound.getId().getPath().split("\\.");
@@ -306,7 +309,7 @@ public class Primal_SoundsJsonGenerator extends SoundDefinitionsProvider {
     }
 
     @SuppressWarnings("all")
-    private void addMusicDisc(final DeferredHolder<SoundEvent, SoundEvent> sound) {
+    private void addMusicDisc(final RegistryObject<SoundEvent> sound) {
         final SoundDefinition definition = definition();
 
         String[] soundPathSplitted= sound.getId().getPath().split("\\.");

@@ -1,47 +1,41 @@
 package org.primal.datagen.providers;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.DataMapProvider;
-import net.neoforged.neoforge.registries.datamaps.builtin.Compostable;
-import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
-import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.ComposterBlock;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import org.primal.registry.Primal_Items;
 
-import java.util.concurrent.CompletableFuture;
+public class Primal_DataMapGenerator {
 
-public class Primal_DataMapGenerator extends DataMapProvider {
-    public Primal_DataMapGenerator(final PackOutput packOutput, final CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(packOutput, lookupProvider);
-    }
+    public static void setSimilarToDataMaps() {
+        var compostables= ComposterBlock.COMPOSTABLES;
 
-    @Override
-    protected void gather(HolderLookup.@NotNull Provider provider) {
+        compostables.put(Primal_Items.WARM_SEASHELLS.get(), 0.3f);
+        compostables.put(Primal_Items.COLD_SEASHELLS.get(), 0.3f);
+        compostables.put(Primal_Items.TEMPERATE_SEASHELLS.get(), 0.3f);
+        compostables.put(Primal_Items.SHORT_RIVER_REEDS.get(), 0.3f);
+        compostables.put(Primal_Items.RIVER_REEDS.get(), 0.5f);
+        compostables.put(Primal_Items.CATTAILS.get(), 0.5f);
+        compostables.put(Primal_Items.THORNY_ACACIA_LEAVES.get(), 0.3f);
+        compostables.put(Primal_Items.EXPLOSEED.get(), 0.65f);
+        compostables.put(Primal_Items.STRAW_BLOCK.get(), 0.85f);
+        compostables.put(Primal_Items.DRIED_STRAW_BLOCK.get(), 0.85f);
+        compostables.put(Primal_Items.WEAVED_STRAW.get(), 0.85f);
+        compostables.put(Primal_Items.WEAVED_STRAW_STAIRS.get(), 0.35f);
+        compostables.put(Primal_Items.WEAVED_STRAW_SLAB.get(), 0.35f);
+        compostables.put(Primal_Items.STRAW_BASKET.get(), 0.85f);
 
-        builder(NeoForgeDataMaps.COMPOSTABLES)
-                .add(Primal_Items.WARM_SEASHELLS, new Compostable(0.3f), false)
-                .add(Primal_Items.COLD_SEASHELLS, new Compostable(0.3f), false)
-                .add(Primal_Items.TEMPERATE_SEASHELLS, new Compostable(0.3f), false)
-                .add(Primal_Items.SHORT_RIVER_REEDS, new Compostable(0.3f), false)
-                .add(Primal_Items.RIVER_REEDS, new Compostable(0.5f), false)
-                .add(Primal_Items.CATTAILS, new Compostable(0.5f), false)
-                .add(Primal_Items.THORNY_ACACIA_LEAVES, new Compostable(0.3f), false)
-                .add(Primal_Items.EXPLOSEED, new Compostable(0.65f), false)
-                .add(Primal_Items.STRAW_BLOCK, new Compostable(0.85f), false)
-                .add(Primal_Items.DRIED_STRAW_BLOCK, new Compostable(0.85f), false)
-                .add(Primal_Items.WEAVED_STRAW, new Compostable(0.85f), false)
-                .add(Primal_Items.WEAVED_STRAW_STAIRS, new Compostable(0.35f), false)
-                .add(Primal_Items.WEAVED_STRAW_SLAB, new Compostable(0.35f), false)
-                .add(Primal_Items.STRAW_BASKET, new Compostable(0.85f), false);
+        MinecraftForge.EVENT_BUS.addListener((FurnaceFuelBurnTimeEvent event) -> {
+            ItemStack stack = event.getItemStack();
 
-        builder(NeoForgeDataMaps.FURNACE_FUELS)
-                .add(Primal_Items.NEST, new FurnaceFuel(100), false)
-                .add(Primal_Items.STRAW_BLOCK, new FurnaceFuel(800), false)
-                .add(Primal_Items.DRIED_STRAW_BLOCK, new FurnaceFuel(1600), false)
-                .add(Primal_Items.WEAVED_STRAW, new FurnaceFuel(600), false)
-                .add(Primal_Items.WEAVED_STRAW_STAIRS, new FurnaceFuel(300), false)
-                .add(Primal_Items.WEAVED_STRAW_SLAB, new FurnaceFuel(300), false)
-                .add(Primal_Items.STRAW_BASKET, new FurnaceFuel(600), false);
+            if (stack.is(Primal_Items.NEST.get())) event.setBurnTime(100);
+            if (stack.is(Primal_Items.STRAW_BLOCK.get())) event.setBurnTime(800);
+            if (stack.is(Primal_Items.DRIED_STRAW_BLOCK.get())) event.setBurnTime(1600);
+            if (stack.is(Primal_Items.WEAVED_STRAW.get())) event.setBurnTime(600);
+            if (stack.is(Primal_Items.WEAVED_STRAW_STAIRS.get())) event.setBurnTime(300);
+            if (stack.is(Primal_Items.WEAVED_STRAW_SLAB.get())) event.setBurnTime(300);
+            if (stack.is(Primal_Items.STRAW_BASKET.get())) event.setBurnTime(600);
+        });
     }
 }

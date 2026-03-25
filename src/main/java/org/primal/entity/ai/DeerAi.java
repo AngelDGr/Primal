@@ -16,7 +16,8 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 import org.primal.entity.ai.behavior.deer.DeerHeadbutt;
 import org.primal.entity.ai.behavior.deer.DeerRegrowAntler;
@@ -98,8 +99,8 @@ public class DeerAi {
             Primal_MemoryModuleTypes.LUNGE_COOLDOWN.get()
     );
 
-    public static Predicate<ItemStack> getTemptations() {
-        return DeerEntity::isMatingFood;
+    public static Ingredient getTemptations() {
+        return Ingredient.of(Items.APPLE);
     }
 
     public static void initMemories(DeerEntity deer, RandomSource random) {
@@ -141,7 +142,7 @@ public class DeerAi {
                 Activity.IDLE,
                 10,
                 ImmutableList.of(
-                        new AnimalMakeLove(Primal_Entities.DEER.get()),
+                        new AnimalMakeLove(Primal_Entities.DEER.get(), 1.0f),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5), 4),

@@ -12,7 +12,6 @@ import org.primal.entity.animal.LionEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.Color;
 
 public class LionEyesLayer extends GeoRenderLayer<LionEntity> {
     public LionEyesLayer(GeoRenderer<LionEntity> entityRendererIn) {
@@ -30,6 +29,6 @@ public class LionEyesLayer extends GeoRenderLayer<LionEntity> {
         if(lion.isAngry() && !lion.isTame())
             eyesrenderType = RenderType.entityTranslucentEmissive(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/lion/angry.png"));
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, lion, eyesrenderType, bufferSource.getBuffer(eyesrenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, lion, eyesrenderType, bufferSource.getBuffer(eyesrenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 }

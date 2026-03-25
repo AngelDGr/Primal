@@ -4,8 +4,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
 import org.primal.Primal_Main;
 import org.primal.entity.replaced.WolfReplaced;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 public class WolfModel extends DefaultedEntityGeoModel<WolfReplaced> {
@@ -19,7 +19,7 @@ public class WolfModel extends DefaultedEntityGeoModel<WolfReplaced> {
         //Avoids applying head rotations
 //        if (controller.isPlayingTriggeredAnimation()) return;
 
-        GeoBone tail = getAnimationProcessor().getBone("tail");
+        CoreGeoBone tail = getAnimationProcessor().getBone("tail");
         //Health rising from health, when not sitting and only tamed
         if(!wolf.isInSittingPose() && wolf.isTame()){
             double healthPercentage = wolf.getHealth()/wolf.getMaxHealth();
@@ -37,7 +37,7 @@ public class WolfModel extends DefaultedEntityGeoModel<WolfReplaced> {
 
 
         super.setCustomAnimations(animatable, instanceId, animationState);
-        GeoBone head = getAnimationProcessor().getBone("head");
+        CoreGeoBone head = getAnimationProcessor().getBone("head");
         if(wolf.isInSittingPose())
             head.setRotX((float) (head.getRotX() + Math.toRadians(-30)));
     }

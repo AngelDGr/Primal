@@ -7,7 +7,7 @@ import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import org.primal.Primal_Main;
 import org.primal.util.mob_types.ReplacedEntityNewVariantHolder;
-import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
 

@@ -12,7 +12,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.client.model.data.ModelData;
+import net.minecraftforge.client.model.data.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.primal.block.Rotation16Block;
 import org.primal.block_entity.Rotation16BlockEntity;
@@ -57,7 +57,7 @@ public class Rotation16BlockEntityRenderer implements BlockEntityRenderer<Rotati
                 seed,
                 OverlayTexture.NO_OVERLAY,
                 modelData,
-                RenderType.CUTOUT
+                RenderType.cutout()
         );
 
         poseStack.popPose();

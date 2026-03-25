@@ -7,7 +7,10 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -17,7 +20,8 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
 import org.primal.entity.ai.behavior.generic.TryFindWaterSurface;
 import org.primal.entity.ai.behavior.walrus.WalrusPlayInstrument;
@@ -83,8 +87,8 @@ public class WalrusAi {
             Primal_MemoryModuleTypes.HAS_INSTRUMENT.get()
     );
 
-    public static Predicate<ItemStack> getTemptations() {
-        return WalrusEntity::isMatingFood;
+    public static Ingredient getTemptations() {
+        return Ingredient.of(Items.COD_BUCKET);
     }
 
     public static void initMemories(WalrusEntity walrus, RandomSource random) {
@@ -143,7 +147,7 @@ public class WalrusAi {
                                 MemoryModuleType.NEAREST_HOSTILE, MemoryModuleType.AVOID_TARGET, TimeUtil.rangeOfSeconds(5, 7)
                         ),
                         StartAttacking.create(WalrusAi::findNearestValidAttackTarget),
-                        new AnimalMakeLove(Primal_Entities.WALRUS.get()),
+                        new AnimalMakeLove(Primal_Entities.WALRUS.get(), 1.0f),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5), 4),

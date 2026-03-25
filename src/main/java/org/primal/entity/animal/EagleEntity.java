@@ -35,8 +35,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,8 +51,8 @@ import org.primal.util.mob_types.HostileMount;
 import org.primal.util.mob_types.PrimalTamable;
 import org.primal.util.mob_types.VariantHolderWithEgg;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -119,8 +118,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
                 .add(Attributes.MOVEMENT_SPEED, 0.24f)
                 .add(Attributes.ATTACK_DAMAGE, 1.5f)
                 .add(Attributes.FLYING_SPEED, 0.4F)
-                .add(Attributes.FOLLOW_RANGE, 48.0F)
-                .add(Attributes.STEP_HEIGHT, 2.0f);
+                .add(Attributes.FOLLOW_RANGE, 48.0F);
     }
 
     //Init
@@ -129,16 +127,17 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         super(entityType, level);
         this.moveControl = new EagleMoveControl(this);
         this.lookControl = new EagleLookControl(this);
-        this.setPathfindingMalus(PathType.DANGER_FIRE, -1.0F);
-        this.setPathfindingMalus(PathType.DAMAGE_FIRE, -1.0F);
-        this.setPathfindingMalus(PathType.LEAVES, 1.0F);
-        this.setPathfindingMalus(PathType.WATER, 0.0F);
+        this.setPathfindingMalus(BlockPathTypes.DANGER_FIRE, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.DAMAGE_FIRE, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.LEAVES, 1.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, 0.0F);
+        this.setMaxUpStep(2.0f);
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         setVariantFromBiome(this, level.getBiome(this.blockPosition()));
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     @Override
@@ -198,12 +197,12 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     private static final EntityDataAccessor<Integer> FOLLOWER_STATE = SynchedEntityData.defineId(EagleEntity.class, EntityDataSerializers.INT);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, EagleEntity.Variant.BALD.id);
-        builder.define(HEALTH_WHEN_START_RIDING, 0f);
-        builder.define(FOLLOWER_STATE, 0);
-        builder.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_VARIANT_ID, EagleEntity.Variant.BALD.id);
+        this.entityData.define(HEALTH_WHEN_START_RIDING, 0f);
+        this.entityData.define(FOLLOWER_STATE, 0);
+        this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
     }
 
     @Override
@@ -309,7 +308,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     }
 
     @Override
-    protected boolean canFlyToOwner() {
+    public boolean canFlyToOwner() {
         return !this.isBaby();
     }
 
@@ -487,7 +486,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
     @Override
     public void setSpeed(float speed) {
-        this.speed = speed;
+        super.setSpeed(speed);
         this.setZza(speed);
     }
 
@@ -522,14 +521,14 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     @Override
     public boolean canAttack(@NotNull LivingEntity target) {
         Optional<List<UUID>> attackedList = this.getBrain().getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get());
 
-        Optional<UUID> lastUuid = attackedList.map(List::getLast);
+        Optional<UUID> lastUuid = attackedList.map(l->l.get(l.size()-1));
 
         Optional<LivingEntity> lastEntity =
                 lastUuid.isPresent() && !this.level().isClientSide && ((ServerLevel)this.level()).getEntity(lastUuid.get()) instanceof LivingEntity living ?
@@ -775,7 +774,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     }
 
     @Override
-    protected void teleportToAroundBlockPos(@NotNull BlockPos pos) {
+    public void teleportToAroundBlockPos(@NotNull BlockPos pos) {
         // ---- PASS 1: prefer ground ----
         for (int i = 0; i < 5; i++) {
             int j = this.random.nextIntBetweenInclusive(-3, 3);
@@ -810,14 +809,14 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         }
     }
 
-    @Override
-    public @NotNull AABB getHitbox() {
-        return super.getHitbox().inflate(-0.2);
+    protected @NotNull Vec3 getMeleeAttackReferencePosition() {
+        return super.getMeleeAttackReferencePosition().add(0, 0.5, 0);
     }
 
+
     @Override
-    public boolean isWithinMeleeAttackRange(LivingEntity entity) {
-        return this.getAttackBoundingBox().inflate(0.5).intersects(entity.getHitbox());
+    public double getMeleeAttackRangeSqr(@NotNull LivingEntity target) {
+        return this.getBbWidth() * 2.5F * this.getBbWidth() * 2.5F;
     }
 
     private int findGroundY(int x, int startY, int z) {
@@ -841,7 +840,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
     //Teleports to any block, even air blocks
     @Override
-    protected boolean canTeleportTo(@NotNull BlockPos pos) {
+    public boolean canTeleportTo(@NotNull BlockPos pos) {
         BlockPos blockpos = pos.subtract(this.blockPosition());
         return this.level().noCollision(this, this.getBoundingBox().move(blockpos));
     }

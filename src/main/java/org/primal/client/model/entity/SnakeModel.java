@@ -6,11 +6,11 @@ import org.primal.Primal_Main;
 import org.primal.client.animation.entity.SnakeAnimations;
 import org.primal.client.model.defaulted.DefaultedEntityWithVariantsWithBabyGeoModel;
 import org.primal.entity.animal.SnakeEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.data.EntityModelData;
 
 public class SnakeModel extends DefaultedEntityWithVariantsWithBabyGeoModel<SnakeEntity, SnakeEntity.Variant> {
@@ -22,7 +22,7 @@ public class SnakeModel extends DefaultedEntityWithVariantsWithBabyGeoModel<Snak
     public void setCustomAnimations(SnakeEntity snake, long instanceId, AnimationState<SnakeEntity> animationState) {
         final AnimationController<GeoAnimatable> controller = snake.getAnimatableInstanceCache().getManagerForId(snake.getId()).getAnimationControllers().get("base_controller");
 
-        GeoBone head = getAnimationProcessor().getBone("head");
+        CoreGeoBone head = getAnimationProcessor().getBone("head");
 
         //Avoids applying head rotations
         if (controller.isPlayingTriggeredAnimation() || controller.getCurrentRawAnimation()== SnakeAnimations.SIT || controller.getCurrentRawAnimation()== SnakeAnimations.WRAPPED) return;

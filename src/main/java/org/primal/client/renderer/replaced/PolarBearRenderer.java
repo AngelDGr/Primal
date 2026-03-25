@@ -1,6 +1,7 @@
 package org.primal.client.renderer.replaced;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.animal.PolarBear;
 import org.jetbrains.annotations.NotNull;
@@ -18,9 +19,9 @@ public class PolarBearRenderer extends GeoReplacedEntityRenderer<PolarBear, Pola
     }
 
     @Override
-    protected float getShadowRadius(@NotNull PolarBear entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.35F : f;
+    public void render(@NotNull PolarBear entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (entity.isBaby()) this.shadowRadius *= 0.35F;
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
@@ -37,10 +38,10 @@ public class PolarBearRenderer extends GeoReplacedEntityRenderer<PolarBear, Pola
     }
 
     @Override
-    protected void applyRotations(PolarBearReplaced animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+    protected void applyRotations(PolarBearReplaced animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
         if(this.currentEntity.isInWater())
             Primal_Util.Visuals.bodyFullRotations(this.currentEntity, partialTick, poseStack);
         else
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
+            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
     }
 }

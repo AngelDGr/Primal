@@ -115,7 +115,7 @@ public class EagleSnatch extends Behavior<EagleEntity> {
 
     @Override
     protected void tick(@NotNull ServerLevel level, @NotNull EagleEntity eagle, long gameTime) {
-        LivingEntity target = !eagle.getPassengers().isEmpty() && eagle.getPassengers().getFirst() instanceof LivingEntity living? living: null;
+        LivingEntity target = !eagle.getPassengers().isEmpty() && eagle.getPassengers().get(0) instanceof LivingEntity living? living: null;
 
         //If it doesn't have target
         if(target==null){
@@ -136,7 +136,7 @@ public class EagleSnatch extends Behavior<EagleEntity> {
     protected void stop(@NotNull ServerLevel level, @NotNull EagleEntity eagle, long gameTime) {
 
         if(!eagle.getPassengers().isEmpty()){
-            var passenger= eagle.getPassengers().getFirst();
+            var passenger= eagle.getPassengers().get(0);
 
             //To attack again if the dropped entity stills alive
             if(passenger instanceof LivingEntity livingEntity && livingEntity.getHealth()>0){

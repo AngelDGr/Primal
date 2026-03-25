@@ -1,6 +1,5 @@
 package org.primal.block_entity;
 
-import net.minecraft.Optionull;
 import net.minecraft.core.*;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
@@ -32,15 +31,16 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.primal.block.ChompTrapBlock;
 import org.primal.registry.Primal_DamageTypes;
+import org.primal.util.Primal_Util;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity, GameEventListener.Provider<ChompTrapBlockEntity.ChompTrapListener>, Container, Clearable {
+public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity, GameEventListener.Holder<ChompTrapBlockEntity.ChompTrapListener>, Container, Clearable {
 
     private final ChompTrapBlockEntity.ChompTrapListener chompTrapListener;
     private final NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
@@ -58,32 +58,32 @@ public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity,
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putString("Type", colorType);
-        ContainerHelper.saveAllItems(tag, this.getItems(), registries);
+        ContainerHelper.saveAllItems(tag, this.getItems());
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
         this.colorType = tag.getString("Type");
-        ContainerHelper.loadAllItems(tag, this.getItems(), registries);
+        ContainerHelper.loadAllItems(tag, this.getItems());
     }
 
     // Create an update tag here. For block entities with only a few fields, this can just call #saveAdditional.
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
+    public @NotNull CompoundTag getUpdateTag() {
         var tag = new CompoundTag();
-        saveAdditional(tag, registries);
+        saveAdditional(tag);
         return tag;
     }
 
     // Handle a received update tag here. The default implementation calls #loadAdditional here,
     // so you do not need to override this method if you don't plan to do anything beyond that.
     @Override
-    public void handleUpdateTag(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.handleUpdateTag(tag, registries);
+    public void handleUpdateTag(@NotNull CompoundTag tag) {
+        super.handleUpdateTag(tag);
     }
 
     // Return our packet here. This method returning a non-null result tells the game to use this packet for syncing.
@@ -97,8 +97,8 @@ public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity,
     // Optionally: Run some custom logic when the packet is received.
     // The super/default implementation forwards to #loadAdditional.
     @Override
-    public void onDataPacket(@NotNull Connection connection, @NotNull ClientboundBlockEntityDataPacket packet, HolderLookup.@NotNull Provider registries) {
-        super.onDataPacket(connection, packet, registries);
+    public void onDataPacket(@NotNull Connection connection, @NotNull ClientboundBlockEntityDataPacket packet) {
+        super.onDataPacket(connection, packet);
     }
 
     //──────────────────────────────────── Inventory ────────────────────────────────────
@@ -157,7 +157,7 @@ public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity,
     @Override
     public void setItem(int slot, @NotNull ItemStack stack) {
         this.getItems().set(slot, stack);
-        stack.limitSize(this.getMaxStackSize(stack));
+        Primal_Util.OneTwentyEquivalent.limitSize(this.getMaxStackSize(), stack);
         this.setChanged();
     }
 
@@ -167,12 +167,12 @@ public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity,
     }
 
     public ItemStack insertItem(ItemStack stack) {
-        int i = this.getMaxStackSize(stack);
+        int i = this.getMaxStackSize();
 
         for (int j = 0; j < this.getItems().size(); j++) {
             ItemStack itemstack = this.getItems().get(j);
 
-            if (itemstack.isEmpty() || ItemStack.isSameItemSameComponents(stack, itemstack)) {
+            if (itemstack.isEmpty() || ItemStack.isSameItemSameTags(stack, itemstack)) {
                 int k = Math.min(stack.getCount(), i - itemstack.getCount());
 
                 if (k > 0) {
@@ -234,15 +234,15 @@ public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity,
         }
 
         @Override
-        public boolean handleGameEvent(@NotNull ServerLevel level, Holder<GameEvent> gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
-            if (gameEvent.is(GameEvent.ENTITY_DIE) && context.sourceEntity() instanceof LivingEntity livingentity) {
+        public boolean handleGameEvent(@NotNull ServerLevel level, GameEvent gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
+            if (gameEvent.equals(GameEvent.ENTITY_DIE) && context.sourceEntity() instanceof LivingEntity livingentity) {
 
                 if (!livingentity.wasExperienceConsumed()) {
                     DamageSource damagesource = livingentity.getLastDamageSource();
                     //Only killed by a chomp trap
                     if(damagesource!=null && !damagesource.is(Primal_DamageTypes.CHOMP_TRAP)) return false;
 
-                    int i = livingentity.getExperienceReward(level, Optionull.map(damagesource, DamageSource::getEntity));
+                    int i = livingentity.getExperienceReward();
                     if (livingentity.shouldDropExperience() && i > 0) {
                         livingentity.skipDropExperience();
                         ExperienceOrb.award(level, pos.add(0, 2, 0), i);

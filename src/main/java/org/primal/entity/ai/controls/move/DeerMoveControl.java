@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.NodeEvaluator;
-import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
 import org.primal.entity.animal.DeerEntity;
 
@@ -126,11 +126,7 @@ public class DeerMoveControl extends MoveControl {
         PathNavigation pathnavigation = this.mob.getNavigation();
         if (pathnavigation != null) {
             NodeEvaluator nodeevaluator = pathnavigation.getNodeEvaluator();
-            if (nodeevaluator != null
-                    && nodeevaluator.getPathType(
-                    this.mob, BlockPos.containing(this.mob.getX() + (double)relativeX, this.mob.getBlockY(), this.mob.getZ() + (double)relativeZ)
-            )
-                    != PathType.WALKABLE) {
+            if (nodeevaluator != null && nodeevaluator.getBlockPathType(this.mob.level(), Mth.floor(this.mob.getX() + (double)relativeX), this.mob.getBlockY(), Mth.floor(this.mob.getZ() + (double)relativeZ)) != BlockPathTypes.WALKABLE) {
                 return false;
             }
         }

@@ -19,7 +19,7 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.piglin.StopAdmiringIfItemTooFarAway;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.entity.ai.behavior.cassowary.CassowaryLungeAttack;
 import org.primal.entity.ai.behavior.cassowary.CassowaryPickFruit;
 import org.primal.entity.ai.behavior.generic.*;
@@ -94,8 +94,8 @@ public class CassowaryAi {
             MemoryModuleType.ADMIRING_ITEM
     );
 
-    public static Predicate<ItemStack> getTemptations() {
-        return CassowaryEntity::isMatingFood;
+    public static Ingredient getTemptations() {
+        return Ingredient.of(Primal_Tags.Item.EXOTIC_FRUITS);
     }
 
     public static void initMemories(CassowaryEntity cassowary, RandomSource random) {
@@ -147,7 +147,7 @@ public class CassowaryAi {
                         AnimalSearchHome.fromNest(),
                         GoesToImportantBlockSometimes.create(7, 2, mob -> !mob.isBaby(), 100, 60),
 //                        new AnimalReturnHome<>(7, 2, false),
-                        new AnimalMakeLove(Primal_Entities.CASSOWARY.get()),
+                        new AnimalMakeLove(Primal_Entities.CASSOWARY.get(), 1.0f),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5), 4),

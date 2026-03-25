@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ByIdMap;
@@ -47,9 +46,8 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
-import org.primal.Primal_Main;
 import org.primal.client.animation.entity.BearAnimations;
 import org.primal.entity.ai.BearAi;
 import org.primal.entity.ai.controls.look.WaterOrLandLookControl;
@@ -64,8 +62,8 @@ import org.primal.util.mob_types.AttackVillagers;
 import org.primal.util.mob_types.PrimalTamable;
 import org.primal.util.mob_types.SemiAquaticAnimal;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager.ControllerRegistrar;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager.ControllerRegistrar;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
@@ -156,6 +154,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         this.getNavigation().setCanFloat(true);
         this.moveControl = new WaterOrLandMoveControl<>(this, 85, 50, 0.15f, 0.01f, false, Predicate.not(BearEntity::isBearSleeping));
         this.lookControl = new WaterOrLandLookControl<>(this, 10, Predicate.not(BearEntity::isBearSleeping));
+        this.setMaxUpStep(1.5f);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -164,8 +163,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 .add(Attributes.MOVEMENT_SPEED, 0.14f)
                 .add(Attributes.ATTACK_DAMAGE, 8f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.8f)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f)
-                .add(Attributes.STEP_HEIGHT, 1.5f);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.6f);
     }
 
     protected SimpleContainer inventory=new SimpleContainer(27);
@@ -184,17 +182,17 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     private static final EntityDataAccessor<Integer> DATA_COLLAR_COLOR = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(BEAR_SLEEPING, false);
-        builder.define(DATA_VARIANT_ID, Variant.GRIZZLY.id);
-        builder.define(DATA_HONEY_COUNTER, 0);
-        builder.define(AWAKE_COUNTER, 0);
-        builder.define(HEALING_COOLDOWN, 0);
-        builder.define(HAS_CHEST, false);
-        builder.define(IS_JOCKEY, false);
-        builder.define(FOLLOWER_STATE, 0);
-        builder.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(BEAR_SLEEPING, false);
+        this.entityData.define(DATA_VARIANT_ID, Variant.GRIZZLY.id);
+        this.entityData.define(DATA_HONEY_COUNTER, 0);
+        this.entityData.define(AWAKE_COUNTER, 0);
+        this.entityData.define(HEALING_COOLDOWN, 0);
+        this.entityData.define(HAS_CHEST, false);
+        this.entityData.define(IS_JOCKEY, false);
+        this.entityData.define(FOLLOWER_STATE, 0);
+        this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
     }
 
     public boolean isBearSleeping() { return this.entityData.get(BEAR_SLEEPING);}
@@ -251,7 +249,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         if (spawnGroupData == null) {
             spawnGroupData = new AgeableMob.AgeableMobGroupData(false);
         }
@@ -262,7 +260,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         if(ageableData.getGroupSize()>0) this.setBaby(ageableData.getGroupSize() % 2 != 0);
 
         this.setVariantFromBiome(this, level.getBiome(this.blockPosition()));
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     @Override
@@ -282,7 +280,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 if (!itemstack.isEmpty()) {
                     CompoundTag compoundtag = new CompoundTag();
                     compoundtag.putByte("Slot", (byte)(i));
-                    listtag.add(itemstack.save(this.registryAccess(), compoundtag));
+                    listtag.add(itemstack.save(compoundtag));
                 }
             }
 
@@ -308,7 +306,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 CompoundTag compoundtag = listtag.getCompound(i);
                 int j = compoundtag.getByte("Slot") & 255;
                 if (j < this.inventory.getContainerSize()) {
-                    this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
+                    this.inventory.setItem(j, ItemStack.of(compoundtag));
                 }
             }
         }
@@ -317,8 +315,13 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
-    public @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
-        return pose.equals(Pose.CROAKING)? EntityDimensions.scalable(1.5f, 1.25f).withEyeHeight(0.8f).scale(getAgeScale()): super.getDefaultDimensions(pose);
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+        return pose.equals(Pose.CROAKING)? EntityDimensions.scalable(1.5f, 1.25f).scale(getScale()): super.getDimensions(pose);
+    }
+
+    @Override
+    protected float getStandingEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions entityDimensions) {
+        return pose.equals(Pose.CROAKING)? 0.8f * getScale(): 1.25f * getScale();
     }
 
     //──────────────────────────────────── AI & Movement ────────────────────────────────────
@@ -374,7 +377,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 FoodProperties foodProperties = this.inventory.getItem(indexOfHealItem).getFoodProperties(this);
                 float nutrition=0;
                 if(foodProperties!=null){
-                    nutrition = foodProperties.nutrition()/2f;
+                    nutrition = foodProperties.getNutrition()/2f;
                 }
 
                 this.heal(1f + nutrition);
@@ -434,9 +437,10 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
     public AttributeModifier createSpeedModifier(float amount){
         return new AttributeModifier(
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "health_speed_modifier"),
+                UUID.fromString("46362845-4d60-4b8b-a275-bd6d32f665a7"),
+                "health_speed_modifier",
                 Mth.clamp(amount, 0.0, 0.13),
-                AttributeModifier.Operation.ADD_VALUE);
+                AttributeModifier.Operation.ADDITION);
     }
 
     public void applySpeedModifiers(){
@@ -444,7 +448,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
         final AttributeInstance entityAttributeInstance_speed = this.getAttribute(Attributes.MOVEMENT_SPEED);
         if(entityAttributeInstance_speed!=null) {
-            entityAttributeInstance_speed.removeModifier(modifier.id());
+            entityAttributeInstance_speed.removeModifier(modifier.getId());
             entityAttributeInstance_speed.addTransientModifier(modifier);
         }
     }
@@ -472,17 +476,25 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
-    protected @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
-        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick)
-                .add(new Vec3(0.0, -0.1, -0.2f)
-                        .yRot(-this.getYRot() * Mth.DEG_TO_RAD));
+    public void positionRider(@NotNull Entity passenger, Entity.@NotNull MoveFunction moveFunction) {
+        super.positionRider(passenger, moveFunction);
+        float f = Mth.sin(this.yBodyRot * ((float)Math.PI / 180F));
+        float f1 = Mth.cos(this.yBodyRot * ((float)Math.PI / 180F));
+
+        moveFunction.accept(passenger, this.getX() + (double)(0.1F * f),
+                this.getY(0.5D) + passenger.getMyRidingOffset() - 0.1D,
+                this.getZ() - (double)(0.15F * f1));
+
+        if (passenger instanceof LivingEntity) {
+            ((LivingEntity)passenger).yBodyRot = this.yBodyRot;
+        }
     }
 
     //──────────────────────────────────── Combat ────────────────────────────────────
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     @Override
@@ -535,14 +547,15 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
     public void doHurtOther(@NotNull Entity entity){
         float f = (float)this.getAttributeValue(Attributes.ATTACK_DAMAGE)*0.6f;
+        float f1 = (float)this.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
         DamageSource damagesource = this.damageSources().mobAttack(this);
-        if (this.level() instanceof ServerLevel serverlevel) {
-            f = EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), entity, damagesource, f);
+        if (this.level() instanceof ServerLevel && entity instanceof LivingEntity) {
+            f += EnchantmentHelper.getDamageBonus(this.getMainHandItem(), ((LivingEntity)entity).getMobType());
+            f1 += (float)EnchantmentHelper.getKnockbackBonus(this);
         }
 
         boolean flag = entity.hurt(damagesource, f);
         if (flag) {
-            float f1 = this.getKnockback(entity, damagesource);
             if (f1 > 0.0F && entity instanceof LivingEntity livingentity) {
                 livingentity.knockback(
                         f1 * 0.2F,
@@ -552,8 +565,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 this.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 1.0, 0.6));
             }
 
-            if (this.level() instanceof ServerLevel serverLevel1) {
-                EnchantmentHelper.doPostAttackEffects(serverLevel1, entity, damagesource);
+            if (this.level() instanceof ServerLevel) {
+                this.doEnchantDamageEffects(this, entity);
             }
         }
     }
@@ -586,7 +599,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         if (this.isTame() && !this.hasChest() && stackInHand.is(Items.BARREL) && !this.isBaby()) {
             this.setChest(true);
             this.playChestEquipsSound();
-            stackInHand.consume(1, player);
+            Primal_Util.OneTwentyEquivalent.consumeStack(1, player, stackInHand);
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
 
@@ -594,7 +607,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         if (this.isTame() && this.isOwnedBy(player)) {
 
             //Remove chest with a shears if empty inventory
-            if(!this.level().isClientSide && this.hasChest() && stackInHand.is(Tags.Items.TOOLS_SHEAR) && this.inventory.isEmpty()){
+            if(!this.level().isClientSide && this.hasChest() && stackInHand.is(Tags.Items.SHEARS) && this.inventory.isEmpty()){
                 this.setChest(false);
                 Primal_Util.useShearsOnEntityAndDamage(this, player, stackInHand, hand);
                 this.spawnAtLocation(Blocks.BARREL);
@@ -654,7 +667,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                         FoodProperties foodProperties = stack.getFoodProperties(this);
                         float nutrition=0;
                         if(foodProperties!=null){
-                            nutrition = foodProperties.nutrition()/2f;
+                            nutrition = foodProperties.getNutrition()/2f;
                         }
 
                         this.heal(1f + nutrition);
@@ -867,7 +880,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
-    public float getAgeScale() {
+    public float getScale() {
         return this.isBaby() ? 0.4F : 1.0F;
     }
 
@@ -920,8 +933,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     @Override
-    public boolean canBeLeashed() {
-        return super.canBeLeashed() && !this.isBearSleeping();
+    public boolean canBeLeashed(@NotNull Player player) {
+        return super.canBeLeashed(player) && !this.isBearSleeping();
     }
 
     @Override

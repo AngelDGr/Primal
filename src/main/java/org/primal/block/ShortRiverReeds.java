@@ -1,6 +1,5 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +25,6 @@ import javax.annotation.Nullable;
 
 public class ShortRiverReeds extends BushBlock implements BonemealableBlock, SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final MapCodec<ShortRiverReeds> CODEC = simpleCodec(ShortRiverReeds::new);
     public ShortRiverReeds(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
@@ -47,7 +45,7 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
     }
 
     @Override
-    protected @NotNull BlockState updateShape(BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public @NotNull BlockState updateShape(BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
@@ -56,12 +54,12 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
     }
 
     @Override
-    protected @NotNull FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
         FluidState fluidstate = level.getFluidState(pos);
         return (super.canSurvive(state, level, pos)) || (super.canSurvive(state, level, pos) && fluidstate.is(Fluids.WATER) && fluidstate.getAmount() == 8);
     }
@@ -72,7 +70,7 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
     }
 
     @Override
-    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state, boolean isOn) {
         return ThreeTallPlantBlock.isValidPosForPlant(level, pos.above(), Primal_Blocks.RIVER_REEDS.get());
     }
 
@@ -120,12 +118,7 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BushBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
-    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if (!level.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
 
         if (level.getRawBrightness(pos, 0) >= 6) {
@@ -137,7 +130,7 @@ public class ShortRiverReeds extends BushBlock implements BonemealableBlock, Sim
     }
 
     @Override
-    protected boolean isRandomlyTicking(@NotNull BlockState state) {
+    public boolean isRandomlyTicking(@NotNull BlockState state) {
         return state.getValue(WATERLOGGED);
     }
 }

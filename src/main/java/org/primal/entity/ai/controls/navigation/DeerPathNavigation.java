@@ -48,7 +48,7 @@ public class DeerPathNavigation extends GroundPathNavigation {
 
         @Override
         @Nullable
-        protected Node findAcceptedNode(int x, int y, int z, int verticalDeltaLimit, double nodeFloorLevel, @NotNull Direction direction, @NotNull PathType pathType) {
+        protected Node findAcceptedNode(int x, int y, int z, int verticalDeltaLimit, double nodeFloorLevel, @NotNull Direction direction, @NotNull BlockPathTypes pathType) {
             Node node = null;
             BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
             double d0 = this.getFloorLevel(mutableBlockPos.set(x, y, z));
@@ -56,7 +56,7 @@ public class DeerPathNavigation extends GroundPathNavigation {
                 return null;
             } else {
 
-                PathType pathtype = this.getCachedPathType(x, y, z);
+                BlockPathTypes pathtype = this.getCachedBlockType(this.mob, x, y, z);
                 float f = this.mob.getPathfindingMalus(pathtype);
                 if (f >= 0.0F) {
                     node = this.getNodeAndUpdateCostToMax(x, y, z, pathtype, f);
@@ -66,17 +66,17 @@ public class DeerPathNavigation extends GroundPathNavigation {
                     node = null;
                 }
 
-                if (pathtype != PathType.WALKABLE && (!this.isAmphibious() || pathtype != PathType.WATER)) {
+                if (pathtype != BlockPathTypes.WALKABLE && (!this.isAmphibious() || pathtype != BlockPathTypes.WATER)) {
                     if ((node == null || node.costMalus < 0.0F)
                             && verticalDeltaLimit > 0
-                            && (pathtype != PathType.FENCE || this.canWalkOverFences())
-                            && pathtype != PathType.UNPASSABLE_RAIL
-                            && pathtype != PathType.TRAPDOOR
-                            && pathtype != PathType.POWDER_SNOW) {
+                            && (pathtype != BlockPathTypes.FENCE || this.canWalkOverFences())
+                            && pathtype != BlockPathTypes.UNPASSABLE_RAIL
+                            && pathtype != BlockPathTypes.TRAPDOOR
+                            && pathtype != BlockPathTypes.POWDER_SNOW) {
                         node = this.tryJumpOn(x, y, z, verticalDeltaLimit, nodeFloorLevel, direction, pathType, mutableBlockPos);
-                    } else if (!this.isAmphibious() && pathtype == PathType.WATER && !this.canFloat()) {
+                    } else if (!this.isAmphibious() && pathtype == BlockPathTypes.WATER && !this.canFloat()) {
                         node = this.tryFindFirstNonWaterBelow(x, y, z, node);
-                    } else if (pathtype == PathType.OPEN) {
+                    } else if (pathtype == BlockPathTypes.OPEN) {
                         node = this.tryFindFirstGroundNodeBelow(x, y, z);
                     } else if (doesBlockHavePartialCollision(pathtype) && node == null) {
                         node = this.getClosedNode(x, y, z, pathtype);
@@ -92,7 +92,7 @@ public class DeerPathNavigation extends GroundPathNavigation {
             return this.mob.isSprinting()? 2.125: Math.max(1.125, this.mob.maxUpStep());
         }
 
-        private Node getNodeAndUpdateCostToMax(int x, int y, int z, PathType pathType, float malus) {
+        private Node getNodeAndUpdateCostToMax(int x, int y, int z, BlockPathTypes pathType, float malus) {
             Node node = this.getNode(x, y, z);
             node.type = pathType;
             node.costMalus = Math.max(node.costMalus, malus);
@@ -101,12 +101,12 @@ public class DeerPathNavigation extends GroundPathNavigation {
 
         private Node getBlockedNode(int x, int y, int z) {
             Node node = this.getNode(x, y, z);
-            node.type = PathType.BLOCKED;
+            node.type = BlockPathTypes.BLOCKED;
             node.costMalus = -1.0F;
             return node;
         }
 
-        private Node getClosedNode(int x, int y, int z, PathType pathType) {
+        private Node getClosedNode(int x, int y, int z, BlockPathTypes pathType) {
             Node node = this.getNode(x, y, z);
             node.closed = true;
             node.type = pathType;
@@ -114,8 +114,8 @@ public class DeerPathNavigation extends GroundPathNavigation {
             return node;
         }
 
-        private static boolean doesBlockHavePartialCollision(PathType pathType) {
-            return pathType == PathType.FENCE || pathType == PathType.DOOR_WOOD_CLOSED || pathType == PathType.DOOR_IRON_CLOSED;
+        private static boolean doesBlockHavePartialCollision(BlockPathTypes pathType) {
+            return pathType == BlockPathTypes.FENCE || pathType == BlockPathTypes.DOOR_WOOD_CLOSED || pathType == BlockPathTypes.DOOR_IRON_CLOSED;
         }
 
         @Nullable
@@ -126,7 +126,7 @@ public class DeerPathNavigation extends GroundPathNavigation {
                 int verticalDeltaLimit,
                 double nodeFloorLevel,
                 Direction direction,
-                PathType pathType,
+                BlockPathTypes pathType,
                 BlockPos.MutableBlockPos pos
         ) {
             Node node = this.findAcceptedNode(x, y + 1, z, verticalDeltaLimit - 1, nodeFloorLevel, direction, pathType);
@@ -134,7 +134,7 @@ public class DeerPathNavigation extends GroundPathNavigation {
                 return null;
             } else if (this.mob.getBbWidth() >= 1.0F) {
                 return node;
-            } else if (node.type != PathType.OPEN && node.type != PathType.WALKABLE) {
+            } else if (node.type != BlockPathTypes.OPEN && node.type != BlockPathTypes.WALKABLE) {
                 return node;
             } else {
                 double d0 = (double)(x - direction.getStepX()) + 0.5;
@@ -153,7 +153,7 @@ public class DeerPathNavigation extends GroundPathNavigation {
         }
 
         private boolean hasCollisions(AABB boundingBox) {
-            return this.collisionCache.computeIfAbsent(boundingBox, p_330163_ -> !this.currentContext.level().noCollision(this.mob, boundingBox));
+            return this.collisionCache.computeIfAbsent(boundingBox, p_330163_ -> !this.level.noCollision(this.mob, boundingBox));
         }
 
         private Node tryFindFirstGroundNodeBelow(int x, int y, int z) {
@@ -162,9 +162,9 @@ public class DeerPathNavigation extends GroundPathNavigation {
                     return this.getBlockedNode(x, i, z);
                 }
 
-                PathType pathtype = this.getCachedPathType(x, i, z);
+                BlockPathTypes pathtype = this.getCachedBlockType(this.mob, x, i, z);
                 float f = this.mob.getPathfindingMalus(pathtype);
-                if (pathtype != PathType.OPEN) {
+                if (pathtype != BlockPathTypes.OPEN) {
                     if (f >= 0.0F) {
                         return this.getNodeAndUpdateCostToMax(x, i, z, pathtype, f);
                     }
@@ -181,8 +181,8 @@ public class DeerPathNavigation extends GroundPathNavigation {
             y--;
 
             while (y > this.mob.level().getMinBuildHeight()) {
-                PathType pathtype = this.getCachedPathType(x, y, z);
-                if (pathtype != PathType.WATER) {
+                BlockPathTypes pathtype = this.getCachedBlockType(this.mob, x, y, z);
+                if (pathtype != BlockPathTypes.WATER) {
                     return node;
                 }
 

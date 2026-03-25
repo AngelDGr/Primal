@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
@@ -49,18 +48,16 @@ public class DeerHeadbutt extends Behavior<DeerEntity> {
             return;
 
 //            deer.doHurtTarget(otherDeer.get());
-        if (otherDeer.get() instanceof LivingEntity living) {
-            float strength = (float) deer.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
+        float strength = (float) deer.getAttributeValue(Attributes.ATTACK_KNOCKBACK);
 
-            if (strength > 0.0F) {
-                living.knockback(
-                        strength * 0.5F,
-                        Mth.sin(deer.getYRot() * ((float)Math.PI / 180F)),
-                        -Mth.cos(deer.getYRot() * ((float)Math.PI / 180F))
-                );
+        if (strength > 0.0F) {
+            otherDeer.get().knockback(
+                    strength * 0.5F,
+                    Mth.sin(deer.getYRot() * ((float)Math.PI / 180F)),
+                    -Mth.cos(deer.getYRot() * ((float)Math.PI / 180F))
+            );
 
-                deer.setDeltaMovement(deer.getDeltaMovement().multiply(0.6, 1.0, 0.6));
-            }
+            deer.setDeltaMovement(deer.getDeltaMovement().multiply(0.6, 1.0, 0.6));
         }
         stop(level, deer, gameTime);
     }

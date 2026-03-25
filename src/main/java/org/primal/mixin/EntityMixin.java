@@ -3,12 +3,9 @@ package org.primal.mixin;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.core.Holder;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
@@ -18,11 +15,9 @@ import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.RelativeMovement;
 import net.minecraft.world.entity.animal.Dolphin;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.animal.WolfVariant;
-import net.minecraft.world.entity.animal.WolfVariants;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraftforge.common.util.ITeleporter;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
 import org.primal.entity.animal.SnakeEntity;
@@ -32,6 +27,7 @@ import org.primal.server_data.ConchShellsData;
 import org.primal.util.mob_types.HostileMount;
 import org.primal.util.mob_types.ReplacedEntityNewVariantHolder;
 import org.primal.util.mob_types.SemiAquaticAnimal;
+import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,9 +36,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Optional;
 import java.util.Set;
 
+@Debug(export = true)
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
@@ -52,8 +48,6 @@ public abstract class EntityMixin {
     @Shadow public abstract @Nullable Entity getVehicle();
 
     @Shadow public abstract EntityType<?> getType();
-
-    @Shadow public abstract RegistryAccess registryAccess();
 
     @ModifyReturnValue(method = "isShiftKeyDown", at = @At("RETURN"))
     private boolean primal$cantShiftIfHostileMount(boolean original) {
@@ -104,15 +98,19 @@ public abstract class EntityMixin {
         }
     }
 
-    @Inject(method = "changeDimension", at = @At(value = "RETURN", ordinal = 1))
-    private void primal$petInConchShellChangesDimension(DimensionTransition transition, CallbackInfoReturnable<Entity> cir, @Local Entity newEntity) {
+    @Inject(method = "changeDimension(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraftforge/common/util/ITeleporter;)Lnet/minecraft/world/entity/Entity;",
+            at = @At(value = "RETURN", ordinal = 2)
+            //Because we are calling something from forge
+            ,remap = false
+    )
+    private void primal$petInConchShellChangesDimension(ServerLevel level, ITeleporter teleporter, CallbackInfoReturnable<Entity> cir) {
         if(p$THIS.level() instanceof ServerLevel serverLevel){
             var data = ConchShellsData.get(serverLevel);
             if(p$THIS.getServer() == null) return;
 
             if(data.hasPet(p$THIS)){
                 data.removePet(p$THIS);
-                data.addPet(newEntity);
+                data.addPet(cir.getReturnValue());
             }
         }
     }
@@ -126,7 +124,7 @@ public abstract class EntityMixin {
 
     @Inject(method = "thunderHit", at = @At(value = "HEAD"), cancellable = true)
     private void primal$addDiscLightingImmunity(ServerLevel level, LightningBolt lightning, CallbackInfo ci) {
-        if(p$THIS instanceof ItemEntity item && item.getItem().is(Primal_Items.MUSIC_DISC_OH_DEER)){
+        if(p$THIS instanceof ItemEntity item && item.getItem().is(Primal_Items.MUSIC_DISC_OH_DEER.get())){
             ci.cancel();
         }
     }
@@ -145,8 +143,8 @@ public abstract class EntityMixin {
             return primal$getCustomVariantNameForWolf(
                     wolf,
                     original,
-                    WolfVariants.SPOTTED,
-                    WolfVariants.RUSTY);
+                    "minecraft:spotted",
+                    "minecraft:rusty");
         }
 
         return original;
@@ -181,17 +179,17 @@ public abstract class EntityMixin {
     @SafeVarargs
     private static Component primal$getCustomVariantNameForWolf(Wolf entity,
                                                                 Component defaultName,
-                                                                ResourceKey<WolfVariant>... variantKeys){
+                                                                String... variantKeys){
         if(entity.hasCustomName()) return defaultName;
-
-        var registry = entity.registryAccess().registryOrThrow(Registries.WOLF_VARIANT);
         var location = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
 
-        for (ResourceKey<WolfVariant> key : variantKeys) {
-            Optional<Holder.Reference<WolfVariant>> holder = registry.getHolder(key);
+        CompoundTag mainTag = new CompoundTag();
+        entity.saveWithoutId(mainTag);
+        String variantTag= mainTag.getString("variant");
 
-            if (holder.isPresent() && entity.getVariant().equals(holder.get())) {
-                ResourceLocation nameRegistered = ResourceLocation.tryParse(holder.get().getRegisteredName());
+        for (String key : variantKeys) {
+            if (!key.isEmpty() && variantTag.equals(key)) {
+                ResourceLocation nameRegistered = ResourceLocation.tryParse(variantTag);
                 if(nameRegistered!=null){
                     return Component.translatable(
                             "entity." + location.getNamespace() + "." + location.getPath() + "." + nameRegistered.getPath()

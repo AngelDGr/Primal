@@ -1,9 +1,10 @@
 package org.primal.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.LionModel;
@@ -24,9 +25,9 @@ public class LionRenderer extends GeoEntityRenderer<LionEntity> {
     }
 
     @Override
-    protected float getShadowRadius(@NotNull LionEntity entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.25F : f;
+    public void render(@NotNull LionEntity entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if(entity.isBaby()) this.shadowRadius *= 0.25F;
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override

@@ -168,6 +168,13 @@
     ],
     "subtitle": "subtitles.primal.entity.cassowary.plop"
   },
+  "entity.common.armadillo_brush": {
+    "sounds": [
+      "primal:entity/common/armadillo_brush1",
+      "primal:entity/common/armadillo_brush2"
+    ],
+    "subtitle": "subtitles.primal.entity.common.armadillo_brush"
+  },
   "entity.crocodile.attack": {
     "sounds": [
       "primal:entity/crocodile/crocodile_attack1",

@@ -1,6 +1,6 @@
 //TODO: Fix weird floating bug with shark on 1.20.1
 
-# 1.1.0 - 1.21
+# 1.1.0 - 1.20.1
 # Additions
 - - Added the Cassowary!
 - - Added the Walrus!
@@ -97,7 +97,7 @@
 #### And a lot of other things, honestly I lost count of the amount of changes, it was a lot
 #### - Tenebris Mors
 
-# 1.0.7 - 1.21
+# 1.0.6 - 1.20.1
 # Changes
 - Modified nest logic, now it works with modded eggs if added on configuration! You only need to specify both the egg block and the entity that it will hatch from it
 - Added a new config option to add placeable eggs into the nest without modifying the animal_egg tag
@@ -105,7 +105,7 @@
 # Fixes
 - Fixed baby shadows being too large
 
-# 1.0.6 - 1.21
+# 1.0.5 - 1.20.1
 # Additions
 - Added spanish translation! (Ahuevo)
 - Added brazilian translation!
@@ -134,15 +134,20 @@
 - Fixed chicken jockey able to spawn after a bear or shark jockey spawn
 - Fixed bears and eagles being commandable by non-owners
 
-# 1.0.5 - 1.21
+# 1.0.4 - 1.20.1
 # Additions
 - Now you can use biome tags inside the config, just put a # before to be recognized as tag
 
 # Fixes
 - Fixed the arrow recipe with shark tooth replacing the vanilla one
 
-# 1.0.4 - 1.21
-### Additions
+# 1.0.3 - 1.20.1
+# Fixes
+- Fixed ambient occlusion removed from shark tooth
+- Fixed short river reed broken model
+
+# 1.0.2 - 1.20.1
+# Additions
 - Added a config file! You can control what mobs spawn, spawn weights, group size, alongside being able to config world features like river reeds and seashells
 - Bears can spawn with a baby, like vanilla Polar Bears, it is rarer than a normal spawn
 
@@ -150,20 +155,13 @@
 - Sharks no longer attack other low health sharks
 - Added a 10s cooldown to the bear between each roar, so it doesn't trigger continuously when hunting groups
 - Added a 1.5 block step up to the bear so doesn't get stuck in blocks
+- Reduced slightly bear attack reach
+- Reduced a lot crocodile attack reach and thrash reach
 
-# 1.0.3 - 1.21
-### Additions
-- Added built-in support for No Man's Land mobs and biomes
-- Added new exclusive textures for No Man's Land fox variants!
-
-# 1.0.2 - 1.21
-### Additions
-- Added support for No Man's Land fox variants!
-
-# 1.0.1 - 1.21
+# 1.0.1 - 1.20.1
 ### Fixes
 - Fix an issue when starting the mod on servers
 
-# 1.0.0 - 1.21
+# 1.0.0 - 1.20.1
 ### Additions
 - Initial Release

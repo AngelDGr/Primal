@@ -34,7 +34,7 @@ public class WalrusPlayInstrument extends Behavior<WalrusEntity> {
     @Override
     protected void start(@NotNull ServerLevel level, @NotNull WalrusEntity walrus, long gameTime) {
         walrus.setPose(Pose.ROARING);
-        walrus.playSound(song.soundEvent.value(), 1f, 1f);
+        walrus.playSound(song.soundEvent.get(), 1f, 1f);
     }
 
     @Override

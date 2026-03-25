@@ -7,13 +7,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.primal.Primal_Main;
 import org.primal.item.HelmetDecorationType;
 import org.primal.registry.Primal_Items;
+import org.primal.util.Primal_Util;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,7 +40,7 @@ public abstract class ItemRendererMixin {
                                                  int combinedOverlay, BakedModel p_model, CallbackInfo ci,
                                                  @Local(ordinal = 1) boolean flag1){
 
-        var component = itemStack.get(Primal_Items.Components.HELMET_DECORATION);
+        var component = Primal_Util.OneTwentyEquivalent.Components.get(itemStack, Primal_Items.Components.HELMET_DECORATION);
         if (component == null) return;
 
         poseStack.pushPose();
@@ -59,11 +59,9 @@ public abstract class ItemRendererMixin {
 
         if (type == HelmetDecorationType.NONE) return;
 
-        var location = ModelResourceLocation.standalone(
-                ResourceLocation.fromNamespaceAndPath(
-                        Primal_Main.MOD_ID,
-                        "helmet_decoration/" + type.getName() + suffix
-                )
+        var location = ResourceLocation.fromNamespaceAndPath(
+                Primal_Main.MOD_ID,
+                "helmet_decoration/" + type.getName() + suffix
         );
 
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(location);

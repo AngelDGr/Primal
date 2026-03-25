@@ -1,6 +1,5 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -9,7 +8,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,19 +23,19 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_Tags;
 
 public class FruitTree extends BushBlock implements BonemealableBlock {
-    public static final MapCodec<FruitTree> CODEC = simpleCodec(FruitTree::new);
 
-    private final DeferredHolder<Item, Item> fruit;
-    private final DeferredHolder<Item, Item> seed;
+    private final RegistryObject<Item> fruit;
+    private final RegistryObject<Item> seed;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_3;
@@ -51,7 +49,7 @@ public class FruitTree extends BushBlock implements BonemealableBlock {
     //Age 1 -> Two block tall
     //Age 2 -> Two block tall - Little fruit
     //Age 3 -> Two block tall - A lot of fruits
-    public FruitTree(Properties properties, DeferredHolder<Item, Item> fruit, DeferredHolder<Item, Item> seed) {
+    public FruitTree(Properties properties, RegistryObject<Item> fruit, RegistryObject<Item> seed) {
         super(properties);
         this.fruit=fruit;
         this.seed=seed;
@@ -62,33 +60,25 @@ public class FruitTree extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<FruitTree> codec() {
-        return CODEC;
-    }
-
-    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(HALF, AGE, FACING);
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public @NotNull ItemStack getCloneItemStack(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public @NotNull ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         return new ItemStack(seed.get());
     }
 
     //──────────────────────────────────── Basic things ────────────────────────────────────
     @Override
-    protected boolean canSurvive(@NotNull BlockState state, LevelReader level, BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, LevelReader level, BlockPos pos) {
         if(level.getBlockState(pos.below()).is(this)) return true;
-
-        net.neoforged.neoforge.common.util.TriState soilDecision = level.getBlockState(pos.below()).canSustainPlant(level, pos.below(), net.minecraft.core.Direction.UP, state);
-        if (!soilDecision.isDefault()) return soilDecision.isTrue();
         return level.getBlockState(pos.below()).is(Primal_Tags.Block.FRUIT_TREE_PLANTABLE_ON);
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
         if(direction==Direction.DOWN && !canSurvive(state, level, pos)) return Blocks.AIR.defaultBlockState();
 
         //Removes trunk if the upper half is removed
@@ -109,7 +99,7 @@ public class FruitTree extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         //Juvenile
         if(state.getValue(AGE) == 0 && state.getValue(HALF).equals(DoubleBlockHalf.LOWER)){
             if(fruit.get().equals(Primal_Items.LITCHI.get()))
@@ -136,23 +126,16 @@ public class FruitTree extends BushBlock implements BonemealableBlock {
     }
 
     //──────────────────────────────────── Grow Logic ────────────────────────────────────
+
+
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(
-            @NotNull ItemStack stack, BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult
-    ) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+
         int i = state.getValue(AGE);
         boolean flag = i == 3;
-        return !flag && stack.is(Items.BONE_MEAL)
-                ? ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION
-                : super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-    }
-
-    @Override
-    protected @NotNull InteractionResult useWithoutItem(BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
-        int age = state.getValue(AGE);
-        boolean flag = age == 3;
-        if (age > 1) {
-
+        if (!flag && player.getItemInHand(hand).is(Items.BONE_MEAL)) {
+            return InteractionResult.PASS;
+        } else if (i > 1) {
             //Age 2: 1 - 2
             //Age 3: 1 - 3
             int j = 1 + level.random.nextInt(2);
@@ -168,12 +151,12 @@ public class FruitTree extends BushBlock implements BonemealableBlock {
             level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, blockstate));
             return InteractionResult.sidedSuccess(level.isClientSide);
         } else {
-            return super.useWithoutItem(state, level, pos, player, hitResult);
+            return super.use(state, level, pos, player, hand, hitResult);
         }
     }
 
     @Override
-    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
 
         //Normal grow
         if ((random.nextInt(5) == 0 && level.getRawBrightness(pos, 0) >= 9)
@@ -218,7 +201,7 @@ public class FruitTree extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state, boolean isOn) {
         return state.getValue(AGE)<3;
     }
 
@@ -239,13 +222,13 @@ public class FruitTree extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
+    public @NotNull BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 }

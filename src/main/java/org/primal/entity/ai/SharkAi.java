@@ -229,7 +229,7 @@ public class SharkAi {
             LivingEntity last_target= brain.getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).get();
 
             if(last_target instanceof ServerPlayer player && !shark.canAttack(player) && player.getHealth()>=player.getMaxHealth() && player.getLastHurtByMob() instanceof SharkEntity){
-                Primal_Advancements.SURVIVE_SHARK.get().trigger(player);
+                Primal_Advancements.SURVIVE_SHARK.trigger(player);
             }
         }
     }

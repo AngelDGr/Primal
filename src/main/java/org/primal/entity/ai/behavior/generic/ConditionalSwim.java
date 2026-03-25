@@ -4,8 +4,8 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.behavior.Behavior;
-import net.minecraft.world.entity.ai.behavior.Swim;
 import org.jetbrains.annotations.NotNull;
+import org.primal.util.Primal_Util;
 
 import java.util.function.Predicate;
 
@@ -20,7 +20,7 @@ public class ConditionalSwim<T extends Mob> extends Behavior<T> {
     }
 
     protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull T owner) {
-        return Swim.shouldSwim(owner) && canSwim.test(owner);
+        return Primal_Util.OneTwentyEquivalent.shouldSwim(owner) && canSwim.test(owner);
     }
 
     protected boolean canStillUse(@NotNull ServerLevel level, @NotNull T entity, long gameTime) {

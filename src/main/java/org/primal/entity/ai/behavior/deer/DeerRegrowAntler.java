@@ -86,7 +86,7 @@ public class DeerRegrowAntler extends Behavior<DeerEntity> {
         if(time>=40){
             BlockPos blockpos1 = mob.getOnPos();
             if (mob.level().getBlockState(blockpos1).is(Blocks.GRASS_BLOCK)) {
-                if (net.neoforged.neoforge.event.EventHooks.canEntityGrief(mob.level(), mob)) {
+                if (net.minecraftforge.event.ForgeEventFactory.getMobGriefingEvent(mob.level(), mob)) {
                     mob.level().levelEvent(2001, blockpos1, Block.getId(Blocks.GRASS_BLOCK.defaultBlockState()));
                     mob.level().setBlock(blockpos1, Blocks.DIRT.defaultBlockState(), 2);
                 }

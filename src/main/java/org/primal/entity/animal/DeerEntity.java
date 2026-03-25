@@ -52,8 +52,8 @@ import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.DetectsFartherAway;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -172,16 +172,29 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
         this.lookControl = new DeerLookControl(this);
         this.getNavigation().setCanFloat(true);
         this.gameEventHandler = new DynamicGameEventListener<>(new DeerEntity.ScarySoundsListener(this, new EntityPositionSource(this, this.getEyeHeight()), 16));
+        this.setMaxUpStep(1.0f);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 15f)
                 .add(Attributes.MOVEMENT_SPEED, 0.24f)
-                .add(Attributes.STEP_HEIGHT, 1.0f)
                 .add(Attributes.JUMP_STRENGTH, 0.65f)
-                .add(Attributes.SAFE_FALL_DISTANCE, 8.0)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.2f);
+    }
+
+    @Override
+    protected float getJumpPower() {
+        return this.getJumpPower(1.0F);
+    }
+
+    protected float getJumpPower(float multiplier) {
+        return (float)this.getAttributeValue(Attributes.JUMP_STRENGTH) * multiplier * this.getBlockJumpFactor() + this.getJumpBoostPower();
+    }
+
+    @Override
+    protected int calculateFallDamage(float f, float f2) {
+        return Mth.ceil((f - 8.0F) * f2);
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(DeerEntity.class, EntityDataSerializers.INT);
@@ -193,15 +206,15 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
     private static final EntityDataAccessor<Boolean> HAS_NATURAL_ANTLERS = SynchedEntityData.defineId(DeerEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, DeerEntity.Variant.FALLOW.id);
-        builder.define(IS_JUMPING, false);
-        builder.define(ALERT_OTHERS_TIME, 0);
-        builder.define(RIGHT_ANTLER, true);
-        builder.define(LEFT_ANTLER, true);
-        builder.define(TRUSTING, false);
-        builder.define(HAS_NATURAL_ANTLERS, true);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_VARIANT_ID, DeerEntity.Variant.FALLOW.id);
+        this.entityData.define(IS_JUMPING, false);
+        this.entityData.define(ALERT_OTHERS_TIME, 0);
+        this.entityData.define(RIGHT_ANTLER, true);
+        this.entityData.define(LEFT_ANTLER, true);
+        this.entityData.define(TRUSTING, false);
+        this.entityData.define(HAS_NATURAL_ANTLERS, true);
     }
 
     public boolean isJumping() {
@@ -258,7 +271,7 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         if (spawnGroupData == null)
             spawnGroupData = new AgeableMob.AgeableMobGroupData(0.25f);
 
@@ -269,7 +282,7 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
             this.setNaturalAntlers(false);
         }
 
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     @Override
@@ -464,7 +477,7 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     @Override
@@ -585,7 +598,7 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
         //Triggers advancement
         List<ServerPlayer> playersList= this.level().getEntitiesOfClass(ServerPlayer.class, this.getBoundingBox().inflate(16));
         if(!playersList.isEmpty()){
-            playersList.forEach(player -> Primal_Advancements.DEER_DISC.get().trigger(player));
+            playersList.forEach(Primal_Advancements.DEER_DISC::trigger);
         }
 
         DelayedTasks.runLater(1, this::discard);
@@ -627,8 +640,8 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
     }
 
     @Override
-    public boolean canBeLeashed() {
-        return super.canBeLeashed() && !hasPose(Pose.SITTING);
+    public boolean canBeLeashed(@NotNull Player player) {
+        return super.canBeLeashed(player) && !hasPose(Pose.SITTING);
     }
 
     @Override
@@ -709,7 +722,7 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
         private final UniformInt ESCAPE_TIME = TimeUtil.rangeOfSeconds(5, 10);
 
         @Override
-        public boolean handleGameEvent(@NotNull ServerLevel level, Holder<GameEvent> gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
+        public boolean handleGameEvent(@NotNull ServerLevel level, GameEvent gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
             if (gameEvent.is(Primal_Tags.GameEvent.SCARE_DEER)) {
                 //Alert other deer per 5s
                 deer.setAlertOthersTime(Primal_Util.toTicks(5));

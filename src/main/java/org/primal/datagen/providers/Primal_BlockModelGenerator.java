@@ -7,10 +7,10 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.client.model.generators.BlockModelBuilder;
+import net.minecraftforge.client.model.generators.BlockModelProvider;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 import org.primal.Primal_Main;
@@ -131,7 +131,7 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.hollowLog(Primal_Blocks.HOLLOW_DARK_OAK_LOG, "dark_oak");
         this.hollowLog(Primal_Blocks.HOLLOW_MANGROVE_LOG, "mangrove");
 
-        this.cross(Primal_Blocks.THORNY_ACACIA_SAPLING.getRegisteredName(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/thorny_acacia_sapling"));
+        this.cross(Primal_Blocks.THORNY_ACACIA_SAPLING.getId().getPath(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/thorny_acacia_sapling"));
         this.tintedCross(Primal_Blocks.LITCHI_SAPLING);
         this.tintedCross(Primal_Blocks.KIWANO_SAPLING);
         this.tintedCross(Primal_Blocks.STARFRUIT_SAPLING);
@@ -141,19 +141,19 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.createAntlerModel(Primal_Blocks.REINDEER_ANTLER, "reindeer");
     }
 
-    private void columBlock(DeferredHolder<Block, Block> block, String side, String top){
-        this.cubeColumn(block.getRegisteredName(),
+    private void columBlock(RegistryObject<Block> block, String side, String top){
+        this.cubeColumn(block.getId().getPath(),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, side),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, top));
 
-        this.cubeColumnHorizontal(block.getRegisteredName()+"_horizontal",
+        this.cubeColumnHorizontal(block.getId().getPath()+"_horizontal",
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, side),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, top));
     }
 
-    private void hollowLog(DeferredHolder<Block, Block> block, String name){
+    private void hollowLog(RegistryObject<Block> block, String name){
         //Normal
-        this.cube(block.getRegisteredName(),
+        this.cube(block.getId().getPath(),
                         //Down
                         ResourceLocation.withDefaultNamespace("block/"+name+"_log_top"),
                         //Up
@@ -169,7 +169,7 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 .texture("particle", ResourceLocation.withDefaultNamespace("block/"+name+"_log"));
 
         //Side
-        this.cube(block.getRegisteredName()+"_side",
+        this.cube(block.getId().getPath()+"_side",
                         //Down
                         ResourceLocation.withDefaultNamespace("block/"+name+"_log_top"),
                         //Up
@@ -186,7 +186,7 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 .texture("particle", ResourceLocation.withDefaultNamespace("block/"+name+"_log"));
     }
 
-    private void tintedCross(DeferredHolder<Block, Block> block) {
+    private void tintedCross(RegistryObject<Block> block) {
         singleTexture(block.getId().getPath(), BLOCK_FOLDER + "/tinted_cross", "cross", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()));
     }
 
@@ -227,24 +227,24 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+ name));
     }
 
-    private void thornyAcacia(DeferredHolder<Block, Block> block) {
-        this.withExistingParent(block.getRegisteredName(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_thorny_acacia"))
+    private void thornyAcacia(RegistryObject<Block> block) {
+        this.withExistingParent(block.getId().getPath(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "template_thorny_acacia"))
                 .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()));
     }
 
-    private void createCubeAll(DeferredHolder<Block, Block> block){
+    private void createCubeAll(RegistryObject<Block> block){
         this.cubeAll(block.getId().getPath(),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()));
     }
 
-    private void simpleStairs(DeferredHolder<Block, Block> stairs, DeferredHolder<Block, Block> baseBlock){
+    private void simpleStairs(RegistryObject<Block> stairs, RegistryObject<Block> baseBlock){
         this.stairs(stairs.getId().getPath(),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()));
     }
 
-    private void simpleSlab(DeferredHolder<Block, Block> slab, DeferredHolder<Block, Block> baseBlock){
+    private void simpleSlab(RegistryObject<Block> slab, RegistryObject<Block> baseBlock){
         this.slab(slab.getId().getPath(),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()),
@@ -259,7 +259,7 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
         this.createEggModel(name, type, name);
     }
 
-    private void withoutParentInvisible(DeferredHolder<Block, Block> name, ResourceLocation particle){
+    private void withoutParentInvisible(RegistryObject<Block> name, ResourceLocation particle){
         this.getBuilder(name.getId().getPath())
                 .texture("particle", particle);
     }
@@ -269,7 +269,7 @@ public class Primal_BlockModelGenerator extends BlockModelProvider {
                 .texture("egg", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+texture));
     }
 
-    private void createAntlerModel(DeferredHolder<Block, Block> block, String texture){
+    private void createAntlerModel(RegistryObject<Block> block, String texture){
         this.withExistingParentFalseAmbientOcclusion(block.getId().getPath(), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/template_antler"))
                 .texture("texture", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture))
                 .texture("particle", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/antler_block/"+texture+"_particle"));

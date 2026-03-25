@@ -12,7 +12,6 @@ import org.primal.entity.animal.SnakeEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.Color;
 
 public class SnakeShedLayer extends GeoRenderLayer<SnakeEntity> {
     public SnakeShedLayer(GeoRenderer<SnakeEntity> entityRendererIn) {
@@ -27,6 +26,6 @@ public class SnakeShedLayer extends GeoRenderLayer<SnakeEntity> {
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
                         "textures/entity/snake/"+(animatable.isBaby()? "baby/": "")+ "shed" + ".png"));
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 }

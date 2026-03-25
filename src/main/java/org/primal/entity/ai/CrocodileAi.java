@@ -17,7 +17,8 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.entity.ai.behavior.crocodile.*;
 import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
 import org.primal.entity.ai.behavior.generic.GoesToImportantBlockSometimes;
@@ -81,8 +82,8 @@ public class CrocodileAi {
 
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
 
-    public static Predicate<ItemStack> getTemptations() {
-        return CrocodileEntity::isMatingFood;
+    public static Ingredient getTemptations() {
+        return Ingredient.of(Items.CHICKEN);
     }
 
     public static void initMemories(CrocodileEntity CrocodileEntity, RandomSource random) {
@@ -131,7 +132,7 @@ public class CrocodileAi {
                 10,
                 ImmutableList.of(
                         StartAttacking.create(CrocodileAi::findNearestValidAttackTarget),
-                        new AnimalMakeLove(Primal_Entities.CROCODILE.get()),
+                        new AnimalMakeLove(Primal_Entities.CROCODILE.get(), 1.0f),
                         new CrocodileGoesToCompass(),
                         GoesToImportantBlockSometimes.create(10, 5, mob -> !mob.isBaby(), 200, 100),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
@@ -217,7 +218,7 @@ public class CrocodileAi {
     private static RunOne<CrocodileEntity> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
-                        Pair.of(IdlePoseAnimationBehavior.create("basking", Pose.INHALING,
+                        Pair.of(IdlePoseAnimationBehavior.create("basking", Pose.CROAKING,
                                         Primal_Util.toTicks(5), Primal_Util.toTicks(10),
                                         c -> IdlePoseAnimationBehavior.basicCanStart(c) && c.level().isDay() && !c.isInWater(),
                                         Primal_Util.toTicks(40)),

@@ -34,8 +34,8 @@ public abstract class DolphinMixin extends WaterAnimal implements ReplacedEntity
     private static final EntityDataAccessor<Integer> PRIMAL$DATA_VARIANT_ID = SynchedEntityData.defineId(DolphinMixin.class, EntityDataSerializers.INT);
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void primal$dolphinVariantSynchedData(final SynchedEntityData.Builder builder, final CallbackInfo ci){
-        builder.define(PRIMAL$DATA_VARIANT_ID, DolphinReplaced.Variant.LUKEWARM.getId());
+    private void primal$dolphinVariantSynchedData(final CallbackInfo ci){
+        this.entityData.define(PRIMAL$DATA_VARIANT_ID, DolphinReplaced.Variant.LUKEWARM.getId());
     }
 
     @Unique
@@ -43,7 +43,7 @@ public abstract class DolphinMixin extends WaterAnimal implements ReplacedEntity
 
     @SuppressWarnings("unchecked")
     @Inject(method = "finalizeSpawn", at = @At("TAIL"))
-    private void primal$dolphinFinalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir){
+    private void primal$dolphinFinalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CompoundTag tag, CallbackInfoReturnable<SpawnGroupData> cir){
         this.primal$setVariantFromBiome((ReplacedEntityNewVariantHolder<DolphinReplaced.Variant>) p$THIS, level.getBiome(this.blockPosition()));
     }
 

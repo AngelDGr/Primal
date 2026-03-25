@@ -1,7 +1,6 @@
 package org.primal.worldgen.feature;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class AlterTrunkDecorator extends TreeDecorator {
-    public static final MapCodec<AlterTrunkDecorator> CODEC = RecordCodecBuilder.mapCodec((instance) ->
+    public static final Codec<AlterTrunkDecorator> CODEC = RecordCodecBuilder.create((instance) ->
             instance.group(
                     Codec.floatRange(0.0F, 1.0F).fieldOf("probability")
                             .forGetter((alterTrunkDecorator) -> alterTrunkDecorator.probability),

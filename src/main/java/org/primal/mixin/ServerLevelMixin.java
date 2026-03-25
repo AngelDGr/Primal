@@ -14,6 +14,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
 import org.primal.util.block_types.Snowloggable;
@@ -30,13 +31,12 @@ public abstract class ServerLevelMixin extends Level implements WorldGenLevel {
         super(levelData, dimension, registryAccess, dimensionTypeRegistration, profiler, isClientSide, isDebug, biomeZoomSeed, maxChainedNeighborUpdates);
     }
 
-    @Inject(method = "tickPrecipitation",
+    @Inject(method = "tickChunk",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerLevel;getBlockState(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/state/BlockState;",
-                    ordinal = 0))
-    private void primal$increaseSnowNaturallyOnBlock(BlockPos blockPos, CallbackInfo ci,
-                                                     @Local(ordinal = 1) BlockPos blockpos){
+                    ordinal = 1))
+    private void primal$increaseSnowNaturallyOnBlock(LevelChunk levelChunk, int i, CallbackInfo ci, @Local(ordinal = 0) BlockPos blockpos){
         BlockState blockstate = this.getBlockState(blockpos);
 
         if(blockstate.getBlock() instanceof Snowloggable
@@ -50,7 +50,7 @@ public abstract class ServerLevelMixin extends Level implements WorldGenLevel {
     }
 
     @WrapOperation(
-            method = "tickPrecipitation",
+            method = "tickChunk",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z",
                     ordinal = 2)

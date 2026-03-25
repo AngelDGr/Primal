@@ -1,6 +1,6 @@
 package org.primal.mixin;
 
-import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AnvilMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -25,7 +25,8 @@ public abstract class AnvilMenuMixin extends ItemCombinerMenu {
         ItemStack currentLeft = this.inputSlots.getItem(0);
         ItemStack currentRight = this.inputSlots.getItem(1);
 
-        if(currentLeft.is(Primal_Tags.Item.HELMET_ATTACHMENTS) && currentRight.is(ItemTags.HEAD_ARMOR)){
+        if(currentLeft.is(Primal_Tags.Item.HELMET_ATTACHMENTS) &&
+                (currentRight.getItem() instanceof  ArmorItem armorItem && armorItem.getType().equals(ArmorItem.Type.HELMET))){
 
             var result = currentLeft.copy();
             result.shrink(1);

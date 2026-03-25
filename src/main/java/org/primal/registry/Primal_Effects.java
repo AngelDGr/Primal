@@ -4,36 +4,35 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
-import org.primal.effects.HeavyEffect;
 import org.primal.effects.ThornsEffect;
 
 import java.util.function.Supplier;
 
 public class Primal_Effects {
 
-    public static DeferredHolder<MobEffect, MobEffect> HEAVINESS;
-    public static DeferredHolder<MobEffect, MobEffect> THORNED;
+    // Without the trial chamber and without the gravity attribute doesn't make sense Heaviness implementation
+//    public static DeferredHolder<MobEffect, MobEffect> HEAVINESS;
+    public static RegistryObject<MobEffect> THORNED;
     public static void init(){
 
-        HEAVINESS = register("heaviness", ()-> new HeavyEffect(MobEffectCategory.HARMFUL, 0x565567)
-                .addAttributeModifier(
-                        Attributes.MOVEMENT_SPEED,
-                        ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "heaviness_speed"),
-                        -0.25, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
-                .addAttributeModifier(
-                        Attributes.GRAVITY,
-                        ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "heaviness_gravity"),
-                        1.5, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+//        HEAVINESS = register("heaviness", ()-> new HeavyEffect(MobEffectCategory.HARMFUL, 0x565567)
+//                .addAttributeModifier(
+//                        Attributes.MOVEMENT_SPEED,
+//                        ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "heaviness_speed"),
+//                        -0.25, AttributeModifier.Operation.ADD_MULTIPLIED_BASE)
+//                .addAttributeModifier(
+//                        Attributes.GRAVITY,
+//                        ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "heaviness_gravity"),
+//                        1.5, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
 
         THORNED = register("thorned", ()-> new ThornsEffect(MobEffectCategory.BENEFICIAL, 0x2b702a)
                 .addAttributeModifier(
-                        Primal_EntityAttributes.REFLECTED_DAMAGE,
-                        ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "thorned_reflected_damage"),
-                        0.25, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+                        Primal_EntityAttributes.REFLECTED_DAMAGE.get(),
+                        "37c5af78-f1f0-45a9-900b-93746f1d32b4",
+                        0.25, AttributeModifier.Operation.MULTIPLY_BASE));
     }
 
     @SuppressWarnings("unused")
@@ -41,7 +40,7 @@ public class Primal_Effects {
         return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, name);
     }
 
-    private static DeferredHolder<MobEffect, MobEffect> register(final String id, final Supplier<MobEffect> statusEffect) {
+    private static RegistryObject<MobEffect> register(final String id, final Supplier<MobEffect> statusEffect) {
         return Primal_Registries.MOB_EFFECTS.register(id, statusEffect);
     }
 }

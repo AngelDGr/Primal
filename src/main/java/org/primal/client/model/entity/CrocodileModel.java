@@ -5,9 +5,9 @@ import org.primal.Primal_Main;
 import org.primal.client.animation.entity.CrocodileAnimations;
 import org.primal.client.model.defaulted.DefaultedEntityWithVariantsWithBabyGeoModel;
 import org.primal.entity.animal.CrocodileEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 
 public class CrocodileModel extends DefaultedEntityWithVariantsWithBabyGeoModel<CrocodileEntity, CrocodileEntity.Variant> {
     public CrocodileModel() {

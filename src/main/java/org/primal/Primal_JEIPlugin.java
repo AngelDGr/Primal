@@ -5,19 +5,15 @@ import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.recipe.vanilla.IJeiAnvilRecipe;
 import mezz.jei.api.recipe.vanilla.IVanillaRecipeFactory;
-import mezz.jei.api.registration.*;
+import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.runtime.IIngredientManager;
 import mezz.jei.library.plugins.vanilla.anvil.AnvilRecipe;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.InstrumentTags;
-import net.minecraft.tags.ItemTags;
-import net.minecraft.world.item.Instrument;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import org.jetbrains.annotations.NotNull;
 import org.primal.item.HelmetDecorationType;
 import org.primal.item.component.HelmetDecorationComponent;
@@ -64,7 +60,7 @@ public class Primal_JEIPlugin implements IModPlugin {
                 allHelmets.addAll(
                         ingredientManager.getAllItemStacks()
                         .stream()
-                        .filter(stack -> stack.is(ItemTags.HEAD_ARMOR))
+                        .filter(stack -> stack.getItem() instanceof ArmorItem armorItem && armorItem.getType().equals(ArmorItem.Type.HELMET))
                         .toList());
             }
 
@@ -98,8 +94,7 @@ public class Primal_JEIPlugin implements IModPlugin {
                     toAttachList.add(defaultInstance);
 
                     for(Holder<Instrument> instrument: holderset){
-                        var specificInstrument = defaultInstance.copy();
-                        specificInstrument.set(DataComponents.INSTRUMENT, instrument);
+                        var specificInstrument = InstrumentItem.create(Items.GOAT_HORN, instrument);
                         toAttachList.add(specificInstrument);
                     }
                 }
@@ -109,7 +104,7 @@ public class Primal_JEIPlugin implements IModPlugin {
                 }
 
                 var helmetModified = helmet.copy();
-                HelmetDecorationComponent.of(helmetModified, toAttachList.getFirst(), left);
+                HelmetDecorationComponent.of(helmetModified, toAttachList.get(0), left);
 
                 return new AnvilRecipe(
                         left ?  toAttachList   : List.of(helmet),

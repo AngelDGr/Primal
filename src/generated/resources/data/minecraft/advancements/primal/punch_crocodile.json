@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "punch_crocodile": {
+      "conditions": {},
+      "trigger": "primal:punch_crocodile"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.punch_crocodile.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "primal:crocodile_scute"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.punch_crocodile.title"
+    }
+  },
+  "requirements": [
+    [
+      "punch_crocodile"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

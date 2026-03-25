@@ -4,7 +4,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.DamageTypeTagsProvider;
 import net.minecraft.tags.DamageTypeTags;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
@@ -21,7 +21,7 @@ public class Primal_DamageTypesTagGenerator extends DamageTypeTagsProvider {
     @Override
     protected void addTags(final HolderLookup.@NotNull Provider arg) {
 
-        this.tag(DamageTypeTags.NO_KNOCKBACK)
+        this.tag(DamageTypeTags.NO_IMPACT)
                 .add(Primal_DamageTypes.SHARK_TOOTH)
                 .add(Primal_DamageTypes.THORNY_ACACIA)
                 .add(Primal_DamageTypes.CHOMP_TRAP);
@@ -31,12 +31,6 @@ public class Primal_DamageTypesTagGenerator extends DamageTypeTagsProvider {
 
         this.tag(DamageTypeTags.BYPASSES_ARMOR)
                 .add(Primal_DamageTypes.SHARK_TOOTH)
-                .add(Primal_DamageTypes.CHOMP_TRAP);
-
-        this.tag(DamageTypeTags.PANIC_ENVIRONMENTAL_CAUSES)
-                .add(Primal_DamageTypes.THORNY_ACACIA);
-
-        this.tag(DamageTypeTags.IS_PLAYER_ATTACK)
                 .add(Primal_DamageTypes.CHOMP_TRAP);
     }
 }

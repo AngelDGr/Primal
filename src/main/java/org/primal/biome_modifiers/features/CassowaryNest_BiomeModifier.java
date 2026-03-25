@@ -1,15 +1,14 @@
 package org.primal.biome_modifiers.features;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
-import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
+import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.common.world.ModifiableBiomeInfo;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
-import org.primal.Primal_Registries;
 import org.primal.registry.Primal_Tags;
 import org.primal.registry.Primal_WorldGen;
 import org.primal.util.Primal_Util;
@@ -39,13 +38,11 @@ public class CassowaryNest_BiomeModifier implements BiomeModifier {
     }
 
     @Override
-    public @NotNull MapCodec<? extends BiomeModifier> codec() {
+    public @NotNull Codec<? extends BiomeModifier> codec() {
         return Primal_Util.Generation.createBiomeModifierSerializer("cassowary_nest_spawn").get();
     }
 
-    public static void register() {
-        Primal_Registries.BIOME_MODIFIERS.register(
-                "cassowary_nest_spawn",
-                () -> MapCodec.unit(new CassowaryNest_BiomeModifier()));
+    public static Codec<? extends BiomeModifier> makeCodec() {
+        return Codec.unit(Cattails_BiomeModifier::new);
     }
 }

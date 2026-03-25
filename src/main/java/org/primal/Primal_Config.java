@@ -1,190 +1,190 @@
 package org.primal;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
 
 public class Primal_Config {
 
     // --- Bear ---
-    public final ModConfigSpec.BooleanValue enableBearSingleSpawn;
-    public final ModConfigSpec.IntValue bearSingleSpawnWeight;
-    public final ModConfigSpec.IntValue bearSingleMinGroup;
-    public final ModConfigSpec.IntValue bearSingleMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> bearSingleExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableBearSingleSpawn;
+    public final ForgeConfigSpec.IntValue bearSingleSpawnWeight;
+    public final ForgeConfigSpec.IntValue bearSingleMinGroup;
+    public final ForgeConfigSpec.IntValue bearSingleMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> bearSingleExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue enableBearGroupSpawn;
-    public final ModConfigSpec.IntValue bearGroupSpawnWeight;
-    public final ModConfigSpec.IntValue bearGroupMinGroup;
-    public final ModConfigSpec.IntValue bearGroupMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> bearGroupExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableBearGroupSpawn;
+    public final ForgeConfigSpec.IntValue bearGroupSpawnWeight;
+    public final ForgeConfigSpec.IntValue bearGroupMinGroup;
+    public final ForgeConfigSpec.IntValue bearGroupMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> bearGroupExtraBiomes;
 
     // --- Crocodile ---
-    public final ModConfigSpec.BooleanValue enableCrocodileNormalSpawn;
-    public final ModConfigSpec.IntValue crocodileNormalSpawnWeight;
-    public final ModConfigSpec.IntValue crocodileNormalMinGroup;
-    public final ModConfigSpec.IntValue crocodileNormalMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> crocodileNormalExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableCrocodileNormalSpawn;
+    public final ForgeConfigSpec.IntValue crocodileNormalSpawnWeight;
+    public final ForgeConfigSpec.IntValue crocodileNormalMinGroup;
+    public final ForgeConfigSpec.IntValue crocodileNormalMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> crocodileNormalExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue enableCrocodileWarmSpawn;
-    public final ModConfigSpec.IntValue crocodileWarmSpawnWeight;
-    public final ModConfigSpec.IntValue crocodileWarmMinGroup;
-    public final ModConfigSpec.IntValue crocodileWarmMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> crocodileWarmExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableCrocodileWarmSpawn;
+    public final ForgeConfigSpec.IntValue crocodileWarmSpawnWeight;
+    public final ForgeConfigSpec.IntValue crocodileWarmMinGroup;
+    public final ForgeConfigSpec.IntValue crocodileWarmMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> crocodileWarmExtraBiomes;
 
     // --- Shark ---
-    public final ModConfigSpec.BooleanValue enableSingleSharkSpawn;
-    public final ModConfigSpec.IntValue sharkSingleSpawnWeight;
-    public final ModConfigSpec.IntValue sharkSingleMinGroup;
-    public final ModConfigSpec.IntValue sharkSingleMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> sharkSingleExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableSingleSharkSpawn;
+    public final ForgeConfigSpec.IntValue sharkSingleSpawnWeight;
+    public final ForgeConfigSpec.IntValue sharkSingleMinGroup;
+    public final ForgeConfigSpec.IntValue sharkSingleMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> sharkSingleExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue enableSharkGroupSpawn;
-    public final ModConfigSpec.IntValue sharkGroupSpawnWeight;
-    public final ModConfigSpec.IntValue sharkGroupMinGroup;
-    public final ModConfigSpec.IntValue sharkGroupMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> sharkGroupExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableSharkGroupSpawn;
+    public final ForgeConfigSpec.IntValue sharkGroupSpawnWeight;
+    public final ForgeConfigSpec.IntValue sharkGroupMinGroup;
+    public final ForgeConfigSpec.IntValue sharkGroupMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> sharkGroupExtraBiomes;
 
     // --- Walrus ---
-    public final ModConfigSpec.BooleanValue enableWalrusCoastSpawn;
-    public final ModConfigSpec.IntValue walrusCoastSpawnWeight;
-    public final ModConfigSpec.IntValue walrusCoastMinGroup;
-    public final ModConfigSpec.IntValue walrusCoastMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> walrusCoastExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableWalrusCoastSpawn;
+    public final ForgeConfigSpec.IntValue walrusCoastSpawnWeight;
+    public final ForgeConfigSpec.IntValue walrusCoastMinGroup;
+    public final ForgeConfigSpec.IntValue walrusCoastMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> walrusCoastExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue enableWalrusOceanSpawn;
-    public final ModConfigSpec.IntValue walrusOceanSpawnWeight;
-    public final ModConfigSpec.IntValue walrusOceanMinGroup;
-    public final ModConfigSpec.IntValue walrusOceanMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> walrusOceanExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableWalrusOceanSpawn;
+    public final ForgeConfigSpec.IntValue walrusOceanSpawnWeight;
+    public final ForgeConfigSpec.IntValue walrusOceanMinGroup;
+    public final ForgeConfigSpec.IntValue walrusOceanMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> walrusOceanExtraBiomes;
 
     // --- Lion ---
-    public final ModConfigSpec.BooleanValue enableLionSavannaSpawn;
-    public final ModConfigSpec.IntValue lionSavannaSpawnWeight;
-    public final ModConfigSpec.IntValue lionSavannaMinGroup;
-    public final ModConfigSpec.IntValue lionSavannaMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> lionSavannaExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableLionSavannaSpawn;
+    public final ForgeConfigSpec.IntValue lionSavannaSpawnWeight;
+    public final ForgeConfigSpec.IntValue lionSavannaMinGroup;
+    public final ForgeConfigSpec.IntValue lionSavannaMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> lionSavannaExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue enableLionSnowySpawn;
-    public final ModConfigSpec.IntValue lionSnowySpawnWeight;
-    public final ModConfigSpec.IntValue lionSnowyMinGroup;
-    public final ModConfigSpec.IntValue lionSnowyMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> lionSnowyExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableLionSnowySpawn;
+    public final ForgeConfigSpec.IntValue lionSnowySpawnWeight;
+    public final ForgeConfigSpec.IntValue lionSnowyMinGroup;
+    public final ForgeConfigSpec.IntValue lionSnowyMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> lionSnowyExtraBiomes;
 
     // --- Snake ---
-    public final ModConfigSpec.BooleanValue enableSnakeSpawn;
-    public final ModConfigSpec.IntValue snakeSpawnWeight;
-    public final ModConfigSpec.IntValue snakeMinGroup;
-    public final ModConfigSpec.IntValue snakeMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> snakeExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableSnakeSpawn;
+    public final ForgeConfigSpec.IntValue snakeSpawnWeight;
+    public final ForgeConfigSpec.IntValue snakeMinGroup;
+    public final ForgeConfigSpec.IntValue snakeMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> snakeExtraBiomes;
 
     // --- Deer ---
-    public final ModConfigSpec.BooleanValue enableDeerForestSpawn;
-    public final ModConfigSpec.IntValue deerForestSpawnWeight;
-    public final ModConfigSpec.IntValue deerForestMinGroup;
-    public final ModConfigSpec.IntValue deerForestMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> deerForestExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableDeerForestSpawn;
+    public final ForgeConfigSpec.IntValue deerForestSpawnWeight;
+    public final ForgeConfigSpec.IntValue deerForestMinGroup;
+    public final ForgeConfigSpec.IntValue deerForestMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> deerForestExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue enableDeerSnowySpawn;
-    public final ModConfigSpec.IntValue deerSnowySpawnWeight;
-    public final ModConfigSpec.IntValue deerSnowyMinGroup;
-    public final ModConfigSpec.IntValue deerSnowyMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> deerSnowyExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableDeerSnowySpawn;
+    public final ForgeConfigSpec.IntValue deerSnowySpawnWeight;
+    public final ForgeConfigSpec.IntValue deerSnowyMinGroup;
+    public final ForgeConfigSpec.IntValue deerSnowyMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> deerSnowyExtraBiomes;
 
 
     // --- Replaced Models ---
-    public final ModConfigSpec.BooleanValue polarBearModelChange;
-    public final ModConfigSpec.BooleanValue foxModelChange;
-    public final ModConfigSpec.BooleanValue rabbitModelChange;
-    public final ModConfigSpec.BooleanValue wolfModelChange;
-    public final ModConfigSpec.BooleanValue dolphinModelChange;
+    public final ForgeConfigSpec.BooleanValue polarBearModelChange;
+    public final ForgeConfigSpec.BooleanValue foxModelChange;
+    public final ForgeConfigSpec.BooleanValue rabbitModelChange;
+    public final ForgeConfigSpec.BooleanValue wolfModelChange;
+    public final ForgeConfigSpec.BooleanValue dolphinModelChange;
 
     // --- Misc ---
-    public final ModConfigSpec.BooleanValue polarBearIncreasesHealth;
-    public final ModConfigSpec.BooleanValue foxIncreasesHealth;
-    public final ModConfigSpec.BooleanValue wolfIncreasesHealth;
+    public final ForgeConfigSpec.BooleanValue polarBearIncreasesHealth;
+    public final ForgeConfigSpec.BooleanValue foxIncreasesHealth;
+    public final ForgeConfigSpec.BooleanValue wolfIncreasesHealth;
 
-    public final ModConfigSpec.BooleanValue bearBabyCustomModel;
-    public final ModConfigSpec.BooleanValue crocodileBabyCustomModel;
-//    public final ModConfigSpec.BooleanValue eagleBabyCustomModel;
-//    public final ModConfigSpec.BooleanValue sharkBabyCustomModel;
+    public final ForgeConfigSpec.BooleanValue bearBabyCustomModel;
+    public final ForgeConfigSpec.BooleanValue crocodileBabyCustomModel;
+//    public final ForgeConfigSpec.BooleanValue eagleBabyCustomModel;
+//    public final ForgeConfigSpec.BooleanValue sharkBabyCustomModel;
 
-    public final ModConfigSpec.BooleanValue cassowaryBabyCustomModel;
-    public final ModConfigSpec.BooleanValue walrusBabyCustomModel;
-    public final ModConfigSpec.BooleanValue lionBabyCustomModel;
-    public final ModConfigSpec.BooleanValue snakeBabyCustomModel;
-    public final ModConfigSpec.BooleanValue deerBabyCustomModel;
+    public final ForgeConfigSpec.BooleanValue cassowaryBabyCustomModel;
+    public final ForgeConfigSpec.BooleanValue walrusBabyCustomModel;
+    public final ForgeConfigSpec.BooleanValue lionBabyCustomModel;
+    public final ForgeConfigSpec.BooleanValue snakeBabyCustomModel;
+    public final ForgeConfigSpec.BooleanValue deerBabyCustomModel;
 
     // --- Dolphin ---
-    public final ModConfigSpec.BooleanValue enableDolphinColdSpawn;
-    public final ModConfigSpec.IntValue dolphinColdSpawnWeight;
-    public final ModConfigSpec.IntValue dolphinColdMinGroup;
-    public final ModConfigSpec.IntValue dolphinColdMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> dolphinColdExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableDolphinColdSpawn;
+    public final ForgeConfigSpec.IntValue dolphinColdSpawnWeight;
+    public final ForgeConfigSpec.IntValue dolphinColdMinGroup;
+    public final ForgeConfigSpec.IntValue dolphinColdMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> dolphinColdExtraBiomes;
 
     // --- Rabbit ---
-    public final ModConfigSpec.BooleanValue enableRabbitBadlandsSpawn;
-    public final ModConfigSpec.IntValue rabbitBadlandsSpawnWeight;
-    public final ModConfigSpec.IntValue rabbitBadlandsMinGroup;
-    public final ModConfigSpec.IntValue rabbitBadlandsMaxGroup;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> rabbitBadlandsExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue enableRabbitBadlandsSpawn;
+    public final ForgeConfigSpec.IntValue rabbitBadlandsSpawnWeight;
+    public final ForgeConfigSpec.IntValue rabbitBadlandsMinGroup;
+    public final ForgeConfigSpec.IntValue rabbitBadlandsMaxGroup;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> rabbitBadlandsExtraBiomes;
 
     // --- Special Config ---
-    public final ModConfigSpec.ConfigValue<List<? extends List<? extends String>>> eggData;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> extraPlaceableEggs;
+    public final ForgeConfigSpec.ConfigValue<List<? extends List<? extends String>>> eggData;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> extraPlaceableEggs;
 
     // --- World Features ---
-    public final ModConfigSpec.BooleanValue riverReedsSpawnInWorld;
-    public final ModConfigSpec.IntValue riverReedsPatchRarity;
-    public final ModConfigSpec.IntValue riverReedsPatchSpreadXZ;
-    public final ModConfigSpec.IntValue riverReedsPatchSpreadY;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> riverReedsExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue riverReedsSpawnInWorld;
+    public final ForgeConfigSpec.IntValue riverReedsPatchRarity;
+    public final ForgeConfigSpec.IntValue riverReedsPatchSpreadXZ;
+    public final ForgeConfigSpec.IntValue riverReedsPatchSpreadY;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> riverReedsExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue cattailsSpawnInWorld;
-    public final ModConfigSpec.DoubleValue cattailsAlongsideRiverReedsProbability;
-    public final ModConfigSpec.IntValue cattailsPatchRarity;
-    public final ModConfigSpec.IntValue cattailsPatchSpreadXZ;
-    public final ModConfigSpec.IntValue cattailsPatchSpreadY;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> cattailsExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue cattailsSpawnInWorld;
+    public final ForgeConfigSpec.DoubleValue cattailsAlongsideRiverReedsProbability;
+    public final ForgeConfigSpec.IntValue cattailsPatchRarity;
+    public final ForgeConfigSpec.IntValue cattailsPatchSpreadXZ;
+    public final ForgeConfigSpec.IntValue cattailsPatchSpreadY;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> cattailsExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue seaShellsSpawnInWorld;
-    public final ModConfigSpec.IntValue seaShellsPatchRarity;
-    public final ModConfigSpec.IntValue seaShellsPatchTries;
-    public final ModConfigSpec.IntValue seaShellsPatchSpreadXZ;
-    public final ModConfigSpec.IntValue seaShellsPatchSpreadY;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> seaShellsExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue seaShellsSpawnInWorld;
+    public final ForgeConfigSpec.IntValue seaShellsPatchRarity;
+    public final ForgeConfigSpec.IntValue seaShellsPatchTries;
+    public final ForgeConfigSpec.IntValue seaShellsPatchSpreadXZ;
+    public final ForgeConfigSpec.IntValue seaShellsPatchSpreadY;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> seaShellsExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue thornyAcaciaSpawnInWorld;
-    public final ModConfigSpec.DoubleValue thornyAcaciaProbabilityOfReplacing;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> thornyAcaciaExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue thornyAcaciaSpawnInWorld;
+    public final ForgeConfigSpec.DoubleValue thornyAcaciaProbabilityOfReplacing;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> thornyAcaciaExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue hollowOakLogSpawnInWorld;
-    public final ModConfigSpec.BooleanValue hollowSpruceLogSpawnInWorld;
-    public final ModConfigSpec.BooleanValue hollowBirchLogSpawnInWorld;
-    public final ModConfigSpec.BooleanValue hollowJungleLogSpawnInWorld;
-    public final ModConfigSpec.BooleanValue hollowAcaciaLogSpawnInWorld;
-    public final ModConfigSpec.BooleanValue hollowDarkOakLogSpawnInWorld;
-    public final ModConfigSpec.BooleanValue hollowMangroveLogSpawnInWorld;
-    public final ModConfigSpec.ConfigValue<List<? extends Double>> hollowLogEmptyProbability;
-    public final ModConfigSpec.ConfigValue<List<? extends Double>> hollowLogSnakeProbability;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> hollowTreesExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue hollowOakLogSpawnInWorld;
+    public final ForgeConfigSpec.BooleanValue hollowSpruceLogSpawnInWorld;
+    public final ForgeConfigSpec.BooleanValue hollowBirchLogSpawnInWorld;
+    public final ForgeConfigSpec.BooleanValue hollowJungleLogSpawnInWorld;
+    public final ForgeConfigSpec.BooleanValue hollowAcaciaLogSpawnInWorld;
+    public final ForgeConfigSpec.BooleanValue hollowDarkOakLogSpawnInWorld;
+    public final ForgeConfigSpec.BooleanValue hollowMangroveLogSpawnInWorld;
+    public final ForgeConfigSpec.ConfigValue<List<? extends Double>> hollowLogEmptyProbability;
+    public final ForgeConfigSpec.ConfigValue<List<? extends Double>> hollowLogSnakeProbability;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> hollowTreesExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue eagleNestSpawnInWorld;
-    public final ModConfigSpec.IntValue eagleNestRarity;
-    public final ModConfigSpec.IntValue eagleNestTries;
-    public final ModConfigSpec.IntValue eagleNestSpreadXZ;
-    public final ModConfigSpec.IntValue eagleNestSpreadY;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> eagleNestExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue eagleNestSpawnInWorld;
+    public final ForgeConfigSpec.IntValue eagleNestRarity;
+    public final ForgeConfigSpec.IntValue eagleNestTries;
+    public final ForgeConfigSpec.IntValue eagleNestSpreadXZ;
+    public final ForgeConfigSpec.IntValue eagleNestSpreadY;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> eagleNestExtraBiomes;
 
-    public final ModConfigSpec.BooleanValue cassowaryNestSpawnInWorld;
-    public final ModConfigSpec.IntValue cassowaryNestRarity;
-    public final ModConfigSpec.IntValue cassowaryNestTries;
-    public final ModConfigSpec.IntValue cassowaryNestSpreadXZ;
-    public final ModConfigSpec.IntValue cassowaryNestSpreadY;
-    public final ModConfigSpec.ConfigValue<List<? extends String>> cassowaryNestExtraBiomes;
+    public final ForgeConfigSpec.BooleanValue cassowaryNestSpawnInWorld;
+    public final ForgeConfigSpec.IntValue cassowaryNestRarity;
+    public final ForgeConfigSpec.IntValue cassowaryNestTries;
+    public final ForgeConfigSpec.IntValue cassowaryNestSpreadXZ;
+    public final ForgeConfigSpec.IntValue cassowaryNestSpreadY;
+    public final ForgeConfigSpec.ConfigValue<List<? extends String>> cassowaryNestExtraBiomes;
 
     @SuppressWarnings("deprecation")
-    public Primal_Config(ModConfigSpec.Builder builder) {
+    public Primal_Config(ForgeConfigSpec.Builder builder) {
 
         //Misc
         builder.comment("Misc Settings").push("misc");

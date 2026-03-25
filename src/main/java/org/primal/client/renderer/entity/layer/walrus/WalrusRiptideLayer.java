@@ -13,7 +13,6 @@ import org.primal.entity.animal.WalrusEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.Color;
 
 public class WalrusRiptideLayer extends GeoRenderLayer<WalrusEntity> {
 
@@ -26,6 +25,6 @@ public class WalrusRiptideLayer extends GeoRenderLayer<WalrusEntity> {
         if (!animatable.hasPose(Pose.SPIN_ATTACK)) return;
         RenderType barrelsRenderType = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/walrus/riptide.png"));
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, barrelsRenderType, bufferSource.getBuffer(barrelsRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, barrelsRenderType, bufferSource.getBuffer(barrelsRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 }

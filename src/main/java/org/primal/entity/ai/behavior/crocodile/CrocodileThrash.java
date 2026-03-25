@@ -41,7 +41,7 @@ public class CrocodileThrash extends Behavior<CrocodileEntity> {
 
     @Override
     protected void tick(@NotNull ServerLevel level, @NotNull CrocodileEntity crocodile, long gameTime) {
-        LivingEntity target = !crocodile.getPassengers().isEmpty() && crocodile.getPassengers().getFirst() instanceof LivingEntity living? living: null;
+        LivingEntity target = !crocodile.getPassengers().isEmpty() && crocodile.getPassengers().get(0) instanceof LivingEntity living? living: null;
         crocodile.stopMoving();
         //If it doesn't have target
         if(target==null){

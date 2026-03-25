@@ -42,8 +42,8 @@ import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.AttackVillagers;
 import org.primal.util.mob_types.VariantHolderWithEgg;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Collections;
@@ -130,6 +130,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
         super(entityType, level);
         this.getNavigation().setCanFloat(true);
         this.xpReward=10;
+        this.setMaxUpStep(1.5f);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -137,22 +138,21 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
                 .add(Attributes.MAX_HEALTH, 30f)
                 .add(Attributes.MOVEMENT_SPEED, 0.23f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.2f)
-                .add(Attributes.ATTACK_DAMAGE, 3f)
-                .add(Attributes.STEP_HEIGHT, 1.5f);
+                .add(Attributes.ATTACK_DAMAGE, 3f);
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(CassowaryEntity.class, EntityDataSerializers.INT);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, Variant.MIDNIGHT.id);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_VARIANT_ID, Variant.MIDNIGHT.id);
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         setVariantFromBiome(this, level.getBiome(this.blockPosition()));
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     @Override
@@ -233,7 +233,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     public List<ItemStack> getDroppedSeeds() {
         if(this.level().getServer() == null) return Collections.emptyList();
 
-        final LootTable lootTable = this.level().getServer().reloadableRegistries().getLootTable(Primal_LootTables.CASSOWARY_PROCESSED_SEEDS);
+        final LootTable lootTable = this.level().getServer().getLootData().getLootTable(Primal_LootTables.CASSOWARY_PROCESSED_SEEDS);
         return lootTable.getRandomItems(new LootParams.Builder((ServerLevel)this.level())
                 .withParameter(LootContextParams.THIS_ENTITY, this)
                 .withParameter(LootContextParams.ORIGIN, this.position())
@@ -249,7 +249,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     @Override
@@ -301,14 +301,13 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
         if(hurt){
             //Damages shield a lot
             if(target instanceof final Player player && player.isBlocking()){
-                player.getOffhandItem().hurtAndBreak(10, player, getSlotForHand(player.getUsedItemHand()));
+                player.getOffhandItem().hurtAndBreak(10, player, (entity1) -> entity1.broadcastBreakEvent(Primal_Util.OneTwentyEquivalent.getSlotForHand(player.getUsedItemHand())));
             }
 
             if(target instanceof LivingEntity livingTarget){
                 //Damages the armor a lot
                 Primal_Util.damageEquipment(livingTarget, this.damageSources().mobAttack(this), 10,
-                        EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD,
-                        EquipmentSlot.BODY);
+                        EquipmentSlot.FEET, EquipmentSlot.LEGS, EquipmentSlot.CHEST, EquipmentSlot.HEAD);
 
                 //If it was another cassowary the last hurt, then it's the winer
                 if(target.getType().equals(this.getType()) && livingTarget.getHealth()<livingTarget.getMaxHealth()*0.31){
@@ -325,7 +324,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     }
 
     public boolean isWithinLungeAttackRange(LivingEntity entity) {
-        return this.getAttackBoundingBox().inflate(2).intersects(entity.getHitbox());
+        return Primal_Util.OneTwentyEquivalent.getAttackBoundingBox(this).inflate(2).intersects(entity.getBoundingBox());
     }
 
     public boolean isSeeingTarget(LivingEntity target) {
@@ -339,7 +338,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     }
 
     @Override
-    protected int getBaseExperienceReward() {
+    public int getExperienceReward() {
         return this.xpReward;
     }
 
@@ -439,7 +438,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
 
     //──────────────────────────────────── Misc ────────────────────────────────────
     @Override
-    public boolean canBeLeashed() {
+    public boolean canBeLeashed(@NotNull Player player) {
         return !isAggressive();
     }
 

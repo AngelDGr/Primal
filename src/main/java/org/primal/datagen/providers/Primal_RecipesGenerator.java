@@ -1,35 +1,32 @@
 package org.primal.datagen.providers;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.CampfireCookingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SmokingRecipe;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.common.Tags;
+import net.minecraftforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_Tags;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 public class Primal_RecipesGenerator extends RecipeProvider {
 
-    public Primal_RecipesGenerator(final PackOutput output, final CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, lookupProvider);
+    public Primal_RecipesGenerator(final PackOutput output) {
+        super(output);
     }
 
     @Override
-    public void buildRecipes(final @NotNull RecipeOutput exporter) {
+    public void buildRecipes(final @NotNull Consumer<FinishedRecipe> exporter) {
         ShapedRecipeBuilder.shaped(RecipeCategory.COMBAT, Items.ARROW, 2)
                 .define('X', Primal_Items.SHARK_TOOTH.get())
                 .define('#', Items.STICK)
@@ -347,16 +344,16 @@ public class Primal_RecipesGenerator extends RecipeProvider {
                 .save(exporter, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "antler_bonemeal"));
     }
 
-    protected static void createCookFood(RecipeOutput exporter,ItemLike rawItem, ItemLike cookedItem) {
+    protected static void createCookFood(Consumer<FinishedRecipe> exporter,ItemLike rawItem, ItemLike cookedItem) {
         SimpleCookingRecipeBuilder.smelting(Ingredient.of(rawItem), RecipeCategory.FOOD, cookedItem, 0.35F, 200)
                 .unlockedBy(getHasName(rawItem), has(rawItem))
                 .save(exporter);
 
-        simpleCookingRecipe(exporter, "smoking", RecipeSerializer.SMOKING_RECIPE, SmokingRecipe::new, 100, rawItem, cookedItem, 0.35F);
-        simpleCookingRecipe(exporter, "campfire_cooking", RecipeSerializer.CAMPFIRE_COOKING_RECIPE, CampfireCookingRecipe::new, 600, rawItem, cookedItem, 0.35F);
+        simpleCookingRecipe(exporter, "smoking", RecipeSerializer.SMOKING_RECIPE, 100, rawItem, cookedItem, 0.35F);
+        simpleCookingRecipe(exporter, "campfire_cooking", RecipeSerializer.CAMPFIRE_COOKING_RECIPE, 600, rawItem, cookedItem, 0.35F);
     }
 
-    protected static void planksFromHollowLog(RecipeOutput recipeOutput, ItemLike planks, ItemLike log) {
+    protected static void planksFromHollowLog(Consumer<FinishedRecipe> recipeOutput, ItemLike planks, ItemLike log) {
 
         ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, planks, 2)
                 .requires(log)

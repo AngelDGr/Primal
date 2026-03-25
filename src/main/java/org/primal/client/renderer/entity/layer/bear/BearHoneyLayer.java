@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.Color;
 
 public class BearHoneyLayer extends GeoRenderLayer<BearEntity> {
 
@@ -28,7 +27,7 @@ public class BearHoneyLayer extends GeoRenderLayer<BearEntity> {
             return;
         RenderType honeyRenderType = RenderType.entityCutoutNoCull(getTexture(animatable));
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, honeyRenderType, bufferSource.getBuffer(honeyRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, honeyRenderType, bufferSource.getBuffer(honeyRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 
     private static ResourceLocation getTexture(BearEntity bear){

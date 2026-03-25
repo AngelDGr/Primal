@@ -1,19 +1,16 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import org.jetbrains.annotations.NotNull;
 import org.primal.block.properties.TripleBlockHalf;
 
 public class CattailsBlock extends ThreeTallPlantBlock{
-    public static final MapCodec<ThreeTallPlantBlock> CODEC = simpleCodec(CattailsBlock::new);
+
     public CattailsBlock(Properties properties) {
         super(properties);
     }
@@ -61,10 +58,5 @@ public class CattailsBlock extends ThreeTallPlantBlock{
 
     private boolean canSpreadOn(Level level, BlockPos posToGrow, FluidState fluidState){
         return (level.getBlockState(posToGrow).isAir() || (fluidState.is(Fluids.WATER)) && fluidState.getAmount() == 8 && level.getBlockState(posToGrow).is(Blocks.WATER));
-    }
-
-    @Override
-    protected @NotNull MapCodec<? extends BushBlock> codec() {
-        return CODEC;
     }
 }

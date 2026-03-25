@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "snake_fill_bottle": {
+      "conditions": {},
+      "trigger": "primal:snake_fill_bottle"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.snake_fill_bottle.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:potion"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.snake_fill_bottle.title"
+    }
+  },
+  "requirements": [
+    [
+      "snake_fill_bottle"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

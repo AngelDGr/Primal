@@ -1,17 +1,20 @@
 package org.primal;
 
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.alchemy.PotionBrewing;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
@@ -20,36 +23,35 @@ import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
-import net.minecraft.world.level.storage.loot.functions.SetPotionFunction;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.ModList;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.ModConfigSpec;
-import net.neoforged.neoforge.event.AnvilUpdateEvent;
-import net.neoforged.neoforge.event.GrindstoneEvent;
-import net.neoforged.neoforge.event.LootTableLoadEvent;
-import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
-import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
-import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
-import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.event.*;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.minecraftforge.event.entity.player.AnvilRepairEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.primal.biome_modifiers.features.*;
 import org.primal.biome_modifiers.mobs.*;
 import org.primal.block.ChompTrapBlock;
 import org.primal.block_entity.ChompTrapBlockEntity;
+import org.primal.datagen.providers.Primal_DataMapGenerator;
 import org.primal.entity.animal.*;
 import org.primal.item.ConchShellItem;
 import org.primal.item.HelmetDecorationType;
@@ -67,16 +69,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@SuppressWarnings("removal")
-@EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
+@Mod.EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(Primal_Main.MOD_ID)
 public class Primal_Main {
     public static final String MOD_ID = "primal";
     public static final Primal_Config COMMON_CONFIG;
-    public static final ModConfigSpec COMMON_SPEC;
+    public static final ForgeConfigSpec COMMON_SPEC;
 
     static {
-        Pair<Primal_Config, ModConfigSpec> pair = new ModConfigSpec.Builder()
+        Pair<Primal_Config, ForgeConfigSpec> pair = new ForgeConfigSpec.Builder()
                 .configure(Primal_Config::new);
         COMMON_CONFIG = pair.getLeft();
         COMMON_SPEC = pair.getRight();
@@ -98,17 +99,16 @@ public class Primal_Main {
         }
     }
 
-    public Primal_Main(IEventBus modEventBus) {
-        ModList.get().getModContainerById(Primal_Main.MOD_ID)
-                .ifPresent(
-                        modContainer ->
-                                modContainer.registerConfig(ModConfig.Type.COMMON, COMMON_SPEC)
-                );
+    public Primal_Main(FMLJavaModLoadingContext context) {
+        IEventBus modEventBus = context.getModEventBus();
+        context.registerConfig(ModConfig.Type.COMMON, COMMON_SPEC);
 
         //AI
         Primal_Sensors.init(); Primal_Registries.SENSOR_TYPES.register(modEventBus);
         Primal_MemoryModuleTypes.init(); Primal_Registries.MEMORY_MODULE_TYPES.register(modEventBus);
         Primal_Activities.init(); Primal_Registries.ACTIVITIES.register(modEventBus);
+
+        Primal_EntityAttributes.init(); Primal_Registries.ATTRIBUTES.register(modEventBus);
 
         //Effects
         Primal_Effects.init(); Primal_Registries.MOB_EFFECTS.register(modEventBus);
@@ -128,11 +128,11 @@ public class Primal_Main {
         //Items
         Primal_Items.initItems(); Primal_Registries.ITEMS.register(modEventBus);
         Primal_Items.initGroups(); Primal_Registries.CREATIVE_MODE_TABS.register(modEventBus);
-        Primal_Items.Components.init(); Primal_Registries.DATA_COMPONENTS.register(modEventBus);
+        Primal_Items.Components.init(); Primal_Registries.LOOT_FUNCTIONS.register(modEventBus);
 
         //Advancements
-        Primal_Advancements.initCriteria(); Primal_Registries.CRITERIA.register(modEventBus);
-        Primal_Advancements.initEntitySubPredicates(); Primal_Registries.ENTITY_SUB_PREDICATE_TYPES.register(modEventBus);
+        Primal_Advancements.initCriteria();
+        Primal_Advancements.initEntitySubPredicates();
 
         //World Gen
         Primal_WorldGen.init(); Primal_Registries.FEATURES.register(modEventBus);
@@ -141,40 +141,52 @@ public class Primal_Main {
 
         Primal_VillagerCustomTrades.init();
 
+        Primal_BannerPatterns.init(); Primal_Registries.BANNER_PATTERNS.register(modEventBus);
+
+        // Register ourselves for server and other game events we are interested in
+        MinecraftForge.EVENT_BUS.register(this);
+
         //Biome Modifiers
-        createBiomeModifiers(); Primal_Registries.BIOME_MODIFIERS.register(modEventBus);
+        createBiomeModifiers(modEventBus);
 
         //Particles
         Primal_Particles.init(); Primal_Registries.PARTICLES.register(modEventBus);
+
+        registerNetworking();
     }
 
-    public static void createBiomeModifiers() {
+    public static void createBiomeModifiers(IEventBus modEventBus) {
+        final DeferredRegister<Codec<? extends BiomeModifier>> biomeModifiers =
+                DeferredRegister.create(ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, Primal_Main.MOD_ID);
+        biomeModifiers.register(modEventBus);
+
+
         //Mobs
         {
-            BearSingle_BiomeModifier.register();
-            BearGroup_BiomeModifier.register();
-            CrocodileNormal_BiomeModifier.register();
-            CrocodileWarm_BiomeModifier.register();
-            SharkSingle_BiomeModifier.register();
-            SharkGroup_BiomeModifier.register();
-            WalrusNormal_BiomeModifier.register();
-            WalrusOcean_BiomeModifier.register();
-            LionSavanna_BiomeModifier.register();
-            LionSnowy_BiomeModifier.register();
-            Snake_BiomeModifier.register();
-            DeerForest_BiomeModifier.register();
-            DeerSnowy_BiomeModifier.register();
-            DolphinCold_BiomeModifier.register();
-            RabbitBadlands_BiomeModifier.register();
+            biomeModifiers.register("bear_single_spawn", BearSingle_BiomeModifier::makeCodec);
+            biomeModifiers.register("bear_group_spawn", BearGroup_BiomeModifier::makeCodec);
+            biomeModifiers.register("crocodile_normal_spawn", CrocodileNormal_BiomeModifier::makeCodec);
+            biomeModifiers.register("crocodile_warm_spawn", CrocodileWarm_BiomeModifier::makeCodec);
+            biomeModifiers.register("shark_single_spawn", SharkSingle_BiomeModifier::makeCodec);
+            biomeModifiers.register("shark_group_spawn", SharkGroup_BiomeModifier::makeCodec);
+            biomeModifiers.register("walrus_spawn", WalrusNormal_BiomeModifier::makeCodec);
+            biomeModifiers.register("walrus_ocean_spawn", WalrusOcean_BiomeModifier::makeCodec);
+            biomeModifiers.register("lion_savanna_spawn", LionSavanna_BiomeModifier::makeCodec);
+            biomeModifiers.register("lion_snowy_spawn", LionSnowy_BiomeModifier::makeCodec);
+            biomeModifiers.register("snake_spawn", Snake_BiomeModifier::makeCodec);
+            biomeModifiers.register("deer_forest_spawn", DeerForest_BiomeModifier::makeCodec);
+            biomeModifiers.register("deer_snowy_spawn", DeerSnowy_BiomeModifier::makeCodec);
+            biomeModifiers.register("cold_dolphin_spawn", DolphinCold_BiomeModifier::makeCodec);
+            biomeModifiers.register("badlands_rabbit_spawn", RabbitBadlands_BiomeModifier::makeCodec);
         }
 
         //Features
         {
-            RiverReeds_BiomeModifier.register();
-            Cattails_BiomeModifier.register();
-            Seashells_BiomeModifier.register();
-            EagleNest_BiomeModifier.register();
-            CassowaryNest_BiomeModifier.register();
+            biomeModifiers.register("river_reeds_patch_spawn", RiverReeds_BiomeModifier::makeCodec);
+            biomeModifiers.register("cattails_patch_spawn", Cattails_BiomeModifier::makeCodec);
+            biomeModifiers.register("seashells_patch_spawn", Seashells_BiomeModifier::makeCodec);
+            biomeModifiers.register("eagle_nest_spawn", EagleNest_BiomeModifier::makeCodec);
+            biomeModifiers.register("cassowary_nest_spawn", CassowaryNest_BiomeModifier::makeCodec);
         }
     }
 
@@ -182,6 +194,9 @@ public class Primal_Main {
     public static void registerCommonEvent(final FMLCommonSetupEvent event){
         setFlammables();
         ConfigCache.load();
+
+        Primal_DataMapGenerator.setSimilarToDataMaps();
+        Primal_MainGameBus.registerBrewingRecipes();
     }
 
     public static void setFlammables() {
@@ -198,7 +213,7 @@ public class Primal_Main {
     }
 
     @SuppressWarnings("unused")
-    @EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = EventBusSubscriber.Bus.GAME)
+    @Mod.EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     private static class Primal_MainGameBus {
 
         @SubscribeEvent
@@ -260,58 +275,38 @@ public class Primal_Main {
             crocodile.addItemsToInventory(stacks);
         }
 
-        @SubscribeEvent
-        public static void registerBrewingRecipes(RegisterBrewingRecipesEvent event) {
-            PotionBrewing.Builder builder = event.getBuilder();
+        public static void registerBrewingRecipes() {
 
             // Will add brewing recipes for all container potions (e.g. potion, splash potion, lingering potion)
-            builder.addMix(
-                    Potions.AWKWARD,
+//            builder.addMix(
+//                    Potions.AWKWARD,
+//
+//                    Primal_Items.SHARK_TOOTH.get(),
+//
+//                    Primal_Potions.HEAVINESS
+//            );
 
-                    Primal_Items.SHARK_TOOTH.get(),
-
-                    Primal_Potions.HEAVINESS
+            BrewingRecipeRegistry.addRecipe(
+                    Ingredient.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Potions.AWKWARD)),
+                    Ingredient.of(Primal_Items.EXPLOSEED.get()),
+                    PotionUtils.setPotion(new ItemStack(Items.POTION), Primal_Potions.THORNED.get())
             );
 
-            builder.addMix(
-                    Potions.AWKWARD,
-                    Primal_Items.EXPLOSEED.get(),
-                    Primal_Potions.THORNED
+            BrewingRecipeRegistry.addRecipe(
+                    Ingredient.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Primal_Potions.THORNED.get())),
+                    Ingredient.of(Items.GLOWSTONE_DUST),
+                    PotionUtils.setPotion(new ItemStack(Items.POTION), Primal_Potions.STRONG_THORNED.get())
             );
 
-            builder.addMix(
-                    Primal_Potions.THORNED,
-                    Items.GLOWSTONE_DUST,
-                    Primal_Potions.STRONG_THORNED
-            );
-
-            builder.addMix(
-                    Primal_Potions.THORNED,
-                    Items.REDSTONE,
-                    Primal_Potions.LONG_THORNED
+            BrewingRecipeRegistry.addRecipe(
+                    Ingredient.of(PotionUtils.setPotion(new ItemStack(Items.POTION), Primal_Potions.THORNED.get())),
+                    Ingredient.of(Items.REDSTONE),
+                    PotionUtils.setPotion(new ItemStack(Items.POTION), Primal_Potions.LONG_THORNED.get())
             );
         }
 
         @SubscribeEvent
         public static void modifyLootTables(LootTableLoadEvent event) {
-
-            //Heaviness potion to trial chambers
-            if(Primal_Util.isLootTable(event, BuiltInLootTables.SPAWNER_TRIAL_ITEMS_TO_DROP_WHEN_OMINOUS)){
-
-                var originalTable= event.getTable();
-
-                var originalPool= originalTable.getPool("pool0");
-
-                if(originalPool!=null){
-
-                    LootPoolEntryContainer heaviness_potion =
-                            LootItem.lootTableItem(Items.LINGERING_POTION)
-                                    .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
-                                    .apply(SetPotionFunction.setPotion(Primal_Potions.HEAVINESS)).build();
-
-                    Primal_Util.extendLootPool(originalPool, List.of(heaviness_potion));
-                }
-            }
 
             if(Primal_Util.isLootTable(event, BuiltInLootTables.UNDERWATER_RUIN_SMALL)){
 
@@ -354,23 +349,12 @@ public class Primal_Main {
             SnakeItem.addMarineSnakeToLootTable(event, BuiltInLootTables.SHIPWRECK_TREASURE, 0.05f);
 
             SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.RUINED_PORTAL, 0.15f);
-
-            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_SUPPLY, 0.15f);
-            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_CORRIDOR, 0.10f);
-            if(Primal_Util.isLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_CORRIDOR_POT)){
-                var originalTable= event.getTable();
-                var pool = originalTable.getPool("main");
-
-                if(pool!=null) Primal_Util.extendLootPool(pool, List.of(SnakeItem.getSnakeItemEntry().setWeight(10).build()));
-            }
-            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_INTERSECTION, 0.10f);
-            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_INTERSECTION_BARREL, 0.10f);
-            SnakeItem.addSnakeToLootTable(event, BuiltInLootTables.TRIAL_CHAMBERS_ENTRANCE, 0.05f);
         }
 
         @SubscribeEvent
         public static void anvilUpdateEvent(AnvilUpdateEvent event){
-            if(event.getLeft().is(Primal_Tags.Item.HELMET_ATTACHMENTS) && event.getRight().is(ItemTags.HEAD_ARMOR)){
+            if(event.getLeft().is(Primal_Tags.Item.HELMET_ATTACHMENTS) &&
+                    (event.getRight().getItem() instanceof ArmorItem armorItem && armorItem.getType().equals(ArmorItem.Type.HELMET))){
                 var helmet = event.getRight().copy();
                 HelmetDecorationComponent.of(helmet, event.getLeft(), true);
 
@@ -379,7 +363,8 @@ public class Primal_Main {
                 event.setMaterialCost(1);
             }
 
-            if(event.getRight().is(Primal_Tags.Item.HELMET_ATTACHMENTS) && event.getLeft().is(ItemTags.HEAD_ARMOR)){
+            if(event.getRight().is(Primal_Tags.Item.HELMET_ATTACHMENTS) &&
+                    (event.getLeft().getItem() instanceof ArmorItem armorItem && armorItem.getType().equals(ArmorItem.Type.HELMET))){
                 var helmet = event.getLeft().copy();
                 HelmetDecorationComponent.of(helmet, event.getRight(), false);
 
@@ -391,15 +376,74 @@ public class Primal_Main {
 
         @SubscribeEvent
         public static void anvilRemoveEvent(AnvilRepairEvent event){
-            var decorations = event.getOutput().get(Primal_Items.Components.HELMET_DECORATION);
+            var decorations = Primal_Util.OneTwentyEquivalent.Components.get(event.getOutput(), Primal_Items.Components.HELMET_DECORATION);
 
             if(event.getEntity() instanceof ServerPlayer serverPlayer && decorations!=null){
                 //Triggers advancement
-                Primal_Advancements.ADD_HELMET_DECORATION.get().trigger(serverPlayer);
+                Primal_Advancements.ADD_HELMET_DECORATION.trigger(serverPlayer);
 
                 //Triggers advancement
                 if(decorations.right().equals(HelmetDecorationType.GOAT) && decorations.left().equals(HelmetDecorationType.GOAT)){
-                    Primal_Advancements.ADD_HELMET_HORNS.get().trigger(serverPlayer);
+                    Primal_Advancements.ADD_HELMET_HORNS.trigger(serverPlayer);
+                }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onGrindstonePlace(GrindstoneEvent.OnPlaceItem event) {
+            ItemStack outputStack = ItemStack.EMPTY;
+
+            if(event.getTopItem().getItem() instanceof ConchShellItem && event.getBottomItem().isEmpty())
+                outputStack = ConchShellItem.removePet(event.getTopItem().copy());
+
+            if(event.getBottomItem().getItem() instanceof ConchShellItem && event.getTopItem().isEmpty())
+                outputStack = ConchShellItem.removePet(event.getBottomItem().copy());
+
+            event.setOutput(outputStack);
+        }
+
+        @SubscribeEvent
+        public static void onServerTick(TickEvent.ServerTickEvent event) {
+            ServerLevel serverLevel = event.getServer().overworld();
+            ConchShellsData conchShellsData = ConchShellsData.get(serverLevel);
+
+            List<Entity> toRemove = new ArrayList<>();
+
+            for (UUID uuid: conchShellsData.getPets().keySet()){
+                var dimension = conchShellsData.getDimension(uuid);
+                var dimensionLevel = event.getServer().getLevel(dimension);
+                if(dimensionLevel==null) continue;
+
+                var pet = dimensionLevel.getEntity(uuid);
+                if(pet==null) continue;
+
+                conchShellsData.addPet(pet);
+
+                if (!pet.isAlive()) toRemove.add(pet);
+            }
+
+            for (Entity entity : toRemove) conchShellsData.removePet(entity);
+
+            DelayedTasks.tick();
+        }
+
+        @SubscribeEvent
+        public static void entityJoinLevel(EntityJoinLevelEvent event) {}
+
+        @SubscribeEvent
+        public static void entityLeavesLevel(EntityLeaveLevelEvent event) {
+
+            //If variantFromBiome dies
+            if(event.getEntity().getRemovalReason() !=null && event.getEntity().getRemovalReason().equals(Entity.RemovalReason.KILLED)){
+
+                if(event.getLevel().getServer()==null) return;
+                MinecraftServer server = event.getLevel().getServer();
+
+                ServerLevel serverLevel = server.overworld();
+                ConchShellsData conchShellsData = ConchShellsData.get(serverLevel);
+
+                if(conchShellsData.hasPet(event.getEntity())){
+                    conchShellsData.removePet(event.getEntity());
                 }
             }
         }
@@ -419,113 +463,62 @@ public class Primal_Main {
     }
 
     @SubscribeEvent
-    public static void registerSpawnPlacements(final @NotNull RegisterSpawnPlacementsEvent event){
+    public static void registerSpawnPlacements(final @NotNull SpawnPlacementRegisterEvent event){
         //For natural generation
         //Bear
-        event.register(Primal_Entities.BEAR.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                BearEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.BEAR.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                BearEntity::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Shark
-        event.register(Primal_Entities.SHARK.get(), SpawnPlacementTypes.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                SharkEntity::sharkSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.SHARK.get(), SpawnPlacements.Type.IN_WATER, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                SharkEntity::sharkSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Crocodile
-        event.register(Primal_Entities.CROCODILE.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                CrocodileEntity::checkCrocodileSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.CROCODILE.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                CrocodileEntity::checkCrocodileSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Eagle
-        event.register(Primal_Entities.EAGLE.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                EagleEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.EAGLE.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                EagleEntity::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Cassowary
-        event.register(Primal_Entities.CASSOWARY.get(), SpawnPlacementTypes.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                CassowaryEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.CASSOWARY.get(), SpawnPlacements.Type.NO_RESTRICTIONS, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                CassowaryEntity::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Walrus
-        event.register(Primal_Entities.WALRUS.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                WalrusEntity::checkWalrusSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.WALRUS.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                WalrusEntity::checkWalrusSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Lion
-        event.register(Primal_Entities.LION.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                LionEntity::checkAnimalSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.LION.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                LionEntity::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Snake
-        event.register(Primal_Entities.SNAKE.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                SnakeEntity::checkSnakeSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.SNAKE.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                SnakeEntity::checkSnakeSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Deer
-        event.register(Primal_Entities.DEER.get(), SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                DeerEntity::checkDeerSpawnRules, RegisterSpawnPlacementsEvent.Operation.REPLACE);
+        event.register(Primal_Entities.DEER.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                DeerEntity::checkDeerSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
     }
 
-    @SubscribeEvent
-    public static void registerNetworking(final RegisterPayloadHandlersEvent event) {
-        // Sets the current network version
-        final PayloadRegistrar mainThread = event.registrar("1");
+    private static final String PROTOCOL_VERSION = "1";
+    public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
+            ResourceLocation.fromNamespaceAndPath(MOD_ID, "main"),
+            () -> PROTOCOL_VERSION,
+            PROTOCOL_VERSION::equals,
+            PROTOCOL_VERSION::equals
+    );
 
-        mainThread.playToServer(
-                WalrusJumpPacket.TYPE,
-                WalrusJumpPacket.STREAM_CODEC,
+    public static void registerNetworking() {
+        int i=0;
+
+        Primal_Main.INSTANCE.registerMessage(
+                i++,
+                WalrusJumpPacket.class,
+                WalrusJumpPacket::write,
+                WalrusJumpPacket::read,
                 Primal_HandlePackets.OnServer::handleWalrusJumpPacket
         );
-    }
-
-    @SubscribeEvent
-    public static void onServerTick(ServerTickEvent.Post event) {
-        ServerLevel serverLevel = event.getServer().overworld();
-        ConchShellsData conchShellsData = ConchShellsData.get(serverLevel);
-
-        List<Entity> toRemove = new ArrayList<>();
-
-        for (UUID uuid: conchShellsData.getPets().keySet()){
-            var dimension = conchShellsData.getDimension(uuid);
-            var dimensionLevel = event.getServer().getLevel(dimension);
-            if(dimensionLevel==null) continue;
-
-            var pet = dimensionLevel.getEntity(uuid);
-            if(pet==null) continue;
-
-            conchShellsData.addPet(pet);
-
-            if (!pet.isAlive()) toRemove.add(pet);
-        }
-
-        for (Entity entity : toRemove) conchShellsData.removePet(entity);
-
-        DelayedTasks.tick();
-    }
-
-    @SubscribeEvent
-    public static void entityJoinLevel(EntityJoinLevelEvent event) {}
-
-    @SubscribeEvent
-    public static void entityLeavesLevel(EntityLeaveLevelEvent event) {
-
-        //If variantFromBiome dies
-        if(event.getEntity().getRemovalReason() !=null && event.getEntity().getRemovalReason().equals(Entity.RemovalReason.KILLED)){
-
-            if(event.getLevel().getServer()==null) return;
-            MinecraftServer server = event.getLevel().getServer();
-
-            ServerLevel serverLevel = server.overworld();
-            ConchShellsData conchShellsData = ConchShellsData.get(serverLevel);
-
-            if(conchShellsData.hasPet(event.getEntity())){
-                conchShellsData.removePet(event.getEntity());
-            }
-        }
-    }
-
-    @SubscribeEvent
-    public static void onGrindstonePlace(GrindstoneEvent.OnPlaceItem event) {
-        ItemStack outputStack = ItemStack.EMPTY;
-
-        if(event.getTopItem().getItem() instanceof ConchShellItem && event.getBottomItem().isEmpty())
-            outputStack = ConchShellItem.removePet(event.getTopItem().copy());
-
-        if(event.getBottomItem().getItem() instanceof ConchShellItem && event.getTopItem().isEmpty())
-            outputStack = ConchShellItem.removePet(event.getBottomItem().copy());
-
-        event.setOutput(outputStack);
     }
 }

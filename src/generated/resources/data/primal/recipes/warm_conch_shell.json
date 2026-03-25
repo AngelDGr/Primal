@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "H": {
+      "item": "minecraft:heart_of_the_sea"
+    },
+    "N": {
+      "item": "minecraft:nautilus_shell"
+    },
+    "S": {
+      "item": "primal:seashells"
+    },
+    "T": {
+      "item": "primal:shark_tooth"
+    }
+  },
+  "pattern": [
+    "SHS",
+    "TNT",
+    "STS"
+  ],
+  "result": {
+    "item": "primal:warm_conch_shell"
+  },
+  "show_notification": true
+}

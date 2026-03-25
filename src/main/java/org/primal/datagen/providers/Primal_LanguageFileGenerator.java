@@ -11,7 +11,7 @@ import org.primal.Primal_Registries;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
-import net.neoforged.neoforge.common.data.LanguageProvider;
+import net.minecraftforge.common.data.LanguageProvider;
 import org.primal.registry.Primal_BannerPatterns;
 import org.primal.registry.Primal_Items;
 
@@ -112,6 +112,7 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
                 add("subtitles.primal.entity.crocodile.splashes", "Violent water splashes");
                 add("subtitles.primal.entity.crocodile.vomit", "Crocodile spit item");
                 add("subtitles.primal.entity.crocodile.clock", "Tick-tock clock sounds");
+                add("subtitles.primal.entity.common.armadillo_brush", "Scute is brushed off");
             }
 
             //Eagle
@@ -213,7 +214,7 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
             add("block.primal.seashells", "Warm Seashells");
             add("item.primal.bound_conch_shell", "Bounded Conch Shell");
             add("item.primal.music_disc_oh_deer", "Music Disc");
-            add("item.minecraft.music_disc_oh_deer.desc", "MistieJam - Oh Deer");
+            add("item.primal.music_disc_oh_deer.desc", "MistieJam - Oh Deer");
             add("item.primal.venison", "Raw Venison");
             add("jukebox_song.primal.oh_deer", "MistieJam - Oh Deer");
 

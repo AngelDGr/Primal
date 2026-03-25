@@ -1,10 +1,10 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.tags.EnchantmentTags;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Animal;
@@ -15,6 +15,7 @@ import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.WitherSkull;
 import net.minecraft.world.entity.vehicle.MinecartTNT;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -42,7 +43,6 @@ import org.primal.util.mob_types.HideOnLog;
 import java.util.List;
 
 public class HollowLogBlock extends BaseEntityBlock {
-    public static final MapCodec<HollowLogBlock> CODEC = simpleCodec(HollowLogBlock::new);
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
 
@@ -56,12 +56,7 @@ public class HollowLogBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
-    }
-
-    @Override
-    protected @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -86,7 +81,7 @@ public class HollowLogBlock extends BaseEntityBlock {
     public void playerDestroy(@NotNull Level level, @NotNull Player player, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable BlockEntity te, @NotNull ItemStack stack) {
         super.playerDestroy(level, player, pos, state, te, stack);
         if (!level.isClientSide && te instanceof HollowLogBlockEntity hollowLogBlockEntity) {
-            if (!EnchantmentHelper.hasTag(stack, EnchantmentTags.PREVENTS_BEE_SPAWNS_WHEN_MINING)) {
+            if (EnchantmentHelper.getTagEnchantmentLevel(Enchantments.SILK_TOUCH, stack) == 0) {
                 hollowLogBlockEntity.emptyAllLivingFromLog(player, state, HollowLogBlockEntity.AnimalReleaseStatus.EMERGENCY);
                 level.updateNeighbourForOutputSignal(pos, this);
                 this.angerNearHideLogAnimals(level, pos);
@@ -98,7 +93,7 @@ public class HollowLogBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull List<ItemStack> getDrops(@NotNull BlockState state, LootParams.Builder params) {
+    public @NotNull List<ItemStack> getDrops(@NotNull BlockState state, LootParams.Builder params) {
         Entity entity = params.getOptionalParameter(LootContextParams.THIS_ENTITY);
         if (entity instanceof PrimedTnt
                 || entity instanceof Creeper
@@ -115,7 +110,7 @@ public class HollowLogBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
         if (level.getBlockState(facingPos).getBlock() instanceof FireBlock && level.getBlockEntity(currentPos) instanceof HollowLogBlockEntity hollowLogBlockEntity) {
             hollowLogBlockEntity.emptyAllLivingFromLog(null, state, HollowLogBlockEntity.AnimalReleaseStatus.EMERGENCY);
         }
@@ -124,21 +119,23 @@ public class HollowLogBlock extends BaseEntityBlock {
     }
 
     @Override
-    public @NotNull BlockState playerWillDestroy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
+    public void playerWillDestroy(Level level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull Player player) {
         if (!level.isClientSide
                 && player.isCreative()
                 && level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS)
                 && level.getBlockEntity(pos) instanceof HollowLogBlockEntity hollowLogBlockEntity) {
             if (!hollowLogBlockEntity.isEmpty()) {
                 ItemStack itemstack = new ItemStack(this);
-                itemstack.applyComponents(hollowLogBlockEntity.collectComponents());
+                CompoundTag compoundtag = new CompoundTag();
+                compoundtag.put("Animals", hollowLogBlockEntity.writeAnimals());
+                BlockItem.setBlockEntityData(itemstack, BlockEntityType.BEEHIVE, compoundtag);
                 ItemEntity itementity = new ItemEntity(level, pos.getX(), pos.getY(), pos.getZ(), itemstack);
                 itementity.setDefaultPickUpDelay();
                 level.addFreshEntity(itementity);
             }
         }
 
-        return super.playerWillDestroy(level, pos, state, player);
+        super.playerWillDestroy(level, pos, state, player);
     }
 
     private void angerNearHideLogAnimals(Level level, BlockPos pos) {

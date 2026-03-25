@@ -1,6 +1,5 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,7 +30,6 @@ import org.primal.util.Primal_Util;
 //If there's hostile mobs at 8 block of distance, it shakes a little
 //If there's hostiles mob at 4 block of distance, it shakes a lot
 public class DreamcatcherBlock extends BaseEntityBlock {
-    public static final MapCodec<DreamcatcherBlock> CODEC = simpleCodec(DreamcatcherBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty HANGING = BlockStateProperties.HANGING;
     public static final EnumProperty<Half> HALF = BlockStateProperties.HALF;
@@ -55,7 +53,7 @@ public class DreamcatcherBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
         //Destroy block
         if(!canSurvive(state, level, pos))
             return Blocks.AIR.defaultBlockState();
@@ -82,7 +80,7 @@ public class DreamcatcherBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
 
         if(state.getValue(HALF).equals(Half.TOP)){
             if(!level.getBlockState(pos.below()).isAir()
@@ -104,7 +102,7 @@ public class DreamcatcherBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return Primal_Util.rotateShape(Direction.NORTH, state.getValue(FACING),
                 state.getValue(HANGING)?
                         Block.box(0.0, 0.0, 6.0, 16.0, 16.0, 10f):
@@ -119,13 +117,13 @@ public class DreamcatcherBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rot) {
+    public @NotNull BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
         return state.rotate(mirror.getRotation(state.getValue(FACING)));
     }
 
@@ -139,10 +137,5 @@ public class DreamcatcherBlock extends BaseEntityBlock {
             return createTickerHelper(blockEntityType, Primal_BlockEntities.DREAMCATCHER.get(), DreamcatcherBlockEntity::clientTick);
         else
             return createTickerHelper(blockEntityType, Primal_BlockEntities.DREAMCATCHER.get(), DreamcatcherBlockEntity::serverTick);
-    }
-
-    @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 }

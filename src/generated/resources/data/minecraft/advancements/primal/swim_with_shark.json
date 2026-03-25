@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "swim_with_shark": {
+      "conditions": {},
+      "trigger": "primal:swim_with_sharks"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.swim_with_shark.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:heart_of_the_sea"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.swim_with_shark.title"
+    }
+  },
+  "requirements": [
+    [
+      "swim_with_shark"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

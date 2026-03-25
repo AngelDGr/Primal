@@ -10,23 +10,18 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GrassColor;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.client.event.*;
 import org.jetbrains.annotations.NotNull;
-import org.primal.client.item.ConchShellClientExtension;
-import org.primal.client.item.StrawBasketExtension;
 import org.primal.client.layer.HelmetDecorationLayer;
 import org.primal.client.model.helmet_decoration.DeerAntlersModel;
 import org.primal.client.model.helmet_decoration.GoatHornsModel;
@@ -38,9 +33,9 @@ import org.primal.item.ConchShellItem;
 import org.primal.particle.DreamcatcherAshParticle;
 import org.primal.particle.SnakeSkinFlakeParticle;
 import org.primal.registry.*;
+import org.primal.util.Primal_Util;
 
-@EventBusSubscriber(modid = Primal_Main.MOD_ID, value = Dist.CLIENT)
-@Mod(value = Primal_Main.MOD_ID, dist = Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class Primal_Client {
 
     public static ModelLayerLocation DEER_ANTLERS_ON_HELMET_LAYER = new ModelLayerLocation(
@@ -89,7 +84,8 @@ public class Primal_Client {
                             path
                     );
 
-                    event.register(ModelResourceLocation.standalone(modelId));
+//                    event.register(new ModelResourceLocation(modelId, "inventory"));
+                    event.register(modelId);
                 });
     }
 
@@ -130,7 +126,7 @@ public class Primal_Client {
         event.registerBlockEntityRenderer(Primal_BlockEntities.STRAW_BASKET.get(), StrawBasketRenderer::new);
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("removal")
     public static void registerBlockRenderers(){
         //Blocks
         ItemBlockRenderTypes.setRenderLayer(Primal_Blocks.NEST_BLOCK.get(), RenderType.cutout());
@@ -201,39 +197,44 @@ public class Primal_Client {
         event.registerSpriteSet(Primal_Particles.DREAMCATCHER_ASH, DreamcatcherAshParticle.Factory::new);
     }
 
-    @SubscribeEvent
-    public static void customizeOverlay(RenderGuiLayerEvent.@NotNull Pre event) {
-    }
+    //Done directly into the item class on 1.20.1
+//    @SubscribeEvent
+//    public static void registerItemClientExtensions(final RegisterClientExtensionsEvent event) {
+//        event.registerItem(new ConchShellClientExtension(),
+//                Primal_Items.WARM_CONCH_SHELL,
+//                Primal_Items.TEMPERATE_CONCH_SHELL,
+//                Primal_Items.COLD_CONCH_SHELL);
+//
+//        event.registerItem(new StrawBasketExtension(),
+//                Primal_Items.STRAW_BASKET);
+//    }
 
-    @SubscribeEvent
-    public static void registerItemClientExtensions(final RegisterClientExtensionsEvent event) {
-        event.registerItem(new ConchShellClientExtension(),
-                Primal_Items.WARM_CONCH_SHELL,
-                Primal_Items.TEMPERATE_CONCH_SHELL,
-                Primal_Items.COLD_CONCH_SHELL);
+    @SuppressWarnings("unused")
+    @Mod.EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+    public static class Primal_ClientMainGameBus {
+        @SubscribeEvent
+        public static void customizeOverlay(RenderGuiOverlayEvent.@NotNull Pre event) {
+        }
 
-        event.registerItem(new StrawBasketExtension(),
-                Primal_Items.STRAW_BASKET);
-    }
+        @SubscribeEvent
+        public static void modifyFovEvent(final ComputeFovModifierEvent event) {
+            if(event.getPlayer() instanceof LocalPlayer localPlayer){
 
-    @SubscribeEvent
-    public static void modifyFovEvent(final ComputeFovModifierEvent event) {
-        if(event.getPlayer() instanceof LocalPlayer localPlayer){
+                ItemStack useItem = localPlayer.getUseItem();
+                if(! Primal_Util.OneTwentyEquivalent.Components.has(useItem, Primal_Items.Components.CONCH_SHELL)) return;
 
-            ItemStack useItem = localPlayer.getUseItem();
-            if(!useItem.has(Primal_Items.Components.CONCH_SHELL)) return;
+                if(useItem.is(Primal_Items.WARM_CONCH_SHELL.get()) || useItem.is(Primal_Items.TEMPERATE_CONCH_SHELL.get()) || useItem.is(Primal_Items.COLD_CONCH_SHELL.get())){
+                    float scaleRate = -1f *(localPlayer.getUseItemRemainingTicks() - ConchShellItem.MAX_DURATION) / ConchShellItem.RELEASE_TIME;
 
-            if(useItem.is(Primal_Items.WARM_CONCH_SHELL) || useItem.is(Primal_Items.TEMPERATE_CONCH_SHELL) || useItem.is(Primal_Items.COLD_CONCH_SHELL)){
-                float scaleRate = -1f *(localPlayer.getUseItemRemainingTicks() - ConchShellItem.MAX_DURATION) / ConchShellItem.RELEASE_TIME;
+                    if (scaleRate > 1.0F)
+                        scaleRate = 1.0F;
+                    else
+                        scaleRate *= scaleRate;
 
-                if (scaleRate > 1.0F)
-                    scaleRate = 1.0F;
-                else
-                    scaleRate *= scaleRate;
+                    float newFov = event.getFovModifier() * (1.0F - scaleRate * 0.30f);
+                    event.setNewFovModifier(newFov);
 
-                float newFov = event.getFovModifier() * (1.0F - scaleRate * 0.30f);
-                event.setNewFovModifier(newFov);
-
+                }
             }
         }
     }

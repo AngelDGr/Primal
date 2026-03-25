@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "group": "crocodile_scute_block",
+  "key": {
+    "#": {
+      "item": "primal:crocodile_scute"
+    }
+  },
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "result": {
+    "item": "primal:crocodile_scute_block"
+  },
+  "show_notification": true
+}

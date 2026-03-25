@@ -11,11 +11,11 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.client.model.generators.BlockStateProvider;
+import net.minecraftforge.client.model.generators.ConfiguredModel;
+import net.minecraftforge.client.model.generators.ModelFile;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Main;
 import org.primal.block.*;
 import org.primal.block.properties.SharkToothThickness;
@@ -210,18 +210,18 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
         return new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, location));
     }
 
-    private void simpleStairs(DeferredHolder<Block, Block> stairs, DeferredHolder<Block, Block> baseBlock){
+    private void simpleStairs(RegistryObject<Block> stairs, RegistryObject<Block> baseBlock){
         this.stairsBlock((StairBlock) stairs.get(),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()));
     }
 
-    private void simpleSlab(DeferredHolder<Block, Block> slab, DeferredHolder<Block, Block> baseBlock){
+    private void simpleSlab(RegistryObject<Block> slab, RegistryObject<Block> baseBlock){
         this.slabBlock((SlabBlock) slab.get(),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()),
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+baseBlock.getId().getPath()));
     }
 
-    private void hollowBlock(DeferredHolder<Block, Block> block, ResourceLocation model){
+    private void hollowBlock(RegistryObject<Block> block, ResourceLocation model){
         var modelSide = ResourceLocation.fromNamespaceAndPath(model.getNamespace(), model.getPath()+"_side");
 
         this.getVariantBuilder(block.get())
@@ -312,7 +312,7 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                                 .build());
     }
 
-    private void createSharkTooth(DeferredHolder<Block, Block> block,
+    private void createSharkTooth(RegistryObject<Block> block,
                                   ResourceLocation tip,
                                   ResourceLocation base){
         this.getVariantBuilder(block.get())
@@ -404,7 +404,7 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
     }
 
     @SuppressWarnings("all")
-    private void createSeashells(DeferredHolder<Block, Block> block, DirectionProperty property, IntegerProperty amountProperty, ResourceLocation amount1, ResourceLocation amount2, ResourceLocation amount3, ResourceLocation amount4){
+    private void createSeashells(RegistryObject<Block> block, DirectionProperty property, IntegerProperty amountProperty, ResourceLocation amount1, ResourceLocation amount2, ResourceLocation amount3, ResourceLocation amount4){
 
         this.getMultipartBuilder(block.get())
                 //Normal
@@ -486,7 +486,7 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                 .addModel().condition(BlockStateProperties.SNOWY, true).end();
     }
 
-    private void createAnimalNest(DeferredHolder<Block, Block> block,
+    private void createAnimalNest(RegistryObject<Block> block,
                                   ResourceLocation base,
                                   ResourceLocation northSide,
                                   ResourceLocation southSide,
@@ -513,7 +513,7 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                 .addModel().condition(NestBlock.WEST, true).end();
     }
 
-    private void createBulkFruit(DeferredHolder<Block, Block> block, String type){
+    private void createBulkFruit(RegistryObject<Block> block, String type){
         this.getVariantBuilder(block.get())
                 //Little
                 .partialState().with(FruitBulk.AGE, 0).addModels(
@@ -523,7 +523,7 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
                         new ConfiguredModel(models().getExistingFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+type+"_full"))));
     }
 
-    private void createFruitTree(DeferredHolder<Block, Block> block, String type){
+    private void createFruitTree(RegistryObject<Block> block, String type){
         var juvenileModel = new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+type+"_tree_juvenile"));
         var trunkModel = new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+type+"_tree_trunk"));
         var top1 = new ModelFile.UncheckedModelFile(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+type+"_tree_top_1"));
@@ -813,7 +813,7 @@ public class Primal_BlockStateGenerator extends BlockStateProvider {
         ;
     }
 
-    private void createAntlerBlock(DeferredHolder<Block, Block> block){
+    private void createAntlerBlock(RegistryObject<Block> block){
         var normalModel = ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath());
         var rightModel = ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()+"_right");
         var doubleModel = ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/"+block.getId().getPath()+"_double");

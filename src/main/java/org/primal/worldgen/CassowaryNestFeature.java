@@ -140,7 +140,7 @@ public class CassowaryNestFeature extends Feature<RandomPatchCustomConfig> {
     }
 
     private boolean hasNestAround(WorldGenLevel level, BlockPos desiredPosition){
-        return level.getBlockState(desiredPosition.east()).is(Primal_Blocks.NEST_BLOCK);
+        return level.getBlockState(desiredPosition.east()).is(Primal_Blocks.NEST_BLOCK.get());
     }
 
     private boolean notEnoughFreeSpace(WorldGenLevel level, BlockPos origin){

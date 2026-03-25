@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "eagle_attacks_snake": {
+      "conditions": {},
+      "trigger": "primal:eagle_attacks_snake"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.eagle_attacks_snake.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:cactus"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.eagle_attacks_snake.title"
+    }
+  },
+  "requirements": [
+    [
+      "eagle_attacks_snake"
+    ]
+  ],
+  "rewards": {
+    "experience": 50
+  },
+  "sends_telemetry_event": true
+}

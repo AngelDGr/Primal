@@ -12,7 +12,6 @@ import org.primal.entity.animal.SharkEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.Color;
 
 public class SharkConduitEyesLayer extends GeoRenderLayer<SharkEntity> {
     public SharkConduitEyesLayer(GeoRenderer<SharkEntity> entityRendererIn) {
@@ -28,6 +27,6 @@ public class SharkConduitEyesLayer extends GeoRenderLayer<SharkEntity> {
                 "textures/entity/shark/conduit_eyes"+
                         (animatable.getVariant().equals(SharkEntity.Variant.HAMMERHEAD)? "_hammerhead": animatable.getVariant().equals(SharkEntity.Variant.SLEEPER)? "_sleeper":"") +".png"));
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, eyesrenderType, bufferSource.getBuffer(eyesrenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, eyesrenderType, bufferSource.getBuffer(eyesrenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 }

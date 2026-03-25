@@ -18,6 +18,7 @@ import org.primal.registry.Primal_Advancements;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_Sounds;
+import org.primal.util.Primal_Util;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,12 +30,12 @@ public class LootTableMixin {
     @Inject(method = "fill", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/Container;setItem(ILnet/minecraft/world/item/ItemStack;)V", ordinal = 1))
     private void primal$spawnSnakeFromChest(Container container, LootParams params, long seed, CallbackInfo ci, @Local ItemStack itemstack){
 
-        if(itemstack.is(Primal_Items.PLACEHOLDER_CHESTED_SNAKE)){
+        if(itemstack.is(Primal_Items.PLACEHOLDER_CHESTED_SNAKE.get())){
             if(params.getParamOrNull(LootContextParams.ORIGIN)!=null){
                 var level = params.getLevel();
                 var blockpos = BlockPos.containing(params.getParameter(LootContextParams.ORIGIN));
                 SnakeEntity snake = Primal_Entities.SNAKE.get().create(params.getLevel());
-                var snakeComponent = itemstack.get(Primal_Items.Components.SNAKE_SPAWN);
+                var snakeComponent = Primal_Util.OneTwentyEquivalent.Components.get(itemstack, Primal_Items.Components.SNAKE_SPAWN);
 
                 if(snake!=null && snakeComponent!=null){
 
@@ -58,7 +59,7 @@ public class LootTableMixin {
                     if(params.getParamOrNull(LootContextParams.THIS_ENTITY) instanceof LivingEntity player){
                         //Trigger advancement
                         if(player instanceof ServerPlayer serverPlayer)
-                            Primal_Advancements.SNAKE_CHEST.get().trigger(serverPlayer);
+                            Primal_Advancements.SNAKE_CHEST.trigger(serverPlayer);
 
                         snake.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, player);
                     }

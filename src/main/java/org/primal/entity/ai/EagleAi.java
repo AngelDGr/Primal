@@ -19,7 +19,8 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.block.NestBlock;
 import org.primal.entity.ai.behavior.eagle.*;
 import org.primal.entity.ai.behavior.generic.*;
@@ -104,8 +105,8 @@ public class EagleAi {
             Primal_MemoryModuleTypes.LANDING_POS.get()
     );
 
-    public static Predicate<ItemStack> getTemptations() {
-        return EagleEntity::isMatingFood;
+    public static Ingredient getTemptations() {
+        return Ingredient.of(Items.RABBIT_STEW);
     }
 
     @SuppressWarnings("unused")
@@ -162,12 +163,12 @@ public class EagleAi {
                             if(home.isPresent()){
                                 var state = e.level().getBlockState(home.get().pos());
 
-                                return state.is(Primal_Blocks.NEST_BLOCK) && state.getValue(NestBlock.HAS_EGG);
+                                return state.is(Primal_Blocks.NEST_BLOCK.get()) && state.getValue(NestBlock.HAS_EGG);
                             }
 
                             return false;
                         }),
-                        new AnimalMakeLove(Primal_Entities.EAGLE.get()),
+                        new AnimalMakeLove(Primal_Entities.EAGLE.get(), 1.0f),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
                         new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5),
                         new AnimalWanderFromScared(5, 8, 5, 10, e->!e.isAggressive()),
@@ -202,7 +203,7 @@ public class EagleAi {
                         EraseMemoryIf.create(eagle -> {
                             Optional<List<UUID>> attackedList = eagle.getBrain().getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get());
 
-                            Optional<UUID> lastUuid = attackedList.map(List::getLast);
+                            Optional<UUID> lastUuid = attackedList.map(l->l.get(l.size()-1));
 
                             Optional<LivingEntity> lastEntity =
                                     lastUuid.isPresent() && !eagle.level().isClientSide && ((ServerLevel)eagle.level()).getEntity(lastUuid.get()) instanceof LivingEntity living ?
@@ -236,8 +237,8 @@ public class EagleAi {
                         AnimalRemoveHome.basicNest(150),
                         AnimalSearchHome.fromNest(),
                         new EagleDetectHostile(),
-                        new AnimalMakeLove(Primal_Entities.EAGLE.get()),
-                        new FollowOwner(),
+                        new AnimalMakeLove(Primal_Entities.EAGLE.get(), 1.0f),
+                        new FollowOwner<>(),
                         new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5),
                         new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
 
@@ -365,12 +366,12 @@ public class EagleAi {
 
             //This put the nearest attackable in the last place
             if(!attackedList.contains(brain.getMemory(MemoryModuleType.NEAREST_ATTACKABLE).get().getUUID())){
-                attackedList.addFirst(brain.getMemory(MemoryModuleType.NEAREST_ATTACKABLE).get().getUUID());
+                attackedList.add(0, brain.getMemory(MemoryModuleType.NEAREST_ATTACKABLE).get().getUUID());
             }
 
             //This ensures that the list never gets too long, if it goes for more than 2, it removes the last one
             if(attackedList.size()>2){
-                attackedList.removeLast();
+                attackedList.remove(attackedList.size()-1);
             }
 
             brain.setMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get(), attackedList);
@@ -403,7 +404,7 @@ public class EagleAi {
         if(eagle.getBrain().getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).isPresent()){
             List<UUID> attackedList = eagle.getBrain().getMemory(Primal_MemoryModuleTypes.ATTACKED_LIST.get()).get();
 
-            if(((ServerLevel) eagle.level()).getEntity(attackedList.getLast()) instanceof LivingEntity target){
+            if(((ServerLevel) eagle.level()).getEntity(attackedList.get(attackedList.size()-1)) instanceof LivingEntity target){
                 return Optional.of(target);
             }
         }

@@ -1,6 +1,5 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -14,13 +13,12 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_Entities;
 import org.primal.util.block_types.AnimalEgg;
 
 public class CassowaryEgg extends Block implements AnimalEgg {
-    public static final MapCodec<CassowaryEgg> CODEC = simpleCodec(CassowaryEgg::new);
 
     public CassowaryEgg(Properties properties) {
         super(properties);
@@ -34,7 +32,7 @@ public class CassowaryEgg extends Block implements AnimalEgg {
     }
 
     @Override
-    public DeferredHolder<EntityType<?>, ? extends EntityType<? extends Animal>> getAnimal() {
+    public RegistryObject<? extends EntityType<? extends Animal>> getAnimal() {
         return Primal_Entities.CASSOWARY;
     }
 
@@ -44,7 +42,7 @@ public class CassowaryEgg extends Block implements AnimalEgg {
     }
 
     @Override
-    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         randomTick(state, level, pos, random, null);
     }
 
@@ -55,12 +53,7 @@ public class CassowaryEgg extends Block implements AnimalEgg {
     }
 
     @Override
-    public boolean isPathfindable(@NotNull BlockState state, @NotNull PathComputationType pathComputationType) {
+    public boolean isPathfindable(@NotNull BlockState state, @NotNull BlockGetter blockGetter, @NotNull BlockPos blockPos, @NotNull PathComputationType pathComputationType) {
         return false;
-    }
-
-    @Override
-    protected @NotNull MapCodec<? extends Block> codec() {
-        return CODEC;
     }
 }

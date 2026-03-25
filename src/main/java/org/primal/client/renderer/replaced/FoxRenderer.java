@@ -69,9 +69,9 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
     }
 
     @Override
-    protected float getShadowRadius(@NotNull Fox entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.6F : f;
+    public void render(Fox entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (entity.isBaby()) this.shadowRadius *= 0.6F;
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
@@ -87,15 +87,15 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
     }
 
     @Override
-    public void preRender(PoseStack poseStack, FoxReplaced animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+    public void preRender(PoseStack poseStack, FoxReplaced animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 
         this.mainHandItem = this.currentEntity.getMainHandItem();
     }
 
     @Override
-    protected void applyRotations(FoxReplaced animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
+    protected void applyRotations(FoxReplaced animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
         if ((this.currentEntity.isPouncing()) && !this.currentEntity.onGround()) {
             float f = -Mth.lerp(partialTick, this.currentEntity.xRotO, this.currentEntity.getXRot());
             poseStack.mulPose(Axis.XP.rotationDegrees(f));

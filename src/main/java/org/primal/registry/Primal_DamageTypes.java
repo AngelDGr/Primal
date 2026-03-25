@@ -1,7 +1,7 @@
 package org.primal.registry;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageScaling;
@@ -18,8 +18,7 @@ public class Primal_DamageTypes {
     public static ResourceKey<DamageType> THORNY_ACACIA = register("thorny_acacia");
     public static ResourceKey<DamageType> CHOMP_TRAP = register("chomp_trap");
 
-    @SuppressWarnings("unused")
-    public static void boostrapDamageTypes(@NotNull final BootstrapContext<DamageType> damageTypeRegisterable) {
+    public static void boostrapDamageTypes(@NotNull final BootstapContext<DamageType> damageTypeRegisterable) {
         damageTypeRegisterable.register(SHARK_TOOTH, new DamageType("shark_tooth", DamageScaling.WHEN_CAUSED_BY_LIVING_NON_PLAYER, 0.0f));
     }
 

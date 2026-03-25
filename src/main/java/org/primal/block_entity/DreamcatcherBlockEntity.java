@@ -2,7 +2,6 @@ package org.primal.block_entity;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -29,11 +28,11 @@ import org.primal.injection.BedBlockHasDreamcatcher;
 import org.primal.registry.Primal_Particles;
 import org.primal.registry.Primal_Sounds;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
@@ -52,8 +51,8 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
     @Nullable
     private UUID destroyTargetUUID;
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.putInt("HasMobNear", this.hasMobNear);
         tag.putBoolean("HasBedNear", this.hasBedNear);
         if (this.destroyTarget != null) {
@@ -62,8 +61,8 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
         this.hasMobNear = tag.getInt("HasMobNear");
         this.hasBedNear = tag.getBoolean("HasBedNear");
         if (tag.hasUUID("Target")) {
@@ -74,8 +73,8 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
-        return this.saveCustomOnly(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata();
     }
 
     @Override
@@ -84,8 +83,8 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
     }
 
     @Override
-    public void onDataPacket(@NotNull Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.@NotNull Provider lookup) {
-        this.loadAdditional(pkt.getTag(), lookup);
+    public void onDataPacket(@NotNull Connection net, ClientboundBlockEntityDataPacket pkt) {
+        this.load(pkt.getTag());
     }
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, DreamcatcherBlockEntity dreamcatcher) {
@@ -245,7 +244,7 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
                     blockEntity.destroyTarget.getX(),
                     blockEntity.destroyTarget.getY(),
                     blockEntity.destroyTarget.getZ(),
-                    Primal_Sounds.DREAMCATCHER_ATTACK_TARGET,
+                    Primal_Sounds.DREAMCATCHER_ATTACK_TARGET.get(),
                     SoundSource.BLOCKS,
                     1.0F,
                     1.0F
@@ -264,7 +263,7 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
         List<LivingEntity> list = level.getEntitiesOfClass(
                 LivingEntity.class, getDestroyRangeAABB(pos), livingEntity -> livingEntity.getUUID().equals(targetId)
         );
-        return list.size() == 1 ? list.getFirst() : null;
+        return list.size() == 1 ? list.get(0) : null;
     }
 
     private static AABB getDestroyRangeAABB(BlockPos pos) {
@@ -278,7 +277,7 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
     public void setRemoved() {
         super.setRemoved();
 
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide || !level.isLoaded(worldPosition)) return;
 
         int radius = 3;
 

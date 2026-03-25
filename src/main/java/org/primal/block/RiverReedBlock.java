@@ -1,19 +1,15 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_Blocks;
 
 public class RiverReedBlock extends ThreeTallPlantBlock{
-    public static final MapCodec<ThreeTallPlantBlock> CODEC = simpleCodec(RiverReedBlock::new);
     public RiverReedBlock(Properties properties) {
         super(properties);
     }
@@ -47,11 +43,5 @@ public class RiverReedBlock extends ThreeTallPlantBlock{
                 }
             }
         }
-    }
-
-
-    @Override
-    protected @NotNull MapCodec<? extends BushBlock> codec() {
-        return CODEC;
     }
 }

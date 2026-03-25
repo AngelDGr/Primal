@@ -12,7 +12,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.TimeUtil;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.*;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.entity.ai.behavior.bear.*;
 import org.primal.entity.ai.behavior.generic.*;
 import org.primal.entity.ai.behavior.generic.pet.FollowOwner;
@@ -75,8 +76,8 @@ public final class BearAi {
 
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
 
-    public static Predicate<ItemStack> getTemptations() {
-        return BearEntity::isMatingFood;
+    public static Ingredient getTemptations() {
+        return Ingredient.of(Items.SALMON_BUCKET);
     }
 
     private static void initMemories(BearEntity BearEntity, RandomSource random) {
@@ -131,8 +132,8 @@ public final class BearAi {
                         BecomePassiveIfMemoryPresent.create(MemoryModuleType.NEAREST_REPELLENT, 200),
                         SetWalkTargetAwayFrom.pos(MemoryModuleType.NEAREST_REPELLENT, 1.5F, 8, true),
                         new BearSleep(),
-                        new AnimalMakeLove(Primal_Entities.BEAR.get()),
-                        new AnimalMakeLove(EntityType.POLAR_BEAR),
+                        new AnimalMakeLove(Primal_Entities.BEAR.get(), 1.0f),
+                        new AnimalMakeLove(EntityType.POLAR_BEAR, 1.0f),
                         new BearBeg(),
                         SetRoarTarget.create(Predicate.not(Primal_Util.Ai::lessThanMinAirSlow)),
                         new BearRaidBeehive(),
@@ -158,11 +159,11 @@ public final class BearAi {
                 10,
                 ImmutableList.of(
                         new BearDefeated(),
-                        new AnimalMakeLove(Primal_Entities.BEAR.get()),
-                        new AnimalMakeLove(EntityType.POLAR_BEAR),
+                        new AnimalMakeLove(Primal_Entities.BEAR.get(), 1.0f),
+                        new AnimalMakeLove(EntityType.POLAR_BEAR, 1.0f),
                         new BearBeg(),
                         SetRoarTarget.create(),
-                        new FollowOwner(pet -> pet instanceof BearEntity bear && !bear.bearCollapses()),
+                        new FollowOwner<>(pet -> !pet.bearCollapses()),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
                         new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
 

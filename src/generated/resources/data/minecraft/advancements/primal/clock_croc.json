@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "clock_croc": {
+      "conditions": {},
+      "trigger": "primal:clock_croc"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.clock_croc.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:clock"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.clock_croc.title"
+    }
+  },
+  "requirements": [
+    [
+      "clock_croc"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

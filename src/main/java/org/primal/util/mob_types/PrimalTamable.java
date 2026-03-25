@@ -1,16 +1,23 @@
 package org.primal.util.mob_types;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
 import org.jetbrains.annotations.NotNull;
+import org.primal.util.Primal_Util;
 
 public interface PrimalTamable {
 
@@ -81,7 +88,7 @@ public interface PrimalTamable {
             DyeColor dyecolor = dyeitem.getDyeColor();
             if (dyecolor != this.getCollarColor() || !hasCollar()) {
                 this.setCollarColor(dyecolor);
-                stackInHand.consume(1, player);
+                Primal_Util.OneTwentyEquivalent.consumeStack(1, player, stackInHand);
                 return true;
             }
         }
@@ -142,5 +149,67 @@ public interface PrimalTamable {
 
     default boolean canLayOnBed(){
         return false;
+    }
+
+    /** A couple of helping methods that only exist on Minecraft 1.21 */
+
+    default boolean shouldTryTeleportToOwner() {
+        LivingEntity livingentity = self().getOwner();
+        return livingentity != null && self().distanceToSqr(self().getOwner()) >= (double)144.0F;
+    }
+
+    default void tryToTeleportToOwner() {
+        LivingEntity livingentity = self().getOwner();
+        if (livingentity != null) {
+            this.teleportToAroundBlockPos(livingentity.blockPosition());
+        }
+
+    }
+
+    default void teleportToAroundBlockPos(BlockPos arg) {
+        for(int i = 0; i < 10; ++i) {
+            int j = self().getRandom().nextIntBetweenInclusive(-3, 3);
+            int k = self().getRandom().nextIntBetweenInclusive(-3, 3);
+            if (Math.abs(j) >= 2 || Math.abs(k) >= 2) {
+                int l = self().getRandom().nextIntBetweenInclusive(-1, 1);
+                if (this.maybeTeleportTo(arg.getX() + j, arg.getY() + l, arg.getZ() + k)) {
+                    return;
+                }
+            }
+        }
+
+    }
+
+    default boolean maybeTeleportTo(int i, int j, int k) {
+        if (!this.canTeleportTo(new BlockPos(i, j, k))) {
+            return false;
+        } else {
+            self().moveTo((double)i + (double)0.5F, j, (double)k + (double)0.5F, self().getYRot(), self().getXRot());
+            self().getNavigation().stop();
+            return true;
+        }
+    }
+
+    default boolean canTeleportTo(BlockPos arg) {
+        BlockPathTypes pathtype = WalkNodeEvaluator.getBlockPathTypeStatic(self().level(), arg.mutable());
+        if (pathtype != BlockPathTypes.WALKABLE) {
+            return false;
+        } else {
+            BlockState blockstate = self().level().getBlockState(arg.below());
+            if (!this.canFlyToOwner() && blockstate.getBlock() instanceof LeavesBlock) {
+                return false;
+            } else {
+                BlockPos blockpos = arg.subtract(self().blockPosition());
+                return self().level().noCollision(self(), self().getBoundingBox().move(blockpos));
+            }
+        }
+    }
+
+    default boolean canFlyToOwner() {
+        return false;
+    }
+
+    default boolean unableToMoveToOwner() {
+        return self().isOrderedToSit() || self().isPassenger() || self().isLeashed();
     }
 }

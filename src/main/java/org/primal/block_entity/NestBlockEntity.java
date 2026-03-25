@@ -1,7 +1,6 @@
 package org.primal.block_entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -35,20 +34,20 @@ public class NestBlockEntity extends BlockEntity {
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.saveAdditional(tag, registries);
-        ContainerHelper.saveAllItems(tag, this.items, registries);
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
+        ContainerHelper.saveAllItems(tag, this.items);
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.loadAdditional(tag, registries);
-        ContainerHelper.loadAllItems(tag, this.items, registries);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
+        ContainerHelper.loadAllItems(tag, this.items);
     }
 
     @Override
-    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
-        return this.saveCustomOnly(registries);
+    public @NotNull CompoundTag getUpdateTag() {
+        return this.saveWithoutMetadata(); // what you already had
     }
 
     @Override
@@ -57,8 +56,8 @@ public class NestBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void onDataPacket(@NotNull Connection net, ClientboundBlockEntityDataPacket pkt, HolderLookup.@NotNull Provider lookup) {
-        this.loadAdditional(pkt.getTag(), lookup);
+    public void onDataPacket(@NotNull Connection net, ClientboundBlockEntityDataPacket pkt) {
+        this.load(pkt.getTag());
     }
 
     public void updateBlock(){
@@ -114,11 +113,11 @@ public class NestBlockEntity extends BlockEntity {
     }
 
     public ItemStack getEgg() {
-        return this.items.getFirst();
+        return this.items.get(0);
     }
 
     public int getEggsAmount() {
-        return this.items.getFirst().getCount();
+        return this.items.get(0).getCount();
     }
 
     public void setItem(ItemStack stack) {

@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "group": "chomp_trap",
+  "key": {
+    "#": {
+      "item": "primal:crocodile_scute"
+    },
+    "B": {
+      "item": "primal:crocodile_scute_block"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "primal:shark_tooth"
+    }
+  },
+  "pattern": [
+    "#S#",
+    "#S#",
+    "RBR"
+  ],
+  "result": {
+    "item": "primal:chomp_trap_green"
+  },
+  "show_notification": true
+}

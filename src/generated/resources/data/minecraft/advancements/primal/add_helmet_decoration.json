@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "add_helmet_decoration": {
+      "conditions": {},
+      "trigger": "primal:add_helmet_decoration"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.add_helmet_decoration.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:diamond_helmet",
+      "nbt": "{Damage:0,HelmetDecorations:{left:0,right:0}}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.add_helmet_decoration.title"
+    }
+  },
+  "requirements": [
+    [
+      "add_helmet_decoration"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

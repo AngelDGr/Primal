@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:primal/add_helmet_decoration",
+  "criteria": {
+    "add_helmet_horns": {
+      "conditions": {},
+      "trigger": "primal:add_helmet_horns"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.add_helmet_horns.description"
+    },
+    "frame": "challenge",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:netherite_helmet",
+      "nbt": "{Damage:0,HelmetDecorations:{left:3,right:3}}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.add_helmet_horns.title"
+    }
+  },
+  "requirements": [
+    [
+      "add_helmet_horns"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

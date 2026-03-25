@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "tickle_crocodile": {
+      "conditions": {},
+      "trigger": "primal:tickle_crocodile"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.tickle_crocodile.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:feather"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.tickle_crocodile.title"
+    }
+  },
+  "requirements": [
+    [
+      "tickle_crocodile"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

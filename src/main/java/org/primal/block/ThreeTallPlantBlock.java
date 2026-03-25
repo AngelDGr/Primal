@@ -70,7 +70,7 @@ public abstract class ThreeTallPlantBlock extends BushBlock implements Bonemeala
     }
 
     @Override
-    protected @NotNull BlockState updateShape(BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public @NotNull BlockState updateShape(BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
@@ -95,7 +95,7 @@ public abstract class ThreeTallPlantBlock extends BushBlock implements Bonemeala
     }
 
     @Override
-    protected boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
         BlockState blockBelow = level.getBlockState(pos.below());
         BlockState blockAbove = level.getBlockState(pos.above());
 
@@ -123,7 +123,7 @@ public abstract class ThreeTallPlantBlock extends BushBlock implements Bonemeala
     }
 
     @Override
-    protected @NotNull FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
@@ -135,12 +135,12 @@ public abstract class ThreeTallPlantBlock extends BushBlock implements Bonemeala
 
     @SuppressWarnings("deprecation")
     @Override
-    protected long getSeed(BlockState state, BlockPos pos) {
+    public long getSeed(BlockState state, BlockPos pos) {
         return Mth.getSeed(pos.getX(), pos.below(state.getValue(HALF) == TripleBlockHalf.LOWER ? 0: state.getValue(HALF) == TripleBlockHalf.MIDDLE? 1: 2).getY(), pos.getZ());
     }
 
     @Override
-    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state, boolean isOn) {
         return true;
     }
 
@@ -221,12 +221,12 @@ public abstract class ThreeTallPlantBlock extends BushBlock implements Bonemeala
     }
 
     @Override
-    protected boolean isRandomlyTicking(@NotNull BlockState state) {
+    public boolean isRandomlyTicking(@NotNull BlockState state) {
         return state.getValue(HALF)==TripleBlockHalf.LOWER;
     }
 
     @Override
-    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if (!level.isAreaLoaded(pos, 1)) return; // Forge: prevent loading unloaded chunks when checking neighbor's light
 
         if (level.getRawBrightness(pos, 0) >= 6) {

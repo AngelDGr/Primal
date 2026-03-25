@@ -1,147 +1,155 @@
 package org.primal.registry;
 
-import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
-import net.neoforged.neoforge.common.DeferredSpawnEggItem;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.common.ForgeSpawnEggItem;
+import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
-import org.primal.block_entity.HollowLogBlockEntity;
+import org.primal.client.item.StrawBasketExtension;
 import org.primal.item.ConchShellItem;
 import org.primal.item.ExploseedItem;
 import org.primal.item.SnakeItem;
 import org.primal.item.component.ConchShellComponent;
 import org.primal.item.component.HelmetDecorationComponent;
 import org.primal.item.component.SnakeComponent;
+import org.primal.util.Primal_Util;
 
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.function.UnaryOperator;
 
 public class Primal_Items {
+    public static final RegistryObject<LootItemFunctionType> SNAKE_LOOT =
+            Primal_Registries.LOOT_FUNCTIONS.register("snake_loot", ()->
+                    new LootItemFunctionType(
+                            new SnakeItem.SetSnakeLoot.Serializer()
+                    ));
 
-    public static DeferredHolder<Item, Item> PRIMAL;
+    public static RegistryObject<Item> PRIMAL;
 
     //Bear
-    public static DeferredHolder<Item, Item> BEAR_SPAWN_EGG;
+    public static RegistryObject<Item> BEAR_SPAWN_EGG;
 
     //Shark
-    public static DeferredHolder<Item, Item> SHARK_SPAWN_EGG;
-    public static DeferredHolder<Item, Item> SHARK_TOOTH;
+    public static RegistryObject<Item> SHARK_SPAWN_EGG;
+    public static RegistryObject<Item> SHARK_TOOTH;
 
     //Crocodile
-    public static DeferredHolder<Item, Item> CROCODILE_SPAWN_EGG;
-    public static DeferredHolder<Item, Item> CROCODILE_EGG;
-    public static DeferredHolder<Item, Item> CROCODILE_SCUTE;
-    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_BLOCK;
-    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_SHINGLE;
-    public static DeferredHolder<Item, Item> CHISELED_CROCODILE_SCUTE;
-    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_STAIRS;
-    public static DeferredHolder<Item, Item> CROCODILE_SCUTE_SLAB;
+    public static RegistryObject<Item> CROCODILE_SPAWN_EGG;
+    public static RegistryObject<Item> CROCODILE_EGG;
+    public static RegistryObject<Item> CROCODILE_SCUTE;
+    public static RegistryObject<Item> CROCODILE_SCUTE_BLOCK;
+    public static RegistryObject<Item> CROCODILE_SCUTE_SHINGLE;
+    public static RegistryObject<Item> CHISELED_CROCODILE_SCUTE;
+    public static RegistryObject<Item> CROCODILE_SCUTE_STAIRS;
+    public static RegistryObject<Item> CROCODILE_SCUTE_SLAB;
 
-    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_BLOCK;
-    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_SHINGLE;
-    public static DeferredHolder<Item, Item> ARID_CHISELED_CROCODILE_SCUTE;
-    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_STAIRS;
-    public static DeferredHolder<Item, Item> ARID_CROCODILE_SCUTE_SLAB;
+    public static RegistryObject<Item> ARID_CROCODILE_SCUTE_BLOCK;
+    public static RegistryObject<Item> ARID_CROCODILE_SCUTE_SHINGLE;
+    public static RegistryObject<Item> ARID_CHISELED_CROCODILE_SCUTE;
+    public static RegistryObject<Item> ARID_CROCODILE_SCUTE_STAIRS;
+    public static RegistryObject<Item> ARID_CROCODILE_SCUTE_SLAB;
 
-    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_BLOCK;
-    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_SHINGLE;
-    public static DeferredHolder<Item, Item> HUMID_CHISELED_CROCODILE_SCUTE;
-    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_STAIRS;
-    public static DeferredHolder<Item, Item> HUMID_CROCODILE_SCUTE_SLAB;
+    public static RegistryObject<Item> HUMID_CROCODILE_SCUTE_BLOCK;
+    public static RegistryObject<Item> HUMID_CROCODILE_SCUTE_SHINGLE;
+    public static RegistryObject<Item> HUMID_CHISELED_CROCODILE_SCUTE;
+    public static RegistryObject<Item> HUMID_CROCODILE_SCUTE_STAIRS;
+    public static RegistryObject<Item> HUMID_CROCODILE_SCUTE_SLAB;
 
-    public static DeferredHolder<Item, Item> CHOMP_TRAP_GREEN;
-    public static DeferredHolder<Item, Item> CHOMP_TRAP_ARID;
-    public static DeferredHolder<Item, Item> CHOMP_TRAP_HUMID;
+    public static RegistryObject<Item> CHOMP_TRAP_GREEN;
+    public static RegistryObject<Item> CHOMP_TRAP_ARID;
+    public static RegistryObject<Item> CHOMP_TRAP_HUMID;
 
-    public static DeferredHolder<Item, Item> NEST;
+    public static RegistryObject<Item> NEST;
 
-    public static DeferredHolder<Item, Item> DREAMCATCHER;
+    public static RegistryObject<Item> DREAMCATCHER;
 
     //Eagle
-    public static DeferredHolder<Item, Item> EAGLE_SPAWN_EGG;
-    public static DeferredHolder<Item, Item> EAGLE_EGG;
+    public static RegistryObject<Item> EAGLE_SPAWN_EGG;
+    public static RegistryObject<Item> EAGLE_EGG;
 
     //Cassowary
-    public static DeferredHolder<Item, Item> CASSOWARY_SPAWN_EGG;
-    public static DeferredHolder<Item, Item> CASSOWARY_EGG;
-    public static DeferredHolder<Item, Item> PETRIFIED_FRUIT;
+    public static RegistryObject<Item> CASSOWARY_SPAWN_EGG;
+    public static RegistryObject<Item> CASSOWARY_EGG;
+    public static RegistryObject<Item> PETRIFIED_FRUIT;
 
     //Walrus
-    public static DeferredHolder<Item, Item> WALRUS_SPAWN_EGG;
-    public static DeferredHolder<Item, Item> WARM_CONCH_SHELL;
-    public static DeferredHolder<Item, Item> TEMPERATE_CONCH_SHELL;
-    public static DeferredHolder<Item, Item> COLD_CONCH_SHELL;
+    public static RegistryObject<Item> WALRUS_SPAWN_EGG;
+    public static RegistryObject<Item> WARM_CONCH_SHELL;
+    public static RegistryObject<Item> TEMPERATE_CONCH_SHELL;
+    public static RegistryObject<Item> COLD_CONCH_SHELL;
 
     //Lion
-    public static DeferredHolder<Item, Item> LION_SPAWN_EGG;
+    public static RegistryObject<Item> LION_SPAWN_EGG;
 
     //Snake
-    public static DeferredHolder<Item, Item> SNAKE_SPAWN_EGG;
-    public static DeferredHolder<Item, Item> PLACEHOLDER_CHESTED_SNAKE;
+    public static RegistryObject<Item> SNAKE_SPAWN_EGG;
+    public static RegistryObject<Item> PLACEHOLDER_CHESTED_SNAKE;
 
     //Deer
-    public static DeferredHolder<Item, Item> DEER_SPAWN_EGG;
-    public static DeferredHolder<Item, Item> VENISON;
-    public static DeferredHolder<Item, Item> COOKED_VENISON;
-    public static DeferredHolder<Item, Item> FALLOW_DEER_ANTLER;
-    public static DeferredHolder<Item, Item> REINDEER_ANTLER;
-    public static DeferredHolder<Item, Item> WHITETAIL_DEER_ANTLER;
+    public static RegistryObject<Item> DEER_SPAWN_EGG;
+    public static RegistryObject<Item> VENISON;
+    public static RegistryObject<Item> COOKED_VENISON;
+    public static RegistryObject<Item> FALLOW_DEER_ANTLER;
+    public static RegistryObject<Item> REINDEER_ANTLER;
+    public static RegistryObject<Item> WHITETAIL_DEER_ANTLER;
 
-    public static DeferredHolder<Item, Item> LITCHI;
-    public static DeferredHolder<Item, Item> KIWANO;
-    public static DeferredHolder<Item, Item> STARFRUIT;
-    public static DeferredHolder<Item, Item> WEIRD_APPLE;
+    public static RegistryObject<Item> LITCHI;
+    public static RegistryObject<Item> KIWANO;
+    public static RegistryObject<Item> STARFRUIT;
+    public static RegistryObject<Item> WEIRD_APPLE;
 
-    public static DeferredHolder<Item, Item> LITCHI_SEEDS;
-    public static DeferredHolder<Item, Item> KIWANO_SEEDS;
-    public static DeferredHolder<Item, Item> STARFRUIT_SEEDS;
+    public static RegistryObject<Item> LITCHI_SEEDS;
+    public static RegistryObject<Item> KIWANO_SEEDS;
+    public static RegistryObject<Item> STARFRUIT_SEEDS;
 
     //Flora
-    public static DeferredHolder<Item, Item> RIVER_REEDS;
-    public static DeferredHolder<Item, Item> SHORT_RIVER_REEDS;
-    public static DeferredHolder<Item, Item> CATTAILS;
-    public static DeferredHolder<Item, Item> WARM_SEASHELLS;
-    public static DeferredHolder<Item, Item> COLD_SEASHELLS;
-    public static DeferredHolder<Item, Item> TEMPERATE_SEASHELLS;
+    public static RegistryObject<Item> RIVER_REEDS;
+    public static RegistryObject<Item> SHORT_RIVER_REEDS;
+    public static RegistryObject<Item> CATTAILS;
+    public static RegistryObject<Item> WARM_SEASHELLS;
+    public static RegistryObject<Item> COLD_SEASHELLS;
+    public static RegistryObject<Item> TEMPERATE_SEASHELLS;
 
-    public static DeferredHolder<Item, Item> THORNY_ACACIA_LOG;
-    public static DeferredHolder<Item, Item> THORNY_ACACIA_WOOD;
-    public static DeferredHolder<Item, Item> THORNY_ACACIA_LEAVES;
-    public static DeferredHolder<Item, Item> THORNY_ACACIA_SAPLING;
-    public static DeferredHolder<Item, Item> EXPLOSEED;
+    public static RegistryObject<Item> THORNY_ACACIA_LOG;
+    public static RegistryObject<Item> THORNY_ACACIA_WOOD;
+    public static RegistryObject<Item> THORNY_ACACIA_LEAVES;
+    public static RegistryObject<Item> THORNY_ACACIA_SAPLING;
+    public static RegistryObject<Item> EXPLOSEED;
 
-    public static DeferredHolder<Item, Item> HOLLOW_OAK_LOG;
-    public static DeferredHolder<Item, Item> HOLLOW_SPRUCE_LOG;
-    public static DeferredHolder<Item, Item> HOLLOW_BIRCH_LOG;
-    public static DeferredHolder<Item, Item> HOLLOW_JUNGLE_LOG;
-    public static DeferredHolder<Item, Item> HOLLOW_ACACIA_LOG;
-    public static DeferredHolder<Item, Item> HOLLOW_DARK_OAK_LOG;
-    public static DeferredHolder<Item, Item> HOLLOW_MANGROVE_LOG;
+    public static RegistryObject<Item> HOLLOW_OAK_LOG;
+    public static RegistryObject<Item> HOLLOW_SPRUCE_LOG;
+    public static RegistryObject<Item> HOLLOW_BIRCH_LOG;
+    public static RegistryObject<Item> HOLLOW_JUNGLE_LOG;
+    public static RegistryObject<Item> HOLLOW_ACACIA_LOG;
+    public static RegistryObject<Item> HOLLOW_DARK_OAK_LOG;
+    public static RegistryObject<Item> HOLLOW_MANGROVE_LOG;
 
     //Food
-    public static DeferredHolder<Item, Item> APPLE_FRITTER;
-    public static DeferredHolder<Item, Item> GOLDEN_APPLE_FRITTER;
-    public static DeferredHolder<Item, Item> ENCHANTED_GOLDEN_APPLE_FRITTER;
+    public static RegistryObject<Item> APPLE_FRITTER;
+    public static RegistryObject<Item> GOLDEN_APPLE_FRITTER;
+    public static RegistryObject<Item> ENCHANTED_GOLDEN_APPLE_FRITTER;
 
     //Misc
-    public static DeferredHolder<Item, Item> MUSIC_DISC_OH_DEER;
-    public static DeferredHolder<Item, Item> PAW_BANNER_PATTERN;
-    public static DeferredHolder<Item, Item> JAWS_BANNER_PATTERN;
-    public static DeferredHolder<Item, Item> MARSH_BANNER_PATTERN;
-    public static DeferredHolder<Item, Item> EYRIE_BANNER_PATTERN;
-    public static DeferredHolder<Item, Item> SLITHER_BANNER_PATTERN;
-    public static DeferredHolder<Item, Item> ROYAL_BANNER_PATTERN;
+    public static RegistryObject<Item> MUSIC_DISC_OH_DEER;
+    public static RegistryObject<Item> PAW_BANNER_PATTERN;
+    public static RegistryObject<Item> JAWS_BANNER_PATTERN;
+    public static RegistryObject<Item> MARSH_BANNER_PATTERN;
+    public static RegistryObject<Item> EYRIE_BANNER_PATTERN;
+    public static RegistryObject<Item> SLITHER_BANNER_PATTERN;
+    public static RegistryObject<Item> ROYAL_BANNER_PATTERN;
 
-    public static DeferredHolder<Item, Item> STRAW_BLOCK;
-    public static DeferredHolder<Item, Item> DRIED_STRAW_BLOCK;
-    public static DeferredHolder<Item, Item> WEAVED_STRAW;
-    public static DeferredHolder<Item, Item> WEAVED_STRAW_STAIRS;
-    public static DeferredHolder<Item, Item> WEAVED_STRAW_SLAB;
-    public static DeferredHolder<Item, Item> STRAW_BASKET;
+    public static RegistryObject<Item> STRAW_BLOCK;
+    public static RegistryObject<Item> DRIED_STRAW_BLOCK;
+    public static RegistryObject<Item> WEAVED_STRAW;
+    public static RegistryObject<Item> WEAVED_STRAW_STAIRS;
+    public static RegistryObject<Item> WEAVED_STRAW_SLAB;
+    public static RegistryObject<Item> STRAW_BASKET;
 
     public static void initItems(){
         PRIMAL = register("primal",
@@ -151,31 +159,31 @@ public class Primal_Items {
         {
 
             BEAR_SPAWN_EGG= register("bear_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.BEAR, 0x924d36, 0xc19060, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.BEAR, 0x924d36, 0xc19060, new Item.Properties()));
 
             SHARK_SPAWN_EGG= register("shark_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.SHARK, 0x94b0c0, 0xe4e6f0, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.SHARK, 0x94b0c0, 0xe4e6f0, new Item.Properties()));
 
             CROCODILE_SPAWN_EGG= register("crocodile_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.CROCODILE, 0xeceec9, 0x7a984e, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.CROCODILE, 0xeceec9, 0x7a984e, new Item.Properties()));
 
             EAGLE_SPAWN_EGG= register("eagle_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.EAGLE, 0xe0b887, 0x805146, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.EAGLE, 0xe0b887, 0x805146, new Item.Properties()));
 
             CASSOWARY_SPAWN_EGG= register("cassowary_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.CASSOWARY, 0x6eb924, 0x2b721f, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.CASSOWARY, 0x6eb924, 0x2b721f, new Item.Properties()));
 
             WALRUS_SPAWN_EGG= register("walrus_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.WALRUS, 0xa46a47, 0xecb881, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.WALRUS, 0xa46a47, 0xecb881, new Item.Properties()));
 
             LION_SPAWN_EGG= register("lion_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.LION, 0xffbe75, 0x4a2f24, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.LION, 0xffbe75, 0x4a2f24, new Item.Properties()));
 
             SNAKE_SPAWN_EGG= register("snake_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.SNAKE, 0x3ac1ee, 0x8ff0ea, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.SNAKE, 0x3ac1ee, 0x8ff0ea, new Item.Properties()));
 
             DEER_SPAWN_EGG= register("deer_spawn_egg",
-                    () -> new DeferredSpawnEggItem(Primal_Entities.DEER, 0xee8b54, 0xf7e9e3, new Item.Properties()));
+                    () -> new ForgeSpawnEggItem(Primal_Entities.DEER, 0xee8b54, 0xf7e9e3, new Item.Properties()));
 
             PLACEHOLDER_CHESTED_SNAKE = register("placeholder_chested_snake",
                     () -> new SnakeItem(new Item.Properties().stacksTo(1)));
@@ -204,7 +212,7 @@ public class Primal_Items {
                     () -> new BlockItem(Primal_Blocks.WHITETAIL_DEER_ANTLER.get(), new Item.Properties()));
 
             MUSIC_DISC_OH_DEER= register("music_disc_oh_deer",
-                    ()-> new Item(new Item.Properties().stacksTo(1).rarity(Rarity.RARE).jukeboxPlayable(Primal_JukeboxSongs.OH_DEER)));
+                    ()-> new RecordItem(10, Primal_Sounds.OH_DEER, (new Item.Properties()).stacksTo(1).rarity(Rarity.RARE), Primal_Util.toTicks(175)));
         }
 
         //Food
@@ -216,8 +224,11 @@ public class Primal_Items {
                     ()-> new Item(new Item.Properties().rarity(Rarity.RARE).food(Primal_Food.GOLDEN_APPLE_FRITTER)));
 
             ENCHANTED_GOLDEN_APPLE_FRITTER= register("enchanted_golden_apple_fritter",
-                    ()-> new Item(new Item.Properties().rarity(Rarity.EPIC).food(Primal_Food.ENCHANTED_GOLDEN_APPLE_FRITTER)
-                            .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)));
+                    ()-> new Item(new Item.Properties().rarity(Rarity.EPIC).food(Primal_Food.ENCHANTED_GOLDEN_APPLE_FRITTER)){
+                        public boolean isFoil(@NotNull ItemStack itemStack) {
+                            return true;
+                        }
+                    });
 
             VENISON = register("venison",
                     () -> new Item(new Item.Properties().food(Primal_Food.VENISON)));
@@ -346,47 +357,47 @@ public class Primal_Items {
             {
                 HOLLOW_OAK_LOG = register("hollow_oak_log",
                         ()-> new BlockItem(Primal_Blocks.HOLLOW_OAK_LOG.get(),
-                                new Item.Properties().component(Components.ANIMALS_INSIDE.get(), List.of())));
+                                new Item.Properties()));
 
                 HOLLOW_SPRUCE_LOG = register("hollow_spruce_log",
                         ()-> new BlockItem(Primal_Blocks.HOLLOW_SPRUCE_LOG.get(),
-                                new Item.Properties().component(Components.ANIMALS_INSIDE.get(), List.of())));
+                                new Item.Properties()));
 
                 HOLLOW_BIRCH_LOG = register("hollow_birch_log",
                         ()-> new BlockItem(Primal_Blocks.HOLLOW_BIRCH_LOG.get(),
-                                new Item.Properties().component(Components.ANIMALS_INSIDE.get(), List.of())));
+                                new Item.Properties()));
 
                 HOLLOW_JUNGLE_LOG = register("hollow_jungle_log",
                         ()-> new BlockItem(Primal_Blocks.HOLLOW_JUNGLE_LOG.get(),
-                                new Item.Properties().component(Components.ANIMALS_INSIDE.get(), List.of())));
+                                new Item.Properties()));
 
                 HOLLOW_ACACIA_LOG = register("hollow_acacia_log",
                         ()-> new BlockItem(Primal_Blocks.HOLLOW_ACACIA_LOG.get(),
-                                new Item.Properties().component(Components.ANIMALS_INSIDE.get(), List.of())));
+                                new Item.Properties()));
 
                 HOLLOW_DARK_OAK_LOG = register("hollow_dark_oak_log",
                         ()-> new BlockItem(Primal_Blocks.HOLLOW_DARK_OAK_LOG.get(),
-                                new Item.Properties().component(Components.ANIMALS_INSIDE.get(), List.of())));
+                                new Item.Properties()));
 
                 HOLLOW_MANGROVE_LOG = register("hollow_mangrove_log",
                         ()-> new BlockItem(Primal_Blocks.HOLLOW_MANGROVE_LOG.get(),
-                                new Item.Properties().component(Components.ANIMALS_INSIDE.get(), List.of())));
+                                new Item.Properties()));
             }
         }
 
         //Misc
         {
-            PAW_BANNER_PATTERN=register("paw_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_PAW, new Item.Properties()));
+            PAW_BANNER_PATTERN=register("paw_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_PAW, new Item.Properties().stacksTo(1)));
 
-            JAWS_BANNER_PATTERN=register("jaws_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_JAWS, new Item.Properties()));
+            JAWS_BANNER_PATTERN=register("jaws_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_JAWS, new Item.Properties().stacksTo(1)));
 
-            MARSH_BANNER_PATTERN=register("marsh_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_MARSH, new Item.Properties()));
+            MARSH_BANNER_PATTERN=register("marsh_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_MARSH, new Item.Properties().stacksTo(1)));
 
-            EYRIE_BANNER_PATTERN=register("eyrie_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_EYRIE, new Item.Properties()));
+            EYRIE_BANNER_PATTERN=register("eyrie_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_EYRIE, new Item.Properties().stacksTo(1)));
 
-            SLITHER_BANNER_PATTERN=register("slither_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_SLITHER, new Item.Properties()));
+            SLITHER_BANNER_PATTERN=register("slither_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_SLITHER, new Item.Properties().stacksTo(1)));
 
-            ROYAL_BANNER_PATTERN=register("royal_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_ROYAL, new Item.Properties()));
+            ROYAL_BANNER_PATTERN=register("royal_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_ROYAL, new Item.Properties().stacksTo(1)));
 
             PETRIFIED_FRUIT=register("petrified_fruit", ()-> new BlockItem(Primal_Blocks.PETRIFIED_FRUIT.get(), new Item.Properties()));
 
@@ -411,7 +422,13 @@ public class Primal_Items {
 
             WEAVED_STRAW_SLAB=register("weaved_straw_slab", ()-> new BlockItem(Primal_Blocks.WEAVED_STRAW_SLAB.get(), new Item.Properties()));
 
-            STRAW_BASKET=register("straw_basket", ()-> new BlockItem(Primal_Blocks.STRAW_BASKET.get(), new Item.Properties()));
+            STRAW_BASKET=register("straw_basket", ()-> new BlockItem(Primal_Blocks.STRAW_BASKET.get(), new Item.Properties()){
+                @OnlyIn(Dist.CLIENT)
+                @Override
+                public void initializeClient(@NotNull Consumer<IClientItemExtensions> consumer) {
+                    consumer.accept(new StrawBasketExtension());
+                }
+            });
         }
     }
 
@@ -540,31 +557,18 @@ public class Primal_Items {
         );
     }
 
-    public static DeferredHolder<Item, Item> register(final String name, final Supplier<Item> item) {
+    public static RegistryObject<Item> register(final String name, final Supplier<Item> item) {
         return Primal_Registries.ITEMS.register(name, item);
     }
 
     public static class Components {
-        public static Supplier<DataComponentType<ConchShellComponent>> CONCH_SHELL;
+        public static ConchShellComponent CONCH_SHELL = new ConchShellComponent(null, null);
 
-        public static Supplier<DataComponentType<SnakeComponent>> SNAKE_SPAWN;
+        public static SnakeComponent SNAKE_SPAWN = new SnakeComponent(null);
 
-        public static Supplier<DataComponentType<List<HollowLogBlockEntity.Occupant>>> ANIMALS_INSIDE;
-
-        public static Supplier<DataComponentType<HelmetDecorationComponent>> HELMET_DECORATION;
+        public static HelmetDecorationComponent HELMET_DECORATION = new HelmetDecorationComponent(null, null);
 
         public static void init(){
-            CONCH_SHELL = register("conch_shell", builder -> builder.persistent(ConchShellComponent.CODEC));
-
-            SNAKE_SPAWN = register("snake_spawn", builder -> builder.persistent(SnakeComponent.CODEC));
-
-            ANIMALS_INSIDE = register("animals_inside", builder -> builder.persistent(HollowLogBlockEntity.Occupant.LIST_CODEC));
-
-            HELMET_DECORATION = register("helmet_decoration", builder -> builder.persistent(HelmetDecorationComponent.CODEC));
-        }
-
-        private static <T> Supplier<DataComponentType<T>> register(final String id, final UnaryOperator<DataComponentType.Builder<T>> builderOperator) {
-            return Primal_Registries.DATA_COMPONENTS.registerComponentType(id, builderOperator);
         }
     }
 }

@@ -105,7 +105,7 @@ public class LionAi {
         return LionEntity::isMatingFood;
     }
 
-    private static final Primal_CustomCriterion NAP_ADVANCEMENT = Primal_Advancements.LION_NAP.get();
+    private static final Primal_CustomCriterion NAP_ADVANCEMENT = Primal_Advancements.LION_NAP;
     public static void initMemories(LionEntity lion, RandomSource random) {
 //        GlobalPos globalpos = GlobalPos.of(lion.level().dimension(), lion.blockPosition());
 //        lion.getBrain().setMemory(MemoryModuleType.HOME, globalpos);
@@ -155,7 +155,7 @@ public class LionAi {
                 Activity.IDLE,
                 10,
                 ImmutableList.of(
-                        new AnimalMakeLove(Primal_Entities.LION.get()),
+                        new AnimalMakeLove(Primal_Entities.LION.get(), 1.0f),
                         SetRoarTarget.create(LionAi::canRoar),
                         StartAttacking.create(LionAi::findNearestValidAttackTargetDuringIdle),
                         new RunOne<>(
@@ -278,8 +278,8 @@ public class LionAi {
                 ImmutableList.of(
                         SetRoarTarget.create(LionAi::canRoar),
                         StartAttacking.create(LionAi::findNearestValidAttackTargetDuringIdle),
-                        new AnimalMakeLove(Primal_Entities.LION.get()),
-                        new FollowOwner(),
+                        new AnimalMakeLove(Primal_Entities.LION.get(), 1.0f),
+                        new FollowOwner<>(),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
                         new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
                         AnimalRelaxOnSleepingOwner.create(1.0f, Primal_LootTables.LION_MORNING_GIFT, 0.85f, NAP_ADVANCEMENT),
@@ -302,7 +302,8 @@ public class LionAi {
         Brain<LionEntity> brain = lion.getBrain();
 
         //Is angry per 30s
-        if(brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) brain.setMemoryWithExpiry(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), brain.getMemory(MemoryModuleType.ATTACK_TARGET).get(), 600);
+        if(brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent())
+            brain.setMemoryWithExpiry(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), brain.getMemory(MemoryModuleType.ATTACK_TARGET).get(), 600);
 
         if(!brain.isActive(Primal_Activities.STALK.get()) && brain.getMemory(Primal_MemoryModuleTypes.STALK_TARGET.get()).isEmpty() && lion.hasPose(Pose.CROUCHING))
             lion.setPose(Pose.STANDING);
@@ -328,7 +329,17 @@ public class LionAi {
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTargetDuringIdle(LionEntity lion) {
-        return BehaviorUtils.isBreeding(lion) || (lion.isBaby() && !lion.isFollowing()) || (!lion.isManeless() && !lion.isBaby()) || (lion.hasLeader() && !lion.isFollowing())? Optional.empty() : lion.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE);
+               //Don't attack while breeding
+        return BehaviorUtils.isBreeding(lion)
+                //Baby don't attack if it is not a following pet
+                || (lion.isBaby() && !lion.isFollowing())
+                //Maned lions use setRoarTarget instead
+                || (!lion.isManeless() && !lion.isBaby())
+                //If is a lion with leader, as long as not is following and doesn't have a target or grudge
+                || (lion.hasLeader() && !lion.isFollowing() &&
+                (lion.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty() && lion.getBrain().getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).isEmpty()))?
+                Optional.empty()
+                : lion.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE);
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(LionEntity lion) {

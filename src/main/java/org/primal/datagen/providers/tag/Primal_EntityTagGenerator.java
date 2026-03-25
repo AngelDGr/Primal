@@ -12,7 +12,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.minecraftforge.common.data.ExistingFileHelper;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Tags;
 import org.primal.util.Primal_Util;
@@ -73,12 +73,6 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
                         EntityType.SQUID,
                         EntityType.GLOW_SQUID);
 
-        this.tag(EntityTypeTags.AQUATIC)
-                .add(Primal_Entities.SHARK.get());
-
-        this.tag(EntityTypeTags.CAN_BREATHE_UNDER_WATER)
-                .add(Primal_Entities.SHARK.get());
-
         this.tag(Primal_Tags.Entity.CROCODILE_HUNTABLE)
                 .add(
                         //Nether
@@ -138,7 +132,7 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
         this.tag(Primal_Tags.Entity.CASSOWARY_HUNTABLE)
                 .add(EntityType.PLAYER)
                 .add(EntityType.VILLAGER, EntityType.WANDERING_TRADER)
-                .addTag(EntityTypeTags.ILLAGER)
+                .addTag(EntityTypeTags.RAIDERS)
                 .add(Primal_Entities.SNAKE.get());
 
         this.tag(Primal_Tags.Entity.LION_HUNTABLE)
@@ -165,11 +159,11 @@ public final class Primal_EntityTagGenerator extends EntityTypeTagsProvider {
 
         this.tag(Primal_Tags.Entity.DEER_SCARED)
                 .add(EntityType.VILLAGER, EntityType.PLAYER)
-                .addTag(EntityTypeTags.ILLAGER)
+                .addTag(EntityTypeTags.RAIDERS)
                 .addTag(Primal_Tags.Entity.DEER_VERY_SCARED);
 
         this.tag(Primal_Tags.Entity.DEER_VERY_SCARED)
-                .add(Primal_Entities.BEAR.value(), Primal_Entities.LION.value(), Primal_Entities.CROCODILE.value(), EntityType.WOLF);
+                .add(Primal_Entities.BEAR.get(), Primal_Entities.LION.get(), Primal_Entities.CROCODILE.get(), EntityType.WOLF);
 
         this.tag(EntityTypeTags.FREEZE_IMMUNE_ENTITY_TYPES)
                 .add(Primal_Entities.WALRUS.get());

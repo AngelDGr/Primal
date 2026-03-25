@@ -2,7 +2,6 @@ package org.primal.datagen.providers;
 
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.NbtPredicate;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.EntityLootSubProvider;
 import net.minecraft.nbt.CompoundTag;
@@ -14,12 +13,12 @@ import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.EnchantedCountIncreaseFunction;
+import net.minecraft.world.level.storage.loot.functions.LootingEnchantFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SmeltItemFunction;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithEnchantedBonusCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceWithLootingCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import org.jetbrains.annotations.NotNull;
@@ -33,8 +32,8 @@ import java.util.stream.Stream;
 
 public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
 
-    public Primal_LootTablesEntitiesGenerator(final HolderLookup.Provider lookupProvider) {
-        super(FeatureFlags.DEFAULT_FLAGS, lookupProvider);
+    public Primal_LootTablesEntitiesGenerator() {
+        super(FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override
@@ -54,20 +53,20 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                                 .setRolls(UniformGenerator.between(2.0f, 4.0f))
                                 .add(
                                         LootItem.lootTableItem(Items.COD)
-                                                .apply(SmeltItemFunction.smelted().when(this.shouldSmeltLoot()))
+                                                .apply(SmeltItemFunction.smelted().when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE)))
                                                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
-                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                 )
                                 .add(
                                         LootItem.lootTableItem(Items.SALMON)
-                                                .apply(SmeltItemFunction.smelted().when(this.shouldSmeltLoot()))
+                                                .apply(SmeltItemFunction.smelted().when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE)))
                                                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
-                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                 )
                                 .add(
                                         LootItem.lootTableItem(Items.TROPICAL_FISH)
                                                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
-                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                 )
                 )
                 .withPool(
@@ -76,8 +75,8 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                                 .add(
                                         LootItem.lootTableItem(Primal_Items.SHARK_TOOTH.get())
                                                 .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1.0F)))
-                                                .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
-                                                .when(LootItemRandomChanceWithEnchantedBonusCondition.randomChanceAndLootingBoost(this.registries,
+                                                .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
+                                                .when(LootItemRandomChanceWithLootingCondition.randomChanceAndLootingBoost(
                                                         0.30f, 0.1f))
                                 )
                 ));
@@ -92,7 +91,7 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                                         .add(
                                                 LootItem.lootTableItem(Items.FEATHER)
                                                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
-                                                        .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                                        .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                         )
                         ));
 
@@ -104,7 +103,7 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                                         .add(
                                                 LootItem.lootTableItem(Items.FEATHER)
                                                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 6.0F)))
-                                                        .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                                        .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                         )
                         ));
 
@@ -122,8 +121,8 @@ public class Primal_LootTablesEntitiesGenerator extends EntityLootSubProvider {
                                         .add(
                                                 LootItem.lootTableItem(Primal_Items.VENISON.get())
                                                         .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 3.0F)))
-                                                        .apply(SmeltItemFunction.smelted().when(this.shouldSmeltLoot()))
-                                                        .apply(EnchantedCountIncreaseFunction.lootingMultiplier(this.registries, UniformGenerator.between(0.0F, 1.0F)))
+                                                        .apply(SmeltItemFunction.smelted().when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, ENTITY_ON_FIRE)))
+                                                        .apply(LootingEnchantFunction.lootingMultiplier(UniformGenerator.between(0.0F, 1.0F)))
                                         )
                         )
                         .withPool(

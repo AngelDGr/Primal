@@ -95,7 +95,7 @@ public class EagleStartAttack extends Behavior<EagleEntity> {
                 List<ServerPlayer> playersList= eagle.level().getEntitiesOfClass(ServerPlayer.class, eagle.getBoundingBox().inflate(8));
 
                 if(!playersList.isEmpty())
-                    playersList.forEach(player -> Primal_Advancements.EAGLE_ATTACKS_SNAKE.get().trigger(player));
+                    playersList.forEach(Primal_Advancements.EAGLE_ATTACKS_SNAKE::trigger);
             }
 
             eagle.setHealthWhenStartRiding(eagle.getHealth());

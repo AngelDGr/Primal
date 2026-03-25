@@ -2,15 +2,12 @@ package org.primal.datagen.providers;
 
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
@@ -22,11 +19,15 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolSingletonContainer;
-import net.minecraft.world.level.storage.loot.functions.*;
+import net.minecraft.world.level.storage.loot.functions.ApplyBonusCount;
+import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
+import net.minecraft.world.level.storage.loot.functions.LimitCount;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.predicates.BonusLevelTableCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import org.jetbrains.annotations.NotNull;
@@ -41,8 +42,8 @@ import java.util.stream.IntStream;
 
 public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
 
-    public Primal_LootTablesBlocksGenerator(final HolderLookup.Provider lookupProvider) {
-        super(Set.of(), FeatureFlags.DEFAULT_FLAGS, lookupProvider);
+    public Primal_LootTablesBlocksGenerator() {
+        super(Set.of(), FeatureFlags.DEFAULT_FLAGS);
     }
 
     @Override
@@ -53,7 +54,6 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
 
     @Override
     public void generate() {
-        final HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup = this.registries.lookupOrThrow(Registries.ENCHANTMENT);
         this.createDropThemselves(
                 Primal_Blocks.SHARK_TOOTH.get(),
                 Primal_Blocks.STRAW_BALE.get(),
@@ -123,9 +123,9 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
         this.dropOther(Primal_Blocks.KIWANO_SAPLING.get(), Primal_Items.KIWANO_SEEDS.get());
         this.dropOther(Primal_Blocks.STARFRUIT_SAPLING.get(), Primal_Items.STARFRUIT_SEEDS.get());
 
-        this.createFruitTreeDrops(Primal_Blocks.LITCHI_TREE.get(), Primal_Items.LITCHI.get(), enchantmentRegistryLookup);
-        this.createFruitBulkDrops(Primal_Blocks.KIWANO_BULK.get(), Primal_Items.KIWANO.get(), enchantmentRegistryLookup);
-        this.createFruitTreeDrops(Primal_Blocks.STARFRUIT_TREE.get(), Primal_Items.STARFRUIT.get(), enchantmentRegistryLookup);
+        this.createFruitTreeDrops(Primal_Blocks.LITCHI_TREE.get(), Primal_Items.LITCHI.get());
+        this.createFruitBulkDrops(Primal_Blocks.KIWANO_BULK.get(), Primal_Items.KIWANO.get());
+        this.createFruitTreeDrops(Primal_Blocks.STARFRUIT_TREE.get(), Primal_Items.STARFRUIT.get());
 
         this.createAntlerDrops(Primal_Blocks.FALLOW_DEER_ANTLER.get());
         this.createAntlerDrops(Primal_Blocks.REINDEER_ANTLER.get());
@@ -142,9 +142,11 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
                                         .setRolls(ConstantValue.exactly(1.0F))
                                         .add(
                                                 LootItem.lootTableItem(block)
-                                                        .when(this.hasSilkTouch())
-                                                        .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                                                                .include(Primal_Items.Components.ANIMALS_INSIDE.get()))
+                                                        .when(HAS_SILK_TOUCH)
+                                                        .apply(
+                                                                CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
+                                                                        .copy("Animals", "BlockEntityTag.Animals")
+                                                        )
                                                         .otherwise(LootItem.lootTableItem(block))
                                         )
                         ));
@@ -155,7 +157,7 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
             this.dropSelf(holder);
     }
 
-    private void createFruitTreeDrops(Block tree, Item fruit, HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup){
+    private void createFruitTreeDrops(Block tree, Item fruit){
         this.add(
                 tree,
                 builder -> this.applyExplosionDecay(
@@ -171,7 +173,7 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
                                                 )
                                                 .add(LootItem.lootTableItem(fruit))
                                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(2.0F, 3.0F)))
-                                                .apply(ApplyBonusCount.addUniformBonusCount(enchantmentRegistryLookup.getOrThrow(Enchantments.FORTUNE)))
+                                                .apply(ApplyBonusCount.addUniformBonusCount(Enchantments.BLOCK_FORTUNE))
                                 )
                                 .withPool(
                                         LootPool.lootPool()
@@ -183,13 +185,13 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
                                                 )
                                                 .add(LootItem.lootTableItem(fruit))
                                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(1.0F, 2.0F)))
-                                                .apply(ApplyBonusCount.addUniformBonusCount(enchantmentRegistryLookup.getOrThrow(Enchantments.FORTUNE)))
+                                                .apply(ApplyBonusCount.addUniformBonusCount(Enchantments.BLOCK_FORTUNE))
                                 )
                 )
         );
     }
 
-    private void createFruitBulkDrops(Block tree, Item fruit, HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup){
+    private void createFruitBulkDrops(Block tree, Item fruit){
         this.add(
                 tree,
                 builder -> this.applyExplosionDecay(
@@ -203,7 +205,7 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
                                                 )
                                                 .add(LootItem.lootTableItem(fruit))
                                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(3.0F, 7.0F)))
-                                                .apply(ApplyBonusCount.addUniformBonusCount(enchantmentRegistryLookup.getOrThrow(Enchantments.FORTUNE)))
+                                                .apply(ApplyBonusCount.addUniformBonusCount(Enchantments.BLOCK_FORTUNE))
                                                 .apply(LimitCount.limitCount(IntRange.upperBound(10)))
                                 )
                 )
@@ -320,7 +322,6 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
     }
 
     protected LootTable.Builder createLeavesDropsWithExtraItem(Block thornyAcaciaLeavesBlock, Block saplingBlock, Item extraDrop, float... chances) {
-        HolderLookup.RegistryLookup<Enchantment> registrylookup = this.registries.lookupOrThrow(Registries.ENCHANTMENT);
         return this.createLeavesDrops(thornyAcaciaLeavesBlock, saplingBlock, chances)
                 .withPool(
                         LootPool.lootPool()
@@ -330,7 +331,7 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
                                         ((LootPoolSingletonContainer.Builder<?>)this.applyExplosionCondition(thornyAcaciaLeavesBlock, LootItem.lootTableItem(extraDrop)))
                                                 .when(
                                                         BonusLevelTableCondition.bonusLevelFlatChance(
-                                                                registrylookup.getOrThrow(Enchantments.FORTUNE), 0.005F, 0.0055555557F, 0.00625F, 0.008333334F, 0.025F
+                                                                Enchantments.BLOCK_FORTUNE, 0.005F, 0.0055555557F, 0.00625F, 0.008333334F, 0.025F
                                                         )
                                                 )
                                 )
@@ -338,7 +339,7 @@ public class Primal_LootTablesBlocksGenerator extends BlockLootSubProvider {
     }
 
     private LootItemCondition.Builder hasShearsOrSilkTouch() {
-        return HAS_SHEARS.or(this.hasSilkTouch());
+        return HAS_SHEARS.or(HAS_SILK_TOUCH);
     }
 
     private LootItemCondition.Builder doesNotHaveShearsOrSilkTouch() {

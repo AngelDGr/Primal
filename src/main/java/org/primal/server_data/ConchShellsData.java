@@ -2,7 +2,6 @@ package org.primal.server_data;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -17,7 +16,9 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class ConchShellsData extends SavedData {
 
@@ -44,7 +45,7 @@ public class ConchShellsData extends SavedData {
     }
 
     public void addPet(Entity pet){
-        this.pets.put(pet.getUUID(), new GlobalPos(pet.level().dimension(), pet.blockPosition()));
+        this.pets.put(pet.getUUID(), GlobalPos.of(pet.level().dimension(), pet.blockPosition()));
         setDirty();
     }
 
@@ -61,13 +62,13 @@ public class ConchShellsData extends SavedData {
     }
 
     @Override
-    public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
+    public @NotNull CompoundTag save(@NotNull CompoundTag tag) {
         // Write data to tag
-        tag.put("HandledPets", this.savePets(registries));
+        tag.put("HandledPets", this.savePets());
         return tag;
     }
 
-    private ListTag savePets(HolderLookup.Provider levelRegistry) {
+    private ListTag savePets() {
         ListTag allPetsTag = new ListTag();
 
         for(UUID petUUID : pets.keySet()) {
@@ -88,7 +89,7 @@ public class ConchShellsData extends SavedData {
         return allPetsTag;
     }
 
-    public static ConchShellsData load(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+    public static ConchShellsData load(CompoundTag tag) {
         ConchShellsData data = ConchShellsData.create();
 
         if (tag.contains("HandledPets", Tag.TAG_LIST)) {
@@ -111,7 +112,7 @@ public class ConchShellsData extends SavedData {
 
                     BlockPos petBlockPos = new BlockPos(x, y, z);
 
-                    data.pets.put(petUUUID,new GlobalPos(dimensionId, petBlockPos));
+                    data.pets.put(petUUUID, GlobalPos.of(dimensionId, petBlockPos));
                 }
             }
         }
@@ -123,7 +124,7 @@ public class ConchShellsData extends SavedData {
         ServerLevel overworld = level.getServer().overworld();
 
         DimensionDataStorage storage = overworld.getDataStorage();
-        return storage.computeIfAbsent(new SavedData.Factory<>(ConchShellsData::new, ConchShellsData::load), DATA_NAME);
+        return storage.computeIfAbsent(ConchShellsData::load, ConchShellsData::new, DATA_NAME);
     }
 
     public record EntityIdentifier(UUID uuid, int clientId){

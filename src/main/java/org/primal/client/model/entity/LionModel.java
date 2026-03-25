@@ -7,10 +7,10 @@ import org.primal.Primal_Main;
 import org.primal.client.animation.entity.LionAnimations;
 import org.primal.client.model.defaulted.DefaultedEntityWithVariantsWithBabyGeoModel;
 import org.primal.entity.animal.LionEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.model.data.EntityModelData;
 
@@ -35,14 +35,14 @@ public class LionModel extends DefaultedEntityWithVariantsWithBabyGeoModel<LionE
         if (controller.isPlayingTriggeredAnimation() || controller.getCurrentRawAnimation()==LionAnimations.LAY) return;
 
         //Fix a weird flashing when tries to lay
-        if((lion.hasPose(Pose.SITTING) || lion.hasPose(Pose.SLIDING)) && this.getBone("head").isPresent()){
+        if((lion.hasPose(Pose.SITTING) || lion.hasPose(Pose.DIGGING)) && this.getBone("head").isPresent()){
             this.getBone("head").get().setRotY(Mth.DEG_TO_RAD * 35f);
             this.getBone("head").get().setRotZ(Mth.DEG_TO_RAD * 90f);
             return;
         }
 
         if(lion.hasPose(Pose.CROUCHING)){
-            GeoBone head = getAnimationProcessor().getBone("head");
+            CoreGeoBone head = getAnimationProcessor().getBone("head");
             EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
 
             if (head != null && entityData!=null) {

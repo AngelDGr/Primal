@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Mob.class)
-public abstract class MobMixin extends LivingEntity implements EquipmentUser, Leashable, Targeting {
+public abstract class MobMixin extends LivingEntity implements Targeting {
 
     protected MobMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
@@ -51,7 +51,7 @@ public abstract class MobMixin extends LivingEntity implements EquipmentUser, Le
     @ModifyReturnValue(method = "checkAndHandleImportantInteractions", at = @At("RETURN"))
     protected InteractionResult primal$handleConchShellInteraction(InteractionResult original, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
-        if (itemstack.is(Primal_Items.WARM_CONCH_SHELL) || itemstack.is(Primal_Items.TEMPERATE_CONCH_SHELL) || itemstack.is(Primal_Items.COLD_CONCH_SHELL)) {
+        if (itemstack.is(Primal_Items.WARM_CONCH_SHELL.get()) || itemstack.is(Primal_Items.TEMPERATE_CONCH_SHELL.get()) || itemstack.is(Primal_Items.COLD_CONCH_SHELL.get())) {
             InteractionResult interactionresult = itemstack.interactLivingEntity(player, this, hand);
             if (interactionresult.consumesAction()) {
                 return interactionresult;

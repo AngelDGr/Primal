@@ -21,7 +21,8 @@ import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.piglin.StopAdmiringIfItemTooFarAway;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.entity.ai.behavior.generic.*;
 import org.primal.entity.ai.behavior.generic.hide_on_log.AnimalEntersLog;
 import org.primal.entity.ai.behavior.generic.home.AnimalGoesToBlock;
@@ -108,8 +109,8 @@ public final class SnakeAi {
 
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
 
-    public static Predicate<ItemStack> getTemptations() {
-        return SnakeEntity::isMatingFood;
+    public static Ingredient getTemptations() {
+        return Ingredient.of(Items.FERMENTED_SPIDER_EYE);
     }
 
     @SuppressWarnings("unused")
@@ -165,7 +166,7 @@ public final class SnakeAi {
                                 mob -> mob.getBrain().getMemory(Primal_MemoryModuleTypes.HOLLOW_LOG_ENTER_COOLDOWN.get()).isEmpty(),
                                 Primal_Util.toTicks(15), Primal_Util.toTicks(30)),
                         new AnimalEntersLog<>(UniformInt.of(Primal_Util.toTicks(5), Primal_Util.toTicks(15)), true),
-                        new AnimalMakeLove(Primal_Entities.SNAKE.get()),
+                        new AnimalMakeLove(Primal_Entities.SNAKE.get(), 1.0f),
                         new RunOne<>(
                                 ImmutableList.of(
                                         Pair.of(new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5), 4),
@@ -229,8 +230,8 @@ public final class SnakeAi {
                 10,
                 ImmutableList.of(
                         StartAttacking.create(SnakeAi::findNearestValidAttackTarget),
-                        new AnimalMakeLove(Primal_Entities.SNAKE.get()),
-                        new FollowOwner(),
+                        new AnimalMakeLove(Primal_Entities.SNAKE.get(), 1.0f),
+                        new FollowOwner<>(),
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
                         createIdleBehaviors()
                 )

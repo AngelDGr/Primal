@@ -11,29 +11,27 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
-import net.neoforged.neoforge.data.event.GatherDataEvent;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.common.data.DatapackBuiltinEntriesProvider;
+import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.primal.Primal_Main;
 import org.primal.datagen.providers.*;
 import org.primal.datagen.providers.tag.*;
-import org.primal.registry.Primal_JukeboxSongs;
 import org.primal.registry.Primal_WorldGen;
 
-@SuppressWarnings("removal")
-@EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD, modid = Primal_Main.MOD_ID)
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD, modid = Primal_Main.MOD_ID)
 public final class Primal_DataGenerator {
 
     private static final RegistrySetBuilder BUILDER =
             new RegistrySetBuilder()
 //                    .add(Registries.DAMAGE_TYPE, Primal_DamageTypes::boostrapDamageTypes)
-                    .add(Registries.JUKEBOX_SONG, Primal_JukeboxSongs::bootstrap)
+//                    .add(Registries.JUKEBOX_SONG, Primal_JukeboxSongs::bootstrap)
                     .add(Registries.CONFIGURED_FEATURE, Primal_WorldGen.ConfiguredFeatures::boostrap)
                     .add(Registries.PLACED_FEATURE, Primal_WorldGen.PlacedFeatures::boostrap)
-                    .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, Primal_BiomeModifiersGenerator::bootstrap);
+                    .add(ForgeRegistries.Keys.BIOME_MODIFIERS, Primal_BiomeModifiersGenerator::bootstrap);
 
     @SubscribeEvent
     public static void gatherData(GatherDataEvent event) {
@@ -86,31 +84,24 @@ public final class Primal_DataGenerator {
 
 
             //Recipes
-            generator.addProvider(event.includeServer(), new Primal_RecipesGenerator(output, lookupProvider));
+            generator.addProvider(event.includeServer(), new Primal_RecipesGenerator(output));
 
             //Loot Tables
-            generator.addProvider(event.includeServer(), createLootTableProviders(output, lookupProvider));
+            generator.addProvider(event.includeServer(), createLootTableProviders(output));
 
             //Advancements
             generator.addProvider(event.includeServer(), new Primal_AdvancementsGenerator(output, lookupProvider, existingFileHelper));
 
-
-
-
-
-            //NeoForge DataMaps
-            generator.addProvider(event.includeServer(), new Primal_DataMapGenerator(output, lookupProvider));
         }
     }
 
-    public static LootTableProvider createLootTableProviders(final PackOutput output, final CompletableFuture<HolderLookup.Provider> lookupProvider) {
+    public static LootTableProvider createLootTableProviders(final PackOutput output) {
         return new LootTableProvider(output, Set.of(),
                 List.of(
                         new LootTableProvider.SubProviderEntry(Primal_LootTablesBlocksGenerator::new, LootContextParamSets.BLOCK),
                         new LootTableProvider.SubProviderEntry(Primal_LootTablesEntitiesGenerator::new, LootContextParamSets.ENTITY),
                         new LootTableProvider.SubProviderEntry(Primal_LootTablesGiftGenerator::new, LootContextParamSets.GIFT),
-                        new LootTableProvider.SubProviderEntry(Primal_LootTablesArcheologyGenerator::new, LootContextParamSets.ARCHAEOLOGY)),
-                lookupProvider
+                        new LootTableProvider.SubProviderEntry(Primal_LootTablesArcheologyGenerator::new, LootContextParamSets.ARCHAEOLOGY))
         );
     }
 }

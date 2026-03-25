@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Player.class)
-public abstract class PlayerMixin extends LivingEntity implements net.neoforged.neoforge.common.extensions.IPlayerExtension, SetNeckEntity {
+public abstract class PlayerMixin extends LivingEntity implements net.minecraftforge.common.extensions.IForgePlayer, SetNeckEntity {
     @Shadow @Final private Abilities abilities;
 
     protected PlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {super(entityType, level);}
@@ -47,8 +47,8 @@ public abstract class PlayerMixin extends LivingEntity implements net.neoforged.
     }
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void primal$neckEntitySynchedData(final SynchedEntityData.Builder builder, final CallbackInfo ci){
-        builder.define(primal$neckEntity, new CompoundTag());
+    private void primal$neckEntitySynchedData(final CallbackInfo ci){
+        this.entityData.define(primal$neckEntity, new CompoundTag());
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
@@ -103,7 +103,7 @@ public abstract class PlayerMixin extends LivingEntity implements net.neoforged.
         }
     }
 
-    @Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getKnockback(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/damagesource/DamageSource;)F"))
+    @Inject(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getKnockbackBonus(Lnet/minecraft/world/entity/LivingEntity;)I"))
     private void primal$setSnakeEffect(Entity target, CallbackInfo ci){
         if(target instanceof LivingEntity living){
             if(primal$isSnakeOnNeck()){

@@ -4,10 +4,10 @@ import net.minecraft.resources.ResourceLocation;
 import org.primal.Primal_Main;
 import org.primal.client.model.defaulted.DefaultedEntityWithVariantsWithBabyGeoModel;
 import org.primal.entity.animal.DeerEntity;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 
 public class DeerModel extends DefaultedEntityWithVariantsWithBabyGeoModel<DeerEntity, DeerEntity.Variant> {
     public DeerModel() {
@@ -18,8 +18,8 @@ public class DeerModel extends DefaultedEntityWithVariantsWithBabyGeoModel<DeerE
     public void setCustomAnimations(DeerEntity deer, long instanceId, AnimationState<DeerEntity> animationState) {
         final AnimationController<GeoAnimatable> controller = deer.getAnimatableInstanceCache().getManagerForId(deer.getId()).getAnimationControllers().get("base_controller");
 
-        GeoBone rightAntler = getAnimationProcessor().getBone("right_antler");
-        GeoBone leftAntler = getAnimationProcessor().getBone("left_antler");
+        CoreGeoBone rightAntler = getAnimationProcessor().getBone("right_antler");
+        CoreGeoBone leftAntler = getAnimationProcessor().getBone("left_antler");
 
         if(rightAntler!=null && leftAntler!=null){
             rightAntler.setHidden(!deer.hasRightAntler() || deer.isBaby());

@@ -2,9 +2,9 @@ package org.primal.client.animation.replaced;
 
 import net.minecraft.world.entity.animal.PolarBear;
 import org.primal.entity.replaced.PolarBearReplaced;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public class PolarBearAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.polar_bear.idle");

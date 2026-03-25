@@ -33,7 +33,7 @@ public class ChestBlockMixin {
         );
         if (!list.isEmpty()) {
             for (LionEntity lion : list) {
-                if (lion.hasPose(Pose.SLIDING) || lion.hasPose(Pose.SITTING)) {
+                if (lion.hasPose(Pose.DIGGING) || lion.hasPose(Pose.SITTING)) {
                     isLionSittingOn=true;
                 }
             }

@@ -34,7 +34,7 @@ public class SharkFollowConduitPlayer extends Behavior<SharkEntity> {
         //Trigger advancement
         if(shark.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).isPresent()
                 && shark.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get() instanceof ServerPlayer player){
-            Primal_Advancements.SWIM_WITH_SHARK.get().trigger(player);
+            Primal_Advancements.SWIM_WITH_SHARK.trigger(player);
         }
     }
 

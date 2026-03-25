@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "count": 1,
+  "ingredient": {
+    "item": "primal:crocodile_scute_block"
+  },
+  "result": "primal:crocodile_scute_shingle"
+}

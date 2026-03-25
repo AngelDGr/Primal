@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_crocodile_scute": {
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "primal:crocodile_scute"
+            ]
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "primal:chiseled_crocodile_scute"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_crocodile_scute",
+      "has_the_recipe"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "primal:chiseled_crocodile_scute"
+    ]
+  },
+  "sends_telemetry_event": false
+}

@@ -2,7 +2,6 @@ package org.primal.block;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.mojang.serialization.MapCodec;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,7 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Turtle;
@@ -55,7 +54,6 @@ import org.primal.util.mob_types.VariantHolderWithEgg;
 import java.util.*;
 
 public class NestBlock extends BaseEntityBlock {
-    public static final MapCodec<NestBlock> CODEC = simpleCodec(NestBlock::new);
     public static final BooleanProperty HAS_EGG = BooleanProperty.create("has_egg");
     public static final IntegerProperty HATCH = BlockStateProperties.HATCH;
 
@@ -104,7 +102,7 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
 
         if (facing != Direction.DOWN && facing != Direction.UP) {
             return state.setValue(PROPERTY_BY_DIRECTION.get(facing), canHaveDirection(currentPos, level, facing));
@@ -145,13 +143,13 @@ public class NestBlock extends BaseEntityBlock {
 
     public static boolean canHaveDirection(BlockPos nestPosition, LevelAccessor level, Direction direction){
         BlockState directed = level.getBlockState(nestPosition.relative(direction));
-        return !directed.is(Primal_Blocks.NEST_BLOCK) && !NestBlock.causesZFighting(directed, level, nestPosition.relative(direction), direction.getOpposite())
+        return !directed.is(Primal_Blocks.NEST_BLOCK.get()) && !NestBlock.causesZFighting(directed, level, nestPosition.relative(direction), direction.getOpposite())
                 || directed.is(Primal_Tags.Block.NEVER_OBSTRUCT_NEST);
     }
 
 
     @Override
-    protected @NotNull BlockState rotate(BlockState state, Rotation rotation) {
+    public @NotNull BlockState rotate(BlockState state, Rotation rotation) {
         return state
                 .setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.NORTH)), state.getValue(NORTH))
                 .setValue(PROPERTY_BY_DIRECTION.get(rotation.rotate(Direction.SOUTH)), state.getValue(SOUTH))
@@ -160,7 +158,7 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull BlockState mirror(BlockState state, Mirror mirror) {
+    public @NotNull BlockState mirror(BlockState state, Mirror mirror) {
         return state
                 .setValue(PROPERTY_BY_DIRECTION.get(mirror.mirror(Direction.NORTH)), state.getValue(NORTH))
                 .setValue(PROPERTY_BY_DIRECTION.get(mirror.mirror(Direction.SOUTH)), state.getValue(SOUTH))
@@ -169,7 +167,7 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+    public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
         var eggBlockEntity=getBlockEntity(level, pos);
         if(state.getValue(HAS_EGG) && eggBlockEntity!=null && newState.getBlock().defaultBlockState().isAir()){
             ItemStack eggStack= new ItemStack(eggBlockEntity.getEgg().getItem(), eggBlockEntity.getEgg().getCount());
@@ -180,23 +178,24 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void spawnAfterBreak(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull ItemStack stack, boolean dropExperience) {}
+    public void spawnAfterBreak(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull ItemStack stack, boolean dropExperience) {}
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+    public @NotNull InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
 
         //Remove
         if((player.isSecondaryUseActive() || stack.isEmpty()) && state.getValue(HAS_EGG)){
             return removeEgg(player, level, pos, state, true) ?
-                    ItemInteractionResult.sidedSuccess(level.isClientSide) : ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+                    InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
         }
         //Place
         else if(isItemPlaceable(stack)){
-            return tryPlaceEgg(player, level, pos, state, stack) ? ItemInteractionResult.sidedSuccess(level.isClientSide)
-                    : ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+            return tryPlaceEgg(player, level, pos, state, stack) ? InteractionResult.sidedSuccess(level.isClientSide)
+                    : InteractionResult.PASS;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return InteractionResult.PASS;
     }
 
     public static boolean tryPlaceEgg(@Nullable LivingEntity entity, Level level, BlockPos pos, BlockState state, ItemStack stack) {
@@ -251,10 +250,14 @@ public class NestBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof NestBlockEntity nestBlockEntity) {
 
             if(addToEgg){
-                nestBlockEntity.addEgg(stack.consumeAndReturn(1, entity), entity);
+                ItemStack copyStack= stack.copyWithCount(1);
+                stack.shrink(1);
+                nestBlockEntity.addEgg(copyStack, entity);
             }
             else {
-                nestBlockEntity.setEgg(stack.consumeAndReturn(1, entity), entity);
+                ItemStack copyStack= stack.copyWithCount(1);
+                stack.shrink(1);
+                nestBlockEntity.setEgg(copyStack, entity);
 
                 BlockState blockstate = state.setValue(HAS_EGG, true);
                 level.setBlock(pos, blockstate, 3);
@@ -313,7 +316,7 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         var defaultBox= Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0);
 
         if(level instanceof Level level1){
@@ -346,7 +349,7 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
         return RenderShape.MODEL;
     }
 
@@ -356,14 +359,14 @@ public class NestBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if(getBlockEntity(level, pos)!=null){
             serverTick(level, pos, state, getBlockEntity(level, pos));
         }
     }
 
     @Override
-    protected boolean isRandomlyTicking(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return state.getValue(HAS_EGG);
     }
 
@@ -472,10 +475,5 @@ public class NestBlock extends BaseEntityBlock {
                 level.addFreshEntity(entity);
             }
         }
-    }
-
-    @Override
-    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
     }
 }

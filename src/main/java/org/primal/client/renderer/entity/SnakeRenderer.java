@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.SnakeModel;
@@ -15,6 +15,7 @@ import org.primal.client.renderer.entity.layer.snake.SnakePaintLayer;
 import org.primal.client.renderer.entity.layer.snake.SnakeShedLayer;
 import org.primal.entity.animal.SnakeEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.core.object.Color;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
@@ -28,17 +29,17 @@ public class SnakeRenderer extends GeoEntityRenderer<SnakeEntity> {
     }
 
     @Override
-    protected float getShadowRadius(@NotNull SnakeEntity entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.25F : f;
+    public void render(@NotNull SnakeEntity entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (entity.isBaby()) this.shadowRadius *= 0.25F;
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
-    protected void applyRotations(SnakeEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+    protected void applyRotations(SnakeEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
 //        if(animatable.isInWater() && animatable.isSlithering())
 //            Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
 //        else
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
+            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
     }
 
     public<T extends Player> void renderOnNeck(
@@ -77,7 +78,7 @@ public class SnakeRenderer extends GeoEntityRenderer<SnakeEntity> {
         if(owner.swinging && !snake.isBaby())
             snake.triggerAnim("attack", "bite_wrapped");
 
-        int renderColor = getRenderColor(snake, partialTick, packedLight).argbInt();
+        Color renderColor = getRenderColor(snake, partialTick, packedLight);
         int packedOverlay = getPackedOverlay(snake, 0, partialTick);
 
         super.actuallyRender(
@@ -91,7 +92,10 @@ public class SnakeRenderer extends GeoEntityRenderer<SnakeEntity> {
                 partialTick,
                 packedLight,
                 packedOverlay,
-                renderColor
+                renderColor.getRedFloat(),
+                renderColor.getGreenFloat(),
+                renderColor.getBlueFloat(),
+                renderColor.getAlphaFloat()
         );
 
         for (GeoRenderLayer<SnakeEntity> renderLayer : getRenderLayers())

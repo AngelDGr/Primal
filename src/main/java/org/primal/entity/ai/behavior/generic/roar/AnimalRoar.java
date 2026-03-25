@@ -80,7 +80,7 @@ public final class AnimalRoar<T extends Mob & AnimalRoars> extends Behavior<T> {
 
         if(!mob.getBrain().hasMemoryValue(MemoryModuleType.ROAR_SOUND_COOLDOWN)) mob.getBrain().setMemoryWithExpiry(MemoryModuleType.ROAR_SOUND_COOLDOWN, Unit.INSTANCE, roarCooldown);
         if(mob instanceof GeoEntity geo)
-            geo.stopTriggeredAnim("base_controller", "roar"+(mob.isInWater() && mob.hasCustomWaterRoar()? "_swim": "") );
+            geo.stopTriggeredAnimation("base_controller", "roar"+(mob.isInWater() && mob.hasCustomWaterRoar()? "_swim": "") );
     }
 
     private void stopMoving(T mob){

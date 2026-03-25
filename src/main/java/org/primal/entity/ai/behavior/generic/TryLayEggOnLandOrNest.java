@@ -38,7 +38,7 @@ public class TryLayEggOnLandOrNest {
 
                                     // If it has a nest nearby, prioritizes the nest
                                     boolean needANest = entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).isPresent()
-                                            && level.getBlockState(entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Blocks.NEST_BLOCK)
+                                            && level.getBlockState(entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Blocks.NEST_BLOCK.get())
                                             && !level.getBlockState(entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).getValue(NestBlock.HAS_EGG);
 
                                     if (!entity.isInWater() && entity.onGround()) {
@@ -49,7 +49,7 @@ public class TryLayEggOnLandOrNest {
                                         Optional<BlockPos> blockPosAboveAroundOptional = Optional.empty();
 
                                         //Check directly below first
-                                        if (level.getBlockState(blockPosBelow).is(Primal_Blocks.NEST_BLOCK)
+                                        if (level.getBlockState(blockPosBelow).is(Primal_Blocks.NEST_BLOCK.get())
                                                 && !level.getBlockState(blockPosBelow).getValue(NestBlock.HAS_EGG)) {
                                             foundANest = true;
                                             blockPosAboveAroundOptional = Optional.of(blockPosBelow);
@@ -62,7 +62,7 @@ public class TryLayEggOnLandOrNest {
                                                     BlockPos blockPosAboveAround = blockPosAround.above();
 
                                                     // If it's a nest without an egg
-                                                    if (level.getBlockState(blockPosAboveAround).is(Primal_Blocks.NEST_BLOCK)
+                                                    if (level.getBlockState(blockPosAboveAround).is(Primal_Blocks.NEST_BLOCK.get())
                                                             && !level.getBlockState(blockPosAboveAround).getValue(NestBlock.HAS_EGG)) {
                                                         foundANest = true;
                                                         blockPosAboveAroundOptional = Optional.of(blockPosAboveAround);

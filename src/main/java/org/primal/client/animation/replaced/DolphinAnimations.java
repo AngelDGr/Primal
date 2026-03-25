@@ -2,8 +2,8 @@ package org.primal.client.animation.replaced;
 
 import net.minecraft.world.entity.animal.Dolphin;
 import org.primal.entity.replaced.DolphinReplaced;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public class DolphinAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.dolphin.idle");

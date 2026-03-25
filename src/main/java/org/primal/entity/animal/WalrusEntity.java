@@ -34,7 +34,8 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.boss.enderdragon.EndCrystal;
 import net.minecraft.world.entity.decoration.HangingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.VehicleEntity;
+import net.minecraft.world.entity.vehicle.AbstractMinecart;
+import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
@@ -45,12 +46,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.client.animation.entity.WalrusAnimations;
@@ -64,9 +64,10 @@ import org.primal.sounds.WalrusSong;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.SemiAquaticAnimal;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import org.primal.Primal_Main;
 
 import java.util.List;
 import java.util.UUID;
@@ -144,12 +145,13 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     public WalrusEntity(EntityType<? extends AbstractHorse> entityType, Level level) {
         super(entityType, level);
         // Avoid leaves
-        this.setPathfindingMalus(PathType.LEAVES, 2.0F);
+        this.setPathfindingMalus(BlockPathTypes.LEAVES, 2.0F);
 
         // Prefer water / shore
-        this.setPathfindingMalus(PathType.WATER, -2.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, -2.0F);
         this.moveControl = new WaterOrLandMoveControl<>(this, 85, 50, 0.58f, 0.01f, false);
         this.lookControl = new WaterOrLandLookControl<>(this, 10);
+        this.setMaxUpStep(1.5f);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -159,7 +161,6 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
                 .add(Attributes.ATTACK_DAMAGE, 3f)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.8f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.4f)
-                .add(Attributes.STEP_HEIGHT, 1.5f)
                 .add(Attributes.JUMP_STRENGTH, 0.5F);
     }
 
@@ -172,15 +173,15 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     private static final EntityDataAccessor<Boolean> HAS_INSTRUMENT = SynchedEntityData.defineId(WalrusEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, WalrusEntity.Variant.BROWN.id);
-        builder.define(WHIRLWIND_DURATION, 0);
-        builder.define(SLAM_DURATION, 0);
-        builder.define(JUMP_COOLDOWN, 0);
-        builder.define(JUMP_SCALE, 0f);
-        builder.define(SONG_ID, WalrusSong.OIIA_OIIA.id);
-        builder.define(HAS_INSTRUMENT, false);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_VARIANT_ID, WalrusEntity.Variant.BROWN.id);
+        this.entityData.define(WHIRLWIND_DURATION, 0);
+        this.entityData.define(SLAM_DURATION, 0);
+        this.entityData.define(JUMP_COOLDOWN, 0);
+        this.entityData.define(JUMP_SCALE, 0f);
+        this.entityData.define(SONG_ID, WalrusSong.OIIA_OIIA.id);
+        this.entityData.define(HAS_INSTRUMENT, false);
     }
 
     public void setJumpScale(float jumpScale) {
@@ -228,12 +229,12 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     }
 
     @Override
-    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @Nullable SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         if (spawnGroupData == null)
             spawnGroupData = new AgeableMob.AgeableMobGroupData(0.4f);
 
         setVariantFromBiome(this, level.getBiome(this.blockPosition()));
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     @Override
@@ -367,7 +368,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
             }
             if(getSlamDuration()==0 && isSlam){
                 this.doSlamAttackDamage(this.getJumpScale());
-                this.stopTriggeredAnim("base_controller", "ground_pound");
+                this.stopTriggeredAnimation("base_controller", "ground_pound");
             }
         }
 
@@ -420,7 +421,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     @Override
@@ -516,7 +517,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
                 }
                 //Removes the shield
                 if (livingEntity.isBlocking() && entity instanceof Player) {
-                    ((Player) entity).disableShield();
+                    ((Player) entity).disableShield(true);
                 }
                 //Checks if the entity it's blocking, to block the damage
                 else if (!livingEntity.isBlocking()) {
@@ -524,7 +525,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
                 }
 
                 //Destroys other no-living entities
-            } else if(entity instanceof VehicleEntity || entity instanceof EndCrystal || entity instanceof HangingEntity) {
+            } else if((entity instanceof Boat || entity instanceof AbstractMinecart) || entity instanceof EndCrystal || entity instanceof HangingEntity) {
                 entity.hurt(damageSource, 50.0f);
             } else {
                 return;
@@ -566,10 +567,16 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     }
 
     public AABB getSlamAttackBoundingBox() {
-        AABB aabb = super.getAttackBoundingBox();
+        AABB aabb = Primal_Util.OneTwentyEquivalent.getAttackBoundingBox(this);
         return aabb.inflate(0.55, 0.0, 0.55);
     }
 
+    //This makes it walk more close to its target, with the same logic as 1.21.1
+    public boolean isWithinMeleeAttackRange(LivingEntity entity) {
+        return Primal_Util.OneTwentyEquivalent.getAttackBoundingBox(this).intersects(entity.getBoundingBox());
+    }
+
+    protected float autoSpinAttackDmg;
     public void doWhirlwind(float playerJumpPendingScale){
         //Do push
         float f = playerJumpPendingScale==-1? 1.5f: playerJumpPendingScale;
@@ -636,7 +643,6 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
         if (!this.level().isClientSide && this.autoSpinAttackTicks <= 0) {
             this.setLivingEntityFlag(4, false);
             this.autoSpinAttackDmg = 0.0F;
-            this.autoSpinAttackItemStack = null;
         }
     }
 
@@ -668,7 +674,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
 
             //Triggers advancement
             if(player instanceof ServerPlayer serverPlayer)
-                Primal_Advancements.WALRUS_PLAYS.get().trigger(serverPlayer);
+                Primal_Advancements.WALRUS_PLAYS.trigger(serverPlayer);
             this.brain.setMemoryWithExpiry(Primal_MemoryModuleTypes.HAS_INSTRUMENT.get(), true, song.lengthInSeconds);
 
             return InteractionResult.sidedSuccess(this.level().isClientSide);
@@ -726,7 +732,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
                         FoodProperties foodProperties = stack.getFoodProperties(this);
                         float nutrition=0;
                         if(foodProperties!=null)
-                            nutrition = foodProperties.nutrition()/2f;
+                            nutrition = foodProperties.getNutrition()/2f;
 
                         this.heal(1f + nutrition);
 
@@ -883,16 +889,16 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
 
     @Override
     protected void executeRidersJump(float playerJumpPendingScale, @NotNull Vec3 travelVector) {
-        net.neoforged.neoforge.common.CommonHooks.onLivingJump(this);
-        PacketDistributor.sendToServer(new WalrusJumpPacket(this.getId(), playerJumpPendingScale));
+        net.minecraftforge.common.ForgeHooks.onLivingJump(this);
+        Primal_Main.INSTANCE.sendToServer(new WalrusJumpPacket(this.getId(), playerJumpPendingScale));
     }
 
     @Override
-    protected @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
+    public void positionRider(@NotNull Entity passenger, Entity.@NotNull MoveFunction moveFunction) {
         float maxSlam = 10.0f;
         float peakTime = 0.75f; // ← change this freely (0..1)
 
-        float slam = Mth.clamp(this.getSlamDuration() - partialTick, 0.0f, maxSlam);
+        float slam = Mth.clamp(this.getSlamDuration() - 0, 0.0f, maxSlam);
         float t = 1.0f - (slam / maxSlam); // 0 → 1
 
         float peak;
@@ -908,11 +914,10 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
 
         float back = baseBack + extraBack;
 
-        Vec3 offset = new Vec3(0.0, -0.85, back)
+        Vec3 offset = new Vec3(0.0, -0.85 + this.getPassengersRidingOffset(), back)
                 .yRot(-this.getYRot() * Mth.DEG_TO_RAD);
 
-        return super.getPassengerAttachmentPoint(entity, dimensions, partialTick)
-                .add(offset);
+        moveFunction.accept(passenger,this.getX()+ offset.x,this.getY()+ offset.y,this.getZ()+ offset.z);
     }
 
     @Override
@@ -964,13 +969,13 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
             EntityType<WalrusEntity> walrus, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
     ) {
         Holder<Biome> holder = level.getBiome(pos);
-        return (MobSpawnType.ignoresLightRequirements(spawnType) || isBrightEnoughToSpawn(level, pos))
+        return isBrightEnoughToSpawn(level, pos)
                 && level.getBlockState(pos.below()).is(Primal_Tags.Block.WALRUS_SPAWN_ON);
     }
 
     //──────────────────────────────────── Misc ────────────────────────────────────
     @Override
-    public boolean canBeLeashed() {
+    public boolean canBeLeashed(@NotNull Player player) {
         return !isAggressive();
     }
 
@@ -1022,7 +1027,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     }
 
     @Override
-    public float getAgeScale() {
+    public float getScale() {
         return this.isBaby() ? 0.3F : 1.0F;
     }
 

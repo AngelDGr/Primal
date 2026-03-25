@@ -13,7 +13,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
@@ -45,8 +44,8 @@ import org.primal.registry.*;
 import org.primal.util.*;
 import org.primal.util.mob_types.*;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.*;
@@ -162,6 +161,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     public LionEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
         this.getNavigation().setCanFloat(true);
+        this.setMaxUpStep(1.5f);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -170,8 +170,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
                 .add(Attributes.MOVEMENT_SPEED, 0.32f)
                 .add(Attributes.ATTACK_DAMAGE, 4f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.2f)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.4f)
-                .add(Attributes.STEP_HEIGHT, 1.5f);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.4f);
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.INT);
@@ -187,19 +186,19 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     private static final EntityDataAccessor<Integer> MEAT_EATEN = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.INT);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, LionEntity.Variant.GOLDEN.id);
-        builder.define(MANELESS, false);
-        builder.define(ANGRY, false);
-        builder.define(IS_LEADER, false);
-        builder.define(MAULING, false);
-        builder.define(HEALTH_WHEN_START_RIDING, 0f);
-        builder.define(FOLLOWER_STATE, 0);
-        builder.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
-        builder.define(HAS_COLLAR, true);
-        builder.define(IS_LAYING, false);
-        builder.define(MEAT_EATEN, 0);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_VARIANT_ID, LionEntity.Variant.GOLDEN.id);
+        this.entityData.define(MANELESS, false);
+        this.entityData.define(ANGRY, false);
+        this.entityData.define(IS_LEADER, false);
+        this.entityData.define(MAULING, false);
+        this.entityData.define(HEALTH_WHEN_START_RIDING, 0f);
+        this.entityData.define(FOLLOWER_STATE, 0);
+        this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
+        this.entityData.define(HAS_COLLAR, true);
+        this.entityData.define(IS_LAYING, false);
+        this.entityData.define(MEAT_EATEN, 0);
     }
 
     public void setManeless(boolean isManeless) {
@@ -304,11 +303,11 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public void addMeatEaten(int meatEaten){
-        this.setMeatEaten(Math.clamp(this.getMeatEaten()+meatEaten, 0, Integer.MAX_VALUE));
+        this.setMeatEaten(Mth.clamp(this.getMeatEaten()+meatEaten, 0, Integer.MAX_VALUE));
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         LionAi.initMemories(this, this.level().random);
         //Maneless with 50%
         if(spawnType.equals(MobSpawnType.SPAWN_EGG) || spawnType.equals(MobSpawnType.BREEDING))
@@ -326,7 +325,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         }
 
         setVariantFromBiome(this, level.getBiome(this.blockPosition()));
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     private static float getManedChance(AgeableMobGroupData spawnGroupData) {
@@ -379,8 +378,13 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     @Override
-    public @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
-        return pose.equals(Pose.SITTING) || pose.equals(Pose.SLIDING)? EntityDimensions.scalable(1.5f, 1.0f).withEyeHeight(0.8f).scale(getAgeScale()): super.getDefaultDimensions(pose);
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+        return pose.equals(Pose.SITTING) || pose.equals(Pose.DIGGING)? EntityDimensions.scalable(1.5f, 1.0f).scale(getScale()): super.getDimensions(pose);
+    }
+
+    @Override
+    protected float getStandingEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions entityDimensions) {
+        return pose.equals(Pose.SITTING) || pose.equals(Pose.DIGGING)? 0.8f * getScale(): super.getStandingEyeHeight(pose, entityDimensions);
     }
 
     //──────────────────────────────────── AI & Movement ────────────────────────────────────
@@ -440,13 +444,13 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
         //LayOnBed
         if(this.isLaying() && (this.level().getBlockState(this.getOnPos()).is(BlockTags.BEDS) || aboveImportant) && !Primal_Util.Ai.isMovingOrNoInGround(this)){
-            this.setPose(Pose.SLIDING);
-        } else if(this.hasPose(Pose.SLIDING)) {
+            this.setPose(Pose.DIGGING);
+        } else if(this.hasPose(Pose.DIGGING)) {
             this.setPose(Pose.STANDING);
         }
 
         if(Primal_Util.Ai.isMovingOrNoInGround(this)){
-            this.stopTriggeredAnim("base_controller", "lay_end");
+            this.stopTriggeredAnimation("base_controller", "lay_end");
         }
 
         this.assignPackLeaderAndHome(LionEntity.class);
@@ -461,14 +465,14 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public boolean refuseToMove() {
-        return hasPose(Pose.SITTING) || hasPose(Pose.SLIDING);
+        return hasPose(Pose.SITTING) || hasPose(Pose.DIGGING);
     }
 
     //──────────────────────────────────── Combat ────────────────────────────────────
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     public static int TERRITORIAL_DISTANCE = 8;
@@ -559,9 +563,19 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         super.positionRider(passenger, callback);
 
         if(this.getFirstPassenger() instanceof LivingEntity rider){
+            float yawRad = this.yBodyRot * ((float)Math.PI / 180F);
+            float sin = Mth.sin(yawRad);
+            float cos = Mth.cos(yawRad);
+
+            float forwardOffset = 1.8F;
+
+            double x = this.getX() - sin * forwardOffset;
+            double z = this.getZ() + cos * forwardOffset;
+            double y = this.getY() - (passenger.getEyeHeight()*0.7);
+
             // Direction from rider to this entity
-            double dx = this.getX() - rider.getX();
-            double dz = this.getZ() - rider.getZ();
+            double dx = this.getX() - x;
+            double dz = this.getZ() - z;
 
             float yaw = (float)(Math.atan2(dz, dx) * (180F / Math.PI)) - 90F;
 
@@ -571,19 +585,9 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
             rider.setYRot(yaw);
             rider.setYBodyRot(yaw);
             rider.setYHeadRot(yaw);
+
+            callback.accept(passenger, x, y, z);
         }
-    }
-
-    @Override
-    protected @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
-        double preyYSize= entity.getBoundingBox().getYsize();
-
-        var passengerAttachment = entity.getVehicleAttachmentPoint(this);
-
-        double finalHeight = (entity.getEyeHeight()*0.7)- passengerAttachment.y;
-
-        return new Vec3(0.0, -finalHeight, preyYSize*1.1)
-                .yRot(-this.getYRot() * Mth.DEG_TO_RAD);
     }
 
     @Override
@@ -592,7 +596,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public boolean isWithinLungeAttackRange(LivingEntity entity) {
-        return this.getAttackBoundingBox().inflate(2).intersects(entity.getHitbox());
+        return Primal_Util.OneTwentyEquivalent.getAttackBoundingBox(this).inflate(2).intersects(entity.getBoundingBox());
     }
 
     public boolean isSeeingTarget(LivingEntity target) {
@@ -698,7 +702,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
                         FoodProperties foodProperties = stack.getFoodProperties(this);
                         float nutrition=0;
                         if(foodProperties!=null){
-                            nutrition = foodProperties.nutrition()/2f;
+                            nutrition = foodProperties.getNutrition()/2f;
                         }
 
                         this.heal(1f + nutrition);
@@ -734,7 +738,8 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(ItemTags.MEAT);
+        var food = stack.getFoodProperties(null);
+        return food!=null && food.isMeat();
     }
 
     @Override
@@ -791,13 +796,13 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
     //──────────────────────────────────── Misc ────────────────────────────────────
     @Override
-    public float getAgeScale() {
+    public float getScale() {
         return this.isBaby() ? 0.3F : 1.0F;
     }
 
     @Override
-    public boolean canBeLeashed() {
-        return super.canBeLeashed() && !hasPose(Pose.SITTING) && !hasPose(Pose.SLIDING);
+    public boolean canBeLeashed(@NotNull Player player) {
+        return super.canBeLeashed(player) && !hasPose(Pose.SITTING) && !hasPose(Pose.DIGGING);
     }
 
     @Override
@@ -859,7 +864,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     //──────────────────────────────────── Sounds ────────────────────────────────────
     @Override
     protected @Nullable SoundEvent getAmbientSound() {
-        return this.getBrain().isActive(Activity.ROAR)? null: this.hasPose(Pose.SITTING) || this.hasPose(Pose.SLIDING) || this.isLaying()? Primal_Sounds.LION_SNORING.get(): this.isAggressive()? Primal_Sounds.LION_IDLE_ANGRY.get() : Primal_Sounds.LION_IDLE.get();
+        return this.getBrain().isActive(Activity.ROAR)? null: this.hasPose(Pose.SITTING) || this.hasPose(Pose.DIGGING) || this.isLaying()? Primal_Sounds.LION_SNORING.get(): this.isAggressive()? Primal_Sounds.LION_IDLE_ANGRY.get() : Primal_Sounds.LION_IDLE.get();
     }
 
     @Override

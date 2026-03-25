@@ -1,6 +1,5 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,7 +8,6 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -33,12 +31,12 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+import org.primal.util.Primal_Util;
 import org.primal.util.block_types.Snowloggable;
 
 import java.util.function.BiFunction;
 
 public class SeashellsBlock extends Block implements Snowloggable {
-    public static final MapCodec<SeashellsBlock> CODEC = simpleCodec(SeashellsBlock::new);
     public static final IntegerProperty AMOUNT = IntegerProperty.create("seashells_amount", 1, 4);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -58,7 +56,7 @@ public class SeashellsBlock extends Block implements Snowloggable {
                     voxelshape = Shapes.or(voxelshape, avoxelshape[j]);
                 }
 
-                return voxelshape.singleEncompassing();
+                return voxelshape;
             }
     );
 
@@ -86,7 +84,7 @@ public class SeashellsBlock extends Block implements Snowloggable {
     }
 
     @Override
-    protected @NotNull BlockState updateShape(BlockState state, @NotNull Direction directionUpdated, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
+    public @NotNull BlockState updateShape(BlockState state, @NotNull Direction directionUpdated, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
 
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -99,12 +97,12 @@ public class SeashellsBlock extends Block implements Snowloggable {
     }
 
     @Override
-    protected boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, BlockPos pos) {
         return canSupportRigidBlock(level, pos.below());
     }
 
     @Override
-    protected @NotNull FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
@@ -119,20 +117,19 @@ public class SeashellsBlock extends Block implements Snowloggable {
     }
 
     @Override
-    protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+    public InteractionResult use(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+        ItemStack stack = player.getItemInHand(hand);
+
+        //useItemOn
         if(!state.getValue(SNOWY) && stack.is(Items.SNOW)){
             BlockState blockstate = state.setValue(SNOWY, true);
-            stack.consume(1, player);
+            Primal_Util.OneTwentyEquivalent.consumeStack(1, player, stack);
             level.setBlock(pos, blockstate, 2);
             level.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(player, blockstate));
-            return ItemInteractionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-    }
-
-    @Override
-    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
+        //useWithoutItem
         if(state.getValue(SNOWY) && (player.getItemInHand(InteractionHand.MAIN_HAND).isEmpty() || player.getItemInHand(InteractionHand.MAIN_HAND).is(ItemTags.SHOVELS))){
             level.levelEvent(2001, pos, Block.getId(Blocks.SNOW.defaultBlockState()));
 
@@ -145,11 +142,11 @@ public class SeashellsBlock extends Block implements Snowloggable {
             return InteractionResult.SUCCESS;
         }
 
-        return super.useWithoutItem(state, level, pos, player, hitResult);
+        return InteractionResult.PASS;
     }
 
     @Override
-    protected void randomTick(@NotNull BlockState state, ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         if (level.getBrightness(LightLayer.BLOCK, pos) > 11) {
             BlockState blockstate = state.setValue(SNOWY, false);
             level.setBlock(pos, blockstate, 2);
@@ -158,7 +155,7 @@ public class SeashellsBlock extends Block implements Snowloggable {
     }
 
     @Override
-    protected boolean isRandomlyTicking(BlockState state) {
+    public boolean isRandomlyTicking(BlockState state) {
         return state.getValue(SNOWY);
     }
 
@@ -178,19 +175,14 @@ public class SeashellsBlock extends Block implements Snowloggable {
         return SHAPE_BY_PROPERTIES.apply(state.getValue(FACING), state.getValue(AMOUNT));
     }
 
-    @Override
-    protected @NotNull MapCodec<? extends Block> codec() {
-        return CODEC;
-    }
-
 
     @Override
-    protected float getDestroyProgress(BlockState state, @NotNull Player player, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+    public float getDestroyProgress(BlockState state, @NotNull Player player, @NotNull BlockGetter level, @NotNull BlockPos pos) {
         float f = state.getValue(SNOWY)? 0.1F :state.getDestroySpeed(level, pos);
         if (f == -1.0F) {
             return 0.0F;
         } else {
-            int i = net.neoforged.neoforge.event.EventHooks.doPlayerHarvestCheck(player, state, level, pos) ? 30 : 100;
+            int i = net.minecraftforge.common.ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
             return player.getDigSpeed(state, pos) / f / (float)i;
         }
     }

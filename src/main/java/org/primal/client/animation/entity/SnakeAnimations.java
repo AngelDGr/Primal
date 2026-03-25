@@ -2,9 +2,9 @@ package org.primal.client.animation.entity;
 
 import org.primal.entity.animal.SnakeEntity;
 import org.primal.util.Primal_Util;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public final class SnakeAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenPlay("animation.snake.idle");

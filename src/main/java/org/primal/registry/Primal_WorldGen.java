@@ -1,10 +1,10 @@
 package org.primal.registry;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.data.worldgen.BootstapContext;
 import net.minecraft.data.worldgen.features.FeatureUtils;
 import net.minecraft.data.worldgen.placement.PlacementUtils;
 import net.minecraft.resources.ResourceKey;
@@ -25,7 +25,7 @@ import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.ForkingTrunkPlacer;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
 import org.primal.worldgen.*;
@@ -37,24 +37,24 @@ import java.util.function.Supplier;
 
 public class Primal_WorldGen {
     //New Features
-    public static DeferredHolder<Feature<?>, RiverReedsFeature> RIVER_REEDS_FEATURE =
+    public static RegistryObject<RiverReedsFeature> RIVER_REEDS_FEATURE =
             registerFeature("river_reeds", ()-> new RiverReedsFeature(RandomPatchCustomConfig.CODEC));
 
-    public static DeferredHolder<Feature<?>, CattailFeature> CATTAILS_FEATURE =
+    public static RegistryObject<CattailFeature> CATTAILS_FEATURE =
             registerFeature("cattails", ()-> new CattailFeature(RandomPatchCustomConfig.CODEC));
 
-    public static final DeferredHolder<Feature<?>, SeashellsFeature> SEASHELLS =
+    public static final RegistryObject<SeashellsFeature> SEASHELLS =
             registerFeature("seashells", ()-> new SeashellsFeature(SimpleBlockConfiguration.CODEC));
 
-    public static final DeferredHolder<Feature<?>, EagleNestFeature> EAGLE_NEST =
+    public static final RegistryObject<EagleNestFeature> EAGLE_NEST =
             registerFeature("eagle_nest", ()-> new EagleNestFeature(RandomPatchCustomConfig.CODEC));
 
-    public static final DeferredHolder<Feature<?>, CassowaryNestFeature> CASSOWARY_NEST =
+    public static final RegistryObject<CassowaryNestFeature> CASSOWARY_NEST =
             registerFeature("cassowary_nest", ()-> new CassowaryNestFeature(RandomPatchCustomConfig.CODEC));
 
     public static void init() {}
 
-    private static <C extends FeatureConfiguration, F extends Feature<C>> DeferredHolder<Feature<?>, F> registerFeature(final String name, final Supplier<F> feature) {
+    private static <C extends FeatureConfiguration, F extends Feature<C>> RegistryObject<F> registerFeature(final String name, final Supplier<F> feature) {
         return Primal_Registries.FEATURES.register(name,  feature);
     }
 
@@ -62,7 +62,7 @@ public class Primal_WorldGen {
 
         public static final ResourceKey<ConfiguredFeature<?, ?>> THORNY_ACACIA = createKey("thorny_acacia");
 
-        public static void boostrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
+        public static void boostrap(BootstapContext<ConfiguredFeature<?, ?>> context) {
 
             FeatureUtils.register(
                     context,
@@ -88,7 +88,7 @@ public class Primal_WorldGen {
 
         public static final ResourceKey<PlacedFeature> THORNY_ACACIA = createKey("thorny_acacia");
 
-        public static void boostrap(BootstrapContext<PlacedFeature> context) {
+        public static void boostrap(BootstapContext<PlacedFeature> context) {
             final HolderGetter<ConfiguredFeature<?, ?>> registryEntryLookup = context.lookup(Registries.CONFIGURED_FEATURE);
 
             PlacementUtils.register(context, THORNY_ACACIA, registryEntryLookup.getOrThrow(ConfiguredFeatures.THORNY_ACACIA),
@@ -102,15 +102,15 @@ public class Primal_WorldGen {
 
     public static class TreeDecorators {
 
-        public static DeferredHolder<TreeDecoratorType<?>, TreeDecoratorType<?>> ALTERNATE_TRUNK;
-        public static DeferredHolder<TreeDecoratorType<?>, TreeDecoratorType<?>> HOLLOW_LOG;
+        public static RegistryObject<TreeDecoratorType<?>> ALTERNATE_TRUNK;
+        public static RegistryObject<TreeDecoratorType<?>> HOLLOW_LOG;
 
         public static void init() {
             ALTERNATE_TRUNK = register("alter_trunk", AlterTrunkDecorator.CODEC);
             HOLLOW_LOG = register("hollow_log", HollowLogTreeDecorator.CODEC);
         }
 
-        private static<P extends TreeDecorator> DeferredHolder<TreeDecoratorType<?>, TreeDecoratorType<?>> register(final String name, final MapCodec<P> codec) {
+        private static<P extends TreeDecorator> RegistryObject<TreeDecoratorType<?>> register(final String name, final Codec<P> codec) {
             return Primal_Registries.TREE_DECORATORS.register(name,  ()-> new TreeDecoratorType<>(codec));
         }
 
@@ -118,13 +118,13 @@ public class Primal_WorldGen {
 
     public static class BlockStateProviders {
 
-        public static DeferredHolder<BlockStateProviderType<?>, BlockStateProviderType<?>> HOLLOW_LOG_ROTATED;
+        public static RegistryObject<BlockStateProviderType<?>> HOLLOW_LOG_ROTATED;
 
         public static void init() {
             HOLLOW_LOG_ROTATED = register("hollow_log_rotated", HollowLogBlockProvider.CODEC);
         }
 
-        private static<P extends BlockStateProvider> DeferredHolder<BlockStateProviderType<?>, BlockStateProviderType<?>> register(final String name, final MapCodec<P> codec) {
+        private static<P extends BlockStateProvider> RegistryObject<BlockStateProviderType<?>> register(final String name, final Codec<P> codec) {
             return Primal_Registries.BLOCK_STATE_PROVIDERS.register(name, ()-> new BlockStateProviderType<>(codec));
         }
     }

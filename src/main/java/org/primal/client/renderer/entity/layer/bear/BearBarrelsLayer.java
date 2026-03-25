@@ -14,7 +14,6 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
-import software.bernie.geckolib.util.Color;
 
 public class BearBarrelsLayer extends GeoRenderLayer<BearEntity> {
 
@@ -27,7 +26,7 @@ public class BearBarrelsLayer extends GeoRenderLayer<BearEntity> {
         if (!animatable.hasChest()) return;
         RenderType barrelsRenderType = RenderType.entityCutoutNoCull(getTexture(animatable));
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, barrelsRenderType, bufferSource.getBuffer(barrelsRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, barrelsRenderType, bufferSource.getBuffer(barrelsRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 
     private static ResourceLocation getTexture(BearEntity bear){

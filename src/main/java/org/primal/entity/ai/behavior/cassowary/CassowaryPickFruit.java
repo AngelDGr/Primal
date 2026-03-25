@@ -78,7 +78,7 @@ public class CassowaryPickFruit extends Behavior<CassowaryEntity> {
 
     @Override
     protected void start(@NotNull ServerLevel level, @NotNull CassowaryEntity cassowary, long gameTime) {
-        cassowary.stopTriggeredAnim("base_controller", "pick_fruit");
+        cassowary.stopTriggeredAnimation("base_controller", "pick_fruit");
         cassowary.triggerAnim("base_controller", "pick_fruit");
 
         cassowary.getNavigation().stop();
@@ -127,7 +127,7 @@ public class CassowaryPickFruit extends Behavior<CassowaryEntity> {
             List<ServerPlayer> playersList= cassowary.level().getEntitiesOfClass(ServerPlayer.class, cassowary.getBoundingBox().inflate(24));
 
             if(!playersList.isEmpty()){
-                playersList.forEach(player -> Primal_Advancements.FEED_PETRIFIED.get().trigger(player));
+                playersList.forEach(Primal_Advancements.FEED_PETRIFIED::trigger);
             }
         }
 
@@ -145,7 +145,7 @@ public class CassowaryPickFruit extends Behavior<CassowaryEntity> {
         pendingPickup = null;
         cassowary.getBrain().setMemoryWithExpiry(MemoryModuleType.PACIFIED, true, 200);
         //Just in case
-        cassowary.stopTriggeredAnim("base_controller", "pick_fruit");
+        cassowary.stopTriggeredAnimation("base_controller", "pick_fruit");
     }
 
     public static CassowaryPickFruit create(){

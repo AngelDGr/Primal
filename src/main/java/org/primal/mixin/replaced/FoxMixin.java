@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import software.bernie.geckolib.animatable.GeoReplacedEntity;
-import software.bernie.geckolib.util.RenderUtil;
+import software.bernie.geckolib.util.RenderUtils;
 
 import java.util.function.Predicate;
 
@@ -51,8 +51,8 @@ public abstract class FoxMixin extends Animal implements VariantHolder<Fox.Type>
     private static final EntityDataAccessor<Integer> primal$mustDoUnstuckAnim = SynchedEntityData.defineId(FoxMixin.class, EntityDataSerializers.INT);
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void primal$IsEagleAttackingSynchedData(final SynchedEntityData.Builder builder, final CallbackInfo ci){
-        builder.define(primal$mustDoUnstuckAnim, 0);
+    private void primal$IsEagleAttackingSynchedData(final CallbackInfo ci){
+        this.entityData.define(primal$mustDoUnstuckAnim, 0);
     }
 
     @Override
@@ -71,7 +71,7 @@ public abstract class FoxMixin extends Animal implements VariantHolder<Fox.Type>
     private void primal$doUnstuckAnimation(CallbackInfo ci){
         if (!this.level().isClientSide) return;
 
-        if (RenderUtil.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity){
+        if (RenderUtils.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity){
             if(primal$lastSeen != primal$mustDoUnstuck()){
                 primal$lastSeen = primal$mustDoUnstuck();
                 replacedEntity.triggerAnim(this, "base_controller", "unstuck");

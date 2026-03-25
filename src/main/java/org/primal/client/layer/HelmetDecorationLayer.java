@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Client;
 import org.primal.client.model.helmet_decoration.DeerAntlersModel;
@@ -57,7 +57,7 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
                        final float limbAngle, final float limbDistance, final float tickDelta, final float animationProgress, final float headYaw, final float headPitch) {
         var helmet = humanoid.getItemBySlot(EquipmentSlot.HEAD);
 
-        var decorations= helmet.get(Primal_Items.Components.HELMET_DECORATION);
+        var decorations= Primal_Util.OneTwentyEquivalent.Components.get(helmet, Primal_Items.Components.HELMET_DECORATION);
 
         if(helmet.isEmpty() || decorations==null) {
             return;
@@ -81,7 +81,7 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
                             RenderType.entityCutoutNoCull(
                                     Primal_Util.Visuals.getHelmetDecorationTexture(component.right().getName())));
             headPart.copyFrom(this.getParentModel().head);
-            headPart.render(matrices, textureBuffer, light, OverlayTexture.NO_OVERLAY, -1);
+            headPart.render(matrices, textureBuffer, light, OverlayTexture.NO_OVERLAY);
         }
 
         //Left
@@ -95,7 +95,7 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
                             RenderType.entityCutoutNoCull(
                                     Primal_Util.Visuals.getHelmetDecorationTexture(component.left().getName())));
             headPart.copyFrom(this.getParentModel().head);
-            headPart.render(matrices, textureBuffer, light, OverlayTexture.NO_OVERLAY, -1);
+            headPart.render(matrices, textureBuffer, light, OverlayTexture.NO_OVERLAY);
         }
     }
 
@@ -106,7 +106,7 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
             if(renderer instanceof PlayerRenderer playerRenderer)
                 registerOnPlayer(playerRenderer, rendererContext);
 
-        for (EntityRenderer<?> renderer : ((EntityRenderDispatcherAccessor) renderManager).create$getRenderers().values()){
+        for (EntityRenderer<?> renderer : ((EntityRenderDispatcherAccessor) renderManager).primal$getRenderers().values()){
             if(renderer instanceof HumanoidMobRenderer<?,?> humanoidMobRenderer)
                 registerOnMob(humanoidMobRenderer, rendererContext);
             if(renderer instanceof ArmorStandRenderer armorStandRenderer)

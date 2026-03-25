@@ -19,7 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.registry.Primal_Sounds;
@@ -49,7 +50,7 @@ public interface AnimalEgg {
         }
     }
 
-    DeferredHolder<EntityType<?>, ? extends EntityType<? extends Animal>> getAnimal();
+    RegistryObject<? extends EntityType<? extends Animal>> getAnimal();
 
     @SuppressWarnings("unchecked")
     default void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random, @Nullable IntegerProperty eggsProperty) {
@@ -102,7 +103,7 @@ public interface AnimalEgg {
         if (entityCannotDestroyEgg(entity)) {
             return false;
         } else {
-            return entity instanceof LivingEntity && (entity instanceof Player || net.neoforged.neoforge.event.EventHooks.canEntityGrief(level, entity));
+            return entity instanceof LivingEntity && (entity instanceof Player || ForgeEventFactory.getMobGriefingEvent(level, entity));
         }
     }
 

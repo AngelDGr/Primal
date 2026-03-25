@@ -1,7 +1,6 @@
 package org.primal.worldgen.feature;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -27,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public class HollowLogTreeDecorator extends TreeDecorator {
-    public static final MapCodec<HollowLogTreeDecorator> CODEC = RecordCodecBuilder.mapCodec((instance) ->
+    public static final Codec<HollowLogTreeDecorator> CODEC = RecordCodecBuilder.create((instance) ->
             instance.group(
                     ResourceLocation.CODEC.fieldOf("entity_to_spawn")
                             .forGetter((alterTrunkDecorator) -> alterTrunkDecorator.entityToSpawn),
@@ -134,7 +133,7 @@ public class HollowLogTreeDecorator extends TreeDecorator {
                                         int j = randomsource.nextIntBetweenInclusive(this.animalAmount.getMinValue(), this.animalAmount.getMaxValue());
 
                                         for (int k = 0; k < j; k++) {
-                                            hollowLogBlockEntity.storeAnimal(HollowLogBlockEntity.Occupant.create(
+                                            hollowLogBlockEntity.storeAnimal( HollowLogBlockEntity.AnimalData.create(
                                                     entityToSpawn,
                                                     entityIdleSound,
                                                     variantMap,

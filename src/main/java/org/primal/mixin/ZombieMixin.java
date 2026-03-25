@@ -1,6 +1,7 @@
 package org.primal.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntityType;
@@ -43,7 +44,7 @@ public abstract class ZombieMixin extends Monster {
     boolean primal$primalJockeySpawned =false;
 
     @Inject(method = "finalizeSpawn", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/monster/Zombie;setBaby(Z)V"))
-    private void primal$setJockeysSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir){
+    private void primal$setJockeysSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CompoundTag compoundTag, CallbackInfoReturnable<SpawnGroupData> cir){
         RandomSource randomsource = level.getRandom();
 
         if (spawnGroupData instanceof Zombie.ZombieGroupData zombie$zombiegroupdata && zombie$zombiegroupdata.canSpawnJockey) {
@@ -53,7 +54,7 @@ public abstract class ZombieMixin extends Monster {
                     SharkEntity shark = Primal_Entities.SHARK.get().create(this.level());
                     if (shark != null) {
                         shark.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                        shark.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null);
+                        shark.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null, compoundTag);
                         shark.setSharkJockey(true);
                         this.startRiding(shark);
                         level.addFreshEntity(shark);
@@ -67,7 +68,7 @@ public abstract class ZombieMixin extends Monster {
                     if (bear != null) {
                         bear.setBaby(true);
                         bear.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
-                        bear.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null);
+                        bear.finalizeSpawn(level, difficulty, MobSpawnType.JOCKEY, null, compoundTag);
                         bear.setBearJockey(true);
                         this.startRiding(bear);
                         level.addFreshEntity(bear);

@@ -4,9 +4,9 @@ import net.minecraft.world.entity.Pose;
 import org.primal.block.NestBlock;
 import org.primal.entity.animal.EagleEntity;
 import org.primal.registry.Primal_Blocks;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public class EagleAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.eagle.idle");

@@ -26,7 +26,7 @@ public abstract class ServerPlayerMixin extends Player{
     private void primal$restoreEntityOnNeck(ServerPlayer that, boolean keepEverything, CallbackInfo ci){
         ((SetNeckEntity)(this)).setEntityOnNeck(((SetNeckEntity)(that)).primal$getNeckEntity());
     }
-    @ModifyArg(method = "lambda$startSleepInBed$13",
+    @ModifyArg(method = "startSleepInBed",
             at = @At(value = "INVOKE",
                     target = "Lnet/minecraft/world/level/Level;getEntitiesOfClass(Ljava/lang/Class;Lnet/minecraft/world/phys/AABB;Ljava/util/function/Predicate;)Ljava/util/List;"
             ),

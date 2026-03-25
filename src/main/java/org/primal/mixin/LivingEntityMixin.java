@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.core.Holder;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -18,7 +17,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Drowned;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.extensions.ILivingEntityExtension;
 import org.primal.Primal_Main;
 import org.primal.entity.animal.SharkEntity;
 import org.primal.injection.IsEagleTarget;
@@ -37,9 +35,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements Attackable, ILivingEntityExtension, IsEagleTarget {
+public abstract class LivingEntityMixin extends Entity implements Attackable, net.minecraftforge.common.extensions.IForgeLivingEntity, IsEagleTarget {
 
-    @Shadow @Nullable public abstract AttributeInstance getAttribute(Holder<Attribute> attribute);
+    @Shadow @Nullable public abstract AttributeInstance getAttribute(Attribute attribute);
 
     @Shadow public abstract float getSpeed();
 
@@ -59,7 +57,6 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
                 builder.add(Attributes.MAX_HEALTH, 60);
 
             return builder
-                    .add(Attributes.STEP_HEIGHT, 1.5f)
                     .build();
         }
 
@@ -79,8 +76,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
     @Unique
     private AttributeSupplier.Builder primal$getAttributeBuilder(AttributeSupplier supplier){
         AttributeSupplier.Builder builder = AttributeSupplier.builder();
-        supplier.instances.forEach((attribute, instance) ->
-                builder.add(attribute, instance.getBaseValue()));
+        supplier.instances.forEach((attribute, instance) -> builder.add(attribute, instance.getBaseValue()));
 
         return builder;
     }
@@ -94,13 +90,13 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
     @Inject(method = "createLivingAttributes", at = @At("RETURN"), cancellable = true)
     private static void primal$addAttributes(final CallbackInfoReturnable<AttributeSupplier.Builder> cir){
         final AttributeSupplier.Builder builder = cir.getReturnValue();
-        builder.add(Primal_EntityAttributes.REFLECTED_DAMAGE);
+        builder.add(Primal_EntityAttributes.REFLECTED_DAMAGE.get());
         cir.setReturnValue(builder);
     }
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void primal$IsEagleAttackingSynchedData(final SynchedEntityData.Builder builder, final CallbackInfo ci){
-        builder.define(primal$eagleAttacking, Optional.empty());
+    private void primal$IsEagleAttackingSynchedData(final CallbackInfo ci){
+        this.entityData.define(primal$eagleAttacking, Optional.empty());
     }
 
     @Override
@@ -138,7 +134,7 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, IL
 
     @Inject(method = "hurt", at = @At("TAIL"))
     private void primal$reflectedDamage(final DamageSource source, final float amount, final CallbackInfoReturnable<Boolean> cir){
-        final var reflectedDamageAttribute = this.getAttribute(Primal_EntityAttributes.REFLECTED_DAMAGE);
+        final var reflectedDamageAttribute = this.getAttribute(Primal_EntityAttributes.REFLECTED_DAMAGE.get());
         if (reflectedDamageAttribute == null || reflectedDamageAttribute.getValue()<=1 || amount<=0) return;
 
         if(source.getEntity() != null && source.getEntity() instanceof final LivingEntity attacker){

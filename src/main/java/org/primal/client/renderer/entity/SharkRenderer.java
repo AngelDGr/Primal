@@ -23,7 +23,7 @@ public class SharkRenderer extends GeoEntityRenderer<SharkEntity> {
     }
 
     @Override
-    protected void applyRotations(SharkEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+    protected void applyRotations(SharkEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
         Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
     }
 }

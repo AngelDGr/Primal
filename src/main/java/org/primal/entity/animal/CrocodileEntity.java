@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -16,7 +15,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.*;
 import net.minecraft.world.*;
@@ -31,15 +29,16 @@ import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CompassItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.client.animation.entity.CrocodileAnimations;
@@ -47,6 +46,7 @@ import org.primal.entity.ai.CrocodileAi;
 import org.primal.entity.ai.controls.look.CrocodileLookControl;
 import org.primal.entity.ai.controls.move.CrocodileMoveControl;
 import org.primal.entity.ai.controls.navigation.CrocodilePathNavigation;
+import org.primal.mixin.SimpleContainerAccessor;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.AttackVillagers;
@@ -54,8 +54,8 @@ import org.primal.util.mob_types.HostileMount;
 import org.primal.util.mob_types.SemiAquaticAnimal;
 import org.primal.util.mob_types.VariantHolderWithEgg;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Collection;
@@ -138,28 +138,28 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 .add(Attributes.FOLLOW_RANGE, 32.0)
                 .add(Attributes.ATTACK_DAMAGE, 4f)
                 .add(Attributes.ATTACK_KNOCKBACK, 1.2f)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 0.4f)
-                .add(Attributes.STEP_HEIGHT, 1.5f);
+                .add(Attributes.KNOCKBACK_RESISTANCE, 0.4f);
     }
 
     //Init
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public CrocodileEntity(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
-        this.setPathfindingMalus(PathType.WATER, -1.0F);
+        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
         this.moveControl = new CrocodileMoveControl(this, 85, 10, 0.38f, 0.01f, false);
         this.lookControl = new CrocodileLookControl<>(this, 10);
+        this.setMaxUpStep(1.5f);
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         //1% of being albino
         if(level.getRandom().nextIntBetweenInclusive(0, 100)==1){
             this.setVariant(Variant.ALBINO);
         } else {
             setVariantFromBiome(this, level.getBiome(this.blockPosition()));
         }
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     @Override
@@ -231,11 +231,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(HEALTH_WHEN_START_RIDING, 0f);
-        builder.define(DATA_VARIANT_ID, CrocodileEntity.Variant.GREEN.id);
-        builder.define(THRASHING, false);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(HEALTH_WHEN_START_RIDING, 0f);
+        this.entityData.define(DATA_VARIANT_ID, CrocodileEntity.Variant.GREEN.id);
+        this.entityData.define(THRASHING, false);
     }
 
     @Override
@@ -249,7 +249,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
             if (!itemstack.isEmpty()) {
                 CompoundTag compoundtag = new CompoundTag();
                 compoundtag.putByte("Slot", (byte)(i));
-                listtag.add(itemstack.save(this.registryAccess(), compoundtag));
+                listtag.add(itemstack.save(compoundtag));
             }
         }
         compound.put("Items", listtag);
@@ -266,7 +266,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
             CompoundTag compoundtag = listtag.getCompound(i);
             int j = compoundtag.getByte("Slot") & 255;
             if (j < this.inventory.getContainerSize()) {
-                this.inventory.setItem(j, ItemStack.parse(this.registryAccess(), compoundtag).orElse(ItemStack.EMPTY));
+                this.inventory.setItem(j, ItemStack.of(compoundtag));
             }
         }
         this.readAdditionalSaveDataHostileMount(compound);
@@ -331,7 +331,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         } else {
             this.spawnAtLocation(new ItemStack(Primal_Items.CROCODILE_SCUTE.get()), 1);
             this.gameEvent(GameEvent.ENTITY_INTERACT);
-            this.playSound(SoundEvents.ARMADILLO_BRUSH);
+            this.playSound(Primal_Sounds.ARMADILLO_BRUSH.get());
             return true;
         }
     }
@@ -416,7 +416,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
             this.hurtAndReleasePassenger(2, 60L);
 
             if(source.getEntity()!=null && source.getEntity() instanceof ServerPlayer player && player.getMainHandItem().isEmpty()){
-                Primal_Advancements.PUNCH_CROCODILE.get().trigger(player);
+                Primal_Advancements.PUNCH_CROCODILE.trigger(player);
             }
 
             if (source.getEntity() instanceof LivingEntity target && !(target instanceof Player player && player.isCreative())) {
@@ -511,7 +511,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     @Override
@@ -555,8 +555,8 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
         //Drops and eats items
         if(hand==InteractionHand.MAIN_HAND && !this.isAggressive() && !this.isBaby()){
-            if (itemstack.canPerformAction(net.neoforged.neoforge.common.ItemAbilities.BRUSH_BRUSH) && this.brushOffScute()) {
-                itemstack.hurtAndBreak(16, player, getSlotForHand(hand));
+            if (itemstack.is(Items.BRUSH) && this.brushOffScute()) {
+                itemstack.hurtAndBreak(16, player, (p) -> p.broadcastBreakEvent(Primal_Util.OneTwentyEquivalent.getSlotForHand(hand)));
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
 
@@ -572,7 +572,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 double z = this.getZ() - (Mth.cos(bodyYawRad) * forwardOffset) + (Mth.sin(bodyYawRad) * sideOffset);
 
 
-                NonNullList<ItemStack> items = this.inventory.getItems();
+                NonNullList<ItemStack> items = ((SimpleContainerAccessor)(this.inventory)).getItems();
 
                 int maxIndex=0;
                 for(ItemStack stack: items){
@@ -595,13 +595,13 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
 
                 if(player instanceof ServerPlayer serverPlayer)
-                    Primal_Advancements.TICKLE_CROC.get().trigger(serverPlayer);
+                    Primal_Advancements.TICKLE_CROC.trigger(serverPlayer);
 
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             } else if (!isFood(itemstack) && this.canEatItem(itemstack)){
 
                 if(itemstack.is(Primal_Tags.Item.MAKES_CROCODILE_TICK_TOCK) && player instanceof ServerPlayer serverPlayer)
-                    Primal_Advancements.CLOCK_CROC.get().trigger(serverPlayer);
+                    Primal_Advancements.CLOCK_CROC.trigger(serverPlayer);
 
                 Collection<ItemStack> stack=List.of(itemstack);
 
@@ -683,11 +683,10 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     public Optional<GlobalPos> getCompassPos(){
         Optional<GlobalPos> compassPos=Optional.empty();
 
-        for(ItemStack stack: this.inventory.getItems()){
-            if(stack.has(DataComponents.LODESTONE_TRACKER) && stack.get(DataComponents.LODESTONE_TRACKER)!=null){
-                compassPos= stack.get(DataComponents.LODESTONE_TRACKER).target();
+        for(ItemStack stack: ((SimpleContainerAccessor)(this.inventory)).getItems()){
+            if(CompassItem.isLodestoneCompass(stack) && CompassItem.getLodestonePosition(stack.getTag())!=null){
+                compassPos= Optional.ofNullable(CompassItem.getLodestonePosition(stack.getTag()));
             }
-
         }
 
         return compassPos;
@@ -716,15 +715,15 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 }
             }
 
-            this.dropCustomDeathLoot(serverLevel, damageSources().explosion(explosion), true);
+            this.dropCustomDeathLoot(damageSources().explosion(explosion), 0, true);
             this.discard();
         }
     }
 
     @Override
-    protected void dropCustomDeathLoot(@NotNull ServerLevel level, @NotNull DamageSource damageSource, boolean recentlyHit) {
+    protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int i, boolean recentlyHit) {
         if(!this.inventory.isEmpty()){
-            for(ItemStack stack : this.inventory.getItems()){
+            for(ItemStack stack : ((SimpleContainerAccessor)(this.inventory)).getItems()){
                 this.spawnAtLocation(stack);
             }
         }
@@ -752,7 +751,8 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
-    protected void playAttackSound() {
+    public void swing(@NotNull InteractionHand hand, boolean send) {
+        super.swing(hand, send);
         this.playSound(Primal_Sounds.CROCODILE_ATTACK.get(), 1.0F, 1.0F);
     }
 
@@ -781,15 +781,20 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
-    protected @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         if(this.isBaby())
-            return EntityDimensions.scalable(this.getType().getDimensions().width(), 1.75f).scale(this.getAgeScale());
-        return this.getType().getDimensions().scale(this.getAgeScale());
+            return EntityDimensions.scalable(this.getType().getDimensions().width, 1.75f).scale(this.getScale());
+        return this.getType().getDimensions().scale(this.getScale());
     }
 
     @Override
-    public float getAgeScale() {
+    public float getScale() {
         return this.isBaby() ? 0.4F : 1.0F;
+    }
+
+    @Override
+    protected float getStandingEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions entityDimensions) {
+        return 1.0f * getScale();
     }
 
     @Override

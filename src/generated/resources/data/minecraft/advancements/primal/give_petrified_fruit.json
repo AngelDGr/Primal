@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "give_petrified_fruit": {
+      "conditions": {},
+      "trigger": "primal:feed_petrified"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.give_petrified_fruit.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "primal:petrified_fruit"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.give_petrified_fruit.title"
+    }
+  },
+  "requirements": [
+    [
+      "give_petrified_fruit"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

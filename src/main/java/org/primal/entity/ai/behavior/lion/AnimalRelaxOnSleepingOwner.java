@@ -2,7 +2,7 @@ package org.primal.entity.ai.behavior.lion;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -39,19 +39,19 @@ public class AnimalRelaxOnSleepingOwner<T extends TamableAnimal & PrimalTamable>
     private final Predicate<T> canUse;
     private final Function<LivingEntity, Float> speedModifier;
     private @Nullable BlockPos goalPos;
-    private final @Nullable ResourceKey<LootTable> giftLootTable;
+    private final @Nullable ResourceLocation giftLootTable;
     private final float giftProbability;
     @Nullable
     private final Primal_CustomCriterion advancement;
 
-    public static<T extends TamableAnimal & PrimalTamable> AnimalRelaxOnSleepingOwner<T> create(float speedModifier, @Nullable ResourceKey<LootTable> giftLootTable, float giftProbability, Primal_CustomCriterion advancement) {
+    public static<T extends TamableAnimal & PrimalTamable> AnimalRelaxOnSleepingOwner<T> create(float speedModifier, @Nullable ResourceLocation giftLootTable, float giftProbability, Primal_CustomCriterion advancement) {
         return create(mob -> speedModifier, giftLootTable, giftProbability, advancement);
     }
-    public static<T extends TamableAnimal & PrimalTamable> AnimalRelaxOnSleepingOwner<T> create(Function<LivingEntity, Float> speedModifier, @Nullable ResourceKey<LootTable> giftLootTable, float giftProbability, Primal_CustomCriterion advancement) {
+    public static<T extends TamableAnimal & PrimalTamable> AnimalRelaxOnSleepingOwner<T> create(Function<LivingEntity, Float> speedModifier, @Nullable ResourceLocation giftLootTable, float giftProbability, Primal_CustomCriterion advancement) {
         return new AnimalRelaxOnSleepingOwner<>(m->true, speedModifier, giftLootTable, giftProbability, advancement);
     }
 
-    public AnimalRelaxOnSleepingOwner(Predicate<T> canUse, Function<LivingEntity, Float> speedModifier, @Nullable ResourceKey<LootTable> giftLootTable, float giftProbability, @Nullable Primal_CustomCriterion advancement) {
+    public AnimalRelaxOnSleepingOwner(Predicate<T> canUse, Function<LivingEntity, Float> speedModifier, @Nullable ResourceLocation giftLootTable, float giftProbability, @Nullable Primal_CustomCriterion advancement) {
         super(ImmutableMap.of(
                 MemoryModuleType.ATTACK_TARGET,
                 MemoryStatus.VALUE_ABSENT
@@ -142,7 +142,7 @@ public class AnimalRelaxOnSleepingOwner<T extends TamableAnimal & PrimalTamable>
                         )
                 ).stream().filter(player1 -> player1.equals(ownerPlayer)).toList();
 
-                if(!players.isEmpty() && players.getFirst() instanceof ServerPlayer serverPlayer){
+                if(!players.isEmpty() && players.get(0) instanceof ServerPlayer serverPlayer){
                     advancement.trigger(serverPlayer);
                 }
             }
@@ -166,7 +166,7 @@ public class AnimalRelaxOnSleepingOwner<T extends TamableAnimal & PrimalTamable>
             return List.of();
 
         LootTable lootTable = serverLevel.getServer()
-                .reloadableRegistries()
+                .getLootData()
                 .getLootTable(this.giftLootTable);
 
         return lootTable.getRandomItems(new LootParams.Builder((ServerLevel)mob.level())

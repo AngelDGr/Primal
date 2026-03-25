@@ -1,10 +1,9 @@
 package org.primal.util;
 
-import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -13,10 +12,10 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.util.StringRepresentable;
@@ -36,8 +35,8 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.ai.util.AirAndWaterRandomPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
@@ -53,18 +52,17 @@ import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfigur
 import net.minecraft.world.level.levelgen.placement.*;
 import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.LootTableLoadEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.common.world.ModifiableBiomeInfo;
+import net.minecraftforge.event.LootTableLoadEvent;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.block.NestBlock;
 import org.primal.injection.IsEagleTarget;
@@ -73,20 +71,17 @@ import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Tags;
 import org.primal.util.mob_types.PrimalTamable;
 import org.spongepowered.asm.mixin.Unique;
-import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animation.AnimationProcessor;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationProcessor;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.model.data.EntityModelData;
 
 import javax.annotation.Nullable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -126,14 +121,14 @@ public class Primal_Util {
     }
 
     /**
-     * Works just like the GeckoLib {@link software.bernie.geckolib.animation.AnimationState#isMoving()} but on server side. With 0.015 motion threshold
+     * Works just like the GeckoLib {@link software.bernie.geckolib.core.animation.AnimationState#isMoving()} but on server side. With 0.015 motion threshold
      */
     public static boolean isMoving(LivingEntity entity){
         return isMoving(entity, 0.015f);
     }
 
     /**
-     * Works just like the GeckoLib {@link software.bernie.geckolib.animation.AnimationState#isMoving()} but on server side
+     * Works just like the GeckoLib {@link  software.bernie.geckolib.core.animation.AnimationState#isMoving()} but on server side
      */
     public static boolean isMoving(LivingEntity entity, float motionThreshold){
         float limbSwingAmount = 0;
@@ -203,7 +198,7 @@ public class Primal_Util {
         //Emit event, damages if possible and plays sound
         entity.gameEvent(GameEvent.SHEAR, player);
         if(stackInHand.isDamageableItem()){
-            stackInHand.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+            stackInHand.hurtAndBreak(1, player, (player1) -> player1.broadcastBreakEvent(hand));
         }
         entity.level().playSound(null, entity, SoundEvents.SHEEP_SHEAR, SoundSource.PLAYERS, 1.0F, 1.0F);
     }
@@ -213,14 +208,13 @@ public class Primal_Util {
      Extends a loot pool
      */
     public static void extendLootPool(LootPool pool, List<LootPoolEntryContainer> newEntries) {
-        var entriesBuilder = ImmutableList.<LootPoolEntryContainer>builder();
-        entriesBuilder.addAll(pool.entries);
-        entriesBuilder.addAll(newEntries);
-        pool.entries = entriesBuilder.build();
+        List<LootPoolEntryContainer> merged = new ArrayList<>(Arrays.asList(pool.entries));
+        merged.addAll(newEntries);
+        pool.entries = merged.toArray(new LootPoolEntryContainer[0]);
     }
 
-    public static boolean isLootTable(LootTableLoadEvent event, ResourceKey<LootTable> lootTable) {
-        return event.getName().equals(lootTable.location());
+    public static boolean isLootTable(LootTableLoadEvent event, ResourceLocation lootTable) {
+        return event.getName().equals(lootTable);
     }
 
     /**
@@ -254,22 +248,6 @@ public class Primal_Util {
         }
     }
 
-    /**
-     Convenient method to add items to a CreativeTab in order after one item
-     */
-    public static void insertItemsAfter(BuildCreativeModeTabContentsEvent event, ItemStack after, ItemStack... itemStacks){
-
-        for (int i=0; i<itemStacks.length; i++){
-            if(i==0){
-                event.insertAfter(after, itemStacks[i], CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            }
-            else {
-                event.insertAfter(itemStacks[i-1], itemStacks[i], CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            }
-
-        }
-    }
-
 
     public static ResourceLocation nomanslandLoc(String name){
         return ResourceLocation.fromNamespaceAndPath("nomansland", name);
@@ -288,8 +266,8 @@ public class Primal_Util {
 
             for (final EquipmentSlot equipmentSlot : slots) {
                 final ItemStack itemStack = entity.getItemBySlot(equipmentSlot);
-                if (itemStack.getItem() instanceof ArmorItem && itemStack.canBeHurtBy(source)) {
-                    itemStack.hurtAndBreak(i, entity, equipmentSlot);
+                if (itemStack.getItem() instanceof ArmorItem && itemStack.getItem().canBeHurtBy(source)) {
+                    itemStack.hurtAndBreak(1, entity, (entity1) -> entity1.broadcastBreakEvent(equipmentSlot));
                 }
             }
         }
@@ -329,6 +307,184 @@ public class Primal_Util {
         }
 
         return buffer[0];
+    }
+
+    /**
+     * On this class there's some methods that mimic methods present on the 1.21.1 version that aren't present on 1.20.1
+     * Just to no change too much code between versions
+     */
+    public static class OneTwentyEquivalent{
+
+        /**
+         * Mimics the ItemStack#consume from 1.21.1
+         * @param amount Amount shrunk
+         * @param arg Player with stack
+         * @param stack Stack to be consumed
+         */
+        public static void consumeStack(int amount, @Nullable LivingEntity arg, ItemStack stack) {
+            if (arg == null || !(arg instanceof Player player && player.isCreative())) {
+                stack.shrink(amount);
+            }
+        }
+
+        /**
+         * Mimics the LivingEntity#getSlotForHand from 1.21.1
+         */
+        public static EquipmentSlot getSlotForHand(InteractionHand hand) {
+            return hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
+        }
+
+        /**
+         * Mimics the LivingEntity#getTargetFromBrain from 1.21.1
+         */
+        public static LivingEntity getTargetFromBrain(LivingEntity entity) {
+            return entity.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
+        }
+
+        /**
+         * Mimics the Swim#shouldSwim from 1.21.1
+         */
+        public static boolean shouldSwim(Mob mob) {
+            return mob.isInWater() && mob.getFluidHeight(FluidTags.WATER) > mob.getFluidJumpThreshold() || mob.isInLava() || mob.isInFluidType((fluidType, height) -> mob.canSwimInFluidType(fluidType) && height > mob.getFluidJumpThreshold());
+        }
+
+        /**
+         * Mimics the Entity#isInLiquid from 1.21.1
+         */
+        public static boolean isInLiquid(Entity entity) {
+            return entity.isInWaterOrBubble() || entity.isInLava();
+        }
+
+        /**
+         * Transform some logic inside the 1.21.1 method of Entity#getPassengerAttachmentPoint to be applied in the 1.20.1 Entity#positionRider
+         */
+        public static void getPassengerAttachmentPointToPositionRider(@NotNull Entity self, @NotNull Entity passenger, Entity.@NotNull MoveFunction moveFunction,
+                                                                  Vec3 passengerAttachmentPoint) {
+            if (self.hasPassenger(passenger)) {
+
+                moveFunction.accept(
+                        passenger,
+                        self.getX() + passengerAttachmentPoint.x,
+                        self.getY() + self.getPassengersRidingOffset() + passenger.getMyRidingOffset() + passengerAttachmentPoint.y,
+                        self.getZ() + passengerAttachmentPoint.z
+                );
+            }
+        }
+
+        /**
+         * Mimics the ItemStack#limitSize from 1.21.1
+         */
+        public static void limitSize(int maxSize, ItemStack itemStack) {
+            if (!itemStack.isEmpty() && itemStack.getCount() > maxSize) {
+                itemStack.setCount(maxSize);
+            }
+        }
+
+        private static final double DEFAULT_ATTACK_REACH = Math.sqrt(2.04F) - (double)0.6F;
+        /**
+         * Mimics the Mob#getAttackBoundingBox from 1.21.1
+         */
+        public static AABB getAttackBoundingBox(Entity self) {
+            Entity entity = self.getVehicle();
+            AABB aabb;
+            if (entity != null) {
+                AABB aabb1 = entity.getBoundingBox();
+                AABB aabb2 = self.getBoundingBox();
+                aabb = new AABB(Math.min(aabb2.minX, aabb1.minX), aabb2.minY, Math.min(aabb2.minZ, aabb1.minZ), Math.max(aabb2.maxX, aabb1.maxX), aabb2.maxY, Math.max(aabb2.maxZ, aabb1.maxZ));
+            } else {
+                aabb = self.getBoundingBox();
+            }
+
+            return aabb.inflate(DEFAULT_ATTACK_REACH, 0.0F, DEFAULT_ATTACK_REACH);
+        }
+
+        /**
+         * Useful things to backport item components
+         * @author Tenebris Mors
+         */
+        public static class Components {
+
+            /**
+             * This interfaces makes it a lot easier to translate the item components from 1.21.1 to the nbt tags of 1.20.1
+             * @author Tenebris Mors
+             */
+            public interface BaseComponent<T> {
+
+                /**
+                 * This method must write into the CompoundTag all the necessary values
+                 * @param compoundTag The tag of the ItemStack
+                 * @return The modified tag of the ItemStack
+                 */
+                CompoundTag addComponent(CompoundTag compoundTag);
+
+                /**
+                 * @return  Component name, applied to the item nbt tag
+                 */
+                String getComponentName();
+
+                /**
+                 * This method needs to create the component ONLY using the CompoundTag
+                 * @param compoundTag The item compound tag correspondent to the component
+                 * @return The component instance
+                 */
+                T create(CompoundTag compoundTag);
+
+                /**
+                 * @see org.primal.mixin.ItemStackMixin
+                 */
+                default void addToTooltip(Level level, @NotNull List<Component> tooltipAdder, @NotNull TooltipFlag tooltipFlag) {}
+            }
+
+            /**
+             * This method works the same as ItemStack#has(DataComponentType<?>)
+             * @param stack The ItemStack to be checked
+             * @param componentName An instance of the component, its values don't matter
+             */
+            public static<T extends BaseComponent<T>> boolean has(ItemStack stack, T componentName) {
+                if(stack.getTag()!=null)
+                    return stack.getTag().get(componentName.getComponentName())!=null;
+
+                return false;
+            }
+
+            /**
+             * This method works the same as ItemStack#get(DataComponentType<?>)
+             * @param stack The ItemStack to be checked
+             * @param component An instance of the component, its values don't matter
+             */
+            public static<T extends BaseComponent<T>> @Nullable T get( ItemStack stack, T component) {
+                if(stack.getTag()!=null){
+                    if(stack.getTag().get(component.getComponentName())!=null){
+                        return component.create((CompoundTag) stack.getTag().get(component.getComponentName()));
+                    }
+                }
+
+                return null;
+            }
+
+            /**
+             * This method works the same as ItemStack#remove(DataComponentType<?>)
+             * @param stack The ItemStack to remove the component
+             * @param component An instance of the component, its values don't matter
+             */
+            public static<T extends BaseComponent<T>> void remove(ItemStack stack, T component) {
+                if(stack.getTag()!=null && has(stack, component)){
+                    stack.removeTagKey(component.getComponentName());
+                }
+            }
+
+            /**
+             * This method works the same as ItemStack#set(DataComponentType<?>)
+             * @param stack The ItemStack to set the component
+             * @param component The instance of the component to be applied
+             */
+            public static<T extends BaseComponent<T>> void set(ItemStack stack, T component) {
+                if(component!=null){
+                    component.addComponent(stack.getOrCreateTag());
+                }
+            }
+        }
+
     }
 
     public static class Ai {
@@ -648,7 +804,7 @@ public class Primal_Util {
                 BlockPos neighbourNestPos = nestPosition.relative(direction);
 
                 //Updates nest around
-                if (level.getBlockState(neighbourNestPos).is(Primal_Blocks.NEST_BLOCK)) {
+                if (level.getBlockState(neighbourNestPos).is(Primal_Blocks.NEST_BLOCK.get())) {
                     level.setBlock(
                             neighbourNestPos,
                             level.getBlockState(neighbourNestPos).setValue(NestBlock.PROPERTY_BY_DIRECTION.get(direction.getOpposite()), false),
@@ -666,8 +822,10 @@ public class Primal_Util {
          * @param name The variant of the biome modifier
          * @return The proper serializer
          */
-        public static DeferredHolder<MapCodec<? extends BiomeModifier>, MapCodec<? extends BiomeModifier>> createBiomeModifierSerializer(String name){
-            return DeferredHolder.create(NeoForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, name));
+        public static RegistryObject<Codec<? extends BiomeModifier>> createBiomeModifierSerializer(String name){
+            return RegistryObject.create(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, name),
+                    ForgeRegistries.Keys.BIOME_MODIFIER_SERIALIZERS,
+                    Primal_Main.MOD_ID);
         }
 
         /**
@@ -843,7 +1001,7 @@ public class Primal_Util {
 
         public static void stopAnimation(@Nullable Pair<String, String> animation, Entity mob){
             if(animation !=null && mob instanceof GeoEntity geoAnimatable)
-                geoAnimatable.stopTriggeredAnim(animation.getFirst(), animation.getSecond());
+                geoAnimatable.stopTriggeredAnimation(animation.getFirst(), animation.getSecond());
         }
 
         public static void bodyFullRotations(LivingEntity animatable, float partialTick, PoseStack poseStack){
@@ -868,7 +1026,7 @@ public class Primal_Util {
         }
 
         public static <M extends Mob, T extends GeoAnimatable> void headRotationsSwimming(AnimationProcessor<T> animationProcessor, M mob, AnimationState<T> animationState){
-            GeoBone head = animationProcessor.getBone("head");
+            CoreGeoBone head = animationProcessor.getBone("head");
 
             if (head != null) {
                 EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);

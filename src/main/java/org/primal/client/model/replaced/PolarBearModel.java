@@ -6,9 +6,9 @@ import org.primal.Primal_Main;
 import org.primal.client.animation.replaced.PolarBearAnimations;
 import org.primal.entity.replaced.PolarBearReplaced;
 import org.primal.util.Primal_Util;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
 public class PolarBearModel extends DefaultedEntityGeoModel<PolarBearReplaced> {

@@ -16,7 +16,7 @@ import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import net.minecraft.world.level.levelgen.feature.stateproviders.SimpleStateProvider;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Main;
 import org.primal.entity.animal.SnakeEntity;
 import org.primal.registry.Primal_Blocks;
@@ -39,7 +39,7 @@ import java.util.function.BiConsumer;
 @Mixin(TreeFeature.class)
 public class TreeFeatureMixin {
     @Unique
-    private static Map<Block, DeferredHolder<Block, Block>> PRIMAL$MAPPED_LOGS;
+    private static Map<Block, RegistryObject<Block>> PRIMAL$MAPPED_LOGS;
     @Unique
     private static Map<Block, Boolean> PRIMAL$MAPPED_LOG_SPAWN;
 
@@ -100,7 +100,7 @@ public class TreeFeatureMixin {
         if (treeconfiguration.trunkProvider instanceof SimpleStateProvider simpleStateProvider) {
             Block log = simpleStateProvider.getState(context.random(), context.origin()).getBlock();
 
-            DeferredHolder<Block, Block> hollowLog = primal$getMappedLogs().get(log);
+            RegistryObject<Block> hollowLog = primal$getMappedLogs().get(log);
             Boolean logSpawnInWorld = primal$getMappedLogSpawn().get(log);
 
             if(hollowLog != null && logSpawnInWorld!=null && logSpawnInWorld && (biome.is(Primal_Tags.Biome.SPAWNS_HOLLOW_TREE) || matchesExtra)){
@@ -146,7 +146,7 @@ public class TreeFeatureMixin {
 
     //Lazy initialization
     @Unique
-    private static Map<Block, DeferredHolder<Block, Block>> primal$getMappedLogs() {
+    private static Map<Block, RegistryObject<Block>> primal$getMappedLogs() {
         if (PRIMAL$MAPPED_LOGS == null) {
             PRIMAL$MAPPED_LOGS = Map.of(
                     Blocks.OAK_LOG, Primal_Blocks.HOLLOW_OAK_LOG,

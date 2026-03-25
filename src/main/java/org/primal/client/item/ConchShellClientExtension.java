@@ -4,10 +4,11 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.NotNull;
 import org.primal.item.ConchShellItem;
 import org.primal.registry.Primal_Items;
+import org.primal.util.Primal_Util;
 
 public class ConchShellClientExtension implements IClientItemExtensions {
 
@@ -21,7 +22,7 @@ public class ConchShellClientExtension implements IClientItemExtensions {
             float equipProcess,
             float swingProcess) {
 
-        if(!stack.has(Primal_Items.Components.CONCH_SHELL)) return false;
+        if(!Primal_Util.OneTwentyEquivalent.Components.has(stack, Primal_Items.Components.CONCH_SHELL)) return false;
 
         float scaleRate = -1f *(player.getUseItemRemainingTicks() - ConchShellItem.MAX_DURATION) / ConchShellItem.RELEASE_TIME;
         if (scaleRate > 1.0F) scaleRate = 1.0F;

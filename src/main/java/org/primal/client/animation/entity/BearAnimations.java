@@ -3,9 +3,9 @@ package org.primal.client.animation.entity;
 import net.minecraft.util.Mth;
 import org.primal.entity.animal.BearEntity;
 
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public final class BearAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.bear.idle");

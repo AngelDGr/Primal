@@ -1,11 +1,8 @@
 package org.primal.datagen.providers;
 
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.loot.LootTableSubProvider;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -19,16 +16,12 @@ import java.util.function.BiConsumer;
 
 public class Primal_LootTablesArcheologyGenerator implements LootTableSubProvider {
 
-    private final HolderLookup.Provider lookupProvider;
 
-    public Primal_LootTablesArcheologyGenerator(final HolderLookup.Provider lookupProvider) {
-        this.lookupProvider=lookupProvider;
+    public Primal_LootTablesArcheologyGenerator() {
     }
 
     @Override
-    public void generate(@NotNull final BiConsumer<ResourceKey<LootTable>, LootTable.Builder> biConsumer) {
-        final HolderLookup.RegistryLookup<Enchantment> enchantmentRegistryLookup = this.lookupProvider.lookupOrThrow(Registries.ENCHANTMENT);
-
+    public void generate(@NotNull final BiConsumer<ResourceLocation, LootTable.Builder> biConsumer) {
         biConsumer.accept(Primal_LootTables.CASSOWARY_NEST_LOOT,
                 LootTable.lootTable()
                         .withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))

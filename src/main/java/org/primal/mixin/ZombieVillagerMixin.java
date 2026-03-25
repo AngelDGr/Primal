@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.primal.registry.Primal_Items;
+import org.primal.util.Primal_Util;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,7 +34,7 @@ public abstract class ZombieVillagerMixin extends Zombie implements VillagerData
         ItemStack itemstack = player.getItemInHand(hand);
         if (itemstack.is(Primal_Items.GOLDEN_APPLE_FRITTER.get())) {
             if (this.hasEffect(MobEffects.WEAKNESS)) {
-                itemstack.consume(1, player);
+                Primal_Util.OneTwentyEquivalent.consumeStack(1, player, itemstack);
                 if (!this.level().isClientSide) {
                     //Vanilla -> 3.0-5.0 minutes (3600-6000)
                     //Fritter -> 1.5-2.5 minutes (1800-3000)

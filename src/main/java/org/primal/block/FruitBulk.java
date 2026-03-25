@@ -1,10 +1,10 @@
 package org.primal.block;
 
-import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -20,17 +20,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_Tags;
 
 public class FruitBulk extends BushBlock implements BonemealableBlock {
-    public static final MapCodec<FruitBulk> CODEC = simpleCodec(FruitBulk::new);
 
-    private final DeferredHolder<Item, Item> seed;
+    private final RegistryObject<Item> seed;
     public static final IntegerProperty AGE = BlockStateProperties.AGE_1;
 
     //──────────────────────────────────── Init ────────────────────────────────────
@@ -40,7 +40,7 @@ public class FruitBulk extends BushBlock implements BonemealableBlock {
 
     //Age 0 -> Tiny thing
     //Age 1 -> Full block
-    public FruitBulk(Properties properties, DeferredHolder<Item, Item> seed) {
+    public FruitBulk(Properties properties, RegistryObject<Item> seed) {
         super(properties);
         this.seed=seed;
         this.registerDefaultState(this.stateDefinition.any()
@@ -48,13 +48,8 @@ public class FruitBulk extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    protected @NotNull VoxelShape getCollisionShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getCollisionShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return state.getValue(AGE)==0? Shapes.empty(): state.getShape(level, pos);
-    }
-
-    @Override
-    protected @NotNull MapCodec<FruitBulk> codec() {
-        return CODEC;
     }
 
     @Override
@@ -63,29 +58,26 @@ public class FruitBulk extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public @NotNull ItemStack getCloneItemStack(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public @NotNull ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
         return new ItemStack(seed.get());
     }
 
     //──────────────────────────────────── Basic things ────────────────────────────────────
     @Override
-    protected boolean canSurvive(@NotNull BlockState state, LevelReader level, BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, LevelReader level, BlockPos pos) {
         if(level.getBlockState(pos.below()).is(this)) return true;
-
-        net.neoforged.neoforge.common.util.TriState soilDecision = level.getBlockState(pos.below()).canSustainPlant(level, pos.below(), Direction.UP, state);
-        if (!soilDecision.isDefault()) return soilDecision.isTrue();
         return level.getBlockState(pos.below()).is(Primal_Tags.Block.FRUIT_TREE_PLANTABLE_ON);
     }
 
     @Override
-    protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+    public @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
         if(direction==Direction.DOWN && !canSurvive(state, level, pos)) return Blocks.AIR.defaultBlockState();
 
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
     @Override
-    protected @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         //Juvenile
         if(state.getValue(AGE) == 0){
             return Block.box(1.0, 0.0, 1.0,
@@ -99,7 +91,7 @@ public class FruitBulk extends BushBlock implements BonemealableBlock {
 
     //──────────────────────────────────── Grow Logic ────────────────────────────────────
     @Override
-    protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+    public void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         //Normal grow
         if ((random.nextInt(5) == 0 && level.getRawBrightness(pos, 0) >= 9)
                 //Fast grow
@@ -119,7 +111,7 @@ public class FruitBulk extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    protected void spawnAfterBreak(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull ItemStack stack, boolean dropExperience) {
+    public void spawnAfterBreak(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull ItemStack stack, boolean dropExperience) {
         super.spawnAfterBreak(state, level, pos, stack, dropExperience);
         //Replant seed
         if(state.getValue(AGE)==1 && seed.get() instanceof BlockItem blockItem){
@@ -128,7 +120,7 @@ public class FruitBulk extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state) {
+    public boolean isValidBonemealTarget(@NotNull LevelReader level, @NotNull BlockPos pos, @NotNull BlockState state, boolean isOn) {
         return state.getValue(AGE)<1;
     }
 

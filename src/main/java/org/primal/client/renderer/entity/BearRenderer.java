@@ -1,9 +1,10 @@
 package org.primal.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.BearModel;
@@ -30,9 +31,9 @@ public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
     }
 
     @Override
-    protected float getShadowRadius(@NotNull BearEntity entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.35F : f;
+    public void render(@NotNull BearEntity entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (entity.isBaby()) this.shadowRadius *= 0.35F;
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
@@ -41,11 +42,11 @@ public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
     }
 
     @Override
-    protected void applyRotations(BearEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+    protected void applyRotations(BearEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
         if(animatable.isInWater() && !animatable.isVehicle() && !animatable.isBearSleeping())
             Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
         else
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
+            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
     }
 
     @Override

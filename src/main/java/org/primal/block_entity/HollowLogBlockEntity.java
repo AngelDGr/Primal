@@ -1,20 +1,12 @@
 package org.primal.block_entity;
 
 import com.google.common.collect.Lists;
-import com.mojang.logging.LogUtils;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.TagKey;
@@ -22,7 +14,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.FireBlock;
@@ -32,13 +23,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.NotNull;
 import org.primal.block.HollowLogBlock;
-import org.primal.registry.Primal_Codecs;
-import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Sounds;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.HideOnLog;
-import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -49,7 +37,6 @@ import java.util.Map;
 public class HollowLogBlockEntity extends BlockEntity {
 
     //──────────────────────────────────── Init ────────────────────────────────────
-    private static final Logger LOGGER = LogUtils.getLogger();
     public static final int MAX_OCCUPANTS = 3;
     public HollowLogBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -73,65 +60,71 @@ public class HollowLogBlockEntity extends BlockEntity {
             "UUID"
     );
 
+    static void removeIgnoredAnimalTags(CompoundTag compoundTag) {
+        for(String s : IGNORED_ANIMAL_TAGS) {
+            compoundTag.remove(s);
+        }
+
+    }
+
     //──────────────────────────────────── Animals Stored ────────────────────────────────────
     private final List<AnimalData> stored = Lists.newArrayList();
-
-    private List<HollowLogBlockEntity.Occupant> getAnimals() {
-        return this.stored.stream().map(HollowLogBlockEntity.AnimalData::toOccupant).toList();
-    }
 
     public boolean isEmpty() {
         return this.stored.isEmpty();
     }
 
-    public void storeAnimal(HollowLogBlockEntity.Occupant occupant) {
-        this.stored.add(new HollowLogBlockEntity.AnimalData(occupant, occupant.isPregnant));
+    public void storeAnimal(AnimalData animalData) {
+        this.stored.add(animalData);
     }
 
     @Override
-    protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.loadAdditional(tag, registries);
+    public void load(@NotNull CompoundTag tag) {
+        super.load(tag);
         this.stored.clear();
-        if (tag.contains("animals")) {
-            HollowLogBlockEntity.Occupant.LIST_CODEC
-                    .parse(NbtOps.INSTANCE, tag.get("animals"))
-                    .resultOrPartial(p_330133_ -> LOGGER.error("Failed to parse animals: '{}'", p_330133_))
-                    .ifPresent(occupant -> occupant.forEach(this::storeAnimal));
+        ListTag listtag = tag.getList("Animals", 10);
+
+        for(int i = 0; i < listtag.size(); ++i) {
+            CompoundTag compoundtag = listtag.getCompound(i);
+
+            AnimalData animalData = new AnimalData(
+                    compoundtag.getCompound("EntityData"),
+                    compoundtag.getInt("ticksInsideLog"),
+                    compoundtag.getInt("ticksWantedOnLog"),
+                    ResourceLocation.tryParse(compoundtag.getString("idleSound")),
+                    compoundtag.getBoolean("isPregnant"));
+            this.stored.add(animalData);
         }
     }
 
     @Override
-    protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-        super.saveAdditional(tag, registries);
-        tag.put("animals", HollowLogBlockEntity.Occupant.LIST_CODEC.encodeStart(NbtOps.INSTANCE, this.getAnimals()).getOrThrow());
+    protected void saveAdditional(@NotNull CompoundTag tag) {
+        super.saveAdditional(tag);
+        tag.put("Animals", this.writeAnimals());
     }
 
-    @Override
-    protected void applyImplicitComponents(BlockEntity.@NotNull DataComponentInput componentInput) {
-        super.applyImplicitComponents(componentInput);
-        this.stored.clear();
-        List<HollowLogBlockEntity.Occupant> list = componentInput.getOrDefault(Primal_Items.Components.ANIMALS_INSIDE, List.of());
-        list.forEach(this::storeAnimal);
-    }
+    public ListTag writeAnimals() {
+        ListTag listtag = new ListTag();
 
-    @Override
-    protected void collectImplicitComponents(DataComponentMap.@NotNull Builder components) {
-        super.collectImplicitComponents(components);
-        components.set(Primal_Items.Components.ANIMALS_INSIDE, this.getAnimals());
-    }
+        for(AnimalData animalData : this.stored) {
+            CompoundTag compoundtag = animalData.entityData.copy();
+            CompoundTag compoundTag1 = new CompoundTag();
+            compoundTag1.put("EntityData", compoundtag);
+            compoundTag1.putInt("ticksInsideLog", animalData.ticksInsideLog);
+            compoundTag1.putInt("ticksWantedOnLog", animalData.ticksWantedOnLog);
+            listtag.add(compoundTag1);
+        }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void removeComponentsFromTag(@NotNull CompoundTag tag) {
-        super.removeComponentsFromTag(tag);
-        tag.remove("animals");
+        return listtag;
     }
 
     public<T extends LivingEntity & HideOnLog> void addOccupant(T occupant, int ticksWantedOnLog, boolean isOffspring) {
         if (this.stored.size() < MAX_OCCUPANTS) {
             occupant.stopRiding();
             occupant.ejectPassengers();
-            this.storeAnimal(HollowLogBlockEntity.Occupant.of(occupant, ticksWantedOnLog, isOffspring));
+            CompoundTag compoundtag = new CompoundTag();
+            occupant.save(compoundtag);
+            this.storeAnimal(new AnimalData(compoundtag, 0, ticksWantedOnLog, BuiltInRegistries.SOUND_EVENT.getKey(occupant.getInsideLogSound()), occupant.isPregnant()));
             if (this.level != null) {
                 BlockPos blockpos = this.getBlockPos();
                 if(!isOffspring)
@@ -159,11 +152,15 @@ public class HollowLogBlockEntity extends BlockEntity {
             Level level,
             BlockPos pos,
             BlockState state,
-            HollowLogBlockEntity.Occupant occupant,
+            AnimalData occupant,
             @Nullable List<Entity> storedInLog,
             HollowLogBlockEntity.AnimalReleaseStatus releaseStatus
     ) {
-        Entity entity = occupant.createEntity(level, pos, false);
+        CompoundTag compoundtag = occupant.entityData.copy();
+        removeIgnoredAnimalTags(compoundtag);
+//        compoundtag.put("HivePos", NbtUtils.writeBlockPos(pos));
+//        compoundtag.putBoolean("NoGravity", true);
+        Entity entity = EntityType.loadEntityRecursive(compoundtag, level, (entity1) -> entity1);
 
         //Avoids exiting if it wants to stay on the log
         if(entity instanceof HideOnLog hideOnLog)
@@ -206,6 +203,7 @@ public class HollowLogBlockEntity extends BlockEntity {
             return false;
         } else {
             if (entity != null) {
+                occupant.setAnimalReleaseData(occupant.ticksInsideLog, (Animal & HideOnLog) entity, occupant.isPregnant);
                 if (storedInLog != null) {
                     storedInLog.add(entity);
                 }
@@ -232,12 +230,13 @@ public class HollowLogBlockEntity extends BlockEntity {
         }
     }
 
+    //xTODO
     public List<Entity> releaseAllOccupants(BlockState state, HollowLogBlockEntity.AnimalReleaseStatus releaseStatus) {
         List<Entity> list = Lists.newArrayList();
         this.stored
                 .removeIf(animalData -> releaseOccupant(this.level,
                         this.worldPosition, state,
-                        animalData.toOccupant(),
+                        animalData,
                         list,
                         releaseStatus));
 
@@ -248,6 +247,7 @@ public class HollowLogBlockEntity extends BlockEntity {
         return list;
     }
 
+    //xTODO
     public void emptyAllLivingFromLog(@Nullable Player player, BlockState state, HollowLogBlockEntity.AnimalReleaseStatus releaseStatus) {
         List<Entity> list = this.releaseAllOccupants(state, releaseStatus);
         if (player != null) {
@@ -266,55 +266,43 @@ public class HollowLogBlockEntity extends BlockEntity {
         }
     }
 
-    public record Occupant(CustomData entityData, int ticksInsideLog, int ticksWantedOnLog, ResourceLocation idleSound, boolean isPregnant) {
-        public static final Codec<HollowLogBlockEntity.Occupant> CODEC = RecordCodecBuilder.create(
-                instance -> instance.group(
-                                CustomData.CODEC.optionalFieldOf("entity_data", CustomData.EMPTY).forGetter(HollowLogBlockEntity.Occupant::entityData),
-                                Codec.INT.fieldOf("ticks_inside_log").forGetter(HollowLogBlockEntity.Occupant::ticksInsideLog),
-                                Codec.INT.fieldOf("ticks_wanted_on_log").forGetter(HollowLogBlockEntity.Occupant::ticksWantedOnLog),
-                                ResourceLocation.CODEC.fieldOf("idle_sound").forGetter(HollowLogBlockEntity.Occupant::idleSound),
-                                Codec.BOOL.fieldOf("is_pregnant").forGetter(HollowLogBlockEntity.Occupant::isPregnant)
-                        )
-                        .apply(instance, HollowLogBlockEntity.Occupant::new)
-        );
-        public static final Codec<List<HollowLogBlockEntity.Occupant>> LIST_CODEC = CODEC.listOf();
+    public static class AnimalData {
+        public final CompoundTag entityData;
+        private int ticksInsideLog;
+        private final int ticksWantedOnLog;
+        private boolean isPregnant;
 
-        @SuppressWarnings("all")
-        public static final StreamCodec<FriendlyByteBuf, HollowLogBlockEntity.Occupant> STREAM_CODEC = StreamCodec.composite(
-                CustomData.STREAM_CODEC,
-                HollowLogBlockEntity.Occupant::entityData,
-                ByteBufCodecs.VAR_INT,
-                HollowLogBlockEntity.Occupant::ticksInsideLog,
-                ByteBufCodecs.VAR_INT,
-                HollowLogBlockEntity.Occupant::ticksWantedOnLog,
-                Primal_Codecs.RESOURCE_LOCATION,
-                HollowLogBlockEntity.Occupant::idleSound,
-                ByteBufCodecs.BOOL,
-                HollowLogBlockEntity.Occupant::isPregnant,
-                HollowLogBlockEntity.Occupant::new
-        );
+        private final ResourceLocation idleSound;
 
-        public static<T extends LivingEntity & HideOnLog> HollowLogBlockEntity.Occupant of(T entity, int ticksWantedOnLog, boolean isOffspring) {
-            CompoundTag compoundtag = new CompoundTag();
-            entity.save(compoundtag);
-
-            if(isOffspring) {
-                entity.getBrain().eraseMemory(MemoryModuleType.IS_PREGNANT);
-                entity.getBrain().eraseMemory(Primal_MemoryModuleTypes.MATE_VARIANT.get());
-                HollowLogBlockEntity.IGNORED_ANIMAL_TAGS.forEach(compoundtag::remove);
-            }
-
-            return new HollowLogBlockEntity.Occupant(CustomData.of(compoundtag), 0, ticksWantedOnLog, BuiltInRegistries.SOUND_EVENT.getKey(entity.getInsideLogSound()), entity.isPregnant());
+        AnimalData(CompoundTag entityData, int ticksInsideLog, int ticksWantedOnLog, ResourceLocation idleSound, boolean isPregnant) {
+            this.entityData = entityData;
+            this.ticksInsideLog = ticksInsideLog;
+            this.ticksWantedOnLog = ticksWantedOnLog;
+            this.idleSound=idleSound;
+            this.isPregnant=isPregnant;
         }
 
-        public static HollowLogBlockEntity.Occupant create(ResourceLocation entityType,
+        public boolean canRelease() {
+            return this.ticksInsideLog++ > this.ticksWantedOnLog;
+        }
+
+
+        public boolean isPregnant() {
+            return isPregnant;
+        }
+
+        public void removePregnant(){
+            this.isPregnant=false;
+        }
+
+        public static AnimalData create(ResourceLocation entityType,
                                                            ResourceLocation idleSound,
                                                            Map<TagKey<Biome>, Integer> variantMap,
                                                            Holder<Biome> biomeHolder) {
             return create(entityType, idleSound, biomeHolder, variantMap, -1);
         }
 
-        public static HollowLogBlockEntity.Occupant create(ResourceLocation entityType,
+        public static AnimalData create(ResourceLocation entityType,
                                                            ResourceLocation idleSound,
                                                            Holder<Biome> biomeHolder,
                                                            Map<TagKey<Biome>, Integer> variantMap,
@@ -333,7 +321,7 @@ public class HollowLogBlockEntity extends BlockEntity {
 
             compoundtag.putInt("Variant", directVariant!=-1? directVariant: variantId);
 
-            return new HollowLogBlockEntity.Occupant(CustomData.of(compoundtag),
+            return new AnimalData(compoundtag,
                     40,
                     600,
                     idleSound,
@@ -342,7 +330,7 @@ public class HollowLogBlockEntity extends BlockEntity {
 
         @Nullable
         public Entity createEntity(Level level, BlockPos ignoredPos, boolean isOffspring) {
-            CompoundTag compoundtag = this.entityData.copyTag();
+            CompoundTag compoundtag = this.entityData;
             Entity entity = EntityType.loadEntityRecursive(compoundtag, level, entity1 -> entity1);
             if (entity != null) {
 
@@ -376,34 +364,6 @@ public class HollowLogBlockEntity extends BlockEntity {
 
             if(isOffspring)
                 animal.setAge(-24000);
-        }
-    }
-
-    static class AnimalData {
-        private final HollowLogBlockEntity.Occupant occupant;
-        private int ticksInsideLog;
-        private boolean isPregnant;
-
-        AnimalData(HollowLogBlockEntity.Occupant occupant, boolean isPregnant) {
-            this.occupant = occupant;
-            this.ticksInsideLog = occupant.ticksInsideLog();
-            this.isPregnant=isPregnant;
-        }
-
-        public boolean canRelease() {
-            return this.ticksInsideLog++ > this.occupant.ticksWantedOnLog;
-        }
-
-        public HollowLogBlockEntity.Occupant toOccupant() {
-            return new HollowLogBlockEntity.Occupant(this.occupant.entityData, this.ticksInsideLog, this.occupant.ticksWantedOnLog, this.occupant.idleSound, this.isPregnant);
-        }
-
-        public boolean isPregnant() {
-            return isPregnant;
-        }
-
-        public void removePregnant(){
-            this.isPregnant=false;
         }
     }
 
@@ -445,7 +405,7 @@ public class HollowLogBlockEntity extends BlockEntity {
             int index = level.getRandom().nextInt(log.stored.size());
             var entry = log.stored.get(index);
 
-            var idleSound = BuiltInRegistries.SOUND_EVENT.get(entry.occupant.idleSound);
+            var idleSound = BuiltInRegistries.SOUND_EVENT.get(entry.idleSound);
 
             if (idleSound != null)
                 level.playSound(null, d0, d1, d2, idleSound, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -463,10 +423,10 @@ public class HollowLogBlockEntity extends BlockEntity {
             HollowLogBlockEntity.AnimalData animalData = data.get(i);
 
             //Lays the baby after 8s
-            if (animalData.isPregnant() && animalData.toOccupant().ticksInsideLog> Primal_Util.toTicks(8)) {
+            if (animalData.isPregnant() && animalData.ticksInsideLog> Primal_Util.toTicks(8)) {
                 // Creates the baby
                 if (log.stored.size() < MAX_OCCUPANTS) {
-                    Entity entity = animalData.occupant.createEntity(level, pos, true);
+                    Entity entity = animalData.createEntity(level, pos, true);
                     if (entity instanceof Animal animal && animal instanceof HideOnLog hideOnLog) {
 
                         if (hideOnLog.getMateVariant() != -1) hideOnLog.setVariantFromLog(hideOnLog.getMateVariant());
@@ -479,7 +439,7 @@ public class HollowLogBlockEntity extends BlockEntity {
 
             if (animalData.canRelease()) {
                 HollowLogBlockEntity.AnimalReleaseStatus status = HollowLogBlockEntity.AnimalReleaseStatus.ANIMAL_RELEASED;
-                if (releaseOccupant(level, pos, state, animalData.toOccupant(), null, status)) {
+                if (releaseOccupant(level, pos, state, animalData, null, status)) {
                     flag = true;
                     data.remove(i);
                 }
@@ -495,7 +455,7 @@ public class HollowLogBlockEntity extends BlockEntity {
 
                 level.playSound(null,
                         pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
-                        Primal_Sounds.HOLLOW_LOG_OFFSPRING, SoundSource.BLOCKS,
+                        Primal_Sounds.HOLLOW_LOG_OFFSPRING.get(), SoundSource.BLOCKS,
                         1.0F, 1.0F);
             }
 

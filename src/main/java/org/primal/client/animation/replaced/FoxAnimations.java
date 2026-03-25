@@ -2,9 +2,9 @@ package org.primal.client.animation.replaced;
 
 import net.minecraft.world.entity.animal.Fox;
 import org.primal.entity.replaced.FoxReplaced;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public class FoxAnimations {
     public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("animation.fox.idle");

@@ -8,6 +8,7 @@ import net.minecraft.world.level.pathfinder.PathFinder;
 import net.minecraft.world.level.pathfinder.SwimNodeEvaluator;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import org.primal.util.Primal_Util;
 
 public class BreachingWaterBoundPathNavigation extends PathNavigation {
     private boolean allowBreaching;
@@ -25,7 +26,7 @@ public class BreachingWaterBoundPathNavigation extends PathNavigation {
 
     @Override
     protected boolean canUpdatePath() {
-        return this.allowBreaching || this.mob.isInLiquid();
+        return this.allowBreaching || Primal_Util.OneTwentyEquivalent.isInLiquid(this.mob);
     }
 
     @Override

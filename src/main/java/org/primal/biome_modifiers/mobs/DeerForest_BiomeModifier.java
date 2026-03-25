@@ -1,13 +1,12 @@
 package org.primal.biome_modifiers.mobs;
 
-import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
-import net.neoforged.neoforge.common.world.BiomeModifier;
-import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
+import net.minecraftforge.common.world.BiomeModifier;
+import net.minecraftforge.common.world.ModifiableBiomeInfo;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
-import org.primal.Primal_Registries;
 import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Tags;
 import org.primal.util.Primal_Util;
@@ -28,13 +27,11 @@ public class DeerForest_BiomeModifier implements BiomeModifier {
     }
 
     @Override
-    public @NotNull MapCodec<? extends BiomeModifier> codec() {
+    public @NotNull Codec<? extends BiomeModifier> codec() {
         return Primal_Util.Generation.createBiomeModifierSerializer("deer_forest_spawn").get();
     }
 
-    public static void register() {
-        Primal_Registries.BIOME_MODIFIERS.register(
-                "deer_forest_spawn",
-                () -> MapCodec.unit(new DeerForest_BiomeModifier()));
+    public static Codec<? extends BiomeModifier> makeCodec() {
+        return Codec.unit(DeerForest_BiomeModifier::new);
     }
 }

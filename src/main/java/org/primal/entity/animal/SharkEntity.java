@@ -17,6 +17,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -46,8 +47,8 @@ import org.primal.entity.ai.controls.navigation.BreachingWaterBoundPathNavigatio
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -125,9 +126,9 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
 
     @SuppressWarnings("all")
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData, @NotNull CompoundTag compoundTag) {
         this.setVariantFromBiome(level.getBiome(this.blockPosition()));
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     public void setVariantFromBiome(Holder<Biome> holder) {
@@ -188,11 +189,11 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     private static final EntityDataAccessor<Boolean> CONDUIT_EYES = SynchedEntityData.defineId(SharkEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, SharkEntity.Variant.BLACKTIP.id);
-        builder.define(IS_JOCKEY, false);
-        builder.define(CONDUIT_EYES, false);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_VARIANT_ID, SharkEntity.Variant.BLACKTIP.id);
+        this.entityData.define(IS_JOCKEY, false);
+        this.entityData.define(CONDUIT_EYES, false);
     }
 
     @Override
@@ -310,7 +311,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     @Override
@@ -348,7 +349,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
             List<ServerPlayer> playersList= this.level().getEntitiesOfClass(ServerPlayer.class, this.getBoundingBox().inflate(24));
 
             if(!playersList.isEmpty()){
-                playersList.forEach(player -> Primal_Advancements.FEED_SHARK.get().trigger(player, killed));
+                playersList.forEach(player -> Primal_Advancements.FEED_SHARK.trigger(player, killed));
             }
         }
 
@@ -375,7 +376,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
 
         //Drops shark tooth on attack
         if(this.getRandom().nextIntBetweenInclusive(0, 100)<5){
-            ItemStack toothStack=new ItemStack(Primal_Items.SHARK_TOOTH, this.getRandom().nextBoolean()? 2: 1);
+            ItemStack toothStack=new ItemStack(Primal_Items.SHARK_TOOTH.get(), this.getRandom().nextBoolean()? 2: 1);
             this.spawnAtLocation(toothStack);
         }
 
@@ -421,7 +422,8 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     }
 
     @Override
-    protected void playAttackSound() {
+    public void swing(@NotNull InteractionHand hand, boolean send) {
+        super.swing(hand, send);
         this.playSound(Primal_Sounds.SHARK_ATTACK.get(), 1.0F, 1.0F);
     }
 
@@ -463,6 +465,11 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     @Override
     public boolean removeWhenFarAway(double distanceToClosestPlayer) {
         return isSharkJockey();
+    }
+
+    @Override
+    protected float getStandingEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions entityDimensions) {
+        return 0.75f * getScale();
     }
 
     public boolean hasConduit(){

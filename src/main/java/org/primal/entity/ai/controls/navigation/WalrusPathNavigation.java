@@ -7,8 +7,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.pathfinder.AmphibiousNodeEvaluator;
 import net.minecraft.world.level.pathfinder.PathFinder;
-import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.level.pathfinder.PathfindingContext;
+import net.minecraft.world.level.pathfinder.BlockPathTypes;
+import net.minecraft.world.level.BlockGetter;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_Tags;
 
@@ -33,10 +33,10 @@ public class WalrusPathNavigation extends AmphibiousPathNavigation {
         }
 
         @Override
-        public @NotNull PathType getPathType(PathfindingContext context, int x, int y, int z) {
+        public @NotNull BlockPathTypes getBlockPathType(BlockGetter context, int x, int y, int z) {
             this.belowPos.set(x, y, z);
             BlockState blockstate = context.getBlockState(this.belowPos);
-            return blockstate.is(Primal_Tags.Block.WALRUS_SPAWN_ON) ? PathType.OPEN : super.getPathType(context, x, y, z);
+            return blockstate.is(Primal_Tags.Block.WALRUS_SPAWN_ON) ? BlockPathTypes.OPEN : super.getBlockPathType(context, x, y, z);
         }
     }
 }

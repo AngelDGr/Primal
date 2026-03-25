@@ -1,7 +1,7 @@
 package org.primal.sounds;
 
-import net.minecraft.core.Holder;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.registry.Primal_Sounds;
 
 public enum WalrusSong {
@@ -17,10 +17,10 @@ public enum WalrusSong {
     TES(Primal_Sounds.TES, 134, 9),
     TLOZ(Primal_Sounds.TLOZ, 185, 10);
 
-    public final Holder<SoundEvent> soundEvent;
+    public final RegistryObject<SoundEvent> soundEvent;
     public final int lengthInSeconds;
     public final int id;
-    WalrusSong(Holder<SoundEvent> soundEvent, int lengthInSeconds, int id){
+    WalrusSong(RegistryObject<SoundEvent> soundEvent, int lengthInSeconds, int id){
         this.soundEvent=soundEvent;
         this.lengthInSeconds=lengthInSeconds;
         this.id=id;

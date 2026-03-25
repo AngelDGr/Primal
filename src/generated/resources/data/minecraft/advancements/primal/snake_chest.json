@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "snake_chest": {
+      "conditions": {},
+      "trigger": "primal:snake_chest"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.primal.snake_chest.description"
+    },
+    "frame": "goal",
+    "hidden": true,
+    "icon": {
+      "item": "minecraft:chest"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.primal.snake_chest.title"
+    }
+  },
+  "requirements": [
+    [
+      "snake_chest"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,23 +1,23 @@
 package org.primal.registry;
 
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Registries;
 import org.primal.block_entity.*;
 
 public class Primal_BlockEntities {
 
-    public static DeferredHolder<BlockEntityType<?>, BlockEntityType<NestBlockEntity>> NEST_BLOCK_ENTITY;
+    public static RegistryObject<BlockEntityType<NestBlockEntity>> NEST_BLOCK_ENTITY;
 
-    public static DeferredHolder<BlockEntityType<?>, BlockEntityType<Rotation16BlockEntity>> ROTATION_16_BLOCK_ENTITY;
+    public static RegistryObject<BlockEntityType<Rotation16BlockEntity>> ROTATION_16_BLOCK_ENTITY;
 
-    public static DeferredHolder<BlockEntityType<?>, BlockEntityType<ChompTrapBlockEntity>> CHOMP_TRAP;
+    public static RegistryObject<BlockEntityType<ChompTrapBlockEntity>> CHOMP_TRAP;
 
-    public static DeferredHolder<BlockEntityType<?>, BlockEntityType<HollowLogBlockEntity>> HOLLOW_LOG;
+    public static RegistryObject<BlockEntityType<HollowLogBlockEntity>> HOLLOW_LOG;
 
-    public static DeferredHolder<BlockEntityType<?>, BlockEntityType<DreamcatcherBlockEntity>> DREAMCATCHER;
+    public static RegistryObject<BlockEntityType<DreamcatcherBlockEntity>> DREAMCATCHER;
 
-    public static DeferredHolder<BlockEntityType<?>, BlockEntityType<StrawBasketBlockEntity>> STRAW_BASKET;
+    public static RegistryObject<BlockEntityType<StrawBasketBlockEntity>> STRAW_BASKET;
 
     @SuppressWarnings("all")
     public static void init() {

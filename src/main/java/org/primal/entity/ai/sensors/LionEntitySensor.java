@@ -3,7 +3,6 @@ package org.primal.entity.ai.sensors;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
@@ -108,7 +107,10 @@ public final class LionEntitySensor extends AnimalStalkEntitySensor<LionEntity> 
             long firstSeen = cautiousMap.get(id.toString());
             long elapsed = gameTime - firstSeen;
 
-            if(elapsed >= (target.getMainHandItem().is(ItemTags.MEAT)? requiredTimeHoldingMeat: target.isCrouching() ? requiredTimeSneaking: requiredTimeNormal)){
+            var stack = target.getMainHandItem();
+            var food = stack.getFoodProperties(lion);
+
+            if(elapsed >= (food!=null && food.isMeat()? requiredTimeHoldingMeat: target.isCrouching() ? requiredTimeSneaking: requiredTimeNormal)){
                 brain.setMemory(Primal_MemoryModuleTypes.NEAREST_ATTACKABLE_CAUTIOUS.get(), target);
             }
         }

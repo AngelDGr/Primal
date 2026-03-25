@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -15,10 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.ByIdMap;
-import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.util.Unit;
+import net.minecraft.util.*;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -41,7 +37,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -52,9 +48,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.*;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
-import net.neoforged.neoforge.entity.PartEntity;
-import net.neoforged.neoforge.fluids.FluidType;
+import net.minecraftforge.common.Tags;
+import net.minecraftforge.entity.PartEntity;
+import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.client.animation.entity.SnakeAnimations;
@@ -69,8 +65,8 @@ import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.*;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Map;
@@ -211,6 +207,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         this.lookControl = new WaterOrLandLookControl<>(this, 10);
         this.setId(ENTITY_COUNTER.getAndAdd(this.parts.getSubEntities().length + 1) + 1);
         this.gameEventHandler = new DynamicGameEventListener<>(new SongListener(this, new EntityPositionSource(this, this.getEyeHeight()), 8));
+        this.setMaxUpStep(1.0f);
     }
 
     @Override
@@ -224,9 +221,12 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 20f)
                 .add(Attributes.MOVEMENT_SPEED, 0.20f)
-                .add(Attributes.STEP_HEIGHT, 1.0f)
-                .add(Attributes.ATTACK_DAMAGE, 3f)
-                .add(Attributes.SAFE_FALL_DISTANCE, 8.0);
+                .add(Attributes.ATTACK_DAMAGE, 3f);
+    }
+
+    @Override
+    protected int calculateFallDamage(float f, float f2) {
+        return Mth.ceil((f - 8.0F) * f2);
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
@@ -243,20 +243,20 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     private static final EntityDataAccessor<Integer> SHEDDING_TIME = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
-        super.defineSynchedData(builder);
-        builder.define(DATA_VARIANT_ID, SnakeEntity.Variant.NULL.id);
-        builder.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
-        builder.define(FOLLOWER_STATE, 0);
-        builder.define(SLITHER_COOLDOWN, 0);
-        builder.define(FLICK_COOLDOWN, this.getRandom().nextIntBetweenInclusive(20, 100));
-        builder.define(POTION_COOLDOWN, 0);
-        builder.define(SNAKE_STATE, SnakeState.STANDING.getSerializedName());
-        builder.define(SNAKE_EFFECT, SnakeEffect.POISON.id);
-        builder.define(IS_CAUTIOUS, false);
-        builder.define(IS_DANCING, false);
-        builder.define(IS_SHEDDING, false);
-        builder.define(SHEDDING_TIME, 0);
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_VARIANT_ID, SnakeEntity.Variant.NULL.id);
+        this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
+        this.entityData.define(FOLLOWER_STATE, 0);
+        this.entityData.define(SLITHER_COOLDOWN, 0);
+        this.entityData.define(FLICK_COOLDOWN, this.getRandom().nextIntBetweenInclusive(20, 100));
+        this.entityData.define(POTION_COOLDOWN, 0);
+        this.entityData.define(SNAKE_STATE, SnakeState.STANDING.getSerializedName());
+        this.entityData.define(SNAKE_EFFECT, SnakeEffect.POISON.id);
+        this.entityData.define(IS_CAUTIOUS, false);
+        this.entityData.define(IS_DANCING, false);
+        this.entityData.define(IS_SHEDDING, false);
+        this.entityData.define(SHEDDING_TIME, 0);
     }
 
     @Override
@@ -312,12 +312,12 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         //Transition animations
         //Standing -> Slithering
         if(getSnakeState().equals(SnakeState.STANDING) && state.equals(SnakeState.SLITHERING)){
-            this.stopTriggeredAnim("base_controller", "slither_end");
+            this.stopTriggeredAnimation("base_controller", "slither_end");
             this.triggerAnim("base_controller", "slither_start");
         }
         //Slithering -> Standing
         if(getSnakeState().equals(SnakeState.SLITHERING) && state.equals(SnakeState.STANDING)){
-            this.stopTriggeredAnim("base_controller", "slither_start");
+            this.stopTriggeredAnimation("base_controller", "slither_start");
             this.triggerAnim("base_controller", "slither_end");
         }
 
@@ -376,10 +376,10 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     @Override
-    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
+    public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData, @Nullable CompoundTag compoundTag) {
         this.setSnakeEffect(SnakeEffect.byId(level.getRandom().nextIntBetweenInclusive(0, SnakeEffect.values().length-1)));
         this.setVariantFromBiome(this, level.getBiome(this.blockPosition()));
-        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
     }
 
     @Override
@@ -417,6 +417,9 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     //──────────────────────────────────── Multipart ────────────────────────────────────
     @Override
     public boolean isMultipartEntity() {
+        //To be added to correctly to the level
+        if(this.tickCount==0) return true;
+
         return isSlithering() && !this.isBaby();
     }
 
@@ -426,13 +429,18 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     @Override
-    public @NotNull EntityDimensions getDefaultDimensions(@NotNull Pose pose) {
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
         return isSlithering() || this.isSitting()?
                 EntityDimensions
-                        .scalable((this.isBaby()? 8f: 15f)/16f, 5f/16f)
-                        .withEyeHeight(4f/16f)
-                        .scale(this.getScale()):
-                super.getDefaultDimensions(pose);
+                        .scalable((this.isBaby()? 8f: 15f)/16f, 5f/16f):
+                super.getDimensions(pose);
+    }
+
+    @Override
+    protected float getStandingEyeHeight(@NotNull Pose pose, @NotNull EntityDimensions entityDimensions) {
+        return isSlithering() || this.isSitting()?
+                4f/16f * getScale():
+                0.6f * getScale();
     }
 
     public boolean isStalking() {
@@ -672,7 +680,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     @Nullable
     @Override
     public LivingEntity getTarget() {
-        return this.getTargetFromBrain();
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
     }
 
     public static int TERRITORIAL_DISTANCE = 4;
@@ -722,6 +730,19 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         }
 
         return hurt;
+    }
+
+    protected boolean reallyHurt(DamageSource source, float amount) {
+        return super.hurt(source, amount);
+    }
+
+    public boolean hurt(SnakePart part, DamageSource source, float amount) {
+        if (amount < 0.01F) {
+            return false;
+        } else {
+            this.reallyHurt(source, amount);
+            return true;
+        }
     }
 
 
@@ -774,7 +795,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
                 // Creates potion
                 ItemStack effectPotion = new ItemStack(Items.POTION);
 
-                effectPotion.set(DataComponents.POTION_CONTENTS, new PotionContents(this.getSnakeEffect().getHarvestablePotion()));
+                PotionUtils.setPotion(effectPotion, this.getSnakeEffect().getHarvestablePotion());
 
                 this.playSound(SoundEvents.BOTTLE_FILL, 1.0f, 1.0f);
 
@@ -784,7 +805,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
                 //Advancement
                 if(player instanceof ServerPlayer serverPlayer)
-                    Primal_Advancements.SNAKE_FILL_BOTTLE.get().trigger(serverPlayer);
+                    Primal_Advancements.SNAKE_FILL_BOTTLE.trigger(serverPlayer);
             }
 
             // 30s cooldown (600 ticks)
@@ -803,7 +824,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         }
 
         //Removes the shedding, only by the owner of is untamed
-        if(isShedding() && stackInHand.is(Tags.Items.TOOLS_SHEAR) && (this.isOwnedBy(player) || !this.isTame())){
+        if(isShedding() && stackInHand.is(Tags.Items.SHEARS) && (this.isOwnedBy(player) || !this.isTame())){
             Primal_Util.useShearsOnEntityAndDamage(this, player, stackInHand, hand);
             removeShedding();
             return InteractionResult.sidedSuccess(this.level().isClientSide);
@@ -860,7 +881,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
                         FoodProperties foodProperties = stack.getFoodProperties(this);
                         float nutrition=0;
                         if(foodProperties!=null){
-                            nutrition = foodProperties.nutrition()/2f;
+                            nutrition = foodProperties.getNutrition()/2f;
                         }
 
                         this.heal(1f + nutrition);
@@ -971,7 +992,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     @Override
     public void swing(@NotNull InteractionHand hand) {
         //Just in case
-        this.stopTriggeredAnim("attack", "flick");
+        this.stopTriggeredAnimation("attack", "flick");
 
         this.triggerAnim("attack", "bite_"+this.getSnakeState().name);
         super.swing(hand);
@@ -1016,7 +1037,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     @Override
-    public boolean canBeLeashed() {
+    public boolean canBeLeashed(@NotNull Player entity) {
         return false;
     }
 
@@ -1178,12 +1199,12 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
         private final String name;
         private final int id;
-        private final Holder<MobEffect> effect;
+        private final MobEffect effect;
         private final int duration;
         private final int amplifier;
-        private final Holder<Potion> harvestablePotion;
+        private final Potion harvestablePotion;
 
-        SnakeEffect(int id, String name, Holder<MobEffect> effect, int duration, int amplifier, Holder<Potion> harvestablePotion) {
+        SnakeEffect(int id, String name, MobEffect effect, int duration, int amplifier, Potion harvestablePotion) {
             this.name = name;
             this.effect=effect;
             this.id = id;
@@ -1209,7 +1230,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
             return new MobEffectInstance(effect, duration, amplifier);
         }
 
-        public Holder<Potion> getHarvestablePotion() {
+        public Potion getHarvestablePotion() {
             return harvestablePotion;
         }
     }
@@ -1235,22 +1256,21 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
             return this.listenerRadius;
         }
 
-        @SuppressWarnings("deprecation")
         @Override
-        public boolean handleGameEvent(@NotNull ServerLevel level, Holder<GameEvent> gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
-            if (gameEvent.is(GameEvent.JUKEBOX_PLAY) || gameEvent.is(GameEvent.NOTE_BLOCK_PLAY)) {
+        public boolean handleGameEvent(@NotNull ServerLevel level, GameEvent gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
+            if (gameEvent.equals(GameEvent.JUKEBOX_PLAY) || gameEvent.equals(GameEvent.NOTE_BLOCK_PLAY)) {
 
-                if(gameEvent.is(GameEvent.JUKEBOX_PLAY))
+                if(gameEvent.equals(GameEvent.JUKEBOX_PLAY))
                     snake.brain.setMemory(MemoryModuleType.DANCING, true);
 
-                if(gameEvent.is(GameEvent.NOTE_BLOCK_PLAY))
+                if(gameEvent.equals(GameEvent.NOTE_BLOCK_PLAY))
                     snake.brain.setMemoryWithExpiry(MemoryModuleType.DANCING, true, 10);
 
                 if(snake.brain.getMemory(Primal_MemoryModuleTypes.MUSIC_BLOCK.get()).isEmpty())
                     snake.brain.setMemory(Primal_MemoryModuleTypes.MUSIC_BLOCK.get(), BlockPos.containing(pos));
 
                 return true;
-            } else if (gameEvent.is(GameEvent.JUKEBOX_STOP_PLAY)){
+            } else if (gameEvent.equals(GameEvent.JUKEBOX_STOP_PLAY)){
                 if(snake.brain.getMemory(MemoryModuleType.DANCING).isPresent())
                     snake.brain.eraseMemory(MemoryModuleType.DANCING);
                 if(snake.brain.getMemory(Primal_MemoryModuleTypes.MUSIC_BLOCK.get()).isEmpty())

@@ -24,8 +24,12 @@ public class BearCollarLayer extends GeoRenderLayer<BearEntity> {
 
         RenderType barrelsRenderType = RenderType.entityCutoutNoCull(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/bear/"+(animatable.isBaby()? "baby/": "")+"collar.png"));
 
-        int i = animatable.getCollarColor().getTextureDiffuseColor();
+        float[] i = animatable.getCollarColor().getTextureDiffuseColors();
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, barrelsRenderType, bufferSource.getBuffer(barrelsRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, i);
+        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, barrelsRenderType, bufferSource.getBuffer(barrelsRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY,
+                i[0],
+                i[1],
+                i[2],
+                1);
     }
 }

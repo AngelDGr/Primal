@@ -2,10 +2,9 @@ package org.primal.client.renderer.replaced;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
-import net.minecraft.world.entity.animal.WolfVariant;
+import net.minecraft.nbt.CompoundTag;
 import org.primal.Primal_Main;
 import org.primal.client.model.replaced.WolfModel;
 import org.primal.client.renderer.entity.layer.wolf.WolfArmorLayer;
@@ -43,7 +42,11 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
     @Override
     public ResourceLocation getTextureLocation(WolfReplaced animatable) {
         Wolf wolf = this.currentEntity;
-        return convertWolfVariantToName(wolf.getVariant());
+        CompoundTag mainTag = new CompoundTag();
+        wolf.saveWithoutId(mainTag);
+        String variantTag= mainTag.getString("variant");
+
+        return convertWolfVariantToName(variantTag);
     }
 
     public static List<String> SLIM_VARIANTS = List.of(
@@ -53,8 +56,8 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
             "maned",
             "bush");
 
-    public static ResourceLocation convertWolfVariantToName(Holder<WolfVariant> wolfVariantHolder) {
-        ResourceLocation nameRegistered = ResourceLocation.tryParse(wolfVariantHolder.getRegisteredName());
+    public static ResourceLocation convertWolfVariantToName(String variantName) {
+        ResourceLocation nameRegistered = ResourceLocation.tryParse(variantName);
         if(nameRegistered!=null && isModSupported(nameRegistered.getNamespace())){
             String sublocation = nameRegistered.getNamespace().equals("minecraft")? "" : nameRegistered.getNamespace()+"/";
             return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/" +sublocation+ nameRegistered.getPath()+".png");
@@ -68,8 +71,12 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
         return namespace.equals("minecraft") || namespace.equals("atmospheric") || namespace.equals("environmental") || namespace.equals("nomansland") || namespace.equals("autumnity");
     }
 
-    public static String addSlimSuffix(Holder<WolfVariant> wolfVariantHolder){
-        ResourceLocation nameRegistered = ResourceLocation.tryParse(wolfVariantHolder.getRegisteredName());
+    public static String addSlimSuffix(Wolf wolf){
+        CompoundTag mainTag = new CompoundTag();
+        wolf.saveWithoutId(mainTag);
+        String variantTag= mainTag.getString("variant");
+
+        ResourceLocation nameRegistered = ResourceLocation.tryParse(variantTag);
         return nameRegistered!=null && WolfRenderer.SLIM_VARIANTS.contains(nameRegistered.getPath())? "_slim": "";
     }
 }

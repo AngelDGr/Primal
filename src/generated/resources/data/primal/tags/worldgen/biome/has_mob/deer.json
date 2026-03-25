@@ -5,8 +5,8 @@
     "minecraft:flower_forest",
     "minecraft:meadow",
     "minecraft:cherry_grove",
+    "#primal:has_mob/has_variant/deer/whitetail",
     "#primal:has_mob/has_variant/deer/musk",
-    "#primal:has_mob/has_variant/deer/reindeer",
-    "#primal:has_mob/has_variant/deer/whitetail"
+    "#primal:has_mob/has_variant/deer/reindeer"
   ]
 }

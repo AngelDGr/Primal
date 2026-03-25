@@ -8,8 +8,8 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
@@ -93,25 +93,25 @@ public class WalrusRenderer extends GeoEntityRenderer<WalrusEntity> {
     }
 
     @Override
-    public void preRender(PoseStack poseStack, WalrusEntity animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+    public void preRender(PoseStack poseStack, WalrusEntity animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
 
         this.mainHandItem = animatable.getMainHandItem();
         this.offHandItem = animatable.getOffhandItem();
     }
 
     @Override
-    protected float getShadowRadius(@NotNull WalrusEntity entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.5F : f;
+    public void render(WalrusEntity entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (entity.isBaby()) this.shadowRadius *= 0.5F;
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override
-    protected void applyRotations(WalrusEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
+    protected void applyRotations(WalrusEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
         if(animatable.isInWater() && !animatable.isVehicle()) {
             Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
         } else
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
+            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
     }
 
     @Override

@@ -24,7 +24,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 
     @Inject(
             method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            at = @At(value = "INVOKE", target = "hasPose(Lnet/minecraft/world/entity/Pose;)Z", ordinal = 0)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hasPose(Lnet/minecraft/world/entity/Pose;)Z", ordinal = 0)
     )
     private void primal$modifyRotationsWhenMauledByLionRender(T entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci){
         if(entity.getVehicle() instanceof LionEntity mount){
@@ -42,7 +42,7 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 
     @ModifyExpressionValue(
             method = "setupRotations",
-            at = @At(value = "INVOKE", target = "hasPose(Lnet/minecraft/world/entity/Pose;)Z", ordinal = 0)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hasPose(Lnet/minecraft/world/entity/Pose;)Z", ordinal = 0)
     )
     private boolean primal$modifyRotationsWhenMauledByLion(boolean original, @Local(argsOnly = true) T entity){
         return original && !(entity.getVehicle() instanceof LionEntity);
@@ -50,9 +50,9 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
 
     @Inject(
             method = "setupRotations",
-            at = @At(value = "INVOKE", target = "hasPose(Lnet/minecraft/world/entity/Pose;)Z", ordinal = 1)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;hasPose(Lnet/minecraft/world/entity/Pose;)Z", ordinal = 1)
     )
-    private void primal$modifyRotationsWhenMauledByLion2(T entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale, CallbackInfo ci){
+    private void primal$modifyRotationsWhenMauledByLion2(T entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, CallbackInfo ci){
         if(entity.getVehicle() instanceof LionEntity)
             poseStack.mulPose(Axis.XP.rotationDegrees(this.getFlipDegrees(entity)));
     }

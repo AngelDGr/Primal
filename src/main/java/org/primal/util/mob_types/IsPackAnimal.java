@@ -51,13 +51,13 @@ public interface IsPackAnimal<T extends Mob & IsPackAnimal<T>> {
         if((self().tickCount<200 || self().tickCount%4800==0) && self().getTarget()==null){
             //If leads, set its home each minute its own position
             if(self().isLeader()){
-                self().getBrain().setMemory(MemoryModuleType.HOME, new GlobalPos(self().level().dimension(), self().getOnPos()));
+                self().getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(self().level().dimension(), self().getOnPos()));
             }
             //Puts the home as the leader
             else if(hasLeader()){
                 self().getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_LEADER.get()).ifPresent(
                         m->
-                                self().getBrain().setMemory(MemoryModuleType.HOME, new GlobalPos(m.level().dimension(), m.getOnPos()))
+                                self().getBrain().setMemory(MemoryModuleType.HOME, GlobalPos.of(m.level().dimension(), m.getOnPos()))
                 );
             }
             //Removes if not leader

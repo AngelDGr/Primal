@@ -46,7 +46,8 @@ public final class SnakeEntitySensor extends AnimalStalkEntitySensor<SnakeEntity
         else
             Primal_Util.Ai.setNearestAttackableOnSensor(snake);
 
-        nearbyMobCautiousDetection(snake);
+        if(!snake.isBaby())
+            nearbyMobCautiousDetection(snake);
     }
 
     public static boolean isEntityAttackable(LivingEntity attacker, @NotNull LivingEntity target) {

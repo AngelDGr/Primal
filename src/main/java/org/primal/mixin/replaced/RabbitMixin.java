@@ -26,7 +26,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import software.bernie.geckolib.animatable.GeoReplacedEntity;
-import software.bernie.geckolib.util.RenderUtil;
+import software.bernie.geckolib.util.RenderUtils;
 
 @Mixin(Rabbit.class)
 public abstract class RabbitMixin extends Animal implements VariantHolder<Rabbit.Variant>, ReplacedEntityNewVariantHolder<RabbitReplaced.PrimalVariant> {
@@ -49,7 +49,7 @@ public abstract class RabbitMixin extends Animal implements VariantHolder<Rabbit
     @Inject(method = "aiStep", at = @At("HEAD"))
     private void primal$rearLogic(CallbackInfo ci) {
         //Only triggers on client and not in water and only if is actually replaced
-        if (!this.level().isClientSide || this.isInWater() || !(RenderUtil.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity anim)) return;
+        if (!this.level().isClientSide || this.isInWater() || !(RenderUtils.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity anim)) return;
 
         long gameTime = this.level().getGameTime();
 
@@ -61,7 +61,7 @@ public abstract class RabbitMixin extends Animal implements VariantHolder<Rabbit
 
         // Track last movement time
         if (isMoving) {
-            anim.stopTriggeredAnim(p$THIS, "base_controller", "rear");
+            anim.stopTriggeredAnimation(p$THIS, "base_controller", "rear");
             primal$lastMovingTick = gameTime;
         }
 
@@ -101,8 +101,8 @@ public abstract class RabbitMixin extends Animal implements VariantHolder<Rabbit
         this.getNavigation().stop();
         this.setDeltaMovement(Vec3.ZERO);
 
-        if (RenderUtil.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity anim) {
-            anim.stopTriggeredAnim(p$THIS, "base_controller", "rear");
+        if (RenderUtils.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity anim) {
+            anim.stopTriggeredAnimation(p$THIS, "base_controller", "rear");
             anim.triggerAnim(p$THIS, "base_controller", "rear");
         }
     }
@@ -116,13 +116,13 @@ public abstract class RabbitMixin extends Animal implements VariantHolder<Rabbit
     private static final EntityDataAccessor<Integer> PRIMAL$DATA_VARIANT_ID = SynchedEntityData.defineId(RabbitMixin.class, EntityDataSerializers.INT);
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
-    private void primal$rabbitVariantSynchedData(final SynchedEntityData.Builder builder, final CallbackInfo ci){
-        builder.define(PRIMAL$DATA_VARIANT_ID, RabbitReplaced.PrimalVariant.NONE.getId());
+    private void primal$rabbitVariantSynchedData(final CallbackInfo ci){
+        this.entityData.define(PRIMAL$DATA_VARIANT_ID, RabbitReplaced.PrimalVariant.NONE.getId());
     }
 
     @SuppressWarnings("unchecked")
     @Inject(method = "finalizeSpawn", at = @At("TAIL"))
-    private void primal$rabbitFinalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CallbackInfoReturnable<SpawnGroupData> cir){
+    private void primal$rabbitFinalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CompoundTag tag, CallbackInfoReturnable<SpawnGroupData> cir){
         this.primal$setVariantFromBiome((ReplacedEntityNewVariantHolder<RabbitReplaced.PrimalVariant>) p$THIS, level.getBiome(this.blockPosition()));
     }
 

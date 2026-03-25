@@ -61,7 +61,7 @@ public class AnimalSearchHome extends Behavior<Animal> {
             return;
         }
 
-        GlobalPos pos = new GlobalPos(level.dimension(), eagle.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get());
+        GlobalPos pos = GlobalPos.of(level.dimension(), eagle.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get());
 
         eagle.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         eagle.getBrain().setMemory(MemoryModuleType.WALK_TARGET,

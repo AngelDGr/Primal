@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import software.bernie.geckolib.animatable.GeoReplacedEntity;
-import software.bernie.geckolib.util.RenderUtil;
+import software.bernie.geckolib.util.RenderUtils;
 
 @Mixin(Wolf.class)
 public abstract class WolfMixin extends Animal implements VariantHolder<Rabbit.Variant> {
@@ -28,10 +28,10 @@ public abstract class WolfMixin extends Animal implements VariantHolder<Rabbit.V
     @Inject(method = "aiStep", at = @At("HEAD"))
     private void primal$rearLogic(CallbackInfo ci) {
         //Only triggers on client and not in water and only if is actually replaced
-        if (!this.level().isClientSide || this.isInWater() || !(RenderUtil.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity)) return;
+        if (!this.level().isClientSide || this.isInWater() || !(RenderUtils.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity)) return;
 
         if(this.shakeAnim>0 && this.shakeAnim<=0.1){
-            replacedEntity.stopTriggeredAnim(p$THIS, "base_controller", "wet");
+            replacedEntity.stopTriggeredAnimation(p$THIS, "base_controller", "wet");
             replacedEntity.triggerAnim(p$THIS, "base_controller", "wet");
         }
     }

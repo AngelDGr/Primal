@@ -2,10 +2,11 @@ package org.primal.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.util.Mth;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.DeerModel;
@@ -21,8 +22,8 @@ public class DeerRenderer extends GeoEntityRenderer<DeerEntity> {
     }
 
     @Override
-    protected void applyRotations(DeerEntity deer, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        super.applyRotations(deer, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
+    protected void applyRotations(DeerEntity deer, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
+        super.applyRotations(deer, poseStack, ageInTicks, rotationYaw, partialTick);
         if (deer.isJumping()) {
             float f = -Mth.lerp(partialTick, deer.xRotO, deer.getXRot());
             poseStack.mulPose(Axis.XP.rotationDegrees(f));
@@ -30,9 +31,9 @@ public class DeerRenderer extends GeoEntityRenderer<DeerEntity> {
     }
 
     @Override
-    protected float getShadowRadius(@NotNull DeerEntity entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.25F : f;
+    public void render(@NotNull DeerEntity entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        if (entity.isBaby()) this.shadowRadius *= 0.25F;
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
     @Override

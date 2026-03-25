@@ -39,7 +39,7 @@ public class LionMaul extends Behavior<LionEntity> {
 
     @Override
     protected void tick(@NotNull ServerLevel level, @NotNull LionEntity lion, long gameTime) {
-        LivingEntity target = !lion.getPassengers().isEmpty() && lion.getPassengers().getFirst() instanceof LivingEntity living? living: null;
+        LivingEntity target = !lion.getPassengers().isEmpty() && lion.getPassengers().get(0) instanceof LivingEntity living? living: null;
         stopMoving(lion);
         //If it doesn't have target
         if(target==null){

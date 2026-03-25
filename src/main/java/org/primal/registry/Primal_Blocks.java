@@ -2,6 +2,7 @@ package org.primal.registry;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -9,7 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Registries;
 import org.primal.block.*;
 
@@ -17,80 +18,80 @@ import java.util.function.Supplier;
 
 public class Primal_Blocks {
 
-    public static DeferredHolder<Block, Block> SHARK_TOOTH;
+    public static RegistryObject<Block> SHARK_TOOTH;
 
-    public static DeferredHolder<Block, Block> CROCODILE_EGG;
-    public static DeferredHolder<Block, Block> EAGLE_EGG;
-    public static DeferredHolder<Block, Block> CASSOWARY_EGG;
-    public static DeferredHolder<Block, Block> NEST_BLOCK;
+    public static RegistryObject<Block> CROCODILE_EGG;
+    public static RegistryObject<Block> EAGLE_EGG;
+    public static RegistryObject<Block> CASSOWARY_EGG;
+    public static RegistryObject<Block> NEST_BLOCK;
 
-    public static DeferredHolder<Block, Block> CROCODILE_SCUTE_BLOCK;
-    public static DeferredHolder<Block, Block> CROCODILE_SCUTE_SHINGLE;
-    public static DeferredHolder<Block, Block> CHISELED_CROCODILE_SCUTE;
-    public static DeferredHolder<Block, Block> CROCODILE_SCUTE_STAIRS;
-    public static DeferredHolder<Block, Block> CROCODILE_SCUTE_SLAB;
+    public static RegistryObject<Block> CROCODILE_SCUTE_BLOCK;
+    public static RegistryObject<Block> CROCODILE_SCUTE_SHINGLE;
+    public static RegistryObject<Block> CHISELED_CROCODILE_SCUTE;
+    public static RegistryObject<Block> CROCODILE_SCUTE_STAIRS;
+    public static RegistryObject<Block> CROCODILE_SCUTE_SLAB;
 
-    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_BLOCK;
-    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_SHINGLE;
-    public static DeferredHolder<Block, Block> ARID_CHISELED_CROCODILE_SCUTE;
-    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_STAIRS;
-    public static DeferredHolder<Block, Block> ARID_CROCODILE_SCUTE_SLAB;
+    public static RegistryObject<Block> ARID_CROCODILE_SCUTE_BLOCK;
+    public static RegistryObject<Block> ARID_CROCODILE_SCUTE_SHINGLE;
+    public static RegistryObject<Block> ARID_CHISELED_CROCODILE_SCUTE;
+    public static RegistryObject<Block> ARID_CROCODILE_SCUTE_STAIRS;
+    public static RegistryObject<Block> ARID_CROCODILE_SCUTE_SLAB;
 
-    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_BLOCK;
-    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_SHINGLE;
-    public static DeferredHolder<Block, Block> HUMID_CHISELED_CROCODILE_SCUTE;
-    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_STAIRS;
-    public static DeferredHolder<Block, Block> HUMID_CROCODILE_SCUTE_SLAB;
+    public static RegistryObject<Block> HUMID_CROCODILE_SCUTE_BLOCK;
+    public static RegistryObject<Block> HUMID_CROCODILE_SCUTE_SHINGLE;
+    public static RegistryObject<Block> HUMID_CHISELED_CROCODILE_SCUTE;
+    public static RegistryObject<Block> HUMID_CROCODILE_SCUTE_STAIRS;
+    public static RegistryObject<Block> HUMID_CROCODILE_SCUTE_SLAB;
 
-    public static DeferredHolder<Block, Block> CHOMP_TRAP_GREEN;
-    public static DeferredHolder<Block, Block> CHOMP_TRAP_ARID;
-    public static DeferredHolder<Block, Block> CHOMP_TRAP_HUMID;
+    public static RegistryObject<Block> CHOMP_TRAP_GREEN;
+    public static RegistryObject<Block> CHOMP_TRAP_ARID;
+    public static RegistryObject<Block> CHOMP_TRAP_HUMID;
 
-    public static DeferredHolder<Block, Block> HOLLOW_OAK_LOG;
-    public static DeferredHolder<Block, Block> HOLLOW_SPRUCE_LOG;
-    public static DeferredHolder<Block, Block> HOLLOW_BIRCH_LOG;
-    public static DeferredHolder<Block, Block> HOLLOW_JUNGLE_LOG;
-    public static DeferredHolder<Block, Block> HOLLOW_ACACIA_LOG;
-    public static DeferredHolder<Block, Block> HOLLOW_DARK_OAK_LOG;
-    public static DeferredHolder<Block, Block> HOLLOW_MANGROVE_LOG;
+    public static RegistryObject<Block> HOLLOW_OAK_LOG;
+    public static RegistryObject<Block> HOLLOW_SPRUCE_LOG;
+    public static RegistryObject<Block> HOLLOW_BIRCH_LOG;
+    public static RegistryObject<Block> HOLLOW_JUNGLE_LOG;
+    public static RegistryObject<Block> HOLLOW_ACACIA_LOG;
+    public static RegistryObject<Block> HOLLOW_DARK_OAK_LOG;
+    public static RegistryObject<Block> HOLLOW_MANGROVE_LOG;
 
-    public static DeferredHolder<Block, Block> STRAW_BALE;
-    public static DeferredHolder<Block, Block> DRIED_STRAW_BALE;
-    public static DeferredHolder<Block, Block> WEAVED_STRAW;
-    public static DeferredHolder<Block, Block> WEAVED_STRAW_STAIRS;
-    public static DeferredHolder<Block, Block> WEAVED_STRAW_SLAB;
-    public static DeferredHolder<Block, Block> STRAW_BASKET;
+    public static RegistryObject<Block> STRAW_BALE;
+    public static RegistryObject<Block> DRIED_STRAW_BALE;
+    public static RegistryObject<Block> WEAVED_STRAW;
+    public static RegistryObject<Block> WEAVED_STRAW_STAIRS;
+    public static RegistryObject<Block> WEAVED_STRAW_SLAB;
+    public static RegistryObject<Block> STRAW_BASKET;
 
-    public static DeferredHolder<Block, Block> DREAMCATCHER;
+    public static RegistryObject<Block> DREAMCATCHER;
 
     //Flora
-    public static DeferredHolder<Block, Block> RIVER_REEDS;
-    public static DeferredHolder<Block, Block> SHORT_RIVER_REEDS;
-    public static DeferredHolder<Block, Block> CATTAILS;
-    public static DeferredHolder<Block, Block> WARM_SEASHELLS;
-    public static DeferredHolder<Block, Block> COLD_SEASHELLS;
-    public static DeferredHolder<Block, Block> TEMPERATE_SEASHELLS;
+    public static RegistryObject<Block> RIVER_REEDS;
+    public static RegistryObject<Block> SHORT_RIVER_REEDS;
+    public static RegistryObject<Block> CATTAILS;
+    public static RegistryObject<Block> WARM_SEASHELLS;
+    public static RegistryObject<Block> COLD_SEASHELLS;
+    public static RegistryObject<Block> TEMPERATE_SEASHELLS;
 
-    public static DeferredHolder<Block, Block> THORNY_ACACIA_SAPLING;
-    public static DeferredHolder<Block, Block> THORNY_ACACIA_LOG;
-    public static DeferredHolder<Block, Block> THORNY_ACACIA_WOOD;
-    public static DeferredHolder<Block, Block> THORNY_ACACIA_LEAVES;
+    public static RegistryObject<Block> THORNY_ACACIA_SAPLING;
+    public static RegistryObject<Block> THORNY_ACACIA_LOG;
+    public static RegistryObject<Block> THORNY_ACACIA_WOOD;
+    public static RegistryObject<Block> THORNY_ACACIA_LEAVES;
 
     //Fruit Trees
-    public static DeferredHolder<Block, Block> PETRIFIED_FRUIT;
+    public static RegistryObject<Block> PETRIFIED_FRUIT;
 
-    public static DeferredHolder<Block, Block> LITCHI_SAPLING;
-    public static DeferredHolder<Block, Block> LITCHI_TREE;
+    public static RegistryObject<Block> LITCHI_SAPLING;
+    public static RegistryObject<Block> LITCHI_TREE;
 
-    public static DeferredHolder<Block, Block> KIWANO_SAPLING;
-    public static DeferredHolder<Block, Block> KIWANO_BULK;
+    public static RegistryObject<Block> KIWANO_SAPLING;
+    public static RegistryObject<Block> KIWANO_BULK;
 
-    public static DeferredHolder<Block, Block> STARFRUIT_SAPLING;
-    public static DeferredHolder<Block, Block> STARFRUIT_TREE;
+    public static RegistryObject<Block> STARFRUIT_SAPLING;
+    public static RegistryObject<Block> STARFRUIT_TREE;
 
-    public static DeferredHolder<Block, Block> FALLOW_DEER_ANTLER;
-    public static DeferredHolder<Block, Block> REINDEER_ANTLER;
-    public static DeferredHolder<Block, Block> WHITETAIL_DEER_ANTLER;
+    public static RegistryObject<Block> FALLOW_DEER_ANTLER;
+    public static RegistryObject<Block> REINDEER_ANTLER;
+    public static RegistryObject<Block> WHITETAIL_DEER_ANTLER;
 
     public static void init(){
 
@@ -170,7 +171,7 @@ public class Primal_Blocks {
                             .sound(SoundType.SCAFFOLDING)));
 
             CROCODILE_SCUTE_STAIRS = register("crocodile_scute_stairs",
-                    () -> new StairBlock(CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
+                    () -> new StairBlock(()-> CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
                             BlockBehaviour.Properties.of()
                                     .instabreak()
                                     .explosionResistance(1200f)
@@ -211,7 +212,7 @@ public class Primal_Blocks {
                             .sound(SoundType.SCAFFOLDING)));
 
             ARID_CROCODILE_SCUTE_STAIRS=register("arid_crocodile_scute_stairs",
-                    ()-> new StairBlock(ARID_CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
+                    ()-> new StairBlock(()-> ARID_CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
                             BlockBehaviour.Properties.of()
                                     .instabreak()
                                     .explosionResistance(1200f)
@@ -252,7 +253,7 @@ public class Primal_Blocks {
                             .sound(SoundType.SCAFFOLDING)));
 
             HUMID_CROCODILE_SCUTE_STAIRS = register("humid_crocodile_scute_stairs",
-                    () -> new StairBlock(HUMID_CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
+                    () -> new StairBlock(()-> HUMID_CROCODILE_SCUTE_BLOCK.get().defaultBlockState(),
                             BlockBehaviour.Properties.of()
                                     .instabreak()
                                     .explosionResistance(1200f)
@@ -397,7 +398,7 @@ public class Primal_Blocks {
                                     .randomTicks()
                                     .sound(SoundType.GRASS)
                                     .noOcclusion()
-                                    .isValidSpawn(Blocks::ocelotOrParrot)
+                                    .isValidSpawn(Primal_Blocks::ocelotOrParrot)
                                     .isSuffocating(Primal_Blocks::never)
                                     .isViewBlocking(Primal_Blocks::never)
                                     .ignitedByLava()
@@ -445,7 +446,7 @@ public class Primal_Blocks {
                         .ignitedByLava()));
 
         WEAVED_STRAW_STAIRS = register("weaved_straw_stairs",
-                () -> new StairBlock(WEAVED_STRAW.get().defaultBlockState(),
+                () -> new StairBlock(()-> WEAVED_STRAW.get().defaultBlockState(),
                         BlockBehaviour.Properties.of()
                         .mapColor(MapColor.TERRACOTTA_YELLOW)
                         .instrument(NoteBlockInstrument.BANJO)
@@ -543,42 +544,46 @@ public class Primal_Blocks {
 
         HOLLOW_OAK_LOG = register("hollow_oak_log",
                 () -> new HollowLogBlock(
-                        BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)
+                        BlockBehaviour.Properties.copy(Blocks.OAK_LOG)
                                 .strength(4.0F)));
 
         HOLLOW_SPRUCE_LOG = register("hollow_spruce_log",
                 () -> new HollowLogBlock(
-                        BlockBehaviour.Properties.ofFullCopy(Blocks.SPRUCE_LOG)
+                        BlockBehaviour.Properties.copy(Blocks.SPRUCE_LOG)
                                 .strength(4.0F)));
 
         HOLLOW_BIRCH_LOG = register("hollow_birch_log",
                 () -> new HollowLogBlock(
-                        BlockBehaviour.Properties.ofFullCopy(Blocks.BIRCH_LOG)
+                        BlockBehaviour.Properties.copy(Blocks.BIRCH_LOG)
                                 .strength(4.0F)));
 
         HOLLOW_JUNGLE_LOG = register("hollow_jungle_log",
                 () -> new HollowLogBlock(
-                        BlockBehaviour.Properties.ofFullCopy(Blocks.JUNGLE_LOG)
+                        BlockBehaviour.Properties.copy(Blocks.JUNGLE_LOG)
                                 .strength(4.0F)));
 
         HOLLOW_ACACIA_LOG = register("hollow_acacia_log",
                 () -> new HollowLogBlock(
-                        BlockBehaviour.Properties.ofFullCopy(Blocks.ACACIA_LOG)
+                        BlockBehaviour.Properties.copy(Blocks.ACACIA_LOG)
                                 .strength(4.0F)));
 
         HOLLOW_DARK_OAK_LOG = register("hollow_dark_oak_log",
                 () -> new HollowLogBlock(
-                        BlockBehaviour.Properties.ofFullCopy(Blocks.DARK_OAK_LOG)
+                        BlockBehaviour.Properties.copy(Blocks.DARK_OAK_LOG)
                                 .strength(4.0F)));
 
         HOLLOW_MANGROVE_LOG = register("hollow_mangrove_log",
                 () -> new HollowLogBlock(
-                        BlockBehaviour.Properties.ofFullCopy(Blocks.MANGROVE_LOG)
+                        BlockBehaviour.Properties.copy(Blocks.MANGROVE_LOG)
                                 .strength(4.0F)));
     }
 
+    private static Boolean ocelotOrParrot(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, EntityType<?> entityType) {
+        return entityType == EntityType.OCELOT || entityType == EntityType.PARROT;
+    }
 
-    public static DeferredHolder<Block, Block> register(final String name, final Supplier<Block> block) {
+
+    public static RegistryObject<Block> register(final String name, final Supplier<Block> block) {
         return Primal_Registries.BLOCKS.register(name, block);
     }
 

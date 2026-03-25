@@ -44,7 +44,7 @@ public class WalrusSlamAttack extends Behavior<WalrusEntity> {
         LivingEntity target = brain.getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null);
         if (target == null) return;
 
-        walrus.stopTriggeredAnim("base_controller", "ground_pound");
+        walrus.stopTriggeredAnimation("base_controller", "ground_pound");
         walrus.triggerAnim("base_controller", "ground_pound");
 
         brain.setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(target, true));
@@ -63,11 +63,11 @@ public class WalrusSlamAttack extends Behavior<WalrusEntity> {
         Brain<?> brain = entity.getBrain();
 
         entity.doSlamAttackDamage(0);
-        entity.stopTriggeredAnim("base_controller", "ground_pound");
+        entity.stopTriggeredAnimation("base_controller", "ground_pound");
         brain.setMemoryWithExpiry(MemoryModuleType.ATTACK_COOLING_DOWN, true, cooldownBetweenAttacks);
     }
 
     public boolean isWithinSlamAttackRange(WalrusEntity walrus, LivingEntity target) {
-        return walrus.getSlamAttackBoundingBox().intersects(target.getHitbox());
+        return walrus.getSlamAttackBoundingBox().intersects(target.getBoundingBox());
     }
 }

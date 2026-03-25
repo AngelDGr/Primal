@@ -2,10 +2,10 @@ package org.primal.client.animation.entity;
 
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import org.primal.entity.animal.LionEntity;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public class LionAnimations {
 
@@ -48,7 +48,7 @@ public class LionAnimations {
                 switch (animatable.getPose()) {
                     case SPIN_ATTACK:
                         return state.setAndContinue(MAUL);
-                    case SITTING, SLIDING:
+                    case SITTING, DIGGING:
                         state.getController().transitionLength(0);
                         return state.setAndContinue(LAY);
                 }
