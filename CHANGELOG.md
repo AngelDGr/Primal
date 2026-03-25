@@ -1,5 +1,3 @@
-//TODO: Fix weird floating bug with shark on 1.20.1
-
 # 1.1.0 - 1.20.1
 # Additions
 - - Added the Cassowary!
