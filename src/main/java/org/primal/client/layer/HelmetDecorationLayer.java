@@ -106,7 +106,7 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
             if(renderer instanceof PlayerRenderer playerRenderer)
                 registerOnPlayer(playerRenderer, rendererContext);
 
-        for (EntityRenderer<?> renderer : ((EntityRenderDispatcherAccessor) renderManager).create$getRenderers().values()){
+        for (EntityRenderer<?> renderer : ((EntityRenderDispatcherAccessor) renderManager).primal$getRenderers().values()){
             if(renderer instanceof HumanoidMobRenderer<?,?> humanoidMobRenderer)
                 registerOnMob(humanoidMobRenderer, rendererContext);
             if(renderer instanceof ArmorStandRenderer armorStandRenderer)

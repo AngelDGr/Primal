@@ -417,6 +417,9 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     //──────────────────────────────────── Multipart ────────────────────────────────────
     @Override
     public boolean isMultipartEntity() {
+        //To be added to correctly to the level
+        if(this.tickCount==0) return true;
+
         return isSlithering() && !this.isBaby();
     }
 

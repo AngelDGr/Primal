@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.SnakeEntity;
@@ -27,6 +28,7 @@ public class SnakePart extends PartEntity<SnakeEntity> {
         public SnakePart(SnakeEntity parent, float width, float height) {
                 super(parent);
                 this.size = EntityDimensions.scalable(width, height);
+                this.setBoundingBox(size.makeBoundingBox(Vec3.ZERO));
                 this.parentMob = parent;
                 this.refreshDimensions();
         }
@@ -57,7 +59,7 @@ public class SnakePart extends PartEntity<SnakeEntity> {
 
         @Override
         public boolean isPickable() {
-                return true;
+                return this.parentMob.isMultipartEntity();
         }
 
         @Override
@@ -76,7 +78,7 @@ public class SnakePart extends PartEntity<SnakeEntity> {
          */
         @Override
         public boolean hurt(@NotNull DamageSource source, float amount) {
-                return !this.isInvulnerableTo(source) && this.parentMob.hurt(source, amount) && (this.parentMob.isSlithering() && !this.parentMob.isBaby());
+                return this.parentMob.hurt(source, amount) && this.parentMob.isMultipartEntity();
         }
 
         /**
@@ -95,7 +97,7 @@ public class SnakePart extends PartEntity<SnakeEntity> {
         }
 
         protected void doPush(Entity entity) {
-                if(this.parentMob.isSlithering() && !this.parentMob.isBaby())
+                if(this.parentMob.isMultipartEntity())
                         entity.push(this);
         }
 

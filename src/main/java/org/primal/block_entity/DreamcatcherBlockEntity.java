@@ -278,7 +278,7 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
     public void setRemoved() {
         super.setRemoved();
 
-        if (level == null || level.isClientSide) return;
+        if (level == null || level.isClientSide || !level.isLoaded(worldPosition)) return;
 
         int radius = 3;
 

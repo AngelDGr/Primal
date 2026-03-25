@@ -328,7 +328,17 @@ public class LionAi {
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTargetDuringIdle(LionEntity lion) {
-        return BehaviorUtils.isBreeding(lion) || (lion.isBaby() && !lion.isFollowing()) || (!lion.isManeless() && !lion.isBaby()) || (lion.hasLeader() && !lion.isFollowing())? Optional.empty() : lion.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE);
+               //Don't attack while breeding
+        return BehaviorUtils.isBreeding(lion)
+                //Baby don't attack if it is not a following pet
+                || (lion.isBaby() && !lion.isFollowing())
+                //Maned lions use setRoarTarget instead
+                || (!lion.isManeless() && !lion.isBaby())
+                //If is a lion with leader, as long as not is following and doesn't have a target or grudge
+                || (lion.hasLeader() && !lion.isFollowing() &&
+                (lion.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).isEmpty() && lion.getBrain().getMemory(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get()).isEmpty()))?
+                Optional.empty()
+                : lion.getBrain().getMemory(MemoryModuleType.NEAREST_ATTACKABLE);
     }
 
     private static Optional<? extends LivingEntity> findNearestValidAttackTarget(LionEntity lion) {

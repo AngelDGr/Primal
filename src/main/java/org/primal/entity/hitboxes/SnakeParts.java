@@ -8,20 +8,15 @@ public class SnakeParts {
 
     private final SnakeEntity parentSnake;
 
-    private final SnakePart head;
-    private final SnakePart segment1;
-    private final SnakePart segment2;
-    private final SnakePart segment3;
-    private final SnakePart tail;
     private final SnakePart[] subEntities;
 
     public SnakeParts(SnakeEntity parentSnake) {
-        this.head    = new SnakePart(parentSnake, 10f/16f, 5f/16f);
-        this.segment1= new SnakePart(parentSnake, 10f/16f, 5f/16f);
-        this.segment2= new SnakePart(parentSnake, 10f/16f, 5f/16f);
-        this.segment3= new SnakePart(parentSnake, 10f/16f, 5f/16f);
-        this.tail    = new SnakePart(parentSnake, 10f/16f, 5f/16f);
-        this.subEntities = new SnakePart[]{this.head, this.segment1, this.segment2, this.segment3, this.tail};
+        var head    = new SnakePart(parentSnake, 10f/16f, 5f/16f);
+        var segment1= new SnakePart(parentSnake, 10f/16f, 5f/16f);
+        var segment2= new SnakePart(parentSnake, 10f/16f, 5f/16f);
+        var segment3= new SnakePart(parentSnake, 10f/16f, 5f/16f);
+        var tail    = new SnakePart(parentSnake, 10f/16f, 5f/16f);
+        this.subEntities = new SnakePart[]{head, segment1, segment2, segment3, tail};
         this.parentSnake = parentSnake;
     }
 
@@ -40,7 +35,7 @@ public class SnakeParts {
         double accumulated = -13.45d * (1d/16d);
 
         double forward = -20d * (1d / 16d);
-        double headHalfWidth = this.head.getBbWidth() * 0.5D;
+        double headHalfWidth = this.subEntities[0].getBbWidth() * 0.5D;
 
         double offset = forward + headHalfWidth;
 
@@ -48,7 +43,7 @@ public class SnakeParts {
         double headZ = this.parentSnake.getZ() + dirZ * offset;
         double headY = this.parentSnake.getY() + (-0.5d * (1d / 16d));
 
-        this.head.setPos(headX, headY, headZ);
+        this.subEntities[0].setPos(headX, headY, headZ);
 
         for (int i = 1; i < this.subEntities.length; i++) {
 
@@ -71,10 +66,10 @@ public class SnakeParts {
     }
 
     public SnakePart getHead() {
-        return head;
+        return this.subEntities[0];
     }
 
     public SnakePart getTail() {
-        return tail;
+        return this.getSubEntities()[4];
     }
 }
