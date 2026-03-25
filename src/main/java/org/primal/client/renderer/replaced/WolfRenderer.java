@@ -58,7 +58,7 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
 
     public static ResourceLocation convertWolfVariantToName(String variantName) {
         ResourceLocation nameRegistered = ResourceLocation.tryParse(variantName);
-        if(nameRegistered!=null && isModSupported(nameRegistered.getNamespace())){
+        if(!variantName.isEmpty() && nameRegistered!=null && isModSupported(nameRegistered.getNamespace())){
             String sublocation = nameRegistered.getNamespace().equals("minecraft")? "" : nameRegistered.getNamespace()+"/";
             return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/" +sublocation+ nameRegistered.getPath()+".png");
         }
