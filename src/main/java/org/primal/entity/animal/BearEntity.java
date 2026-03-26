@@ -518,7 +518,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                                 //Is seeing the target
                                 target -> Primal_Util.isSeeingTarget(target, this, -0.8f)
                                         //Is not owned bear
-                                        && !(target instanceof BearEntity bear2 && bear2.getOwner()!=null && bear2.getOwner()==this.getOwner()))
+                                        && !(target instanceof TamableAnimal pet2 && pet2.getOwner()!=null && pet2.getOwner()==this.getOwner()))
                         .toList());
 
         // To not attack more than 5 entities at the same time

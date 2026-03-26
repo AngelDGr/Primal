@@ -64,7 +64,7 @@ public class LionAnimations {
                         state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 3f : 1.5f));
                         return state.setAndContinue(RUN);
                     } else {
-                        state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 6f : 3.5f));
+                        state.setControllerSpeed(state.getLimbSwingAmount() * (animatable.isBaby() ? 6f : 2.25f));
                         return state.setAndContinue(WALK);
                     }
                 }

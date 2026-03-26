@@ -20,14 +20,13 @@ import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_Sounds;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 @Mixin(LootTable.class)
 public class LootTableMixin {
 
-    @Inject(method = "fill", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/Container;setItem(ILnet/minecraft/world/item/ItemStack;)V", ordinal = 1))
-    private void primal$spawnSnakeFromChest(Container container, LootParams params, long seed, CallbackInfo ci, @Local ItemStack itemstack){
+    @ModifyArg(method = "fill", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/Container;setItem(ILnet/minecraft/world/item/ItemStack;)V"))
+    private ItemStack primal$spawnSnakeFromChest(ItemStack itemstack, @Local(argsOnly = true)Container container, @Local(argsOnly = true)LootParams params){
 
         if(itemstack.is(Primal_Items.PLACEHOLDER_CHESTED_SNAKE)){
             if(params.getParamOrNull(LootContextParams.ORIGIN)!=null){
@@ -65,7 +64,11 @@ public class LootTableMixin {
                 }
 
                 itemstack.shrink(1);
+
+                return itemstack;
             }
         }
+
+        return itemstack;
     }
 }

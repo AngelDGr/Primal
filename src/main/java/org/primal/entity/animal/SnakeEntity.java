@@ -231,6 +231,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_COLLAR_COLOR = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> HAS_COLLAR = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> FOLLOWER_STATE = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SLITHER_COOLDOWN = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FLICK_COOLDOWN = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
@@ -247,6 +248,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         super.defineSynchedData(builder);
         builder.define(DATA_VARIANT_ID, SnakeEntity.Variant.NULL.id);
         builder.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
+        builder.define(HAS_COLLAR, true);
         builder.define(FOLLOWER_STATE, 0);
         builder.define(SLITHER_COOLDOWN, 0);
         builder.define(FLICK_COOLDOWN, this.getRandom().nextIntBetweenInclusive(20, 100));
@@ -267,6 +269,21 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     @Override
     public void setCollarColor(DyeColor collarColor) {
         this.entityData.set(DATA_COLLAR_COLOR, collarColor.getId());
+    }
+
+    @Override
+    public boolean hasCollar() {
+        return this.entityData.get(HAS_COLLAR);
+    }
+
+    @Override
+    public void setHasCollar(boolean hasCollar){
+        this.entityData.set(HAS_COLLAR, hasCollar);
+    }
+
+    @Override
+    public boolean hasRemovableCollar() {
+        return true;
     }
 
     @Override
@@ -764,9 +781,18 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     public @NotNull InteractionResult mobInteract(@NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack stackInHand = player.getItemInHand(hand);
 
-        //To handle dye collar logic
-        if (this.dyeCollar(player, hand))
+        //Remove dye
+        if(stackInHand.is(Items.WATER_BUCKET) && hasCollar()){
+            this.setHasCollar(false);
+            this.usePlayerItem(player, hand, stackInHand);
             return InteractionResult.sidedSuccess(this.level().isClientSide);
+        }
+
+        //To handle dye collar logic
+        if (this.dyeCollar(player, hand)){
+            this.setHasCollar(true);
+            return InteractionResult.sidedSuccess(this.level().isClientSide);
+        }
 
         //Fill potion
         if(stackInHand.is(Items.GLASS_BOTTLE) && getPotionCooldown()==0 && !isAggressive()){
@@ -900,6 +926,15 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
         return stack.is(Items.FERMENTED_SPIDER_EYE);
+    }
+
+    @Override
+    protected void usePlayerItem(@NotNull Player player, @NotNull InteractionHand hand, @NotNull ItemStack stack) {
+        if (stack.is(Items.WATER_BUCKET)) {
+            player.playSound(SoundEvents.BUCKET_EMPTY);
+            player.setItemInHand(hand, new ItemStack(Items.BUCKET));
+        }
+        else super.usePlayerItem(player, hand, stack);
     }
 
     @Override

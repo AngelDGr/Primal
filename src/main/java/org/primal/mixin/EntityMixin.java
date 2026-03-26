@@ -74,7 +74,7 @@ public abstract class EntityMixin {
     @ModifyReturnValue(method = "getMaxAirSupply", at = @At("RETURN"))
     public int primal$improvePolarBearRespiration(int original) {
         //2 min
-        if(this.getType().equals(EntityType.POLAR_BEAR))
+        if(p$THIS.getType()!=null && p$THIS.getType().equals(EntityType.POLAR_BEAR))
             return 2400;
 
         return original;
@@ -82,7 +82,7 @@ public abstract class EntityMixin {
 
     @ModifyExpressionValue(method = "collide", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;onGround()Z"))
     public boolean primal$improveStepUpFromWaterToGround(boolean original) {
-        if(this.getType().equals(EntityType.POLAR_BEAR) || p$THIS instanceof SemiAquaticAnimal)
+        if(p$THIS.getType()!=null && p$THIS.getType().equals(EntityType.POLAR_BEAR) || p$THIS instanceof SemiAquaticAnimal)
             return original || p$THIS.isInWater();
 
         return original;

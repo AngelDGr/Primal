@@ -1,3 +1,22 @@
+# 1.1.1 - 1.21
+# Additions
+- Made thorny acacia logs strippable into the normal acacia ones
+
+# Changes
+- Bear swipe can't longer damage other pets from the same owner
+- Made able to remove snake tribal marks
+- Reduced lion walking animation speed
+- Made deer don't be scared or stare to players on creative mode
+- Made manned lion roar unable to command tamed lions, unless it is tamed too and with the same owner
+- Changed thorny acacia spawn logic, now it should work with any datapack
+
+# Fixes
+- Fixed an issue when generating hollow logs
+- Fixed an issue with the polar bear air supply
+- Fixed an issue with applying the new reflected damage attribute too early
+- Fixed an issue when growing river reeds and cattails
+- Fixed a probable issue related to spawning snakes on chests
+
 # 1.1.0 - 1.21
 # Additions
 - - Added the Cassowary!

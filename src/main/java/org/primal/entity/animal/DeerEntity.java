@@ -379,6 +379,9 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
         //To be already scared of scared
         if(this.getBrain().isMemoryValue(MemoryModuleType.AVOID_TARGET, target)) return true;
 
+        //To don't be scared from creative players
+        if(target instanceof Player player && player.isCreative()) return false;
+
         //No scared of tamed animals only if trusted
         if(target instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame() && this.isTrusting()) return false;
 
@@ -403,6 +406,9 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
     public boolean canBeCautious(LivingEntity target) {
         //No scared of tamed animals only if trusted
         if(target instanceof TamableAnimal tamableAnimal && tamableAnimal.isTame() && this.isTrusting()) return false;
+
+        //To don't be scared from creative players
+        if(target instanceof Player player && player.isCreative()) return false;
 
         //No scared of players only if trusted
         if(target instanceof Player && this.isTrusting()) return false;

@@ -1,5 +1,6 @@
 package org.primal;
 
+import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -8,11 +9,13 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -180,8 +183,21 @@ public class Primal_Main {
 
     @SubscribeEvent
     public static void registerCommonEvent(final FMLCommonSetupEvent event){
-        setFlammables();
         ConfigCache.load();
+        Primal_Main.setFlammables();
+        Primal_Main.setStrippables(event);
+    }
+
+    public static void setStrippables(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            AxeItem.STRIPPABLES = new ImmutableMap.Builder<Block, Block>()
+                    .putAll(AxeItem.STRIPPABLES)
+
+                    .put(Primal_Blocks.THORNY_ACACIA_LOG.get(), Blocks.STRIPPED_ACACIA_LOG)
+                    .put(Primal_Blocks.THORNY_ACACIA_WOOD.get(), Blocks.STRIPPED_ACACIA_WOOD)
+
+                    .build();
+        });
     }
 
     public static void setFlammables() {
