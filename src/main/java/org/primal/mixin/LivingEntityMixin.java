@@ -49,9 +49,10 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, ne
             target = "Lnet/minecraft/world/entity/ai/attributes/AttributeMap;<init>(Lnet/minecraft/world/entity/ai/attributes/AttributeSupplier;)V"))
     private AttributeSupplier primal$modifyMobAttributes(AttributeSupplier supplier,
                                                       @Local(argsOnly = true) EntityType<? extends LivingEntity> entityType) {
-        if (entityType.equals(EntityType.POLAR_BEAR)){
-            var builder = primal$getAttributeBuilder(supplier);
+        var builder = primal$getAttributeBuilder(supplier);
+        builder.add(Primal_EntityAttributes.REFLECTED_DAMAGE.get());
 
+        if (entityType.equals(EntityType.POLAR_BEAR)){
             //Optional health increase
             if(Primal_Main.COMMON_CONFIG.polarBearIncreasesHealth.get())
                 builder.add(Attributes.MAX_HEALTH, 60);
@@ -61,16 +62,16 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, ne
         }
 
         if(entityType.equals(EntityType.FOX) && Primal_Main.COMMON_CONFIG.foxIncreasesHealth.get())
-            return primal$getAttributeBuilder(supplier)
+            return builder
                     .add(Attributes.MAX_HEALTH, 15)
                     .build();
 
         if(entityType.equals(EntityType.WOLF) && Primal_Main.COMMON_CONFIG.wolfIncreasesHealth.get())
-            return primal$getAttributeBuilder(supplier)
+            return builder
                     .add(Attributes.MAX_HEALTH, 20)
                     .build();
 
-        return supplier;
+        return builder.build();
     }
 
     @Unique
@@ -86,13 +87,6 @@ public abstract class LivingEntityMixin extends Entity implements Attackable, ne
 
     @Unique
     private static final EntityDataAccessor<Optional<UUID>> primal$eagleAttacking = SynchedEntityData.defineId(LivingEntityMixin.class, EntityDataSerializers.OPTIONAL_UUID);
-
-    @Inject(method = "createLivingAttributes", at = @At("RETURN"), cancellable = true)
-    private static void primal$addAttributes(final CallbackInfoReturnable<AttributeSupplier.Builder> cir){
-        final AttributeSupplier.Builder builder = cir.getReturnValue();
-        builder.add(Primal_EntityAttributes.REFLECTED_DAMAGE.get());
-        cir.setReturnValue(builder);
-    }
 
     @Inject(method = "defineSynchedData", at = @At("TAIL"))
     private void primal$IsEagleAttackingSynchedData(final CallbackInfo ci){

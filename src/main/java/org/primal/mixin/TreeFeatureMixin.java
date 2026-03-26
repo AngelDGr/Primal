@@ -14,7 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.stateproviders.SimpleStateProvider;
+import net.minecraft.world.level.levelgen.feature.treedecorators.AlterGroundDecorator;
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecorator;
 import net.minecraftforge.registries.RegistryObject;
 import org.primal.Primal_Main;
@@ -24,6 +26,8 @@ import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Sounds;
 import org.primal.registry.Primal_Tags;
 import org.primal.util.Primal_Util;
+import org.primal.worldgen.feature.AlterLeavesDecorator;
+import org.primal.worldgen.feature.AlterTrunkDecorator;
 import org.primal.worldgen.feature.HollowLogTreeDecorator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -38,6 +42,81 @@ import java.util.function.BiConsumer;
 
 @Mixin(TreeFeature.class)
 public class TreeFeatureMixin {
+
+    @Inject(method = "place", at = @At(value = "INVOKE", target = "Ljava/util/List;isEmpty()Z", ordinal = 0))
+    private void primal$replaceAcaciaWithThornyAcacia(FeaturePlaceContext<TreeConfiguration> context, CallbackInfoReturnable<Boolean> cir,
+                                                      @Local TreeConfiguration treeconfiguration,
+                                                      @Local WorldGenLevel worldgenlevel,
+                                                      @Local(ordinal = 2) BiConsumer<BlockPos, BlockState> biConsumer2,
+                                                      @Local RandomSource randomsource,
+                                                      @Local(ordinal = 1) Set<BlockPos> set1,
+                                                      @Local(ordinal = 2) Set<BlockPos> set2,
+                                                      @Local(ordinal = 0) Set<BlockPos> set){
+
+        if(Primal_Main.COMMON_CONFIG.thornyAcaciaSpawnInWorld.get() && context.level().getRandom().nextFloat() < Primal_Main.COMMON_CONFIG.thornyAcaciaProbabilityOfReplacing.get()){
+
+            Holder<Biome> biome = context.level().getBiome(context.origin());
+
+            boolean matchesExtra =
+                    Primal_Util.Generation.biomeMatchesWithConfigList(Primal_Main.COMMON_CONFIG.thornyAcaciaExtraBiomes.get().stream().map(Object::toString).toList(), biome);
+
+            if(biome.is(Primal_Tags.Biome.SPAWNS_THORNY_ACACIA) || matchesExtra){
+                TreeDecorator.Context treedecorator$context = new TreeDecorator.Context(worldgenlevel, biConsumer2, randomsource, set1, set2, set);
+
+                boolean wasTree = false;
+
+                //Leaves
+                if (treeconfiguration.foliageProvider instanceof SimpleStateProvider simpleStateProvider) {
+                    BlockState leavesState = simpleStateProvider.getState(context.random(), context.origin());
+                    Block leaves = leavesState.getBlock();
+
+                    if(leaves.equals(Blocks.ACACIA_LEAVES)){
+                        new AlterLeavesDecorator(
+                                1,
+                                BlockStateProvider.simple(Primal_Blocks.THORNY_ACACIA_LEAVES.get()),
+                                false,
+                                Integer.MAX_VALUE)
+                                .place(treedecorator$context);
+                    }
+                }
+
+                //Trunk
+                if (treeconfiguration.trunkProvider instanceof SimpleStateProvider simpleStateProvider) {
+                    BlockState logState = simpleStateProvider.getState(context.random(), context.origin());
+                    Block log = logState.getBlock();
+
+                    if(log.equals(Blocks.ACACIA_LOG)){
+                        new AlterTrunkDecorator(
+                                1,
+                                BlockStateProvider.simple(Primal_Blocks.THORNY_ACACIA_LOG.get().defaultBlockState()),
+                                false,
+                                BlockStateProvider.simple(Blocks.ACACIA_LOG),
+                                Integer.MAX_VALUE, true)
+                                .place(treedecorator$context);
+                        wasTree=true;
+                    }
+
+                    if(log.equals(Blocks.ACACIA_WOOD)){
+                        new AlterTrunkDecorator(
+                                1,
+                                BlockStateProvider.simple(Primal_Blocks.THORNY_ACACIA_WOOD.get()),
+                                false,
+                                BlockStateProvider.simple(Blocks.ACACIA_WOOD),
+                                Integer.MAX_VALUE)
+                                .place(treedecorator$context);
+                        wasTree=true;
+                    }
+
+                    //Dirt
+                    if(wasTree)
+                        new AlterGroundDecorator(BlockStateProvider.simple(Blocks.COARSE_DIRT))
+                                .place(treedecorator$context);
+                }
+            }
+        }
+    }
+
+
     @Unique
     private static Map<Block, RegistryObject<Block>> PRIMAL$MAPPED_LOGS;
     @Unique

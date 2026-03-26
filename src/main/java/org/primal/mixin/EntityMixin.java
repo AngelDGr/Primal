@@ -27,7 +27,6 @@ import org.primal.server_data.ConchShellsData;
 import org.primal.util.mob_types.HostileMount;
 import org.primal.util.mob_types.ReplacedEntityNewVariantHolder;
 import org.primal.util.mob_types.SemiAquaticAnimal;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -38,7 +37,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Set;
 
-@Debug(export = true)
 @Mixin(Entity.class)
 public abstract class EntityMixin {
 
@@ -68,7 +66,7 @@ public abstract class EntityMixin {
     @ModifyReturnValue(method = "getMaxAirSupply", at = @At("RETURN"))
     public int primal$improvePolarBearRespiration(int original) {
         //2 min
-        if(this.getType().equals(EntityType.POLAR_BEAR))
+        if(p$THIS.getType()!=null && p$THIS.getType().equals(EntityType.POLAR_BEAR))
             return 2400;
 
         return original;
@@ -76,7 +74,7 @@ public abstract class EntityMixin {
 
     @ModifyExpressionValue(method = "collide", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;onGround()Z"))
     public boolean primal$improveStepUpFromWaterToGround(boolean original) {
-        if(this.getType().equals(EntityType.POLAR_BEAR) || p$THIS instanceof SemiAquaticAnimal)
+        if(p$THIS.getType()!=null && p$THIS.getType().equals(EntityType.POLAR_BEAR) || p$THIS instanceof SemiAquaticAnimal)
             return original || p$THIS.isInWater();
 
         return original;

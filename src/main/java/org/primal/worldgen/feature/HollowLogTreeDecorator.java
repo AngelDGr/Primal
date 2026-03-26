@@ -24,6 +24,7 @@ import org.primal.worldgen.blockstate_provider.HollowLogBlockProvider;
 
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 
 public class HollowLogTreeDecorator extends TreeDecorator {
     public static final Codec<HollowLogTreeDecorator> CODEC = RecordCodecBuilder.create((instance) ->
@@ -103,11 +104,16 @@ public class HollowLogTreeDecorator extends TreeDecorator {
         List<BlockPos> logPosList = context.logs();
         int amountPlaced = 0;
 
-        int baseY = logPosList.stream()
-                .filter(blockPos ->  context.level().isStateAtPosition(blockPos, state -> state.is(BlockTags.LOGS)))
+        OptionalInt minY = logPosList.stream()
+                .filter(blockPos -> context.level().isStateAtPosition(blockPos, state -> state.is(BlockTags.LOGS)))
                 .mapToInt(BlockPos::getY)
-                .min()
-                .orElseThrow();
+                .min();
+
+        if (minY.isEmpty()) {
+            return; // fallback
+        }
+
+        int baseY = minY.getAsInt();
 
         for (BlockPos pos : logPosList) {
             int relativeHeight = pos.getY() - baseY;

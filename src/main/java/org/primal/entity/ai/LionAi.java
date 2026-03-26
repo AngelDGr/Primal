@@ -244,7 +244,15 @@ public class LionAi {
                         StopMoving.create(),
                         new AnimalRoar<>(6f,
                                 l-> AnimalRoar.setAttackTargetAndNearby(l, LionEntity.class,
-                                        ll->!ll.isBaby() && ll!=l && ll.isManeless()),
+                                        ll->{
+                                    if(l.isTame()){
+                                        //Tamed lions only command if is adult and maneless and has the same owner
+                                        return ll!=l && ll.getOwner()==l.getOwner() && (!ll.isBaby() && ll.isManeless());
+                                    } else {
+                                        //Wild only command adults, maneless untamed lions
+                                        return ll!=l && !ll.isTame() && (!ll.isBaby() && ll.isManeless());
+                                    }
+                                        }),
                                 100)
                 ),
                 MemoryModuleType.ROAR_TARGET);

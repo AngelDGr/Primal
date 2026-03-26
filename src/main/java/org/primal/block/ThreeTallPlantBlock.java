@@ -159,18 +159,18 @@ public abstract class ThreeTallPlantBlock extends BushBlock implements Bonemeala
     }
 
     public void performBonemeal(@NotNull ServerLevel level, @NotNull RandomSource random, @NotNull BlockPos pos, @NotNull BlockState currentState, boolean canSpread) {
-        BlockState blockBelow = level.getBlockState(pos.below());
 
         BlockPos.MutableBlockPos lowestPos=new BlockPos.MutableBlockPos().set(pos);
         BlockPos.MutableBlockPos middlePos;
         BlockPos.MutableBlockPos topPos;
 
-        //If it is the upper point, it try to get the block below
-        if(currentState.getValue(HALF)==TripleBlockHalf.UPPER && blockBelow.is(this))
+        //If it is the upper point, it tries to get the block below
+        if(currentState.getValue(HALF)==TripleBlockHalf.UPPER && level.getBlockState(lowestPos.below().mutable()).is(this))
             lowestPos=lowestPos.below().mutable();
         //If it is still a block, but it is a middle
         if(level.getBlockState(lowestPos).is(this)
-                && level.getBlockState(lowestPos).getValue(HALF)==TripleBlockHalf.MIDDLE)
+                && level.getBlockState(lowestPos).getValue(HALF)==TripleBlockHalf.MIDDLE
+                && level.getBlockState(lowestPos.below().mutable()).is(this))
             lowestPos= lowestPos.below().mutable();
 
 

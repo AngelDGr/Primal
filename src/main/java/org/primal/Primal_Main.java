@@ -1,5 +1,6 @@
 package org.primal;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -10,12 +11,14 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -197,6 +200,19 @@ public class Primal_Main {
 
         Primal_DataMapGenerator.setSimilarToDataMaps();
         Primal_MainGameBus.registerBrewingRecipes();
+        Primal_Main.setStrippables(event);
+    }
+
+    public static void setStrippables(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            AxeItem.STRIPPABLES = new ImmutableMap.Builder<Block, Block>()
+                    .putAll(AxeItem.STRIPPABLES)
+
+                    .put(Primal_Blocks.THORNY_ACACIA_LOG.get(), Blocks.STRIPPED_ACACIA_LOG)
+                    .put(Primal_Blocks.THORNY_ACACIA_WOOD.get(), Blocks.STRIPPED_ACACIA_WOOD)
+
+                    .build();
+        });
     }
 
     public static void setFlammables() {

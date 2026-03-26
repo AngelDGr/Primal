@@ -30,6 +30,7 @@ import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
 import org.primal.worldgen.*;
 import org.primal.worldgen.blockstate_provider.HollowLogBlockProvider;
+import org.primal.worldgen.feature.AlterLeavesDecorator;
 import org.primal.worldgen.feature.AlterTrunkDecorator;
 import org.primal.worldgen.feature.HollowLogTreeDecorator;
 
@@ -103,10 +104,12 @@ public class Primal_WorldGen {
     public static class TreeDecorators {
 
         public static RegistryObject<TreeDecoratorType<?>> ALTERNATE_TRUNK;
+        public static RegistryObject<TreeDecoratorType<?>> ALTERNATE_LEAVES;
         public static RegistryObject<TreeDecoratorType<?>> HOLLOW_LOG;
 
         public static void init() {
             ALTERNATE_TRUNK = register("alter_trunk", AlterTrunkDecorator.CODEC);
+            ALTERNATE_LEAVES = register("alter_leaves", AlterLeavesDecorator.CODEC);
             HOLLOW_LOG = register("hollow_log", HollowLogTreeDecorator.CODEC);
         }
 
