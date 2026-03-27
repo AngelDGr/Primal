@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.WolfVariant;
@@ -31,8 +32,15 @@ public class WolfEyesLayer extends GeoRenderLayer<WolfReplaced> {
     public void render(PoseStack poseStack, WolfReplaced animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         Wolf wolf = renderer.getCurrentEntity();
 
+        CompoundTag mainTag = new CompoundTag();
+        wolf.saveWithoutId(mainTag);
+
         //Default glowing eyes
         RenderType eyesrenderType = RenderType.entityTranslucentEmissive(convertWolfVariantToName(wolf.getVariant()));
+
+        if(mainTag.getBoolean("IsCuredBewereager")){
+            eyesrenderType = RenderType.entityTranslucentEmissive(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/species/bewereager_eyes.png"));
+        }
 
         //Angry glowing eyes
         if(wolf.isAngry() && !wolf.isTame())

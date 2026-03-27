@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.WolfVariant;
@@ -44,6 +45,8 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
     @Override
     public ResourceLocation getTextureLocation(WolfReplaced animatable) {
         Wolf wolf = this.currentEntity;
+        CompoundTag mainTag = new CompoundTag();
+        wolf.saveWithoutId(mainTag);
 
         if(BuiltInRegistries.ENTITY_TYPE.getKey(this.currentEntity.getType()).getNamespace().equals("pet_cemetery")){
             if(BuiltInRegistries.ENTITY_TYPE.getKey(this.currentEntity.getType()).getPath().equals("skeleton_wolf"))
@@ -51,6 +54,10 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
 
             if(BuiltInRegistries.ENTITY_TYPE.getKey(this.currentEntity.getType()).getPath().equals("zombie_wolf"))
                 return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/zombie.png");
+        }
+
+        if(mainTag.getBoolean("IsCuredBewereager")){
+            return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/species/bewereager.png");
         }
 
         return convertWolfVariantToName(wolf.getVariant());
