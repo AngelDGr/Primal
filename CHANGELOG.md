@@ -1,6 +1,7 @@
 # 1.1.2 - 1.21
 # Additions
 - Added support for pet cemetery skeleton and zombie wolves if the wolf remodel is active
+- Added lion_spawn_on tag that contains snow, grass and coarse dirt
 
 # Changes
 - Improved mob pictures on fieldguide mod
