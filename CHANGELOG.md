@@ -1,3 +1,18 @@
+# 1.1.2 - 1.20.1
+# Additions
+- Added support for pet cemetery skeleton and zombie wolves if the wolf remodel is active
+- Added lion_spawn_on tag that contains snow, grass and coarse dirt
+
+# Changes
+- Improved mob pictures on fieldguide mod
+- Made cave lion variant be applied on any snowy biome
+
+# Fixes
+- Fixed broken snake pictures on fieldguide
+- Fixed broken plant pictures on fieldguide mod
+- Removed unused shark variation
+- Fixed wolf remodel glowing eyes not being applied correctly
+
 # 1.1.1 - 1.20.1
 # Additions
 - Made thorny acacia logs strippable into the normal acacia ones

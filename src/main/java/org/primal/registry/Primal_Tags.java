@@ -53,6 +53,7 @@ public final class Primal_Tags {
 
         public static final TagKey<net.minecraft.world.level.block.Block> SNAKE_SPAWN_ON = createTag(Registries.BLOCK, "snake_spawn_on");
         public static final TagKey<net.minecraft.world.level.block.Block> DEER_SPAWN_ON = createTag(Registries.BLOCK, "deer_spawn_on");
+        public static final TagKey<net.minecraft.world.level.block.Block> LION_SPAWN_ON = createTag(Registries.BLOCK, "lion_spawn_on");
 
         public static final TagKey<net.minecraft.world.level.block.Block> CREATES_WIDE_SMOKE = createTag(Registries.BLOCK, "creates_wide_smoke");
 

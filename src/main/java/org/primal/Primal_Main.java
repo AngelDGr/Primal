@@ -507,7 +507,7 @@ public class Primal_Main {
 
         //Lion
         event.register(Primal_Entities.LION.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                LionEntity::checkAnimalSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
+                LionEntity::checkLionSpawnRules, SpawnPlacementRegisterEvent.Operation.REPLACE);
 
         //Snake
         event.register(Primal_Entities.SNAKE.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,

@@ -31,9 +31,13 @@ public final class SnakeAnimations {
 
     public static AnimationController<SnakeEntity> mainController(SnakeEntity animatable) {
         return new AnimationController<>(animatable, state -> {
+            if(animatable.hasFieldGuideState()){
+                state.getController().transitionLength(0);
+                return state.setAndContinue(IDLE);
+            }
+
             Primal_Util.Visuals.resetControllerAfterAttack(animatable, state, BITE_STANDING, BITE_SLITHERING);
-            //Fix for field book
-            state.getController().transitionLength(animatable.tickCount==0? 0: 6);
+            state.getController().transitionLength(6);
             state.setControllerSpeed(1f);
 
             //──────────────────────────────────── Triggered ────────────────────────────────────

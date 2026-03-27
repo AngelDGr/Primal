@@ -2,6 +2,7 @@ package org.primal.entity.animal;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +16,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -25,6 +27,7 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.schedule.Activity;
@@ -33,6 +36,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
@@ -90,7 +94,7 @@ import java.util.function.IntFunction;
 // It will lay rest on you when sleeping on the bed.
 // It will randomly lay on top of chests when it's not set to sleep.
 
-public class LionEntity extends TamableAnimal implements VariantHolder<LionEntity.Variant>, GeoEntity, NeutralMob, AnimalRoars, DetectsFartherAway, IsPackAnimal<LionEntity>, HostileMount, PrimalTamable, AttackVillagers {
+public class LionEntity extends TamableAnimal implements VariantHolder<LionEntity.Variant>, GeoEntity, NeutralMob, AnimalRoars, DetectsFartherAway, IsPackAnimal<LionEntity>, HostileMount, PrimalTamable, AttackVillagers, CustomFieldGuideState {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -143,7 +147,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public void setVariantFromBiome(LionEntity animal, Holder<Biome> holder) {
-        if (holder.is(Primal_Tags.Biome.SPAWNS_CAVE_LION)) {
+        if (holder.is(Primal_Tags.Biome.SPAWNS_CAVE_LION) || holder.value().coldEnoughToSnow(this.getOnPos())) {
             animal.setVariant(LionEntity.Variant.CAVE);
         } else if (holder.is(Primal_Tags.Biome.SPAWNS_CARAMEL_LION)) {
             animal.setVariant(LionEntity.Variant.CARAMEL);
@@ -184,6 +188,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     private static final EntityDataAccessor<Boolean> HAS_COLLAR = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_LAYING = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> MEAT_EATEN = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> FIELDGUIDE_STATE = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData() {
@@ -199,6 +204,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         this.entityData.define(HAS_COLLAR, true);
         this.entityData.define(IS_LAYING, false);
         this.entityData.define(MEAT_EATEN, 0);
+        this.entityData.define(FIELDGUIDE_STATE, false);
     }
 
     public void setManeless(boolean isManeless) {
@@ -304,6 +310,16 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
     public void addMeatEaten(int meatEaten){
         this.setMeatEaten(Mth.clamp(this.getMeatEaten()+meatEaten, 0, Integer.MAX_VALUE));
+    }
+
+    @Override
+    public void setFieldGuideState(boolean state) {
+        this.entityData.set(FIELDGUIDE_STATE, state);
+    }
+
+    @Override
+    public boolean hasFieldGuideState() {
+        return this.entityData.get(FIELDGUIDE_STATE);
     }
 
     @Override
@@ -795,6 +811,12 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     //──────────────────────────────────── Misc ────────────────────────────────────
+    public static boolean checkLionSpawnRules(
+            EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random
+    ) {
+        return level.getBlockState(pos.below()).is(Primal_Tags.Block.LION_SPAWN_ON) && isBrightEnoughToSpawn(level, pos);
+    }
+
     @Override
     public float getScale() {
         return this.isBaby() ? 0.3F : 1.0F;

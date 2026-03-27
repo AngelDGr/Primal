@@ -1,5 +1,6 @@
 package org.primal.mixin;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
 import org.primal.Primal_Main;
@@ -34,8 +35,18 @@ public class EntityTypeMixin {
         }
 
         // Wolf Hitbox: 0.6 x 0.5 -> 1.0 x 1.15
-        if(p$THIS == EntityType.WOLF && Primal_Main.ConfigCache.wolfModelChange){
+        if(Primal_Main.ConfigCache.wolfModelChange){
             cir.setReturnValue(EntityDimensions.scalable(1.0F, 1.15F));
+
+            if(p$THIS == EntityType.WOLF)
+                cir.setReturnValue(EntityDimensions.scalable(1.0F, 1.15F));
+
+            //Pet cemetery compat
+            if(BuiltInRegistries.ENTITY_TYPE.getKey(p$THIS).getNamespace().equals("pet_cemetery")
+                    && (BuiltInRegistries.ENTITY_TYPE.getKey(p$THIS).getPath().equals("zombie_wolf") ||
+                    BuiltInRegistries.ENTITY_TYPE.getKey(p$THIS).getPath().equals("skeleton_wolf"))){
+                cir.setReturnValue(EntityDimensions.scalable(1.0F, 1.15F));
+            }
         }
 
         // Dolphin Hitbox: (Doesn't change)

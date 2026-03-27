@@ -95,6 +95,11 @@ public class Primal_BlockTagsGenerator extends BlockTagsProvider {
                 .add(Blocks.GRASS_BLOCK)
                 .addTag(BlockTags.SNOW);
 
+        this.tag(Primal_Tags.Block.LION_SPAWN_ON)
+                .add(Blocks.GRASS_BLOCK)
+                .add(Blocks.COARSE_DIRT)
+                .addTag(BlockTags.SNOW);
+
         this.tag(BlockTags.ACACIA_LOGS)
                 .add(Primal_Blocks.THORNY_ACACIA_LOG.get())
                 .add(Primal_Blocks.THORNY_ACACIA_WOOD.get());
