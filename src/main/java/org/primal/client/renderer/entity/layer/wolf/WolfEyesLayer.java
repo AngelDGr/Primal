@@ -36,6 +36,10 @@ public class WolfEyesLayer extends GeoRenderLayer<WolfReplaced> {
         //Default glowing eyes
         RenderType eyesrenderType = RenderType.entityTranslucentEmissive(convertWolfVariantToName(variantTag));
 
+        if(mainTag.getBoolean("IsCuredBewereager")){
+            eyesrenderType = RenderType.entityTranslucentEmissive(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/species/bewereager_eyes.png"));
+        }
+
         //Angry glowing eyes
         if(wolf.isAngry() && !wolf.isTame())
             eyesrenderType = RenderType.entityTranslucentEmissive(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/angry.png"));
@@ -53,6 +57,8 @@ public class WolfEyesLayer extends GeoRenderLayer<WolfReplaced> {
             if(BuiltInRegistries.ENTITY_TYPE.getKey(this.renderer.getCurrentEntity().getType()).getPath().equals("zombie_wolf"))
                 return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/zombie_eyes.png");
         }
+
+
 
         ResourceLocation nameRegistered = ResourceLocation.tryParse(variantName);
         if(!variantName.isEmpty() && nameRegistered!=null && WolfRenderer.isModSupported(nameRegistered.getNamespace())){

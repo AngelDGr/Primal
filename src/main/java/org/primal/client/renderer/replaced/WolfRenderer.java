@@ -55,6 +55,10 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
                 return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/zombie.png");
         }
 
+        if(mainTag.getBoolean("IsCuredBewereager")){
+            return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/species/bewereager.png");
+        }
+
         return convertWolfVariantToName(variantTag);
     }
 
