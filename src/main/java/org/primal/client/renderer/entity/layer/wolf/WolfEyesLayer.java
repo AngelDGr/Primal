@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.WolfVariant;
@@ -42,6 +43,13 @@ public class WolfEyesLayer extends GeoRenderLayer<WolfReplaced> {
     }
 
     public ResourceLocation convertWolfVariantToName(Holder<WolfVariant> wolfVariantHolder) {
+        if(BuiltInRegistries.ENTITY_TYPE.getKey(this.renderer.getCurrentEntity().getType()).getNamespace().equals("pet_cemetery")){
+            if(BuiltInRegistries.ENTITY_TYPE.getKey(this.renderer.getCurrentEntity().getType()).getPath().equals("skeleton_wolf"))
+                return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/skeleton_eyes.png");
+
+            if(BuiltInRegistries.ENTITY_TYPE.getKey(this.renderer.getCurrentEntity().getType()).getPath().equals("zombie_wolf"))
+                return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/zombie_eyes.png");
+        }
 
         ResourceLocation nameRegistered = ResourceLocation.tryParse(wolfVariantHolder.getRegisteredName());
         if(nameRegistered!=null && WolfRenderer.isModSupported(nameRegistered.getNamespace())){

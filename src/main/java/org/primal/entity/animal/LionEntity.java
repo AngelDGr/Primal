@@ -91,7 +91,7 @@ import java.util.function.IntFunction;
 // It will lay rest on you when sleeping on the bed.
 // It will randomly lay on top of chests when it's not set to sleep.
 
-public class LionEntity extends TamableAnimal implements VariantHolder<LionEntity.Variant>, GeoEntity, NeutralMob, AnimalRoars, DetectsFartherAway, IsPackAnimal<LionEntity>, HostileMount, PrimalTamable, AttackVillagers {
+public class LionEntity extends TamableAnimal implements VariantHolder<LionEntity.Variant>, GeoEntity, NeutralMob, AnimalRoars, DetectsFartherAway, IsPackAnimal<LionEntity>, HostileMount, PrimalTamable, AttackVillagers, CustomFieldGuideState {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -144,7 +144,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public void setVariantFromBiome(LionEntity animal, Holder<Biome> holder) {
-        if (holder.is(Primal_Tags.Biome.SPAWNS_CAVE_LION)) {
+        if (holder.is(Primal_Tags.Biome.SPAWNS_CAVE_LION) || holder.value().coldEnoughToSnow(this.getOnPos())) {
             animal.setVariant(LionEntity.Variant.CAVE);
         } else if (holder.is(Primal_Tags.Biome.SPAWNS_CARAMEL_LION)) {
             animal.setVariant(LionEntity.Variant.CARAMEL);
@@ -185,6 +185,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     private static final EntityDataAccessor<Boolean> HAS_COLLAR = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_LAYING = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> MEAT_EATEN = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> FIELDGUIDE_STATE = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
@@ -200,6 +201,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         builder.define(HAS_COLLAR, true);
         builder.define(IS_LAYING, false);
         builder.define(MEAT_EATEN, 0);
+        builder.define(FIELDGUIDE_STATE, false);
     }
 
     public void setManeless(boolean isManeless) {
@@ -305,6 +307,16 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
     public void addMeatEaten(int meatEaten){
         this.setMeatEaten(Math.clamp(this.getMeatEaten()+meatEaten, 0, Integer.MAX_VALUE));
+    }
+
+    @Override
+    public void setFieldGuideState(boolean state) {
+        this.entityData.set(FIELDGUIDE_STATE, state);
+    }
+
+    @Override
+    public boolean hasFieldGuideState() {
+        return this.entityData.get(FIELDGUIDE_STATE);
     }
 
     @Override

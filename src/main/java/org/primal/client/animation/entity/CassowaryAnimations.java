@@ -18,7 +18,12 @@ public class CassowaryAnimations {
 
     public static AnimationController<CassowaryEntity> mainController(CassowaryEntity animatable) {
         return new AnimationController<>(animatable, state -> {
-            state.getController().transitionLength(animatable.tickCount==0? 0: 2);
+            if(animatable.hasFieldGuideState()){
+                state.getController().transitionLength(0);
+                return state.setAndContinue(IDLE);
+            }
+
+            state.getController().transitionLength(2);
             state.setControllerSpeed(1f);
 
             //──────────────────────────────────── Triggered ────────────────────────────────────

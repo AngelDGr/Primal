@@ -113,7 +113,7 @@ import java.util.stream.Collectors;
 // When bred, they will lay their eggs/have babies in their hidey-holes
 // Add sounds
 // Add natural spawn
-public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEntity.Variant>, GeoEntity, NeutralMob, PrimalTamable, SemiAquaticAnimal, DetectsFartherAway, AttackVillagers, HideOnLog {
+public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEntity.Variant>, GeoEntity, NeutralMob, PrimalTamable, SemiAquaticAnimal, DetectsFartherAway, AttackVillagers, HideOnLog, CustomFieldGuideState {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -242,6 +242,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     private static final EntityDataAccessor<Boolean> IS_DANCING = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_SHEDDING = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> SHEDDING_TIME = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> FIELDGUIDE_STATE = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
@@ -259,6 +260,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         builder.define(IS_DANCING, false);
         builder.define(IS_SHEDDING, false);
         builder.define(SHEDDING_TIME, 0);
+        builder.define(FIELDGUIDE_STATE, false);
     }
 
     @Override
@@ -383,6 +385,16 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
     public void setSheddingTime(int sheddingTime) {
         this.entityData.set(SHEDDING_TIME, sheddingTime);
+    }
+
+    @Override
+    public void setFieldGuideState(boolean state) {
+        this.entityData.set(FIELDGUIDE_STATE, state);
+    }
+
+    @Override
+    public boolean hasFieldGuideState() {
+        return this.entityData.get(FIELDGUIDE_STATE);
     }
 
     @Override

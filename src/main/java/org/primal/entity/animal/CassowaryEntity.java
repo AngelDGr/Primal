@@ -40,6 +40,7 @@ import org.primal.entity.ai.CassowaryAi;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.AttackVillagers;
+import org.primal.util.mob_types.CustomFieldGuideState;
 import org.primal.util.mob_types.VariantHolderWithEgg;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -71,7 +72,7 @@ import java.util.function.IntFunction;
 // Add Suspicious Gravel to nests, which you can uncover various loot, including Petrified Fruit
 // Cassowaries will eat “Petrified fruit”, which in return it poops out seeds of either Litchi, Kiwano, or Starfruit
 // It can be bred with any of the exotic fruits.
-public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEntity.Variant>, VariantHolderWithEgg<CassowaryEntity.Variant, CassowaryEntity>, GeoEntity, NeutralMob, AttackVillagers {
+public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEntity.Variant>, VariantHolderWithEgg<CassowaryEntity.Variant, CassowaryEntity>, GeoEntity, NeutralMob, AttackVillagers, CustomFieldGuideState {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -142,11 +143,14 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     }
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(CassowaryEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> FIELDGUIDE_STATE = SynchedEntityData.defineId(CassowaryEntity.class, EntityDataSerializers.BOOLEAN);
+
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_VARIANT_ID, Variant.MIDNIGHT.id);
+        builder.define(FIELDGUIDE_STATE, false);
     }
 
     @Override
@@ -165,6 +169,16 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.setVariant(CassowaryEntity.Variant.byId(compound.getInt("Variant")));
+    }
+
+    @Override
+    public void setFieldGuideState(boolean state) {
+        this.entityData.set(FIELDGUIDE_STATE, state);
+    }
+
+    @Override
+    public boolean hasFieldGuideState() {
+        return this.entityData.get(FIELDGUIDE_STATE);
     }
 
     //──────────────────────────────────── AI & Movement ────────────────────────────────────

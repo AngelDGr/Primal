@@ -35,6 +35,10 @@ repositories {
         name = "ModMaven"
         url = "https://modmaven.dev"
     }
+    maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
+    }
 }
 
 base {
@@ -139,6 +143,11 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+    implementation "maven.modrinth:field-guide:${fieldguide_version}"
+
+    implementation "maven.modrinth:pet-cemetery:3.0.1"
+    implementation "maven.modrinth:blueprint:8.0.8"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

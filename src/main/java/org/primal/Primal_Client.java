@@ -22,6 +22,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import org.jetbrains.annotations.NotNull;
@@ -34,6 +35,7 @@ import org.primal.client.renderer.EntityOnNeckLayer;
 import org.primal.client.renderer.block_entity.*;
 import org.primal.client.renderer.entity.*;
 import org.primal.client.renderer.replaced.*;
+import org.primal.compat.PetCemeteryCompat;
 import org.primal.item.ConchShellItem;
 import org.primal.particle.DreamcatcherAshParticle;
 import org.primal.particle.SnakeSkinFlakeParticle;
@@ -65,8 +67,11 @@ public class Primal_Client {
         if (Primal_Main.COMMON_CONFIG.rabbitModelChange.get())
             EntityRenderers.register(EntityType.RABBIT, RabbitRenderer::new);
 
-        if (Primal_Main.COMMON_CONFIG.wolfModelChange.get())
+        if (Primal_Main.COMMON_CONFIG.wolfModelChange.get()){
             EntityRenderers.register(EntityType.WOLF, WolfRenderer::new);
+
+            if(FMLLoader.getLoadingModList().getModFileById("pet_cemetery")!=null) PetCemeteryCompat.registerMobsRenderer();
+        }
 
         if (Primal_Main.COMMON_CONFIG.dolphinModelChange.get())
             EntityRenderers.register(EntityType.DOLPHIN, DolphinRenderer::new);

@@ -27,7 +27,12 @@ public class LionAnimations {
 
     public static AnimationController<LionEntity> mainController(LionEntity animatable) {
         return new AnimationController<>(animatable, state -> {
-            state.getController().transitionLength(animatable.tickCount==0? 0: 8);
+            if(animatable.hasFieldGuideState()){
+                state.getController().transitionLength(0);
+                return state.setAndContinue(IDLE);
+            }
+
+            state.getController().transitionLength(8);
             state.setControllerSpeed(1f);
 
             //──────────────────────────────────── Triggered ────────────────────────────────────

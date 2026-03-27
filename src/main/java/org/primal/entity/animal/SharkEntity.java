@@ -77,8 +77,7 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         HAMMERHEAD(1, "hammerhead"),
         TIGER(2, "tiger"),
         SLEEPER(3, "sleeper"),
-        MACKEREL(4, "mackerel"),
-        DEEP(5, "deeeep");
+        MACKEREL(4, "mackerel");
 
         public static final Codec<SharkEntity.Variant> CODEC = StringRepresentable.fromEnum(SharkEntity.Variant::values);
 

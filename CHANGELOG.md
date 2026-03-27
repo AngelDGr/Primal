@@ -1,3 +1,16 @@
+# 1.1.2 - 1.21
+# Additions
+- Added support for pet cemetery skeleton and zombie wolves if the wolf remodel is active
+
+# Changes
+- Improved mob pictures on fieldguide mod
+- Made cave lion variant be applied on any snowy biome
+
+# Fixes
+- Fixed broken snake pictures on fieldguide
+- Fixed broken plant pictures on fieldguide mod
+- Removed unused shark variation
+
 # 1.1.1 - 1.21
 # Additions
 - Made thorny acacia logs strippable into the normal acacia ones

@@ -2,6 +2,7 @@
   "package": "org.primal.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
+  "plugin": "org.primal.mixin.PrimalMixinConfigPlugin",
   "mixins": [
     "AgeableMobMixin",
     "AnimalMixin",
@@ -39,6 +40,7 @@
     "VillagerHostilesSensorMixin",
     "ZombieMixin",
     "ZombieVillagerMixin",
+    "fieldguide.EntryRenderHelperMixin",
     "replaced.DolphinMixin",
     "replaced.FoxMixin",
     "replaced.FoxMixin$FoxPanicMixin",

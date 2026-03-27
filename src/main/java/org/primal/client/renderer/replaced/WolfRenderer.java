@@ -3,6 +3,7 @@ package org.primal.client.renderer.replaced;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.WolfVariant;
@@ -43,6 +44,15 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
     @Override
     public ResourceLocation getTextureLocation(WolfReplaced animatable) {
         Wolf wolf = this.currentEntity;
+
+        if(BuiltInRegistries.ENTITY_TYPE.getKey(this.currentEntity.getType()).getNamespace().equals("pet_cemetery")){
+            if(BuiltInRegistries.ENTITY_TYPE.getKey(this.currentEntity.getType()).getPath().equals("skeleton_wolf"))
+                return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/skeleton.png");
+
+            if(BuiltInRegistries.ENTITY_TYPE.getKey(this.currentEntity.getType()).getPath().equals("zombie_wolf"))
+                return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/zombie.png");
+        }
+
         return convertWolfVariantToName(wolf.getVariant());
     }
 
