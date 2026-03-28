@@ -31,7 +31,9 @@ import org.primal.client.renderer.block_entity.*;
 import org.primal.client.renderer.entity.*;
 import org.primal.client.renderer.replaced.*;
 import org.primal.compat.PetCemeteryCompat;
+import org.primal.entity.animal.SnakeEntity;
 import org.primal.item.ConchShellItem;
+import org.primal.item.SnakeItem;
 import org.primal.particle.DreamcatcherAshParticle;
 import org.primal.particle.SnakeSkinFlakeParticle;
 import org.primal.registry.*;
@@ -64,6 +66,7 @@ public class Primal_Client {
 
         if (Primal_Main.COMMON_CONFIG.wolfModelChange.get()){
             EntityRenderers.register(EntityType.WOLF, WolfRenderer::new);
+
             if(FMLLoader.getLoadingModList().getModFileById("pet_cemetery")!=null) PetCemeteryCompat.registerMobsRenderer();
         }
 
@@ -88,7 +91,6 @@ public class Primal_Client {
                             path
                     );
 
-//                    event.register(new ModelResourceLocation(modelId, "inventory"));
                     event.register(modelId);
                 });
     }
@@ -160,9 +162,18 @@ public class Primal_Client {
     }
 
     public static void registerItemProperties() {
+        registerSnakeItemVariant(SnakeEntity.Variant.MARINE);
+
         registerTooting(Primal_Items.WARM_CONCH_SHELL.get());
         registerTooting(Primal_Items.TEMPERATE_CONCH_SHELL.get());
         registerTooting(Primal_Items.COLD_CONCH_SHELL.get());
+    }
+
+    private static void registerSnakeItemVariant(SnakeEntity.Variant variant) {
+        ItemProperties.register(Primal_Items.PLACEHOLDER_CHESTED_SNAKE.get(),
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,variant.getSerializedName()),
+                (stack, world, entity, seed) ->
+                        SnakeItem.hasVariant(stack, variant) ? 1.0f : 0.0f);
     }
 
     private static void registerTooting(Item item) {

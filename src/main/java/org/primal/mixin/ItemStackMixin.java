@@ -48,4 +48,18 @@ public abstract class ItemStackMixin {
             component.addToTooltip(player.level(), consumer, flag);
         }
     }
+
+    @Inject(method = "getTooltipLines(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/item/TooltipFlag;)Ljava/util/List;",
+            at = @At(value = "INVOKE",
+                    target = "Lnet/minecraft/world/item/ItemStack;shouldShowInTooltip(ILnet/minecraft/world/item/ItemStack$TooltipPart;)Z",
+                    ordinal = 2))
+    private void primal$addSnakeTooltip(Player player,
+                                                    TooltipFlag flag,
+                                                    CallbackInfoReturnable<List<Component>> cir,
+                                                    @Local List<Component> consumer){
+        var component = Primal_Util.OneTwentyEquivalent.Components.get(p$THIS, Primal_Items.Components.SNAKE_SPAWN);
+        if(component!=null){
+            component.addToTooltip(player.level(), consumer, flag);
+        }
+    }
 }

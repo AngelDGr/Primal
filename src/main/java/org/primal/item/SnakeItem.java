@@ -43,7 +43,7 @@ public class SnakeItem extends Item {
     }
 
     public static LootPool getSnakeItemPool(float probability){
-        return getSnakeItemPool(null, probability);
+        return getSnakeItemPool(SnakeEntity.Variant.NULL, probability);
     }
 
     public static LootPool getSnakeItemPool(SnakeEntity.Variant variant, float probability){
@@ -55,12 +55,20 @@ public class SnakeItem extends Item {
     }
 
     public static LootPoolSingletonContainer.Builder<?> getSnakeItemEntry(){
-        return getSnakeItemEntry(null);
+        return getSnakeItemEntry(SnakeEntity.Variant.NULL);
     }
 
     public static LootPoolSingletonContainer.Builder<?> getSnakeItemEntry(SnakeEntity.Variant variant){
         return LootItem.lootTableItem(Primal_Items.PLACEHOLDER_CHESTED_SNAKE.get())
                 .apply(SetSnakeLoot.builder(variant));
+    }
+
+    public static boolean hasVariant(ItemStack stack, SnakeEntity.Variant variant){
+        var component = Primal_Util.OneTwentyEquivalent.Components.get(stack, Primal_Items.Components.SNAKE_SPAWN);
+        if(component != null)
+            return component.variant().equals(variant);
+
+        return false;
     }
 
     public static class SetSnakeLoot extends LootItemConditionalFunction {

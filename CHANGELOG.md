@@ -1,3 +1,13 @@
+# 1.1.3 - 1.20.1
+# Additions
+- Added textures and description for the placeholder item used to spawn snakes on chests. It should be visible with Emi-Loot or similar
+
+# Changes
+- Updated Spanish translations
+
+# Fixes
+- Fixed a big issue with wolf remodel altering all hitboxes (sorry)
+
 # 1.1.2 - 1.20.1
 # Additions
 - Added support for pet cemetery skeleton and zombie wolves if the wolf remodel is active

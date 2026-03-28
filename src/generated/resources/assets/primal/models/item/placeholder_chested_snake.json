@@ -1,5 +1,13 @@
 {
   "parent": "minecraft:item/generated",
+  "overrides": [
+    {
+      "model": "primal:item/placeholder_chested_snake_marine",
+      "predicate": {
+        "primal:marine": 1.0
+      }
+    }
+  ],
   "textures": {
     "layer0": "primal:item/placeholder_chested_snake"
   }
