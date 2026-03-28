@@ -2,6 +2,7 @@ package org.primal.item;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -37,7 +38,7 @@ public class SnakeItem extends Item {
     }
 
     public static LootPool getSnakeItemPool(float probability){
-        return getSnakeItemPool(null, probability);
+        return getSnakeItemPool(SnakeEntity.Variant.NULL, probability);
     }
 
     public static LootPool getSnakeItemPool(SnakeEntity.Variant variant, float probability){
@@ -49,7 +50,7 @@ public class SnakeItem extends Item {
     }
 
     public static LootPoolSingletonContainer.Builder<?> getSnakeItemEntry(){
-        return getSnakeItemEntry(null);
+        return getSnakeItemEntry(SnakeEntity.Variant.NULL);
     }
 
     public static LootPoolSingletonContainer.Builder<?> getSnakeItemEntry(SnakeEntity.Variant variant){
@@ -58,5 +59,13 @@ public class SnakeItem extends Item {
                         Primal_Items.Components.SNAKE_SPAWN.get(),
                         new SnakeComponent(variant)
                 ));
+    }
+
+    public static boolean hasVariant(ItemStack stack, SnakeEntity.Variant variant){
+        var component = stack.get(Primal_Items.Components.SNAKE_SPAWN);
+        if(component != null)
+            return component.variant().equals(variant);
+
+        return false;
     }
 }

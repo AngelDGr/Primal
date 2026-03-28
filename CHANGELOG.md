@@ -1,3 +1,14 @@
+# 1.1.3 - 1.21
+# Additions
+- Added textures and description for the placeholder item used to spawn snakes on chests. It should be visible with Emi-Loot or similar
+
+# Changes
+- Updated Spanish translations
+
+# Fixes
+- Fixed a crash with walrus whirlwind attack
+- Fixed "invalid player data" when entering in a world with Emi-Loot installed
+
 # 1.1.2 - 1.21
 # Additions
 - Added support for pet cemetery skeleton and zombie wolves if the wolf remodel is active

@@ -38,7 +38,7 @@ public class LootTableMixin {
                 if(snake!=null && snakeComponent!=null){
 
                     //Sets the variant of the component or from the biome
-                    if(snakeComponent.variant()!=null) snake.setVariant(snakeComponent.variant());
+                    if(!snakeComponent.variant().equals(SnakeEntity.Variant.NULL)) snake.setVariant(snakeComponent.variant());
                     else snake.setVariantFromBiome(snake, level.getBiome(blockpos));
 
                     //Set random effect

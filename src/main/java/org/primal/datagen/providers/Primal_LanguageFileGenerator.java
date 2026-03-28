@@ -30,7 +30,8 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
             Primal_Items.CHOMP_TRAP_GREEN.getId().getPath(),
             Primal_Items.CHOMP_TRAP_ARID.getId().getPath(),
             Primal_Items.CHOMP_TRAP_HUMID.getId().getPath(),
-            Primal_Items.VENISON.getId().getPath()
+            Primal_Items.VENISON.getId().getPath(),
+            Primal_Items.PLACEHOLDER_CHESTED_SNAKE.getId().getPath()
     );
 
     @Override
@@ -215,6 +216,9 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
             add("item.primal.music_disc_oh_deer", "Music Disc");
             add("item.minecraft.music_disc_oh_deer.desc", "MistieJam - Oh Deer");
             add("item.primal.venison", "Raw Venison");
+            add("item.primal.placeholder_chested_snake", "Snake on Chest");
+            add("item.primal.placeholder_chested_snake.biome", "Variant from Biome");
+            add("item.primal.placeholder_chested_snake.marine", "Marine");
             add("jukebox_song.primal.oh_deer", "MistieJam - Oh Deer");
 
             add("block.primal.chomp_trap_green", "Chomp Trap");

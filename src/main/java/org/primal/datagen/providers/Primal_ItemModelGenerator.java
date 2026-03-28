@@ -10,6 +10,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import org.primal.Primal_Main;
 import org.primal.Primal_Registries;
+import org.primal.entity.animal.SnakeEntity;
 import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Items;
 
@@ -133,7 +134,8 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
         simpleBlockItem(Primal_Blocks.WEAVED_STRAW_SLAB.get());
         basicItem(Primal_Items.DREAMCATCHER.get());
 
-        basicItem(Primal_Items.PLACEHOLDER_CHESTED_SNAKE.get());
+        placeHolderSnake(Primal_Items.PLACEHOLDER_CHESTED_SNAKE, SnakeEntity.Variant.MARINE);
+        chestedSnakeVariant(SnakeEntity.Variant.MARINE);
 
         chestItem(Primal_Items.STRAW_BASKET, ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "block/weaved_straw"));
     }
@@ -181,5 +183,37 @@ public class Primal_ItemModelGenerator extends ItemModelProvider {
         return getBuilder(item.getId().getPath())
                 .parent(new ModelFile.UncheckedModelFile("item/chest"))
                 .texture("particle", base);
+    }
+
+    public void placeHolderSnake(DeferredHolder<Item, Item> item, SnakeEntity.Variant... variants) {
+        var builder = getBuilder(item.getId().getPath())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(
+                        Primal_Main.MOD_ID,
+                        "item/" + item.getId().getPath()
+                ));
+
+        for (SnakeEntity.Variant variant : variants) {
+            builder.override()
+                    .model(new ModelFile.UncheckedModelFile(
+                            ResourceLocation.fromNamespaceAndPath(
+                                    Primal_Main.MOD_ID,
+                                    "item/placeholder_chested_snake_" + variant.getSerializedName()
+                            )
+                    ))
+                    .predicate(
+                            ResourceLocation.fromNamespaceAndPath(
+                                    Primal_Main.MOD_ID,
+                                    variant.getSerializedName()
+                            ),
+                            1
+                    );
+        }
+    }
+
+    public void chestedSnakeVariant(SnakeEntity.Variant variant) {
+        getBuilder("placeholder_chested_snake_" + variant.getSerializedName())
+                .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "item/placeholder_chested_snake_" + variant.getSerializedName()));
     }
 }
