@@ -158,59 +158,84 @@ public abstract class ThreeTallPlantBlock extends BushBlock implements Bonemeala
         return false;
     }
 
-    public void performBonemeal(@NotNull ServerLevel level, @NotNull RandomSource random, @NotNull BlockPos pos, @NotNull BlockState currentState, boolean canSpread) {
+    public void performBonemeal(@NotNull ServerLevel level,
+                                @NotNull RandomSource random,
+                                @NotNull BlockPos pos,
+                                @NotNull BlockState currentState,
+                                boolean canSpread) {
 
-        BlockPos.MutableBlockPos lowestPos=new BlockPos.MutableBlockPos().set(pos);
-        BlockPos.MutableBlockPos middlePos;
-        BlockPos.MutableBlockPos topPos;
+        BlockPos.MutableBlockPos lowestPos = pos.mutable();
 
-        //If it is the upper point, it tries to get the block below
-        if(currentState.getValue(HALF)==TripleBlockHalf.UPPER && level.getBlockState(lowestPos.below().mutable()).is(this))
-            lowestPos=lowestPos.below().mutable();
-        //If it is still a block, but it is a middle
-        if(level.getBlockState(lowestPos).is(this)
-                && level.getBlockState(lowestPos).getValue(HALF)==TripleBlockHalf.MIDDLE
-                && level.getBlockState(lowestPos.below().mutable()).is(this))
-            lowestPos= lowestPos.below().mutable();
+        // Normalize to the lowest block
+        if (currentState.getValue(HALF) == TripleBlockHalf.UPPER) {
+            BlockPos below = lowestPos.below();
+            BlockState belowState = level.getBlockState(below);
+            if (belowState.is(this)) {
+                lowestPos.set(below);
+            }
+        }
 
+        BlockState lowestState = level.getBlockState(lowestPos);
 
-        middlePos=lowestPos.above().mutable();
-        topPos=middlePos.above().mutable();
+        if (lowestState.is(this) && lowestState.getValue(HALF) == TripleBlockHalf.MIDDLE) {
+            BlockPos below = lowestPos.below();
+            BlockState belowState = level.getBlockState(below);
+            if (belowState.is(this)) {
+                lowestPos.set(below);
+                lowestState = belowState;
+            }
+        }
 
-
-        //Is three block tall if it has a middle block
-        boolean isThreeBlockTall= level.getBlockState(middlePos).is(this) && level.getBlockState(middlePos).getValue(HALF)==TripleBlockHalf.MIDDLE;
-
-        //Increase age if possible, only if canNaturallyAge or if it can spread (bonemeal)
-        if(currentState.getValue(AGE)==0 && (level.getRandom().nextBoolean() || isThreeBlockTall) && (canNaturallyAge() || canSpread)){
-            level.setBlock(pos, currentState.setValue(AGE, currentState.getValue(AGE)+1), 2);
+        if (!lowestState.is(this)) {
             return;
         }
 
-        //if it can actually grow up (Not blocks above.above)
-        if((ThreeTallPlantBlock.isValidPosForPlant(level, topPos, this.asBlock())) && !level.getBlockState(topPos).is(this) && !isThreeBlockTall){
-            BlockState defaultState= this.defaultBlockState();
+        int age = lowestState.getValue(AGE);
+
+        BlockPos middlePos = lowestPos.above();
+        BlockPos topPos = middlePos.above();
+
+        BlockState middleState = level.getBlockState(middlePos);
+        BlockState topState = level.getBlockState(topPos);
+
+        boolean isThreeBlockTall =
+                middleState.is(this) &&
+                        middleState.getValue(HALF) == TripleBlockHalf.MIDDLE;
+
+        // Grow age
+        if (age == 0 && (random.nextBoolean() || isThreeBlockTall) && (canNaturallyAge() || canSpread)) {
+            level.setBlock(lowestPos, lowestState.setValue(AGE, age + 1), 2);
+            return;
+        }
+
+        // Try vertical growth
+        if (ThreeTallPlantBlock.isValidPosForPlant(level, topPos, this.asBlock())
+                && !topState.is(this)
+                && !isThreeBlockTall) {
 
             level.setBlock(lowestPos,
-                    defaultState.setValue(WATERLOGGED, level.getFluidState(lowestPos).is(Fluids.WATER))
+                    this.defaultBlockState()
+                            .setValue(WATERLOGGED, level.getFluidState(lowestPos).is(Fluids.WATER))
                             .setValue(HALF, TripleBlockHalf.LOWER)
-                            .setValue(AGE, level.getBlockState(lowestPos).getValue(AGE)),
+                            .setValue(AGE, age),
                     2);
 
             level.setBlock(middlePos,
-                    defaultState.setValue(WATERLOGGED, level.getFluidState(middlePos).is(Fluids.WATER))
+                    this.defaultBlockState()
+                            .setValue(WATERLOGGED, level.getFluidState(middlePos).is(Fluids.WATER))
                             .setValue(HALF, TripleBlockHalf.MIDDLE)
-                            .setValue(AGE, level.getBlockState(lowestPos).getValue(AGE)),
+                            .setValue(AGE, age),
                     2);
 
             level.setBlock(topPos,
-                    defaultState.setValue(WATERLOGGED, level.getFluidState(topPos).is(Fluids.WATER))
+                    this.defaultBlockState()
+                            .setValue(WATERLOGGED, level.getFluidState(topPos).is(Fluids.WATER))
                             .setValue(HALF, TripleBlockHalf.UPPER)
-                            .setValue(AGE, level.getBlockState(lowestPos).getValue(AGE)),
+                            .setValue(AGE, age),
                     2);
 
         } else if (canSpread) {
-            spreadPlant(level, lowestPos, level.getRandom().nextBoolean()?2: 1);
+            spreadPlant(level, lowestPos, random.nextBoolean() ? 2 : 1);
         }
     }
 

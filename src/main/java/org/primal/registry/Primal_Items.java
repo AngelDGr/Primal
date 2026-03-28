@@ -2,7 +2,6 @@ package org.primal.registry;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
@@ -24,12 +23,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class Primal_Items {
-    public static final RegistryObject<LootItemFunctionType> SNAKE_LOOT =
-            Primal_Registries.LOOT_FUNCTIONS.register("snake_loot", ()->
-                    new LootItemFunctionType(
-                            new SnakeItem.SetSnakeLoot.Serializer()
-                    ));
-
     public static RegistryObject<Item> PRIMAL;
 
     //Bear

@@ -1,12 +1,14 @@
 # 1.1.3 - 1.20.1
 # Additions
-- Added textures and description for the placeholder item used to spawn snakes on chests. It should be visible with Emi-Loot or similar
+- Added textures and description for the placeholder item used to spawn snakes on chests.
 
 # Changes
 - Updated Spanish translations
 
 # Fixes
 - Fixed a big issue with wolf remodel altering all hitboxes (sorry)
+- Fixed issues with cattails and river reeds growing 
+- Fixed marine snake variant don't being applied on beaches and oceans
 
 # 1.1.2 - 1.20.1
 # Additions
