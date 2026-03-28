@@ -146,7 +146,8 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
                         Primal_Tags.Biome.SPAWNS_BROWED_SNAKE, SnakeEntity.Variant.BROWNED,
                         Primal_Tags.Biome.SPAWNS_CERULEAN_SNAKE, SnakeEntity.Variant.CERULEAN,
                         Primal_Tags.Biome.SPAWNS_BRACKISH_SNAKE, SnakeEntity.Variant.BRACKISH,
-                        Primal_Tags.Biome.SPAWNS_APOSEMATIC_SNAKE, SnakeEntity.Variant.APOSEMATIC
+                        Primal_Tags.Biome.SPAWNS_APOSEMATIC_SNAKE, SnakeEntity.Variant.APOSEMATIC,
+                        Primal_Tags.Biome.SPAWNS_MARINE_SNAKE, SnakeEntity.Variant.MARINE
                 );
 
         public static final Map<TagKey<Biome>, Integer> VARIANT_IDS_FOR_LOG =

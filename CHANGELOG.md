@@ -8,6 +8,8 @@
 # Fixes
 - Fixed a crash with walrus whirlwind attack
 - Fixed "invalid player data" when entering in a world with Emi-Loot installed
+- Fixed issues with cattails and river reeds growing
+- Fixed marine snake variant don't being applied on beaches and oceans
 
 # 1.1.2 - 1.21
 # Additions
