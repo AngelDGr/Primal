@@ -43,6 +43,6 @@ public class CassowaryNest_BiomeModifier implements BiomeModifier {
     }
 
     public static Codec<? extends BiomeModifier> makeCodec() {
-        return Codec.unit(Cattails_BiomeModifier::new);
+        return Codec.unit(CassowaryNest_BiomeModifier::new);
     }
 }

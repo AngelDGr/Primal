@@ -58,10 +58,12 @@ public class Primal_Food {
     public static final FoodProperties VENISON = new FoodProperties.Builder()
             .nutrition(4)
             .saturationMod(0.6F)
+            .meat()
             .build();
 
     public static final FoodProperties COOKED_VENISON = new FoodProperties.Builder()
             .nutrition(8)
             .saturationMod(1.2F)
+            .meat()
             .build();
 }

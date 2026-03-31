@@ -1,5 +1,5 @@
 <div style="text-align: center;">
-  <img src="https://i.imgur.com/acx6dT3.png" alt="mod logo">
+  <img src="https://cdn.modrinth.com/data/cached_images/e4f83454a68e65e8cc41dc0d337007b8d88233e2.png" alt="mod logo">
 </div>
 
 * * *
@@ -17,12 +17,17 @@
 </div>
 
 <div style="text-align: center; margin: 80px 0;">
-  <img src="https://i.imgur.com/9KefHUr.png" alt="MainBanner">
+  <img src="https://cdn.modrinth.com/data/cached_images/cf4195afe91c34d812b70668566480dd7db064bc.png" alt="MainBanner">
 </div>
-
 
 <div style="text-align: center;">
   <span style="font-size: 24px;">
-For a more in-depth description, visit the <a href="https://modrinth.com/mod/mod-primal" rel="nofollow">Modrinth</a> or <a href="https://www.curseforge.com/minecraft/mc-mods/mod-primal" rel="nofollow">Curseforge</a>
+Download on <a href="https://modrinth.com/mod/mod-primal" rel="nofollow">Modrinth</a> or <a href="https://www.curseforge.com/minecraft/mc-mods/mod-primal" rel="nofollow">Curseforge</a>
+</span>
+</div>
+
+<div style="text-align: center;">
+  <span style="font-size: 24px;">
+For a more in-depth description, visit the <a href="https://primal.wiki.gg" rel="nofollow">Official Wiki</a>
   </span>
 </div>

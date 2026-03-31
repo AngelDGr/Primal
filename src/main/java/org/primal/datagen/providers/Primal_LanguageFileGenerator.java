@@ -181,6 +181,7 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
                 add("subtitles.primal.entity.deer.death", "Deer dies");
                 add("subtitles.primal.entity.deer.antler_break", "Deer antler breaks off");
                 add("subtitles.primal.entity.deer.ram_impact", "Deer rams");
+                add("subtitles.primal.entity.deer.eat", "Deer eats");
             }
         }
 
@@ -240,35 +241,49 @@ public class Primal_LanguageFileGenerator extends LanguageProvider {
 
             //Field Guide Descriptions/Titles
             {
-                add("entity.primal.bear.description",
-                        "A neutral mob found in Forests and Jungles. If approached slowly, it can be tamed with honeycombs. Once tamed, it can use a barrel from which it will eat at low health.");
+                //Animals
+                {
+                    add("entity.primal.bear.description",
+                            "A neutral mob found in Forests and Jungles. If approached slowly, it can be tamed with honeycombs. Once tamed, it can use a barrel from which it will eat at low health.");
 
-                add("entity.primal.eagle.description",
-                        "A neutral mob found on mountain peaks alongside its nests. While it is a baby, it can be tamed using raw chicken.");
+                    add("entity.primal.eagle.description",
+                            "A neutral mob found on mountain peaks alongside its nests. While it is a baby, it can be tamed using raw chicken.");
 
-                add("entity.primal.crocodile.description",
-                        "A neutral mob found in Swamps and rarely in Deserts. It always spawns near water and stores items from entities it kills in its stomach. They can be retrieved with a feather.");
+                    add("entity.primal.crocodile.description",
+                            "A neutral mob found in Swamps and rarely in Deserts. It always spawns near water and stores items from entities it kills in its stomach. They can be retrieved with a feather.");
 
-                add("entity.primal.shark.description",
-                        "An aquatic neutral mob found in Oceans. Attacks any entity with low health. It is attracted to conduits.");
+                    add("entity.primal.shark.description",
+                            "An aquatic neutral mob found in Oceans. Attacks any entity with low health. It is attracted to conduits.");
 
-                add("entity.primal.cassowary.description",
-                        "A neutral mob found in Jungles alongside its nests. Attacks illagers, villagers, and players on sight. Petrified fruit buried in its nests may yield exotic seeds when pecked by it.");
+                    add("entity.primal.cassowary.description",
+                            "A neutral mob found in Jungles alongside its nests. Attacks illagers, villagers, and players on sight. Petrified fruit buried in its nests may yield exotic seeds when pecked by it.");
 
-                add("entity.primal.walrus.description",
-                        "A neutral mob found in Frozen Oceans and shores that can be tamed by riding. When mounted, it can perform a whirlwind attack in water and a slam on land.");
+                    add("entity.primal.walrus.description",
+                            "A neutral mob found in Frozen Oceans and shores that can be tamed by riding. When mounted, it can perform a whirlwind attack in water and a slam on land.");
 
-                add("entity.primal.lion.description",
-                        "A neutral mob found in Savannas, with a rare variant in Snowy Plains. If approached slowly, it can be tamed with large amounts of meat. It will maul its prey.");
+                    add("entity.primal.lion.description",
+                            "A neutral mob found in Savannas, with a rare variant in Snowy Plains. If approached slowly, it can be tamed with large amounts of meat. It will maul its prey.");
 
-                add("entity.primal.snake.description",
-                        "A neutral mob found in the overworld. Distract it with music to tame it using raw rabbit. Once tamed, it can sit on the owner's neck and assist in combat.");
+                    add("entity.primal.snake.description",
+                            "A neutral mob found in the overworld. Distract it with music to tame it using raw rabbit. Once tamed, it can sit on the owner's neck and assist in combat.");
 
-                add("entity.primal.deer.description",
-                        "A passive mob found in the forests that is easily scared by predators, players and loud noises. It is really fast and it can jump two blocks easily.");
+                    add("entity.primal.deer.description",
+                            "A passive mob found in the forests that is easily scared by predators, players and loud noises. It is really fast and it can jump two blocks easily.");
+                }
 
+                //Plants
+                {
+                    add("fieldguide.name.primal.thorny_acacia_sapling", "Thorny Acacia Tree");
+                    add("fieldguide.primal.thorny_acacia_sapling.description", "Thorny acacias are found in the savanna plateau. They are similar to acacias, but have thorns along their trunks. Their leaves have an orange hue.");
 
-                add("fieldguide.name.primal.thorny_acacia_sapling", "Thorny Acacia Tree");
+                    add("lore.primal.river_reeds", "A plant that grows in rivers and can grow up to three blocks tall. It can produce yellow puffs.");
+                    add("lore.primal.short_river_reeds", "A tiny plant that grows in rivers. It can grow on taller river reeds.");
+                    add("lore.primal.cattails", "A plant that grows in swamps and sometimes in rivers. It can grow up to three blocks tall.");
+
+                    add("fieldguide.primal.litchi_tree.description", "Litchi trees are small exotic trees that produce litchis. They are grown from litchi seeds and have three stages of growth: sapling, juvenile, and adult.");
+                    add("fieldguide.primal.starfruit_tree.description", "Starfruit trees are small exotic trees that produce starfruit. They are grown from starfruit seeds and have three stages of growth: sapling, juvenile, and adult.");
+                    add("fieldguide.primal.kiwano_bulk.description", "The kiwano is an exotic fruit that grows in bulks on the ground, similar to melons. It has three stages of growth: sapling, juvenile, and adult.");
+                }
             }
         }
         //Attributes

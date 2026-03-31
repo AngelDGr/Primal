@@ -10,14 +10,21 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GrassColor;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.client.event.*;
@@ -72,6 +79,64 @@ public class Primal_Client {
 
         if (Primal_Main.COMMON_CONFIG.dolphinModelChange.get())
             EntityRenderers.register(EntityType.DOLPHIN, DolphinRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerBuiltinResourcePack(final AddPackFindersEvent event){
+        if (event.getPackType() == PackType.CLIENT_RESOURCES){
+            addBuiltinResourcePack(event, "modern_banner_patterns", "Modern textures for banner patterns from Primal");
+            addBuiltinResourcePack(event, "modern_spawn_eggs", "Modern textures for Primal spawn eggs");
+        }
+    }
+
+    public static void addBuiltinResourcePack(AddPackFindersEvent event, String id, String description){
+        String[] parts = id.split("_");
+        StringBuilder nameBuilder = new StringBuilder();
+
+        for (String part : parts){
+            if (part.isEmpty()) continue;
+            nameBuilder.append(Character.toUpperCase(part.charAt(0)))
+                    .append(part.substring(1))
+                    .append(" ");
+        }
+
+        String name = nameBuilder.toString().trim();
+
+        Component primalStyled = Component.literal("Primal")
+                .withStyle(style -> style
+                        .withColor(0xd1854b)
+                        .withItalic(false)
+                        .withBold(true)
+                );
+
+        Component subtitleStyle = Component.literal("")
+                .withStyle(style -> style
+                        .withColor(0x92502e)
+                        .withItalic(false)
+                        .withBold(false)
+                );
+
+
+        event.addRepositorySource(consumer -> {
+
+            Pack pack = Pack.readMetaAndCreate("primal_"+id, primalStyled.copy()
+                            .append(Component.literal(" - " + name)
+                                    .withStyle(subtitleStyle.getStyle())), false,
+                    (packId) ->
+                            new PathPackResources(
+                                    packId,
+                                    ModList.get().getModFileById(Primal_Main.MOD_ID).getFile().findResource("resourcepacks/" + id),
+                                    true
+                            ),
+                    PackType.CLIENT_RESOURCES,
+                    Pack.Position.TOP,
+                    PackSource.BUILT_IN
+            );
+
+            if (pack != null) {
+                consumer.accept(pack);
+            }
+        });
     }
 
     @SubscribeEvent

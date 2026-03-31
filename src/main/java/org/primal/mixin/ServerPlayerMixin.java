@@ -3,9 +3,14 @@ package org.primal.mixin;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.phys.AABB;
 import org.primal.injection.BedBlockHasDreamcatcher;
 import org.primal.injection.SetNeckEntity;
@@ -33,8 +38,17 @@ public abstract class ServerPlayerMixin extends Player{
             index = 1
     )
     private AABB primal$reduceHostileDetectorWithDreamcatcher(AABB original, @Local(argsOnly = true) BlockPos at) {
-        if(this.level().getBlockEntity(at) instanceof BedBlockHasDreamcatcher hasDreamcatcher){
-            if(hasDreamcatcher.primal$hasDreamcatcher()){
+        BlockState state = this.level().getBlockState(at);
+
+        if (state.is(BlockTags.BEDS) && state.hasProperty(BedBlock.PART)) {
+            if (state.getValue(BedBlock.PART) == BedPart.FOOT) {
+                Direction dir = state.getValue(BedBlock.FACING);
+                at = at.relative(dir);
+            }
+        }
+
+        if (this.level().getBlockEntity(at) instanceof BedBlockHasDreamcatcher hasDreamcatcher) {
+            if (hasDreamcatcher.primal$hasDreamcatcher()) {
                 return original.deflate(
                         original.getXsize() * 0.25,
                         original.getYsize() * 0.25,

@@ -16,10 +16,12 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.Phantom;
 import net.minecraft.world.entity.monster.ZombifiedPiglin;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -191,13 +193,18 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
             BlockState nearbyState = level.getBlockState(checkPos);
 
             if (nearbyState.is(BlockTags.BEDS)) {
-                // logic when found
-                if(level.getBlockEntity(checkPos) instanceof BedBlockEntity bedBlockEntity && bedBlockEntity instanceof BedBlockHasDreamcatcher bedBlockHasDreamcatcher) {
+                if (nearbyState.hasProperty(BedBlock.PART)) {
+                    if (nearbyState.getValue(BedBlock.PART) == BedPart.FOOT) {
+                        Direction dir = nearbyState.getValue(BedBlock.FACING);
+                        checkPos = checkPos.relative(dir); // move to HEAD
+                    }
+                }
 
-                    if(!bedBlockHasDreamcatcher.primal$hasDreamcatcher())
-                        (bedBlockHasDreamcatcher).primal$setDreamcatcher(true);
-
-                    wantedBed=true;
+                if (level.getBlockEntity(checkPos) instanceof BedBlockHasDreamcatcher bed) {
+                    if (!bed.primal$hasDreamcatcher()) {
+                        bed.primal$setDreamcatcher(true);
+                    }
+                    wantedBed = true;
                 }
                 break;
             }

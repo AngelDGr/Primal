@@ -19,12 +19,10 @@ import org.primal.registry.Primal_Entities;
 import org.primal.registry.Primal_Items;
 import org.primal.registry.Primal_Sounds;
 import org.primal.util.Primal_Util;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-@Debug(export = true)
 @Mixin(LootTable.class)
 public class LootTableMixin {
 
