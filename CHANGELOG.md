@@ -1,3 +1,18 @@
+# 1.1.4 - 1.21
+# Additions
+- Added optional built-in resource packs to give banner patterns a texture similar to the vanilla ones from 1.21.2+
+- Added optional built-in resource packs to give spawn eggs a texture similar to the vanilla ones from 1.21.5+
+- Added plants description for fieldguide mod
+
+# Changes
+- Made banner patterns unstackable like vanilla ones
+
+# Fixes
+- Fixed tamed adult eagles no rendering the band on its leg
+- Fixed weird positioning on snake when carrying it with Carry On mod (and possible related issues)
+- Added missing translation for when the deer eats
+- Fixed dreamcatcher effects sometimes not applying on beds in some positions
+
 # 1.1.3 - 1.21
 # Additions
 - Added textures and description for the placeholder item used to spawn snakes on chests. It should be visible with Emi-Loot or similar

@@ -11,11 +11,17 @@ import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.GrassColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -25,6 +31,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import org.jetbrains.annotations.NotNull;
 import org.primal.client.item.ConchShellClientExtension;
 import org.primal.client.item.StrawBasketExtension;
@@ -77,6 +84,53 @@ public class Primal_Client {
 
         if (Primal_Main.COMMON_CONFIG.dolphinModelChange.get())
             EntityRenderers.register(EntityType.DOLPHIN, DolphinRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerBuiltinResourcePack(final AddPackFindersEvent event){
+        if (event.getPackType() == PackType.CLIENT_RESOURCES){
+            addBuiltinResourcePack(event, "modern_banner_patterns");
+            addBuiltinResourcePack(event, "modern_spawn_eggs");
+        }
+    }
+
+    public static void addBuiltinResourcePack(AddPackFindersEvent event, String id){
+        String[] parts = id.split("_");
+        StringBuilder nameBuilder = new StringBuilder();
+
+        for (String part : parts){
+            if (part.isEmpty()) continue;
+            nameBuilder.append(Character.toUpperCase(part.charAt(0)))
+                    .append(part.substring(1))
+                    .append(" ");
+        }
+
+        String name = nameBuilder.toString().trim();
+
+        Component primalStyled = Component.literal("Primal")
+                .withStyle(style -> style
+                        .withColor(0xd1854b)
+                        .withItalic(false)
+                        .withBold(true)
+                );
+
+        Component subtitleStyle = Component.literal("")
+                .withStyle(style -> style
+                        .withColor(0x92502e)
+                        .withItalic(false)
+                        .withBold(false)
+                );
+
+        event.addPackFinders(
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "resourcepacks/" + id),
+                PackType.CLIENT_RESOURCES,
+                primalStyled.copy()
+                        .append(Component.literal(" - " + name)
+                                .withStyle(subtitleStyle.getStyle())),
+                PackSource.BUILT_IN,
+                false,
+                Pack.Position.TOP
+        );
     }
 
     @SubscribeEvent
@@ -207,6 +261,25 @@ public class Primal_Client {
         event.register((stack, tintIndex) -> tintIndex==0? 0x91bd59: -1, Primal_Items.RIVER_REEDS.get());
 
         event.register((stack, tintIndex) -> tintIndex==0? 0x91bd59: -1, Primal_Items.CATTAILS.get());
+
+        registerEgg(event, Primal_Items.BEAR_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.CROCODILE_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.EAGLE_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.SHARK_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.CASSOWARY_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.WALRUS_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.LION_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.SNAKE_SPAWN_EGG.get());
+        registerEgg(event, Primal_Items.DEER_SPAWN_EGG.get());
+    }
+
+    private static void registerEgg(final RegisterColorHandlersEvent.Item event, Item egg){
+        event.register((stack, tintIndex) ->
+                //Disables the tint if modern eggs texture pack is active
+                Minecraft.getInstance().getResourceManager().listPacks()
+                        .anyMatch(packResources -> packResources.packId().equals("mod/primal:resourcepacks/modern_spawn_eggs"))?
+                        -1
+                        : FastColor.ARGB32.opaque(((SpawnEggItem) (egg)).getColor(tintIndex)), egg);
     }
 
     @SubscribeEvent

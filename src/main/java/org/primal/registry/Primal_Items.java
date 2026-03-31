@@ -376,17 +376,17 @@ public class Primal_Items {
 
         //Misc
         {
-            PAW_BANNER_PATTERN=register("paw_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_PAW, new Item.Properties()));
+            PAW_BANNER_PATTERN=register("paw_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_PAW, new Item.Properties().stacksTo(1)));
 
-            JAWS_BANNER_PATTERN=register("jaws_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_JAWS, new Item.Properties()));
+            JAWS_BANNER_PATTERN=register("jaws_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_JAWS, new Item.Properties().stacksTo(1)));
 
-            MARSH_BANNER_PATTERN=register("marsh_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_MARSH, new Item.Properties()));
+            MARSH_BANNER_PATTERN=register("marsh_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_MARSH, new Item.Properties().stacksTo(1)));
 
-            EYRIE_BANNER_PATTERN=register("eyrie_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_EYRIE, new Item.Properties()));
+            EYRIE_BANNER_PATTERN=register("eyrie_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_EYRIE, new Item.Properties().stacksTo(1)));
 
-            SLITHER_BANNER_PATTERN=register("slither_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_SLITHER, new Item.Properties()));
+            SLITHER_BANNER_PATTERN=register("slither_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_SLITHER, new Item.Properties().stacksTo(1)));
 
-            ROYAL_BANNER_PATTERN=register("royal_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_ROYAL, new Item.Properties()));
+            ROYAL_BANNER_PATTERN=register("royal_banner_pattern", ()-> new BannerPatternItem(Primal_Tags.BannerPattern.PATTERN_ITEM_ROYAL, new Item.Properties().stacksTo(1)));
 
             PETRIFIED_FRUIT=register("petrified_fruit", ()-> new BlockItem(Primal_Blocks.PETRIFIED_FRUIT.get(), new Item.Properties()));
 

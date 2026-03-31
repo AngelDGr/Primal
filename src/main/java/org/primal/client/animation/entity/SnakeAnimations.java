@@ -37,7 +37,7 @@ public final class SnakeAnimations {
             }
 
             Primal_Util.Visuals.resetControllerAfterAttack(animatable, state, BITE_STANDING, BITE_SLITHERING);
-            state.getController().transitionLength(6);
+            state.getController().transitionLength(animatable.tickCount==0? 0: 6);
             state.setControllerSpeed(1f);
 
             //──────────────────────────────────── Triggered ────────────────────────────────────
