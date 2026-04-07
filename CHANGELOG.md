@@ -1,3 +1,16 @@
+# 1.1.5 - 1.21
+# Additions
+- Added recipe integration with EMI for helmet decorations
+
+# Changes
+- Changed logic for helmet decorations from an enum to a custom registry, making a lot easier for other mods to add their own helmet decorations
+- Made babies from tamed parents being tamed automatically
+- Made snakes being able to dance with the instrument game event (emitted by goat horns, conch shells and probably other modded instruments)
+
+# Fixes
+- Fixed paint and eye layer not applying correctly to baby lions if the custom baby model is off
+- Made tamed pets unable to attack pets with the same owner if alerted by others
+
 # 1.1.4 - 1.21
 # Additions
 - Added optional built-in resource packs to give banner patterns a texture similar to the vanilla ones from 1.21.2+

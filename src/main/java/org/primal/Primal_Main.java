@@ -47,6 +47,7 @@ import net.neoforged.neoforge.event.entity.player.AnvilRepairEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.neoforged.neoforge.registries.NewRegistryEvent;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.primal.biome_modifiers.features.*;
@@ -55,7 +56,6 @@ import org.primal.block.ChompTrapBlock;
 import org.primal.block_entity.ChompTrapBlockEntity;
 import org.primal.entity.animal.*;
 import org.primal.item.ConchShellItem;
-import org.primal.item.HelmetDecorationType;
 import org.primal.item.SnakeItem;
 import org.primal.item.component.HelmetDecorationComponent;
 import org.primal.networking.DelayedTasks;
@@ -149,6 +149,9 @@ public class Primal_Main {
 
         //Particles
         Primal_Particles.init(); Primal_Registries.PARTICLES.register(modEventBus);
+
+        //Helmet Decorations
+        Primal_HelmetDecorations.init(); Primal_Registries.HELMET_DECORATIONS.register(modEventBus);
     }
 
     public static void createBiomeModifiers() {
@@ -186,6 +189,11 @@ public class Primal_Main {
         ConfigCache.load();
         Primal_Main.setFlammables();
         Primal_Main.setStrippables(event);
+    }
+
+    @SubscribeEvent
+    public static void registerRegistries(NewRegistryEvent event) {
+        event.register(Primal_Registries.HELMET_DECORATIONS_REGISTRY);
     }
 
     public static void setStrippables(final FMLCommonSetupEvent event) {
@@ -414,7 +422,7 @@ public class Primal_Main {
                 Primal_Advancements.ADD_HELMET_DECORATION.get().trigger(serverPlayer);
 
                 //Triggers advancement
-                if(decorations.right().equals(HelmetDecorationType.GOAT) && decorations.left().equals(HelmetDecorationType.GOAT)){
+                if(decorations.right().equals(Primal_HelmetDecorations.GOAT.get()) && decorations.left().equals(Primal_HelmetDecorations.GOAT.get())){
                     Primal_Advancements.ADD_HELMET_HORNS.get().trigger(serverPlayer);
                 }
             }

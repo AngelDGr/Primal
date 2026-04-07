@@ -731,6 +731,25 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             else if(parent instanceof PolarBear || otherParent instanceof PolarBear) {
                 offspring.setVariant(Variant.GROLAR);
             }
+
+            //For taming and assigning a random collar color
+            if((parent instanceof BearEntity bear1 && bear1.isTame()) || (otherParent instanceof BearEntity bear2 && bear2.isTame())) {
+                var tamedParent = parent instanceof BearEntity bear1? bear1: null;
+                var otherTamedParent = otherParent instanceof BearEntity bear2? bear2: null;
+
+                if ((tamedParent!=null && tamedParent.isTame()) || (otherTamedParent!=null && otherTamedParent.isTame())) {
+                    offspring.setOwnerUUID(tamedParent!=null? tamedParent.getOwnerUUID(): otherTamedParent.getOwnerUUID());
+                    offspring.setTame(true, true);
+                    //Assign randomly one collar color
+                    if (otherTamedParent==null) {
+                        offspring.setCollarColor(tamedParent.getCollarColor());
+                    } else if (tamedParent==null) {
+                        offspring.setCollarColor(otherTamedParent.getCollarColor());
+                    } else {
+                        offspring.setCollarColor(offspring.getRandom().nextBoolean()? tamedParent.getCollarColor(): otherTamedParent.getCollarColor());
+                    }
+                }
+            }
         }
 
         return offspring;

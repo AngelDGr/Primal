@@ -10,42 +10,57 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
 import org.jetbrains.annotations.NotNull;
-import org.primal.item.HelmetDecorationType;
+import org.primal.Primal_Registries;
+import org.primal.item.HelmetDecoration;
+import org.primal.registry.Primal_HelmetDecorations;
 import org.primal.registry.Primal_Items;
 
 import java.util.function.Consumer;
 
-public record HelmetDecorationComponent(HelmetDecorationType right, HelmetDecorationType left) implements TooltipProvider {
+public record HelmetDecorationComponent(HelmetDecoration<?> right, HelmetDecoration<?> left) implements TooltipProvider {
 
     public static final Codec<HelmetDecorationComponent> CODEC =
             RecordCodecBuilder.create(instance -> instance.group(
                     Codec.INT
                             .fieldOf("right")
-                            .forGetter(c-> c.right.getId()),
+                            .forGetter(c-> Primal_Registries.HELMET_DECORATIONS_REGISTRY.getId(c.right)),
                     Codec.INT
                             .fieldOf("left")
-                            .forGetter(c-> c.left.getId())
-            ).apply(instance, (r, l)-> new HelmetDecorationComponent(HelmetDecorationType.BY_ID.apply(r), HelmetDecorationType.BY_ID.apply(l))));
+                            .forGetter(c-> Primal_Registries.HELMET_DECORATIONS_REGISTRY.getId(c.left))
+            ).apply(instance, (r, l)-> {
+                var rDec= Primal_Registries.HELMET_DECORATIONS_REGISTRY.getHolder(r);
+                var lDec= Primal_Registries.HELMET_DECORATIONS_REGISTRY.getHolder(l);
+
+                return new HelmetDecorationComponent(
+                        rDec.isPresent()? rDec.get().value(): Primal_HelmetDecorations.NONE.get(),
+                        lDec.isPresent()? lDec.get().value(): Primal_HelmetDecorations.NONE.get());
+            }));
 
     @Override
     public void addToTooltip(Item.@NotNull TooltipContext context, @NotNull Consumer<Component> tooltipAdder, @NotNull TooltipFlag tooltipFlag) {
 
         tooltipAdder.accept(Component.translatable("helmet_decoration.decorations").withStyle(ChatFormatting.GRAY));
 
-        if(!this.left.equals(HelmetDecorationType.NONE))
-            tooltipAdder.accept(CommonComponents.space().append( Component.translatable("helmet_decoration.primal."+this.left.getName())).withStyle(this.left.getDescriptionStyle()));
+        if(!this.left.equals(Primal_HelmetDecorations.NONE.get())){
+            var key = Primal_Registries.HELMET_DECORATIONS_REGISTRY.getKey(left);
+            if(key != null)
+                tooltipAdder.accept(CommonComponents.space().append( Component.translatable("helmet_decoration."+key.getNamespace()+"."+key.getPath()).withStyle(this.left.getDescriptionStyle())));
+        }
 
-        if(!this.right.equals(HelmetDecorationType.NONE))
-            tooltipAdder.accept(CommonComponents.space().append(Component.translatable("helmet_decoration.primal."+this.right.getName())).withStyle(this.right.getDescriptionStyle()));
+        if(!this.right.equals(Primal_HelmetDecorations.NONE.get())){
+            var key = Primal_Registries.HELMET_DECORATIONS_REGISTRY.getKey(right);
+            if(key != null)
+                tooltipAdder.accept(CommonComponents.space().append( Component.translatable("helmet_decoration."+key.getNamespace()+"."+key.getPath()).withStyle(this.right.getDescriptionStyle())));
+        }
     }
 
 
     public static ItemStack of(final ItemStack helmet, ItemStack toAttach, boolean left){
 
-        var decoration = HelmetDecorationType.fromItem(toAttach.getItem());
+        var decoration = HelmetDecoration.fromItem(toAttach.getItem());
 
         //Avoids
-        if(decoration == HelmetDecorationType.NONE)
+        if(decoration == Primal_HelmetDecorations.NONE.get())
             return helmet;
 
         var currentDecoration = helmet.get(Primal_Items.Components.HELMET_DECORATION);
@@ -58,7 +73,7 @@ public record HelmetDecorationComponent(HelmetDecorationType right, HelmetDecora
         //To add new
         else {
             helmet.set(Primal_Items.Components.HELMET_DECORATION,
-                    new HelmetDecorationComponent(left? HelmetDecorationType.NONE: decoration, left? decoration: HelmetDecorationType.NONE));
+                    new HelmetDecorationComponent(left? Primal_HelmetDecorations.NONE.get(): decoration, left? decoration: Primal_HelmetDecorations.NONE.get()));
         }
 
         return helmet;

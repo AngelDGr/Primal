@@ -24,7 +24,7 @@ public class LionPaintLayer extends GeoRenderLayer<LionEntity> {
 
         RenderType collarRenderType = RenderType.entityCutoutNoCull(
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
-                        "textures/entity/lion/"+(animatable.isBaby()? "baby/": "")+ "paint" + ".png"));
+                        "textures/entity/lion/"+(animatable.isBaby() && Primal_Main.COMMON_CONFIG.lionBabyCustomModel.get()? "baby/": "")+ "paint" + ".png"));
 
         int i = animatable.getCollarColor().getTextureDiffuseColor();
 

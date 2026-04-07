@@ -45,6 +45,7 @@ import org.primal.client.renderer.replaced.*;
 import org.primal.compat.PetCemeteryCompat;
 import org.primal.entity.animal.SnakeEntity;
 import org.primal.item.ConchShellItem;
+import org.primal.item.HelmetDecoration;
 import org.primal.item.SnakeItem;
 import org.primal.particle.DreamcatcherAshParticle;
 import org.primal.particle.SnakeSkinFlakeParticle;
@@ -84,6 +85,11 @@ public class Primal_Client {
 
         if (Primal_Main.COMMON_CONFIG.dolphinModelChange.get())
             EntityRenderers.register(EntityType.DOLPHIN, DolphinRenderer::new);
+
+        HelmetDecoration.registerOnClient(Primal_HelmetDecorations.FALLOW_DEER, DEER_ANTLERS_ON_HELMET_LAYER, DeerAntlersModel.class);
+        HelmetDecoration.registerOnClient(Primal_HelmetDecorations.REINDEER, DEER_ANTLERS_ON_HELMET_LAYER, DeerAntlersModel.class);
+        HelmetDecoration.registerOnClient(Primal_HelmetDecorations.WHITETAIL, DEER_ANTLERS_ON_HELMET_LAYER, DeerAntlersModel.class);
+        HelmetDecoration.registerOnClient(Primal_HelmetDecorations.GOAT, GOAT_HORNS_ON_HELMET_LAYER, GoatHornsModel.class);
     }
 
     @SubscribeEvent

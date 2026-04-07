@@ -21,7 +21,7 @@ public class LionEyesLayer extends GeoRenderLayer<LionEntity> {
 
     @Override
     public void render(PoseStack poseStack, LionEntity lion, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        if(lion.isBaby()) return;
+        if(lion.isBaby() && Primal_Main.COMMON_CONFIG.lionBabyCustomModel.get()) return;
 
         //Default glowing eyes
         RenderType eyesrenderType = RenderType.entityTranslucentEmissive(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/lion/"+ lion.getVariant().getSerializedName() +"_eyes.png"));

@@ -21,10 +21,10 @@ import org.primal.advancements.criterion.Primal_CustomCriterion;
 import org.primal.advancements.criterion.SharkKillsEntity;
 import org.primal.entity.animal.BearEntity;
 import org.primal.entity.animal.EagleEntity;
-import org.primal.item.HelmetDecorationType;
 import org.primal.item.component.HelmetDecorationComponent;
 import org.primal.registry.Primal_Advancements;
 import org.primal.registry.Primal_Entities;
+import org.primal.registry.Primal_HelmetDecorations;
 import org.primal.registry.Primal_Items;
 
 import java.util.List;
@@ -489,13 +489,13 @@ public class Primal_AdvancementsGenerator extends AdvancementProvider {
 
     public static ItemStack getHelmetWithDecorations() {
         var icon = Items.DIAMOND_HELMET.getDefaultInstance();
-        icon.set(Primal_Items.Components.HELMET_DECORATION, new HelmetDecorationComponent(HelmetDecorationType.FALLOW_DEER, HelmetDecorationType.FALLOW_DEER));
+        icon.set(Primal_Items.Components.HELMET_DECORATION, new HelmetDecorationComponent(Primal_HelmetDecorations.FALLOW_DEER.get(), Primal_HelmetDecorations.FALLOW_DEER.get()));
         return icon;
     }
 
     public static ItemStack getHelmetDragonborn() {
         var icon = Items.NETHERITE_HELMET.getDefaultInstance();
-        icon.set(Primal_Items.Components.HELMET_DECORATION, new HelmetDecorationComponent(HelmetDecorationType.GOAT, HelmetDecorationType.GOAT));
+        icon.set(Primal_Items.Components.HELMET_DECORATION, new HelmetDecorationComponent(Primal_HelmetDecorations.GOAT.get(), Primal_HelmetDecorations.GOAT.get()));
         return icon;
     }
 }

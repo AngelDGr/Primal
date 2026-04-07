@@ -1289,7 +1289,10 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         @SuppressWarnings("deprecation")
         @Override
         public boolean handleGameEvent(@NotNull ServerLevel level, Holder<GameEvent> gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
-            if (gameEvent.is(GameEvent.JUKEBOX_PLAY) || gameEvent.is(GameEvent.NOTE_BLOCK_PLAY)) {
+            if(gameEvent.is(GameEvent.INSTRUMENT_PLAY)){
+                snake.brain.setMemoryWithExpiry(MemoryModuleType.DANCING, true, 20);
+                return true;
+            } else if (gameEvent.is(GameEvent.JUKEBOX_PLAY) || gameEvent.is(GameEvent.NOTE_BLOCK_PLAY)) {
 
                 if(gameEvent.is(GameEvent.JUKEBOX_PLAY))
                     snake.brain.setMemory(MemoryModuleType.DANCING, true);

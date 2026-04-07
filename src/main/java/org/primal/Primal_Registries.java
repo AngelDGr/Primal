@@ -3,8 +3,11 @@ package org.primal;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
@@ -22,6 +25,8 @@ import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorTy
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
+import net.neoforged.neoforge.registries.RegistryBuilder;
+import org.primal.item.HelmetDecoration;
 
 public class Primal_Registries {
 
@@ -62,4 +67,14 @@ public class Primal_Registries {
     public static DeferredRegister<TreeDecoratorType<?>> TREE_DECORATORS = DeferredRegister.create(Registries.TREE_DECORATOR_TYPE, Primal_Main.MOD_ID);
 
     public static DeferredRegister<BlockStateProviderType<?>> BLOCK_STATE_PROVIDERS = DeferredRegister.create(Registries.BLOCK_STATE_PROVIDER_TYPE, Primal_Main.MOD_ID);
+
+
+    public static final ResourceKey<Registry<HelmetDecoration<?>>> PRIMAL_HELMET_DECORATIONS = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "helmet_decorations"));
+    public static final Registry<HelmetDecoration<?>> HELMET_DECORATIONS_REGISTRY = new RegistryBuilder<>(PRIMAL_HELMET_DECORATIONS)
+            .sync(true)
+            .defaultKey(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "none"))
+            // Build the registry.
+            .create();
+
+    public static final DeferredRegister<HelmetDecoration<?>> HELMET_DECORATIONS = DeferredRegister.create(PRIMAL_HELMET_DECORATIONS, Primal_Main.MOD_ID);
 }
