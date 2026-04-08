@@ -15,7 +15,7 @@
     "hidden": true,
     "icon": {
       "item": "minecraft:netherite_helmet",
-      "nbt": "{Damage:0,HelmetDecorations:{left:3,right:3}}"
+      "nbt": "{Damage:0,HelmetDecorations:{left:\"primal:goat_horn\",right:\"primal:goat_horn\"}}"
     },
     "show_toast": true,
     "title": {

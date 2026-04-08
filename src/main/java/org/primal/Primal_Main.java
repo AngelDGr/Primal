@@ -57,7 +57,6 @@ import org.primal.block_entity.ChompTrapBlockEntity;
 import org.primal.datagen.providers.Primal_DataMapGenerator;
 import org.primal.entity.animal.*;
 import org.primal.item.ConchShellItem;
-import org.primal.item.HelmetDecorationType;
 import org.primal.item.SnakeItem;
 import org.primal.item.component.HelmetDecorationComponent;
 import org.primal.networking.DelayedTasks;
@@ -156,6 +155,9 @@ public class Primal_Main {
         Primal_Particles.init(); Primal_Registries.PARTICLES.register(modEventBus);
 
         registerNetworking();
+
+        //Helmet Decorations
+        Primal_HelmetDecorations.init(); Primal_Registries.HELMET_DECORATIONS.register(modEventBus);
     }
 
     public static void createBiomeModifiers(IEventBus modEventBus) {
@@ -399,7 +401,7 @@ public class Primal_Main {
                 Primal_Advancements.ADD_HELMET_DECORATION.trigger(serverPlayer);
 
                 //Triggers advancement
-                if(decorations.right().equals(HelmetDecorationType.GOAT) && decorations.left().equals(HelmetDecorationType.GOAT)){
+                if(decorations.right().equals(Primal_HelmetDecorations.GOAT.get()) && decorations.left().equals(Primal_HelmetDecorations.GOAT.get())){
                     Primal_Advancements.ADD_HELMET_HORNS.trigger(serverPlayer);
                 }
             }

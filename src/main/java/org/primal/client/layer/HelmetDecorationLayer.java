@@ -12,43 +12,32 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.primal.Primal_Client;
-import org.primal.client.model.helmet_decoration.DeerAntlersModel;
-import org.primal.client.model.helmet_decoration.GoatHornsModel;
-import org.primal.item.HelmetDecorationType;
+import org.primal.Primal_Registries;
+import org.primal.item.HelmetDecoration;
 import org.primal.item.component.HelmetDecorationComponent;
 import org.primal.mixin.client.EntityRenderDispatcherAccessor;
 import org.primal.registry.Primal_Items;
 import org.primal.util.Primal_Util;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @OnlyIn(Dist.CLIENT)
 public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidModel<T>> extends RenderLayer<T, M> {
 
-    public final DeerAntlersModel<T> fallowDeerAntlersModel;
-    public final DeerAntlersModel<T> reindeerAntlersModel;
-    public final DeerAntlersModel<T> whitetailDeerAntlersModel;
-    public final GoatHornsModel<T> goatHornsModel;
-
-    private final Map<HelmetDecorationType, HumanoidModel<T>> modelMap;
+    private final Map<HelmetDecoration<?>, HumanoidModel<?>> modelMap = new HashMap<>();
 
     public HelmetDecorationLayer(final RenderLayerParent<T, M> featureContext, final EntityRendererProvider.Context rendererContext) {
         super(featureContext);
-        this.fallowDeerAntlersModel = new DeerAntlersModel<>(rendererContext.bakeLayer(Primal_Client.DEER_ANTLERS_ON_HELMET_LAYER));
-        this.reindeerAntlersModel = new DeerAntlersModel<>(rendererContext.bakeLayer(Primal_Client.DEER_ANTLERS_ON_HELMET_LAYER));
-        this.whitetailDeerAntlersModel = new DeerAntlersModel<>(rendererContext.bakeLayer(Primal_Client.DEER_ANTLERS_ON_HELMET_LAYER));
-        this.goatHornsModel = new GoatHornsModel<>(rendererContext.bakeLayer(Primal_Client.GOAT_HORNS_ON_HELMET_LAYER));
-
-        modelMap = Map.of(
-                HelmetDecorationType.FALLOW_DEER, fallowDeerAntlersModel,
-                HelmetDecorationType.REINDEER, reindeerAntlersModel,
-                HelmetDecorationType.WHITETAIL, whitetailDeerAntlersModel,
-                HelmetDecorationType.GOAT, goatHornsModel
-        );
+        for (var helmetDecorationEntry : Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getEntries()){
+            if(!helmetDecorationEntry.getValue().getAsItem().equals(ItemStack.EMPTY.getItem()))
+                modelMap.put(helmetDecorationEntry.getValue(), helmetDecorationEntry.getValue().createHelmetDecorationModel(rendererContext));
+        }
     }
 
     @Override
@@ -56,12 +45,9 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
                        @NotNull T humanoid,
                        final float limbAngle, final float limbDistance, final float tickDelta, final float animationProgress, final float headYaw, final float headPitch) {
         var helmet = humanoid.getItemBySlot(EquipmentSlot.HEAD);
-
         var decorations= Primal_Util.OneTwentyEquivalent.Components.get(helmet, Primal_Items.Components.HELMET_DECORATION);
 
-        if(helmet.isEmpty() || decorations==null) {
-            return;
-        }
+        if(helmet.isEmpty() || decorations==null) return;
 
         displayHeadDecoration(decorations, matrices, vertexConsumers, light);
     }
@@ -79,7 +65,11 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
             final VertexConsumer textureBuffer =
                     vertexConsumers.getBuffer(
                             RenderType.entityCutoutNoCull(
-                                    Primal_Util.Visuals.getHelmetDecorationTexture(component.right().getName())));
+                                    Primal_Util.Visuals.getHelmetDecorationTexture(
+                                            Objects.requireNonNull(Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getKey(component.right()))
+                                    )
+                            )
+                    );
             headPart.copyFrom(this.getParentModel().head);
             headPart.render(matrices, textureBuffer, light, OverlayTexture.NO_OVERLAY);
         }
@@ -93,7 +83,11 @@ public class HelmetDecorationLayer<T extends LivingEntity, M extends HumanoidMod
             final VertexConsumer textureBuffer =
                     vertexConsumers.getBuffer(
                             RenderType.entityCutoutNoCull(
-                                    Primal_Util.Visuals.getHelmetDecorationTexture(component.left().getName())));
+                                    Primal_Util.Visuals.getHelmetDecorationTexture(
+                                            Objects.requireNonNull(Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getKey(component.left()))
+                                    )
+                            )
+                    );
             headPart.copyFrom(this.getParentModel().head);
             headPart.render(matrices, textureBuffer, light, OverlayTexture.NO_OVERLAY);
         }

@@ -189,6 +189,26 @@ public class Primal_Util {
                             ? parent.getVariant()
                             : otherParent.getVariant()
             );
+
+            //For taming and assigning a random collar color
+            if(offspring instanceof TamableAnimal && offspring instanceof PrimalTamable) {
+                var tamedBaby = (TamableAnimal & PrimalTamable) offspring;
+                var tamedParent = parent instanceof TamableAnimal && parent instanceof PrimalTamable?  (TamableAnimal & PrimalTamable) parent: null;
+                var otherTamedParent = otherParent instanceof TamableAnimal && otherParent instanceof PrimalTamable?  (TamableAnimal & PrimalTamable) otherParent: null;
+
+                if ((tamedParent!=null && tamedParent.isTame()) || (otherTamedParent!=null && otherTamedParent.isTame())) {
+                    tamedBaby.setOwnerUUID(tamedParent!=null? tamedParent.getOwnerUUID(): otherTamedParent.getOwnerUUID());
+                    tamedBaby.setTame(true);
+                    //Assign randomly one collar color
+                    if (otherTamedParent==null) {
+                        tamedBaby.setCollarColor(tamedParent.getCollarColor());
+                    } else if (tamedParent==null) {
+                        tamedBaby.setCollarColor(otherTamedParent.getCollarColor());
+                    } else {
+                        tamedBaby.setCollarColor(offspring.getRandom().nextBoolean()? tamedParent.getCollarColor(): otherTamedParent.getCollarColor());
+                    }
+                }
+            }
         }
 
         return offspring;
@@ -989,9 +1009,9 @@ public class Primal_Util {
             return null;
         }
 
-        public static  <T extends LivingEntity> ResourceLocation getHelmetDecorationTexture(String name){
-            return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
-                    "textures/helmet_decoration/models/"+ name +".png");
+        public static  <T extends LivingEntity> ResourceLocation getHelmetDecorationTexture(ResourceLocation name){
+            return ResourceLocation.fromNamespaceAndPath(name.getNamespace(),
+                    "textures/helmet_decoration/models/"+ name.getPath() +".png");
         }
 
         public static void emitAnimation(@Nullable Pair<String, String> animation, Entity mob){

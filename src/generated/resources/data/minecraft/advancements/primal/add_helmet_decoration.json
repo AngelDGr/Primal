@@ -15,7 +15,7 @@
     "hidden": false,
     "icon": {
       "item": "minecraft:diamond_helmet",
-      "nbt": "{Damage:0,HelmetDecorations:{left:0,right:0}}"
+      "nbt": "{Damage:0,HelmetDecorations:{left:\"primal:fallow_antler\",right:\"primal:fallow_antler\"}}"
     },
     "show_toast": true,
     "title": {

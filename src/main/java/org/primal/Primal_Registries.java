@@ -1,7 +1,10 @@
 package org.primal;
 
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
@@ -20,6 +23,11 @@ import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvi
 import net.minecraft.world.level.levelgen.feature.treedecorators.TreeDecoratorType;
 import net.minecraft.world.level.storage.loot.functions.LootItemFunctionType;
 import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryBuilder;
+import org.primal.item.HelmetDecoration;
+
+import java.util.function.Supplier;
 
 public class Primal_Registries {
 
@@ -64,4 +72,13 @@ public class Primal_Registries {
     public static final DeferredRegister<BannerPattern> BANNER_PATTERNS = DeferredRegister.create(Registries.BANNER_PATTERN, Primal_Main.MOD_ID);
 
     public static final DeferredRegister<LootItemFunctionType> LOOT_FUNCTIONS = DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, Primal_Main.MOD_ID);
+
+    public static final ResourceLocation PRIMAL_HELMET_DECORATIONS = ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "helmet_decorations");
+    public static final DeferredRegister<HelmetDecoration<?>> HELMET_DECORATIONS = DeferredRegister.create(PRIMAL_HELMET_DECORATIONS, Primal_Main.MOD_ID);
+    public static final Supplier<IForgeRegistry<HelmetDecoration<?>>> HELMET_DECORATIONS_REGISTRY =
+            HELMET_DECORATIONS.makeRegistry(() -> new RegistryBuilder<HelmetDecoration<?>>()
+                    .setDefaultKey(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "none"))
+                    .disableSync()
+            );
+//    public static final DeferredRegister<HelmetDecoration<?>> HELMET_DECORATIONS = DeferredRegister.create(PRIMAL_HELMET_DECORATIONS, Primal_Main.MOD_ID);
 }

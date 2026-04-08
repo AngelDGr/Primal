@@ -13,7 +13,11 @@ import net.minecraftforge.client.model.generators.ModelProvider;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
-import org.primal.item.HelmetDecorationType;
+import org.primal.Primal_Registries;
+import org.primal.item.HelmetDecoration;
+import org.primal.registry.Primal_HelmetDecorations;
+
+import java.util.Objects;
 
 public class Primal_HelmetDecorationModelGenerator extends ModelProvider<ItemModelBuilder> {
 
@@ -23,15 +27,15 @@ public class Primal_HelmetDecorationModelGenerator extends ModelProvider<ItemMod
 
     @Override
     protected void registerModels() {
-        basicDecoration(HelmetDecorationType.FALLOW_DEER);
-        basicDecoration(HelmetDecorationType.REINDEER);
-        basicDecoration(HelmetDecorationType.WHITETAIL);
-        basicDecoration(HelmetDecorationType.GOAT);
+        basicDecoration(Primal_HelmetDecorations.FALLOW_DEER.get());
+        basicDecoration(Primal_HelmetDecorations.REINDEER.get());
+        basicDecoration(Primal_HelmetDecorations.WHITETAIL.get());
+        basicDecoration(Primal_HelmetDecorations.GOAT.get());
     }
 
-    public void basicDecoration(HelmetDecorationType type) {
-        this.basicDecoration(type.getName(), "_l");
-        this.basicDecoration(type.getName(), "_r");
+    public void basicDecoration(HelmetDecoration<?> type) {
+        this.basicDecoration(Objects.requireNonNull(Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getKey(type)).getPath(), "_l");
+        this.basicDecoration(Objects.requireNonNull(Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getKey(type)).getPath(), "_r");
     }
 
     public void basicDecoration(String id, String suffix) {

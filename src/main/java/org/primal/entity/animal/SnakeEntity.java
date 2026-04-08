@@ -1306,7 +1306,10 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
         @Override
         public boolean handleGameEvent(@NotNull ServerLevel level, GameEvent gameEvent, GameEvent.@NotNull Context context, @NotNull Vec3 pos) {
-            if (gameEvent.equals(GameEvent.JUKEBOX_PLAY) || gameEvent.equals(GameEvent.NOTE_BLOCK_PLAY)) {
+            if(gameEvent.equals(GameEvent.INSTRUMENT_PLAY)){
+                snake.brain.setMemoryWithExpiry(MemoryModuleType.DANCING, true, 20);
+                return true;
+            } else if (gameEvent.equals(GameEvent.JUKEBOX_PLAY) || gameEvent.equals(GameEvent.NOTE_BLOCK_PLAY)) {
 
                 if(gameEvent.equals(GameEvent.JUKEBOX_PLAY))
                     snake.brain.setMemory(MemoryModuleType.DANCING, true);

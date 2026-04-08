@@ -7,7 +7,7 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
-public class GoatHornsModel<T extends LivingEntity> extends HumanoidModel<T> {
+public class GoatHornsModel extends HumanoidModel<LivingEntity> {
 
     public GoatHornsModel(ModelPart root) {
         super(root);
@@ -45,5 +45,5 @@ public class GoatHornsModel<T extends LivingEntity> extends HumanoidModel<T> {
     }
 
     @Override
-    public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {}
+    public void setupAnim(@NotNull LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {}
 }

@@ -15,11 +15,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.InstrumentTags;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.NotNull;
-import org.primal.item.HelmetDecorationType;
+import org.primal.item.HelmetDecoration;
 import org.primal.item.component.HelmetDecorationComponent;
+import org.primal.registry.Primal_HelmetDecorations;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -46,16 +46,14 @@ public class Primal_JEIPlugin implements IModPlugin {
         }
 
         private static final class HelmetDecorationsData {
-            private final List<HelmetDecorationType> helmetDecorations = new ArrayList<>();
+            private final List<HelmetDecoration<?>> helmetDecorations = new ArrayList<>();
             private final List<ItemStack> allHelmets = new ArrayList<>();
 
             private HelmetDecorationsData(IIngredientManager ingredientManager) {
-                helmetDecorations
-                        .addAll(
-                                Arrays.stream(HelmetDecorationType.values())
-                                        .filter(
-                                        d->!d.equals(HelmetDecorationType.NONE))
-                                        .toList());
+                for(var entry: Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getEntries()){
+                    if(entry.getValue()!= Primal_HelmetDecorations.NONE.get())
+                        helmetDecorations.add(entry.getValue());
+                }
 
                 allHelmets.addAll(
                         ingredientManager.getAllItemStacks()
@@ -77,20 +75,22 @@ public class Primal_JEIPlugin implements IModPlugin {
                 return recipes;
             }
 
-            private AnvilRecipe apply(ItemStack helmet, HelmetDecorationType helmetDecorationType, boolean left) {
+            private AnvilRecipe apply(ItemStack helmet, HelmetDecoration<?> helmetDecoration, boolean left) {
+                var decorKey= Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getKey(helmetDecoration);
+
                 var recipeId = ResourceLocation.fromNamespaceAndPath(
-                        Primal_Main.MOD_ID,
-                        helmetDecorationType.getName()+"_attach_" + (left? "left": "right"));
+                        decorKey.getNamespace(),
+                        decorKey.getPath()+"_attach_" + (left? "left": "right"));
 
                 List<ItemStack> toAttachList = new ArrayList<>();
 
                 //To put all goat horns, regardless of their instrument
-                if(helmetDecorationType.getAsItem().equals(Items.GOAT_HORN)) {
+                if(helmetDecoration.getAsItem().equals(Items.GOAT_HORN)) {
                     toAttachList = new ArrayList<>();
 
                     HolderSet<Instrument> holderset = BuiltInRegistries.INSTRUMENT.getOrCreateTag(InstrumentTags.GOAT_HORNS);
 
-                    var defaultInstance = helmetDecorationType.getAsItem().getDefaultInstance();
+                    var defaultInstance = helmetDecoration.getAsItem().getDefaultInstance();
                     toAttachList.add(defaultInstance);
 
                     for(Holder<Instrument> instrument: holderset){
@@ -100,7 +100,7 @@ public class Primal_JEIPlugin implements IModPlugin {
                 }
                 //Default
                 else {
-                    toAttachList.add(helmetDecorationType.getAsItem().getDefaultInstance());
+                    toAttachList.add(helmetDecoration.getAsItem().getDefaultInstance());
                 }
 
                 var helmetModified = helmet.copy();

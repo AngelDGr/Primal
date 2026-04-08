@@ -10,8 +10,9 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import org.primal.Primal_Main;
-import org.primal.item.HelmetDecorationType;
+import org.primal.Primal_Registries;
+import org.primal.item.HelmetDecoration;
+import org.primal.registry.Primal_HelmetDecorations;
 import org.primal.registry.Primal_Items;
 import org.primal.util.Primal_Util;
 import org.spongepowered.asm.mixin.Mixin;
@@ -53,15 +54,16 @@ public abstract class ItemRendererMixin {
     }
 
     @Unique
-    private void primal$renderHelmetDecoration(HelmetDecorationType type, String suffix,
-                                         PoseStack poseStack, MultiBufferSource bufferSource,
-                                         int light, int overlay, boolean flag) {
+    private void primal$renderHelmetDecoration(HelmetDecoration<?> type, String suffix,
+                                               PoseStack poseStack, MultiBufferSource bufferSource,
+                                               int light, int overlay, boolean flag) {
 
-        if (type == HelmetDecorationType.NONE) return;
-
+        if (type == Primal_HelmetDecorations.NONE.get()) return;
+        var decorKey= Primal_Registries.HELMET_DECORATIONS_REGISTRY.get().getKey(type);
+        if (decorKey == null) return;
         var location = ResourceLocation.fromNamespaceAndPath(
-                Primal_Main.MOD_ID,
-                "helmet_decoration/" + type.getName() + suffix
+                decorKey.getNamespace(),
+                "helmet_decoration/" + decorKey.getPath() + suffix
         );
 
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(location);

@@ -10,7 +10,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
 
 @OnlyIn(Dist.CLIENT)
-public class DeerAntlersModel<T extends LivingEntity> extends HumanoidModel<T> {
+public class DeerAntlersModel extends HumanoidModel<LivingEntity> {
 
     public DeerAntlersModel(ModelPart root) {
         super(root);
@@ -41,5 +41,5 @@ public class DeerAntlersModel<T extends LivingEntity> extends HumanoidModel<T> {
     }
 
     @Override
-    public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {}
+    public void setupAnim(@NotNull LivingEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {}
 }
