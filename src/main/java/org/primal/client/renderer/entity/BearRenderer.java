@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.BearModel;
@@ -12,6 +13,7 @@ import org.primal.client.renderer.entity.layer.bear.BearBarrelsLayer;
 import org.primal.client.renderer.entity.layer.bear.BearCollarLayer;
 import org.primal.client.renderer.entity.layer.bear.BearHoneyLayer;
 import org.primal.client.renderer.entity.layer.bear.BearSleepLayer;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.animal.BearEntity;
 import org.primal.util.Primal_Util;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -26,6 +28,7 @@ public final class BearRenderer extends GeoEntityRenderer<BearEntity> {
         this.addRenderLayer(new BearBarrelsLayer(this));
         this.addRenderLayer(new BearHoneyLayer(this));
         this.addRenderLayer(new BearSleepLayer(this));
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
 
         shadowRadius=1.0F;
     }

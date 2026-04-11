@@ -52,10 +52,7 @@ import org.primal.client.animation.entity.BearAnimations;
 import org.primal.entity.ai.BearAi;
 import org.primal.entity.ai.controls.look.WaterOrLandLookControl;
 import org.primal.entity.ai.controls.move.WaterOrLandMoveControl;
-import org.primal.registry.Primal_Entities;
-import org.primal.registry.Primal_MemoryModuleTypes;
-import org.primal.registry.Primal_Sounds;
-import org.primal.registry.Primal_Tags;
+import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.AnimalRoars;
 import org.primal.util.mob_types.AttackVillagers;
@@ -245,7 +242,6 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     @Override
     public void setFollowerState(int state) {
         this.entityData.set(FOLLOWER_STATE, state);
-        this.setInSittingPose(state==2);
     }
 
     @Override
@@ -261,6 +257,12 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
         this.setVariantFromBiome(this, level.getBiome(this.blockPosition()));
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
+    }
+
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+        if(this.isOrderedToSit() && !this.isSitting()) this.setFollowerState(SITTING_STATE);
     }
 
     @Override
@@ -398,6 +400,9 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         if(this.isBearJockey() && !this.isVehicle()){
             this.setBearJockey(false);
         }
+
+        if(!this.bearCollapses() && !this.level().isNight() && !this.getBrain().isActive(Primal_Activities.SIT.get()) && this.isBearSleeping())
+            this.setBearSleeping(false);
     }
 
     @Override

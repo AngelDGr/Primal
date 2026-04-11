@@ -141,6 +141,12 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     }
 
     @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+        if(this.isOrderedToSit() && !this.isSitting()) this.setFollowerState(SITTING_STATE);
+    }
+
+    @Override
     public void setVariantFromBiome(EagleEntity animal, Holder<Biome> holder){
         if (holder.is(Primal_Tags.Biome.SPAWNS_GOLDEN_EAGLE)) {
             animal.setVariant(Variant.GOLDEN);
@@ -259,7 +265,6 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     @Override
     public void setFollowerState(int state) {
         this.entityData.set(FOLLOWER_STATE, state);
-        this.setInSittingPose(state==2);
     }
 
     //Breeding

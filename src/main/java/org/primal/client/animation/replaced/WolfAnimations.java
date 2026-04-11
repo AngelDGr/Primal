@@ -18,7 +18,10 @@ public class WolfAnimations {
             state.getController().transitionLength(2);
             state.setControllerSpeed(1);
             Wolf wolf= animatable.getEntityFromState(state);
-            double speed = wolf.getDeltaMovement().length();
+            float speed = wolf.walkAnimation.speed();
+            if (speed < 0.2f) {
+                speed = 0f;
+            }
 
             //──────────────────────────────────── Triggered ────────────────────────────────────
             {
@@ -54,15 +57,15 @@ public class WolfAnimations {
 
             //────────────────────────────────────  Movement ────────────────────────────────────
             {
-                if (state.isMoving()) {
+                if (speed>0.15f) {
                     //Run
-                    if ((wolf.isAggressive() || speed > 0.18) && !wolf.isInWater()) {
-                        state.setControllerSpeed(state.getLimbSwingAmount() * (wolf.isBaby() ? 2 : 1.5f));
+                    if ((wolf.isAggressive() || speed > 0.85) && !wolf.isInWater()) {
+                        state.setControllerSpeed(speed * (wolf.isBaby() ? 2 : 1.5f));
                         return state.setAndContinue(RUN);
                     }
                     //Walk
                     else {
-                        state.setControllerSpeed(state.getLimbSwingAmount() * (wolf.isBaby() ? 8 : 3));
+                        state.setControllerSpeed(speed * (wolf.isBaby() ? 8 : 3));
                         return state.setAndContinue(WALK);
                     }
                 }

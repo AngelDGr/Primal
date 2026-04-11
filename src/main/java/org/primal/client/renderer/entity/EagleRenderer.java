@@ -5,9 +5,11 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.primal.client.model.entity.EagleModel;
 import org.primal.client.renderer.entity.layer.EagleCollarLayer;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.animal.EagleEntity;
 import org.primal.util.Primal_Util;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -18,6 +20,7 @@ public final class EagleRenderer extends GeoEntityRenderer<EagleEntity> {
         super(context, new EagleModel());
 
         this.addRenderLayer(new EagleCollarLayer(this));
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
 
         shadowRadius=0.5F;
     }

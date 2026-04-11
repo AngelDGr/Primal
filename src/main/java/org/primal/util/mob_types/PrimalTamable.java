@@ -21,6 +21,10 @@ import org.primal.util.Primal_Util;
 
 public interface PrimalTamable {
 
+    int WANDERING_STATE = 0;
+    int FOLLOWING_STATE = 1;
+    int SITTING_STATE = 2;
+
     private TamableAnimal self() {
         return (TamableAnimal) this;
     }
@@ -30,15 +34,15 @@ public interface PrimalTamable {
     void setFollowerState(int state);
 
     default boolean isSitting() {
-        return this.getFollowerState() == 2;
+        return this.getFollowerState() == SITTING_STATE;
     }
 
     default boolean isFollowing() {
-        return this.getFollowerState() == 1;
+        return this.getFollowerState() == FOLLOWING_STATE;
     }
 
     default boolean isWandering() {
-        return this.getFollowerState() == 0;
+        return this.getFollowerState() == WANDERING_STATE;
     }
 
     boolean handleEating(@NotNull Player player, @NotNull ItemStack stack);
@@ -67,7 +71,9 @@ public interface PrimalTamable {
         }
 
         if(!self().level().isClientSide && hand.equals(InteractionHand.MAIN_HAND)){
-            this.setFollowerState(this.isWandering()? 1: this.isFollowing()? 2: 0);
+            this.setFollowerState(this.isWandering()? FOLLOWING_STATE: this.isFollowing()? SITTING_STATE: WANDERING_STATE);
+            self().setOrderedToSit(this.isSitting());
+            self().setInSittingPose(this.isSitting());
 
             player.displayClientMessage(Component.translatable(
                     this.isFollowing()? "primal.gui.animal_following":
@@ -129,7 +135,7 @@ public interface PrimalTamable {
 
     default void readAdditionalSaveDataTamable(@NotNull CompoundTag compound) {
         if (compound.hasUUID("Owner"))
-            this.setFollowerState(compound.getInt("FollowerState"));
+            this.setFollowerState(compound.getBoolean("Sitting")? SITTING_STATE: compound.getInt("FollowerState"));
 
         if (compound.contains("CollarColor", 99))
             this.setCollarColor(DyeColor.byId(compound.getInt("CollarColor")));

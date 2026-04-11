@@ -6,11 +6,13 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.primal.Primal_Main;
 import org.primal.client.model.replaced.WolfModel;
 import org.primal.client.renderer.entity.layer.wolf.WolfArmorLayer;
 import org.primal.client.renderer.entity.layer.wolf.WolfCollarLayer;
 import org.primal.client.renderer.entity.layer.wolf.WolfEyesLayer;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.replaced.WolfReplaced;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
@@ -24,6 +26,8 @@ public class WolfRenderer extends GeoReplacedEntityRenderer<Wolf, WolfReplaced> 
         addRenderLayer(new WolfCollarLayer(this));
         addRenderLayer(new WolfEyesLayer(this));
         addRenderLayer(new WolfArmorLayer(this));
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
+
         shadowRadius=0.5F;
     }
 

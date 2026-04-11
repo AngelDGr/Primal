@@ -795,7 +795,7 @@ public class Primal_Util {
                             || mob.isInWater();
         }
 
-        public static<T extends AgeableMob> boolean isBabyWithoutNest(T e){
+        public static<T extends AgeableMob> boolean isBabyWithoutHome(T e){
             return e.isBaby() && e.getBrain().getMemory(MemoryModuleType.HOME).isEmpty();
         }
 

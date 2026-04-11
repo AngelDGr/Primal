@@ -11,10 +11,12 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
 import org.primal.client.model.replaced.FoxModel;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.replaced.FoxReplaced;
 import org.primal.util.Primal_Util;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -64,6 +66,7 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
                 super.renderStackForBone(poseStack, bone, stack, dwarf, bufferSource, partialTick, packedLight, packedOverlay);
             }
         });
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
 
         shadowRadius=0.3F;
     }

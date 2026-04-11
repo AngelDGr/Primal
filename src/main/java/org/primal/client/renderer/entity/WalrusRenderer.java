@@ -10,12 +10,14 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.WalrusModel;
 import org.primal.client.renderer.entity.layer.walrus.WalrusRiptideLayer;
 import org.primal.client.renderer.entity.layer.walrus.WalrusSaddleLayer;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.animal.WalrusEntity;
 import org.primal.util.Primal_Util;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -88,6 +90,7 @@ public class WalrusRenderer extends GeoEntityRenderer<WalrusEntity> {
                 super.renderStackForBone(poseStack, bone, stack, walrus, bufferSource, partialTick, packedLight, packedOverlay);
             }
         });
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
 
         shadowRadius=1.00F;
     }

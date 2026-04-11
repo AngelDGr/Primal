@@ -297,7 +297,6 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     @Override
     public void setFollowerState(int state) {
         this.entityData.set(FOLLOWER_STATE, state);
-        this.setInSittingPose(state==2);
     }
 
     public int getSlitherCooldown() {
@@ -410,6 +409,12 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         this.setSnakeEffect(SnakeEffect.byId(level.getRandom().nextIntBetweenInclusive(0, SnakeEffect.values().length-1)));
         this.setVariantFromBiome(this, level.getBiome(this.blockPosition()));
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData, compoundTag);
+    }
+
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+        if(this.isOrderedToSit() && !this.isSitting()) this.setFollowerState(SITTING_STATE);
     }
 
     @Override

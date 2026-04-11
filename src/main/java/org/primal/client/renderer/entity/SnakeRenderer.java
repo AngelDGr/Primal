@@ -8,11 +8,13 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.SnakeModel;
 import org.primal.client.renderer.entity.layer.snake.SnakePaintLayer;
 import org.primal.client.renderer.entity.layer.snake.SnakeShedLayer;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.animal.SnakeEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.core.object.Color;
@@ -25,6 +27,7 @@ public class SnakeRenderer extends GeoEntityRenderer<SnakeEntity> {
         super(renderManager, new SnakeModel());
         this.addRenderLayer(new SnakePaintLayer(this));
         this.addRenderLayer(new SnakeShedLayer(this));
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
         shadowRadius=0f;
     }
 

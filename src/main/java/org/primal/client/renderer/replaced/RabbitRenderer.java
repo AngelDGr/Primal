@@ -5,8 +5,10 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.primal.Primal_Main;
 import org.primal.client.model.replaced.RabbitModel;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.replaced.RabbitReplaced;
 import org.primal.util.mob_types.ReplacedEntityNewVariantHolder;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -16,6 +18,7 @@ public class RabbitRenderer extends GeoReplacedEntityRenderer<Rabbit, RabbitRepl
 
     public RabbitRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new RabbitModel(), new RabbitReplaced());
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
         shadowRadius=0.3F;
     }
 

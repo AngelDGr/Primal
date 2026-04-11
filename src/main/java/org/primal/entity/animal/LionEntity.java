@@ -282,7 +282,6 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
     public void setFollowerState(int state) {
         this.entityData.set(FOLLOWER_STATE, state);
-        this.setInSittingPose(state==2);
     }
 
     @Override
@@ -369,6 +368,12 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
         // Cap so it never dominates the spawn
         return Math.min(babyChance, 0.40f); // max 40%
+    }
+
+    @Override
+    public void onAddedToWorld() {
+        super.onAddedToWorld();
+        if(this.isOrderedToSit() && !this.isSitting()) this.setFollowerState(SITTING_STATE);
     }
 
     @Override

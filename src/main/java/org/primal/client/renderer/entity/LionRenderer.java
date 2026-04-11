@@ -5,11 +5,13 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.LionModel;
 import org.primal.client.renderer.entity.layer.lion.LionEyesLayer;
 import org.primal.client.renderer.entity.layer.lion.LionPaintLayer;
+import org.primal.compat.DomesticationInnovationCompat;
 import org.primal.entity.animal.LionEntity;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -20,6 +22,7 @@ public class LionRenderer extends GeoEntityRenderer<LionEntity> {
         super(renderManager, new LionModel());
         this.addRenderLayer(new LionEyesLayer(this));
         this.addRenderLayer(new LionPaintLayer(this));
+        if(FMLLoader.getLoadingModList().getModFileById("domesticationinnovation")!=null) DomesticationInnovationCompat.addEnchantmentsLayer(this);
 
         shadowRadius=0.75F;
     }

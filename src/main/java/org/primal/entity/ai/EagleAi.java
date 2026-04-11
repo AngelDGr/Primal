@@ -140,7 +140,7 @@ public class EagleAi {
                 ImmutableList.of(
                         new ConditionalSwim<>(0.8F, EagleEntity::isAffectedByFluids),
                         new LookAtTargetSink(45, 90),
-                        new MoveToTargetSink()
+                        new MoveToTargetSinkButStopsQuickly()
                 )
         );
     }
@@ -184,9 +184,9 @@ public class EagleAi {
                 GateBehavior.OrderPolicy.ORDERED,
                 GateBehavior.RunningPolicy.TRY_ALL,
                 ImmutableList.of(
-                        Pair.of(BirdStrollFlyGetTired.create(1, 30, 35, Predicate.not(EagleEntity::isBaby), UniformInt.of(1, 3)), 1),
+                        Pair.of(BirdStrollFlyGetTired.create(1, 30, 35, 5, 10 ,Predicate.not(EagleEntity::isBaby), UniformInt.of(1, 3)), 1),
                         Pair.of(BirdDescending.create(1, 12, Predicate.not(EagleEntity::isBaby), UniformInt.of(2, 5)), 1),
-                        Pair.of(BehaviorBuilder.triggerIf(Primal_Util.Ai::isBabyWithoutNest, RandomStroll.stroll(0.9F, true)), 1),
+                        Pair.of(BehaviorBuilder.triggerIf(Primal_Util.Ai::isBabyWithoutHome, RandomStroll.stroll(0.9F, true)), 1),
                         Pair.of(new ConditionalDoNothing<>(20, 60, Predicate.not(EagleEntity::isFlying)), 1)
                 ));
     }

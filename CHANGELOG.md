@@ -1,15 +1,19 @@
 # 1.1.5 - 1.20.1
 # Additions
 - Added recipe integration with EMI for helmet decorations
+- Added better compatibility for Domestication Innovation, now it should render correctly shadow hands, magnetic and other enchantments with visual stuff
 
 # Changes
 - Changed logic for helmet decorations from an enum to a custom registry, making a lot easier for other mods to add their own helmet decorations (this will break existing helmets, damn forge, sorry :( )
 - Made babies from tamed parents being tamed automatically
 - Made snakes being able to dance with the instrument game event (emitted by goat horns, conch shells and probably other modded instruments)
+- Improved eagle idle movement on enclosed spaces
 
 # Fixes
 - Fixed paint and eye layer not applying correctly to baby lions if the custom baby model is off
 - Made tamed pets unable to attack pets with the same owner if alerted by others
+- Fixed pets ignoring the vanilla sitting state, causing incompatibilities with other mods
+- Modify wolf remodel animations logic to work with snowy spirit sleds
 
 # 1.1.4 - 1.20.1
 # Additions
