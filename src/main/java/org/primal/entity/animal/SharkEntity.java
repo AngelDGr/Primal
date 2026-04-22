@@ -40,15 +40,10 @@ import net.minecraft.world.level.block.entity.ConduitBlockEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.entity.SharkAnimations;
 import org.primal.entity.ai.SharkAi;
 import org.primal.entity.ai.controls.navigation.BreachingWaterBoundPathNavigation;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 import java.util.UUID;
@@ -69,7 +64,7 @@ import java.util.function.IntFunction;
 // x Put triggers for advancements
 // x Tooth can repair tridents
 // x Tooth can be used as blocks
-public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntity.Variant>, GeoEntity, NeutralMob {
+public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntity.Variant>, NeutralMob {
 
     //Attributes and Variants
     public enum Variant implements StringRepresentable {
@@ -115,7 +110,6 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.4f);
     }
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     public SharkEntity(EntityType<? extends WaterAnimal> entityType, Level level) {
         super(entityType, level);
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 0.02F, 0.1F, true);
@@ -143,10 +137,10 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
         }
     }
 
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(SharkAnimations.mainController(this));
-    }
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState shakeAnimationState = new AnimationState();
+    public final AnimationState beachedAnimationState = new AnimationState();
+    public final AnimationState beachedShakeAnimationState = new AnimationState();
 
     @Override
     public int getMaxHeadYRot() {
@@ -159,12 +153,15 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
     }
 
     @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
-
-    @Override
     public void tick() {
+        if (this.level().isClientSide()) {
+            this.idleAnimationState.animateWhen(this.isInWaterOrBubble(), this.tickCount);
+            this.shakeAnimationState.animateWhen(!this.isInWaterOrBubble() && !this.shouldBeBeached(), this.tickCount);
+
+            this.beachedAnimationState.animateWhen(this.shouldBeBeached(), this.tickCount);
+            this.beachedShakeAnimationState.animateWhen(this.shouldBeBeached(), this.tickCount);
+        }
+
         super.tick();
         if (this.isNoAi())
             this.setAirSupply(this.getMaxAirSupply());

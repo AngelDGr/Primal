@@ -175,8 +175,8 @@ public class WalrusAi {
                                         )),
                                 1),
                         Pair.of(IdlePoseAnimationBehavior.create(
-                                        "lay",
-                                        Pose.CROAKING, 100, 400,
+                                        "Laying",
+                                        100, 400,
                                         mob -> IdlePoseAnimationBehavior.basicCanStart(mob) && !mob.isInWater() && mob.onGround() && !mob.hasInstrument(),
                                         200),
                                 1),

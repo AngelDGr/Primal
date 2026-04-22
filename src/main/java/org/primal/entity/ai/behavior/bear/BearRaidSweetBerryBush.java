@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
@@ -38,9 +39,10 @@ public class BearRaidSweetBerryBush extends Behavior<BearEntity> {
 
     @Override
     protected void start(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET,
-                new WalkTarget(entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_SWEET_BERRY_BUSH.get()).get(),
-                        1.0f, 2));
+        var bush = entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_SWEET_BERRY_BUSH.get());
+        bush.ifPresent(blockPos -> entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET,
+                new WalkTarget(blockPos,
+                        1.0f, 2)));
     }
 
     @Override
@@ -50,7 +52,7 @@ public class BearRaidSweetBerryBush extends Behavior<BearEntity> {
 
         if (nearestBush != null && bear.blockPosition().distManhattan(nearestBush) <= 3.0f) {
             BlockState originalState = level.getBlockState(nearestBush);
-            //If it isn't a sweet berry and not has age, just cancels the behaviour (This shouldn't ever happen)
+            //If it isn't a sweet berry and not has age, just cancels the behavior (This shouldn't ever happen)
             if (!originalState.is(Blocks.SWEET_BERRY_BUSH) || !originalState.hasProperty(SweetBerryBushBlock.AGE)) {
                 return;
             }
@@ -64,7 +66,7 @@ public class BearRaidSweetBerryBush extends Behavior<BearEntity> {
             //DESTROY BUSH
             level.destroyBlock(nearestBush, false, bear);
 
-            bear.triggerAnim("attack", "attack");
+            bear.swing(InteractionHand.MAIN_HAND);
 
             //Sounds of picking the bush berries
             bear.playSound(SoundEvents.SWEET_BERRY_BUSH_PICK_BERRIES, 1.0F, 1.0F);
@@ -77,8 +79,6 @@ public class BearRaidSweetBerryBush extends Behavior<BearEntity> {
         if (owner.isBaby() || owner.getHoneyCounter() > 0)
             return false;
         BlockPos nearestBushPos = owner.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_SWEET_BERRY_BUSH.get()).orElse(null);
-        if (!(level.getBlockState(nearestBushPos).is(Blocks.SWEET_BERRY_BUSH) && level.getBlockState(nearestBushPos).hasProperty(SweetBerryBushBlock.AGE) && level.getBlockState(nearestBushPos).getValue(SweetBerryBushBlock.AGE)>=2))
-            return false;
-        return true;
+        return nearestBushPos != null && (level.getBlockState(nearestBushPos).is(Blocks.SWEET_BERRY_BUSH) && level.getBlockState(nearestBushPos).hasProperty(SweetBerryBushBlock.AGE) && level.getBlockState(nearestBushPos).getValue(SweetBerryBushBlock.AGE) >= 2);
     }
 }

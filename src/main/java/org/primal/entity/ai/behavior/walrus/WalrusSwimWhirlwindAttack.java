@@ -7,7 +7,6 @@ import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.WalrusEntity;
 import org.primal.registry.Primal_MemoryModuleTypes;

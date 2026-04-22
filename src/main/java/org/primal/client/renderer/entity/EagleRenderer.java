@@ -1,42 +1,32 @@
 package org.primal.client.renderer.entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
+import org.primal.Primal_Main;
+import org.primal.client.renderer.defaulted.MobRendererWithCustomBaby;
 import org.primal.client.model.entity.EagleModel;
 import org.primal.client.renderer.entity.layer.EagleCollarLayer;
 import org.primal.entity.animal.EagleEntity;
-import org.primal.util.Primal_Util;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 @OnlyIn(Dist.CLIENT)
-public final class EagleRenderer extends GeoEntityRenderer<EagleEntity> {
+public final class EagleRenderer extends MobRendererWithCustomBaby.WithVariants<EagleEntity, EagleModel<EagleEntity>, EagleEntity.Variant> {
     public EagleRenderer(EntityRendererProvider.Context context) {
-        super(context, new EagleModel());
+        super(context,
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "eagle"),
+                new EagleModel.Adult<>(context.bakeLayer(EagleModel.Adult.LAYER_LOCATION)),
+                new EagleModel.Baby<>(context.bakeLayer(EagleModel.Baby.LAYER_LOCATION)),
+                0.5f,
+                false, true);
 
-        this.addRenderLayer(new EagleCollarLayer(this));
-
-        shadowRadius=0.5F;
+        this.addLayer(new EagleCollarLayer<>(this));
     }
 
     @Override
     protected float getShadowRadius(@NotNull EagleEntity entity) {
         float f = super.getShadowRadius(entity);
         return entity.isBaby() ? f * 0.3F : f;
-    }
-
-    @Override
-    public float getMotionAnimThreshold(EagleEntity animatable) {
-        return 0.0015f;
-    }
-
-    @Override
-    protected void applyRotations(EagleEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        if(!animatable.onGround() && !animatable.isBaby())
-            Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
-        else
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
     }
 }

@@ -2,7 +2,6 @@ package org.primal.util;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -73,14 +72,6 @@ import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Tags;
 import org.primal.util.mob_types.PrimalTamable;
 import org.spongepowered.asm.mixin.Unique;
-import software.bernie.geckolib.animatable.GeoAnimatable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animation.AnimationProcessor;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.model.data.EntityModelData;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -126,14 +117,14 @@ public class Primal_Util {
     }
 
     /**
-     * Works just like the GeckoLib {@link software.bernie.geckolib.animation.AnimationState#isMoving()} but on server side. With 0.015 motion threshold
+     * Movement check on server side. With 0.015 motion threshold.
      */
     public static boolean isMoving(LivingEntity entity){
         return isMoving(entity, 0.015f);
     }
 
     /**
-     * Works just like the GeckoLib {@link software.bernie.geckolib.animation.AnimationState#isMoving()} but on server side
+     * Movement check on server side.
      */
     public static boolean isMoving(LivingEntity entity, float motionThreshold){
         float limbSwingAmount = 0;
@@ -851,6 +842,28 @@ public class Primal_Util {
 
     public static class Visuals {
 
+        public static float getSwimFactor(Entity entity, float multiplier, float minSpeed, float maxSpeed) {
+            float speed = (float) entity.getDeltaMovement().length();
+            speed = Mth.clamp(speed, 0.0f, 1.0f);
+            return Mth.clamp((speed * multiplier), minSpeed, maxSpeed);
+        }
+
+        public static boolean isOnFieldGuidePage(LivingEntity entity){
+            return entity.getYRot() ==0
+                    && entity.yRotO == 0.0F
+                    && entity.getXRot()==0
+                    && entity.xRotO == 0.0F
+                    && entity.getYHeadRot()==0
+                    && entity.yHeadRot == 0.0F
+                    && entity.yHeadRotO == 0.0F
+                    && entity.yBodyRot == 0.0f
+                    && entity.yBodyRotO == 0.0F
+                    && entity.walkAnimation.speed()==0
+                    && entity.walkAnimation.position()==0
+                    && entity.attackAnim == 0.0F
+                    && entity.oAttackAnim == 0.0F;
+        }
+
         public static @Nullable ResourceLocation getNomanslandVariant(CompoundTag mainTag, String mobType, String suffix, String... supported){
             CompoundTag neoforgeAttachments= mainTag.getCompound("neoforge:attachments");
             var variantTag = neoforgeAttachments.get("mixed_litter:variants");
@@ -882,16 +895,6 @@ public class Primal_Util {
                     "textures/helmet_decoration/models/"+ name.getPath() +".png");
         }
 
-        public static void emitAnimation(@Nullable Pair<String, String> animation, Entity mob){
-            if(animation !=null && mob instanceof GeoEntity geoAnimatable)
-                geoAnimatable.triggerAnim(animation.getFirst(), animation.getSecond());
-        }
-
-        public static void stopAnimation(@Nullable Pair<String, String> animation, Entity mob){
-            if(animation !=null && mob instanceof GeoEntity geoAnimatable)
-                geoAnimatable.stopTriggeredAnim(animation.getFirst(), animation.getSecond());
-        }
-
         public static void bodyFullRotations(LivingEntity animatable, float partialTick, PoseStack poseStack){
             float headPitch = Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot());
 
@@ -911,20 +914,6 @@ public class Primal_Util {
 
             // Move back
             poseStack.translate(0.0D, -halfHeight, 0.0D);
-        }
-
-        public static <M extends Mob, T extends GeoAnimatable> void headRotationsSwimming(AnimationProcessor<T> animationProcessor, M mob, AnimationState<T> animationState){
-            GeoBone head = animationProcessor.getBone("head");
-
-            if (head != null) {
-                EntityModelData entityData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-
-                float rotX = entityData.headPitch() * Mth.DEG_TO_RAD;
-                float rotY = entityData.netHeadYaw() * Mth.DEG_TO_RAD;
-
-                head.setRotX(mob.isInWater()? Mth.clamp(rotX, -mob.getMaxHeadXRot() * Mth.DEG_TO_RAD, mob.getMaxHeadXRot() * Mth.DEG_TO_RAD): rotX);
-                head.setRotY(mob.isInWater()? Mth.clamp(rotY, -mob.getMaxHeadYRot() * Mth.DEG_TO_RAD, mob.getMaxHeadYRot() * Mth.DEG_TO_RAD): rotY);
-            }
         }
 
         public static void addParticleAboveSelf(LivingEntity mob, ParticleOptions particleOption, int amount) {
@@ -950,21 +939,6 @@ public class Primal_Util {
                 double d1 = mob.getRandom().nextGaussian() * modifier;
                 double d2 = mob.getRandom().nextGaussian() * modifier;
                 mob.level().addParticle(particleOption, mob.getRandomX(randomX), mob.getRandomY() + height, mob.getRandomZ(randomZ), d0, d1, d2);
-            }
-        }
-
-        public static<M extends Entity & GeoEntity> void resetControllerAfterAttack(M animatable, AnimationState<M> state, RawAnimation... animations){
-            resetControllerAfterAttack(animatable, state, "attack", animations);
-        }
-
-        public static<M extends Entity & GeoEntity> void resetControllerAfterAttack(M animatable, AnimationState<M> state, String controllerName, RawAnimation... animations){
-            //Resets animation after triggering an attack animation
-            var manager = animatable.getAnimatableInstanceCache().getManagerForId(animatable.getId());
-            var attackController = manager.getAnimationControllers().get(controllerName);
-
-            if(attackController.isPlayingTriggeredAnimation() && attackController.getTriggeredAnimation() !=null &&
-                    Arrays.stream(animations).anyMatch(r-> r.equals(attackController.getTriggeredAnimation()))){
-                state.getController().forceAnimationReset();
             }
         }
     }

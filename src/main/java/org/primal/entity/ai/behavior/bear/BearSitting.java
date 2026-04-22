@@ -2,7 +2,6 @@ package org.primal.entity.ai.behavior.bear;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.BearEntity;
@@ -26,11 +25,7 @@ public class BearSitting extends Behavior<BearEntity> {
     @Override
     protected void start(@NotNull ServerLevel level, BearEntity bear, long gameTime) {
         bear.stopMoving();
-
-        if (!bear.isBearSleeping())
-            bear.triggerAnim("base_controller", "sleep_start");
-
-        bear.setPose(Pose.CROAKING);
+        bear.startAnimation("Sleeping");
         bear.setBearSleeping(true);
     }
 
@@ -41,10 +36,7 @@ public class BearSitting extends Behavior<BearEntity> {
 
     @Override
     protected void stop(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        entity.triggerAnim("base_controller", "sleep_end");
-        entity.setPose(Pose.STANDING);
-        if(entity.getWakeUpSound()!=null)
-            entity.playSound(entity.getWakeUpSound(), 1,0.8f+ (entity.getRandom().nextIntBetweenInclusive(0, 2)*0.1f));
+        entity.stopSleeping();
         entity.setBearSleeping(false);
     }
 }

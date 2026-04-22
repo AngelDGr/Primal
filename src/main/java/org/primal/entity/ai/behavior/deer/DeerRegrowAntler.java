@@ -1,7 +1,6 @@
 package org.primal.entity.ai.behavior.deer;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -23,7 +22,6 @@ public class DeerRegrowAntler extends Behavior<DeerEntity> {
     private final Predicate<DeerEntity> canStillUse;
     private final int duration;
     private final UniformInt cooldown;
-    private final Pair<String, String> animation;
 
     public DeerRegrowAntler(int duration, UniformInt cooldown) {
         super(ImmutableMap.of(
@@ -40,11 +38,10 @@ public class DeerRegrowAntler extends Behavior<DeerEntity> {
                 && !Primal_Util.isMoving(m);
         this.canStillUse=this.canStart;
         this.cooldown=cooldown;
-        this.animation=Pair.of("base_controller", "eat");
     }
 
     public static DeerRegrowAntler create(UniformInt cooldown) {
-        return new DeerRegrowAntler(45, cooldown);
+        return new DeerRegrowAntler(41, cooldown);
     }
 
     @Override
@@ -57,6 +54,17 @@ public class DeerRegrowAntler extends Behavior<DeerEntity> {
         return canStillUse.test(entity) && hasRequiredMemories(entity);
     }
 
+    @Override
+    protected void start(@NotNull ServerLevel level, @NotNull DeerEntity mob, long gameTime) {
+        mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        mob.getNavigation().stop();
+        mob.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
+        mob.level().broadcastEntityEvent(mob, DeerEntity.EAT);
+
+        this.endTimestamp = gameTime + (long) duration;
+        time=0;
+    }
+
     private int time=0;
     @Override
     protected void tick(@NotNull ServerLevel level, @NotNull DeerEntity mob, long gameTime) {
@@ -64,26 +72,8 @@ public class DeerRegrowAntler extends Behavior<DeerEntity> {
         mob.getNavigation().stop();
         mob.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
         time++;
-    }
 
-    @Override
-    protected void start(@NotNull ServerLevel level, @NotNull DeerEntity mob, long gameTime) {
-        mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        mob.getNavigation().stop();
-        mob.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
-
-        Primal_Util.Visuals.emitAnimation(animation, mob);
-
-        this.endTimestamp = gameTime + (long) duration;
-    }
-
-    @Override
-    protected void stop(@NotNull ServerLevel level, @NotNull DeerEntity mob, long gameTime) {
-        mob.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.WAS_TRIGGER_ANIMATION.get(), true, mob.level().getRandom().nextIntBetweenInclusive(cooldown.getMinValue(), cooldown.getMaxValue()));
-        //Just in case
-        Primal_Util.Visuals.stopAnimation(animation, mob);
-
-        if(time>=40){
+        if(time>=35){
             BlockPos blockpos1 = mob.getOnPos();
             if (mob.level().getBlockState(blockpos1).is(Blocks.GRASS_BLOCK)) {
                 if (net.neoforged.neoforge.event.EventHooks.canEntityGrief(mob.level(), mob)) {
@@ -96,7 +86,14 @@ public class DeerRegrowAntler extends Behavior<DeerEntity> {
 
             //Regrow antlers
             mob.setAntlers(true, true);
+            time=0;
         }
+    }
+
+    @Override
+    protected void stop(@NotNull ServerLevel level, @NotNull DeerEntity mob, long gameTime) {
+        mob.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.WAS_TRIGGER_ANIMATION.get(), true, mob.level().getRandom().nextIntBetweenInclusive(cooldown.getMinValue(), cooldown.getMaxValue()));
+        time=0;
     }
 
     @Override

@@ -1,3 +1,19 @@
+# 1.1.6 - 1.21
+# Additions
+- Completely removed GeckoLib dependency! A lot of animation-related stuff should work a lot better now
+- Added flick animation to snakes while on the player's neck
+- Added a new config option to add support for more wolf variants
+- Added look animation to deer
+
+# Changes
+- Snakes don't get out of its owner neck when flying on creative
+- Changed crocodile model
+- Added new animation when brushed a crocodile scute
+- Modified logic for lion sigma variant to be just a texture change instead of a variant change
+
+# Fixes
+- Fixed baby rabbits not being assigned the custom primal variant correctly when born from breeding
+
 # 1.1.5 - 1.21
 # Additions
 - Added recipe integration with EMI for helmet decorations

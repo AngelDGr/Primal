@@ -1,15 +1,12 @@
 package org.primal.entity.ai.behavior.bear;
 
-import org.jetbrains.annotations.NotNull;
-import org.primal.entity.animal.BearEntity;
-
 import com.google.common.collect.ImmutableMap;
-
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import org.jetbrains.annotations.NotNull;
+import org.primal.entity.animal.BearEntity;
 
 public class BearSleep extends Behavior<BearEntity> {
     public BearSleep() {
@@ -37,13 +34,8 @@ public class BearSleep extends Behavior<BearEntity> {
     @Override
     protected void start(@NotNull ServerLevel level, BearEntity bear, long gameTime) {
         bear.stopMoving();
-
-        if (!bear.isBearSleeping())
-            bear.triggerAnim("base_controller", "sleep_start");
-        bear.setPose(Pose.CROAKING);
-        if(bear.isVehicle()){
-            bear.ejectPassengers();
-        }
+        bear.startAnimation("Sleeping");
+        if(bear.isVehicle()) bear.ejectPassengers();
         bear.setBearSleeping(true);
     }
 
@@ -54,10 +46,7 @@ public class BearSleep extends Behavior<BearEntity> {
 
     @Override
     protected void stop(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        entity.triggerAnim("base_controller", "sleep_end");
-        entity.setPose(Pose.STANDING);
-        if(entity.getWakeUpSound()!=null)
-            entity.playSound(entity.getWakeUpSound(), 1,0.8f+ (entity.getRandom().nextIntBetweenInclusive(0, 2)*0.1f));
+        entity.stopSleeping();
         entity.setBearSleeping(false);
         //30s of delay + 1-10 extra seconds
         entity.setAwakeCounter(600+entity.getRandom().nextIntBetweenInclusive(20, 200));

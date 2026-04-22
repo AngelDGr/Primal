@@ -78,8 +78,8 @@ public class CassowaryPickFruit extends Behavior<CassowaryEntity> {
 
     @Override
     protected void start(@NotNull ServerLevel level, @NotNull CassowaryEntity cassowary, long gameTime) {
-        cassowary.stopTriggeredAnim("base_controller", "pick_fruit");
-        cassowary.triggerAnim("base_controller", "pick_fruit");
+        cassowary.triggerPickFruit();
+        timer++;
 
         cassowary.getNavigation().stop();
         cassowary.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
@@ -87,65 +87,69 @@ public class CassowaryPickFruit extends Behavior<CassowaryEntity> {
         if (pendingPickup != null)
             cassowary.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(pendingPickup, true));
     }
+
+    private int timer=0;
 
     @Override
     protected void tick(@NotNull ServerLevel level, @NotNull CassowaryEntity cassowary, long gameTime) {
         cassowary.getNavigation().stop();
         cassowary.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        timer++;
 
-        if (pendingPickup != null)
+        if (pendingPickup != null){
             cassowary.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(pendingPickup, true));
+            if(timer==30){
+                if (cassowary.level() instanceof ServerLevel serverLevel)
+                    serverLevel.sendParticles(
+                            new ItemParticleOption(ParticleTypes.ITEM, pendingPickup.getItem()),
+                            pendingPickup.getX(), pendingPickup.getY(), pendingPickup.getZ(),
+                            8, 0.15, 0.1, 0.15, 0.02
+                    );
+
+                //Drops the seed
+                if (pendingPickup.getItem().is(Primal_Tags.Item.PROCESSES_CASSOWARY)) {
+                    boolean first = true;
+                    //Set loot table and plays sound on the first one
+                    for (ItemStack seedStack : cassowary.getDroppedSeeds()) {
+                        if (seedStack.isEmpty()) continue;
+
+                        BehaviorUtils.throwItem(cassowary, seedStack, cassowary.position().add(0, 1, 0));
+
+                        if (first) {
+                            cassowary.playSound(cassowary.getPlopSound());
+                            first = false;
+                        }
+                    }
+
+                    //Triggers advancement
+                    List<ServerPlayer> playersList= cassowary.level().getEntitiesOfClass(ServerPlayer.class, cassowary.getBoundingBox().inflate(24));
+
+                    if(!playersList.isEmpty()){
+                        playersList.forEach(player -> Primal_Advancements.FEED_PETRIFIED.get().trigger(player));
+                    }
+                }
+
+                ItemStack stack = pendingPickup.getItem();
+                stack.shrink(1);
+                if (stack.isEmpty()) pendingPickup.discard();
+
+                if(cassowary.playEatingSound())
+                    cassowary.heal(2);
+                cassowary.getBrain().eraseMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
+            }
+        }
     }
 
     @Override
     protected void stop(@NotNull ServerLevel level, @NotNull CassowaryEntity cassowary, long gameTime) {
-        if (pendingPickup == null || pendingPickup.isRemoved()) return;
-
-        if (cassowary.level() instanceof ServerLevel serverLevel)
-            serverLevel.sendParticles(
-                    new ItemParticleOption(ParticleTypes.ITEM, pendingPickup.getItem()),
-                    pendingPickup.getX(), pendingPickup.getY(), pendingPickup.getZ(),
-                    8, 0.15, 0.1, 0.15, 0.02
-            );
-
-        //Drops the seed
-        if (pendingPickup.getItem().is(Primal_Tags.Item.PROCESSES_CASSOWARY)) {
-            boolean first = true;
-            //Set loot table and plays sound on the first one
-            for (ItemStack seedStack : cassowary.getDroppedSeeds()) {
-                if (seedStack.isEmpty()) continue;
-
-                BehaviorUtils.throwItem(cassowary, seedStack, cassowary.position().add(0, 1, 0));
-
-                if (first) {
-                    cassowary.playSound(cassowary.getPlopSound());
-                    first = false;
-                }
-            }
-
-            //Triggers advancement
-            List<ServerPlayer> playersList= cassowary.level().getEntitiesOfClass(ServerPlayer.class, cassowary.getBoundingBox().inflate(24));
-
-            if(!playersList.isEmpty()){
-                playersList.forEach(player -> Primal_Advancements.FEED_PETRIFIED.get().trigger(player));
-            }
-        }
-
-        ItemStack stack = pendingPickup.getItem();
-        stack.shrink(1);
-        if (stack.isEmpty()) pendingPickup.discard();
-
-        if(cassowary.playEatingSound())
-            cassowary.heal(2);
-        cassowary.getBrain().eraseMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
+        if (pendingPickup == null) return;
 
 
         if(!pendingPickup.getItem().isEmpty()) cassowary.getBrain().setMemory(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, pendingPickup);
         // force behavior termination next tick
         pendingPickup = null;
         cassowary.getBrain().setMemoryWithExpiry(MemoryModuleType.PACIFIED, true, 200);
-        //Just in case
-        cassowary.stopTriggeredAnim("base_controller", "pick_fruit");
+        timer=0;
     }
 
     public static CassowaryPickFruit create(){

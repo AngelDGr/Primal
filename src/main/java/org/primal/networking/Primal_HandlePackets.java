@@ -20,8 +20,7 @@ public class Primal_HandlePackets {
                     walrus.doWhirlwind(data.playerJumpPendingScale());
                     walrus.setWhirlwindDuration(20);
                 } else {
-                    walrus.stopTriggeredAnim("base_controller", "ground_pound");
-                    walrus.triggerAnim("base_controller", "ground_pound");
+                    walrus.level().broadcastEntityEvent(walrus, WalrusEntity.GROUND_POUND);
                     walrus.setSlamDuration(10);
                 }
 

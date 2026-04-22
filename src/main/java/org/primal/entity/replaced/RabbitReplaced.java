@@ -3,31 +3,14 @@ package org.primal.entity.replaced;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Rabbit;
+import net.minecraft.world.entity.AnimationState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.replaced.RabbitAnimations;
-import software.bernie.geckolib.animatable.GeoReplacedEntity;
-import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationState;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.function.IntFunction;
 
-public class RabbitReplaced implements GeoReplacedEntity {
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-
-    public RabbitReplaced(){
-        SingletonGeoAnimatable.registerSyncedAnimatable(this);
-    }
-
+public interface RabbitReplaced {
     //──────────────────────────────────── Variants ────────────────────────────────────
-    public enum PrimalVariant implements StringRepresentable {
+    enum PrimalVariant implements StringRepresentable {
         GRAY(0, "gray"),
         SAND(1, "sand"),
         NONE(99, "none");
@@ -59,25 +42,9 @@ public class RabbitReplaced implements GeoReplacedEntity {
         }
     }
 
-    @Override
-    public EntityType<Rabbit> getReplacingEntityType() {
-        return EntityType.RABBIT;
-    }
+    AnimationState primal$idleAnimationState();
 
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(RabbitAnimations.mainController(this));
-    }
+    AnimationState primal$rearAnimationState();
 
-    @Nullable
-    public Rabbit getEntityFromState(AnimationState<RabbitReplaced> state) {
-        Entity entity = state.getData(DataTickets.ENTITY);
-        if (!(entity instanceof Rabbit rabbit)) return null;
-        return rabbit;
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
+    AnimationState primal$hopAnimationState();
 }

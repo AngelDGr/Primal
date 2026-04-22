@@ -84,11 +84,3 @@ config="${mod_id}.mixins.json"
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
-
-# Geckolib above 4.2
-[[dependencies.geckolib]]
-modId = "geckolib"
-type="required" #mandatory (Can be one of "required", "optional", "incompatible" or "discouraged")
-versionRange="[4.2,)"
-ordering = "NONE"
-side = "BOTH"

@@ -103,6 +103,7 @@ public class Primal_Config {
     public final ModConfigSpec.BooleanValue polarBearIncreasesHealth;
     public final ModConfigSpec.BooleanValue foxIncreasesHealth;
     public final ModConfigSpec.BooleanValue wolfIncreasesHealth;
+    public final ModConfigSpec.ConfigValue<List<? extends String>> wolfExtraModsSupportedForVariants;
 
     public final ModConfigSpec.BooleanValue bearBabyCustomModel;
     public final ModConfigSpec.BooleanValue crocodileBabyCustomModel;
@@ -237,6 +238,17 @@ public class Primal_Config {
                 polarBearIncreasesHealth = builder.define("polarBearIncreasesHealth", true);
                 wolfIncreasesHealth = builder.define("wolfIncreasesHealth", true);
                 foxIncreasesHealth = builder.define("foxIncreasesHealth", true);
+                builder.comment("""
+                            Extra mods with supported wolf variants. For custom resourcepacks
+                            You must write the mod namespace here, after that Primal will read the custom texture files (e.g. wolfExtraModsSupportedForVariants = ["atmospheric", "environmental"] )
+                            The new custom texture files must be located on "resources/assets/primal/textures/entity/wolf/[mod namespace]/[variant name].png"
+                            You also need to add the glowing eye texture on "resources/assets/primal/textures/entity/wolf/[mod namespace]/[variant name]_eyes.png"
+                            This will only work with correctly registered variants, no with new entities that use the wolf renderer
+                            Default = []""");
+                wolfExtraModsSupportedForVariants = builder.defineList("wolfExtraModsSupportedForVariants",
+                        List.of(),
+                        o -> o instanceof String s && s.contains(":")
+                );
 
                 builder.push("babyCustomModels");
                 {

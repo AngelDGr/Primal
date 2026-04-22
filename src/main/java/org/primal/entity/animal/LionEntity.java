@@ -43,17 +43,14 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.entity.LionAnimations;
 import org.primal.entity.ai.LionAi;
 import org.primal.registry.*;
-import org.primal.util.*;
+import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.*;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.*;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.IntFunction;
 
 //xTODO
@@ -95,14 +92,13 @@ import java.util.function.IntFunction;
 // It will lay rest on you when sleeping on the bed.
 // It will randomly lay on top of chests when it's not set to sleep.
 
-public class LionEntity extends TamableAnimal implements VariantHolder<LionEntity.Variant>, GeoEntity, NeutralMob, AnimalRoars, DetectsFartherAway, IsPackAnimal<LionEntity>, HostileMount, PrimalTamable, AttackVillagers, CustomFieldGuideState {
+public class LionEntity extends TamableAnimal implements VariantHolder<LionEntity.Variant>, MobWithTransitionablePoseAnimations, NeutralMob, AnimalRoars, DetectsFartherAway, IsPackAnimal<LionEntity>, HostileMount, PrimalTamable, AttackVillagers {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
         GOLDEN(0, "golden"),
         CARAMEL(1, "caramel"),
-        CAVE(2, "cave"),
-        SIGMA(3, "sigma");
+        CAVE(2, "cave");
 
         public static final Codec<LionEntity.Variant> CODEC = StringRepresentable.fromEnum(LionEntity.Variant::values);
 
@@ -139,11 +135,6 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
     @Override
     public @NotNull LionEntity.Variant getVariant() {
-        //Special lion
-        if (this.hasCustomName() && this.getName().getString().toLowerCase(Locale.ROOT).contains("the lion")) {
-            return LionEntity.Variant.SIGMA;
-        }
-
         return LionEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
     }
 
@@ -162,6 +153,10 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         return Primal_Util.getCustomVariantName(this, super.getTypeName(), Variant.CAVE);
     }
 
+    public boolean isSigma(){
+        return this.hasCustomName() && this.getName().getString().toLowerCase(Locale.ROOT).contains("the lion");
+    }
+
     //──────────────────────────────────── Init ────────────────────────────────────
     public LionEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -178,6 +173,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
                 .add(Attributes.STEP_HEIGHT, 1.5f);
     }
 
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_LAYING = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> MANELESS = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> ANGRY = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
@@ -189,11 +185,11 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     private static final EntityDataAccessor<Boolean> HAS_COLLAR = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_LAYING = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> MEAT_EATEN = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> FIELDGUIDE_STATE = SynchedEntityData.defineId(LionEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(LAST_POSE_CHANGE_TICK_LAYING, 0L);
         builder.define(DATA_VARIANT_ID, LionEntity.Variant.GOLDEN.id);
         builder.define(MANELESS, false);
         builder.define(ANGRY, false);
@@ -205,7 +201,6 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         builder.define(HAS_COLLAR, true);
         builder.define(IS_LAYING, false);
         builder.define(MEAT_EATEN, 0);
-        builder.define(FIELDGUIDE_STATE, false);
     }
 
     public void setManeless(boolean isManeless) {
@@ -313,16 +308,6 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     @Override
-    public void setFieldGuideState(boolean state) {
-        this.entityData.set(FIELDGUIDE_STATE, state);
-    }
-
-    @Override
-    public boolean hasFieldGuideState() {
-        return this.entityData.get(FIELDGUIDE_STATE);
-    }
-
-    @Override
     public @NotNull SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
         LionAi.initMemories(this, this.level().random);
         //Maneless with 50%
@@ -380,6 +365,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        this.addAdditionalSaveDataTransitionablePoseAnimations(compound);
         compound.putInt("Variant", this.getVariant().id);
         compound.putBoolean("IsManeless", this.isManeless());
         compound.putInt("MeatEaten", this.getMeatEaten());
@@ -391,6 +377,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.readAdditionalSaveDataTransitionablePoseAnimations(compound);
         this.setVariant(LionEntity.Variant.byId(compound.getInt("Variant")));
         this.setManeless(compound.getBoolean("IsManeless"));
         this.setMeatEaten(compound.getInt("MeatEaten"));
@@ -467,7 +454,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         }
 
         if(Primal_Util.Ai.isMovingOrNoInGround(this)){
-            this.stopTriggeredAnim("base_controller", "lay_end");
+//            this.stopTriggeredAnim("base_controller", "lay_end");
         }
 
         this.assignPackLeaderAndHome(LionEntity.class);
@@ -482,7 +469,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public boolean refuseToMove() {
-        return hasPose(Pose.SITTING) || hasPose(Pose.SLIDING);
+        return hasPose(Pose.SITTING) || hasPose(Pose.SLIDING) || this.isOnPoseTransition();
     }
 
     //──────────────────────────────────── Combat ────────────────────────────────────
@@ -783,16 +770,34 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
         this.level().broadcastEntityEvent(this, (byte) 22);
     }
 
-    //──────────────────────────────────── GeckoLib & Visuals ────────────────────────────────────
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(LionAnimations.mainController(this));
-    }
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState roarAnimationState = new AnimationState();
+    public final AnimationState maulAnimationState = new AnimationState();
+    public final AnimationState pounceAnimationState = new AnimationState();
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public final AnimationState startLayingAnimationState = new AnimationState();
+    public final AnimationState layingAnimationState = new AnimationState();
+    public final AnimationState stopLayingAnimationState = new AnimationState();
+
+    public static final byte POUNCE=4;
+    private int timeAttacking = 0;
     @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide()) {
+            setupAnimationStates();
+        }
+
+        if(this.level().isClientSide()) return;
+
+        if(this.isPouncing()){
+            timeAttacking++;
+            if(timeAttacking >=10 || this.isMauling()){
+                timeAttacking=0;
+                this.setPose(Pose.STANDING);
+            }
+        }
     }
 
     @Override
@@ -805,11 +810,49 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
             Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.ANGRY_VILLAGER, 5);
         } else if (id == 14) {
             Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.HAPPY_VILLAGER, 5);
+        }  else if (id == POUNCE) {
+            this.pounceAnimationState.start(this.tickCount);
         } else {
             super.handleEntityEvent(id);
         }
     }
 
+    @Override
+    public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> key) {
+        if (DATA_POSE.equals(key)) {
+            if (this.getPose().equals(Pose.ROARING)) {
+                this.roarAnimationState.startIfStopped(this.tickCount);
+            } else {
+                this.roarAnimationState.stop();
+            }
+        }
+
+        super.onSyncedDataUpdated(key);
+    }
+
+    @Override
+    public Map<String, TransitionablePoseAnimation> transitionableAnimations() {
+        return Map.of(
+                "Laying",
+                new MobWithTransitionablePoseAnimations.TransitionablePoseAnimation(this.isLayingPose(),
+                        Pose.SITTING, LAST_POSE_CHANGE_TICK_LAYING,
+                        startLayingAnimationState, layingAnimationState, stopLayingAnimationState, 20));
+    }
+
+    private void setupAnimationStates() {
+        this.transitionablePoseAnimationsSetupAnimationStates();
+        this.maulAnimationState.animateWhen(this.isMauling(), this.tickCount);
+        this.pounceAnimationState.animateWhen(this.isPouncing(), this.tickCount);
+        this.idleAnimationState.animateWhen(!isOnPoseAnimation() && !isOnPoseTransition() && !this.isPouncing() && !this.roarAnimationState.isStarted(), this.tickCount);
+    }
+
+    public boolean isLayingPose(){
+        return this.hasPose(Pose.SITTING) ;
+    }
+
+    private boolean isPouncing() {
+        return this.hasPose(Pose.SPIN_ATTACK);
+    }
     //──────────────────────────────────── Misc ────────────────────────────────────
     public static boolean checkLionSpawnRules(
             EntityType<? extends Animal> animal, LevelAccessor level, MobSpawnType spawnType, BlockPos pos, RandomSource random

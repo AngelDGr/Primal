@@ -8,7 +8,6 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -217,7 +216,7 @@ public class CrocodileAi {
     private static RunOne<CrocodileEntity> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
-                        Pair.of(IdlePoseAnimationBehavior.create("basking", Pose.INHALING,
+                        Pair.of(IdlePoseAnimationBehavior.create("Basking",
                                         Primal_Util.toTicks(5), Primal_Util.toTicks(10),
                                         c -> IdlePoseAnimationBehavior.basicCanStart(c) && c.level().isDay() && !c.isInWater(),
                                         Primal_Util.toTicks(40)),

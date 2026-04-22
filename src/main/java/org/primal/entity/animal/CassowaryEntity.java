@@ -35,20 +35,16 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.entity.CassowaryAnimations;
 import org.primal.entity.ai.CassowaryAi;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.AttackVillagers;
-import org.primal.util.mob_types.CustomFieldGuideState;
+import org.primal.util.mob_types.MobWithTransitionablePoseAnimations;
 import org.primal.util.mob_types.VariantHolderWithEgg;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
@@ -72,7 +68,7 @@ import java.util.function.IntFunction;
 // Add Suspicious Gravel to nests, which you can uncover various loot, including Petrified Fruit
 // Cassowaries will eat “Petrified fruit”, which in return it poops out seeds of either Litchi, Kiwano, or Starfruit
 // It can be bred with any of the exotic fruits.
-public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEntity.Variant>, VariantHolderWithEgg<CassowaryEntity.Variant, CassowaryEntity>, GeoEntity, NeutralMob, AttackVillagers, CustomFieldGuideState {
+public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEntity.Variant>, VariantHolderWithEgg<CassowaryEntity.Variant, CassowaryEntity>, MobWithTransitionablePoseAnimations, NeutralMob, AttackVillagers {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -142,15 +138,16 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
                 .add(Attributes.STEP_HEIGHT, 1.5f);
     }
 
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_SITTING = SynchedEntityData.defineId(CassowaryEntity.class, EntityDataSerializers.LONG);
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_ATTACKING = SynchedEntityData.defineId(CassowaryEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(CassowaryEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> FIELDGUIDE_STATE = SynchedEntityData.defineId(CassowaryEntity.class, EntityDataSerializers.BOOLEAN);
-
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_VARIANT_ID, Variant.MIDNIGHT.id);
-        builder.define(FIELDGUIDE_STATE, false);
+        builder.define(LAST_POSE_CHANGE_TICK_SITTING, 0L);
+        builder.define(LAST_POSE_CHANGE_TICK_ATTACKING, 0L);
     }
 
     @Override
@@ -162,23 +159,15 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        this.addAdditionalSaveDataTransitionablePoseAnimations(compound);
         compound.putInt("Variant", this.getVariant().id);
     }
 
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.readAdditionalSaveDataTransitionablePoseAnimations(compound);
         this.setVariant(CassowaryEntity.Variant.byId(compound.getInt("Variant")));
-    }
-
-    @Override
-    public void setFieldGuideState(boolean state) {
-        this.entityData.set(FIELDGUIDE_STATE, state);
-    }
-
-    @Override
-    public boolean hasFieldGuideState() {
-        return this.entityData.get(FIELDGUIDE_STATE);
     }
 
     //──────────────────────────────────── AI & Movement ────────────────────────────────────
@@ -255,8 +244,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     }
 
     public boolean refuseToMove() {
-//        return ImmutableList.of(Pose.ROARING, Pose.SNIFFING, Pose.CROAKING).contains(this.getPose());
-        return false;
+        return this.isSitting() || this.isOnPoseTransition();
     }
 
     //──────────────────────────────────── Combat ────────────────────────────────────
@@ -383,18 +371,38 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
         return null;
     }
 
-    //──────────────────────────────────── GeckoLib/Visuals ────────────────────────────────────
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+
+    public final AnimationState fruitPickAnimationState = new AnimationState();
+
+    public final AnimationState startSittingAnimationState = new AnimationState();
+    public final AnimationState sittingAnimationState = new AnimationState();
+    public final AnimationState stopSittingAnimationState = new AnimationState();
+
+    public final AnimationState startAttackingAnimationState = new AnimationState();
+    public final AnimationState attackingAnimationState = new AnimationState();
+    public final AnimationState stopAttackingAnimationState = new AnimationState();
+
+    private int timeAttacking = 0;
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(CassowaryAnimations.mainController(this));
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide()) {
+            setupAnimationStates();
+        }
+
+        if(this.level().isClientSide()) return;
+        if(this.isAttacking()){
+            timeAttacking++;
+            if(timeAttacking >=13){
+                timeAttacking=0;
+                this.stopAnimation("Attacking");
+            }
+        }
     }
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
-
+    public static final byte FRUIT_PICK=5;
     @Override
     public void handleEntityEvent(byte id) {
         if(id == 72){
@@ -403,11 +411,42 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
             Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.ANGRY_VILLAGER, 5);
         } else if (id == 14) {
             Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.HAPPY_VILLAGER, 5);
+        } else if (id == FRUIT_PICK) {
+            this.fruitPickAnimationState.start(this.tickCount);
         } else {
             super.handleEntityEvent(id);
         }
     }
 
+    private void setupAnimationStates() {
+        this.transitionablePoseAnimationsSetupAnimationStates();
+        this.idleAnimationState.animateWhen(!this.isSitting(), this.tickCount);
+    }
+
+    @Override
+    public Map<String, TransitionablePoseAnimation> transitionableAnimations() {
+        return Map.of(
+                "Sitting",
+                new MobWithTransitionablePoseAnimations.TransitionablePoseAnimation(this.isSitting(),
+                        Pose.SITTING, LAST_POSE_CHANGE_TICK_SITTING,
+                        startSittingAnimationState, sittingAnimationState, stopSittingAnimationState, 5),
+                "Attacking",
+                new MobWithTransitionablePoseAnimations.TransitionablePoseAnimation(this.isAttacking(),
+                        Pose.ROARING, LAST_POSE_CHANGE_TICK_ATTACKING,
+                        startAttackingAnimationState, attackingAnimationState, stopAttackingAnimationState, 3));
+    }
+
+    public void triggerPickFruit(){
+        this.level().broadcastEntityEvent(this, FRUIT_PICK);
+    }
+
+    private boolean isSitting() {
+        return this.hasPose(Pose.SITTING);
+    }
+
+    private boolean isAttacking() {
+        return this.hasPose(Pose.ROARING);
+    }
     //──────────────────────────────────── Sounds ────────────────────────────────────
     @Override
     protected @Nullable SoundEvent getAmbientSound() {

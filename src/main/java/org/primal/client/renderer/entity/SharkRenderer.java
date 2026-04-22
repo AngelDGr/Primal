@@ -1,29 +1,22 @@
 package org.primal.client.renderer.entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+import org.primal.Primal_Main;
 import org.primal.client.model.entity.SharkModel;
 import org.primal.client.renderer.entity.layer.SharkConduitEyesLayer;
 import org.primal.entity.animal.SharkEntity;
-import org.primal.util.Primal_Util;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class SharkRenderer extends GeoEntityRenderer<SharkEntity> {
-    public SharkRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new SharkModel());
-        addRenderLayer(new SharkConduitEyesLayer(this));
-
-        shadowRadius=0.9F;
+public class SharkRenderer extends MobRenderer<SharkEntity, SharkModel<SharkEntity>> {
+    public SharkRenderer(EntityRendererProvider.Context context) {
+        super(context, new SharkModel<>(context.bakeLayer(SharkModel.LAYER_LOCATION)), 0);
+        this.addLayer(new SharkConduitEyesLayer<>(this));
     }
 
     @Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, SharkEntity animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
-    }
-
-    @Override
-    protected void applyRotations(SharkEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
+    public @NotNull ResourceLocation getTextureLocation(@NotNull SharkEntity animatable) {
+        return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/shark/"+animatable.getVariant().getSerializedName()+".png");
     }
 }

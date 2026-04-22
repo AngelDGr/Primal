@@ -88,7 +88,7 @@ public abstract class PlayerMixin extends LivingEntity implements net.neoforged.
         this.playNeckEntityAmbientSound(this.primal$getNeckEntity());
 
         //Removes automatically if on water/flying/sleeping/powder snow/crouching
-        if (!primal$getNeckEntity().isEmpty() && !this.level().isClientSide && (this.isInWater()) || this.abilities.flying || this.isSleeping() || this.isInPowderSnow || this.isCrouching()) {
+        if (!primal$getNeckEntity().isEmpty() && !this.level().isClientSide && (this.isInWater()) || this.isSleeping() || this.isInPowderSnow || this.isCrouching()) {
             this.removeEntitiesOnNeck();
         }
 

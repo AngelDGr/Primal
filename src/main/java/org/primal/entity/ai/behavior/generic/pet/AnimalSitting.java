@@ -1,34 +1,30 @@
 package org.primal.entity.ai.behavior.generic.pet;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.primal.registry.Primal_Activities;
 import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.util.Primal_Util;
+import org.primal.util.mob_types.MobWithTransitionablePoseAnimations;
 
 public class AnimalSitting extends Behavior<TamableAnimal> {
 
-    private final Pair<String, String> startAnimation;
-    private final Pair<String, String> stopAnimation;
+    @Nullable
+    private final String animationName;
 
     public AnimalSitting() {
-        this(null, null);
+        this(null);
     }
 
-    public AnimalSitting(String animationName) {
-        this(Pair.of("base_controller", animationName+"_start"), Pair.of("base_controller", animationName+"_end"));
-    }
-
-    public AnimalSitting(Pair<String, String> startAnimation, Pair<String, String> stopAnimation) {
+    public AnimalSitting(@Nullable String animationName) {
         super(ImmutableMap.of(), Integer.MAX_VALUE);
-        this.startAnimation =startAnimation;
-        this.stopAnimation=stopAnimation;
+        this.animationName = animationName;
     }
 
     @Override
@@ -44,21 +40,24 @@ public class AnimalSitting extends Behavior<TamableAnimal> {
     @Override
     protected void start(@NotNull ServerLevel level, @NotNull TamableAnimal pet, long gameTime) {
         this.stopMoving(pet);
-        Primal_Util.Visuals.emitAnimation(startAnimation, pet);
-        pet.setPose(Pose.SITTING);
+        if(this.animationName != null && pet instanceof MobWithTransitionablePoseAnimations animatable)
+            animatable.startAnimation(this.animationName);
+        else
+            pet.setPose(Pose.SITTING);
         pet.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.WAS_IDLE_ANIMATION.get(), true, 100);
     }
 
     @Override
     protected void tick(@NotNull ServerLevel level, @NotNull TamableAnimal pet, long gameTime) {
         this.stopMoving(pet);
-        pet.setPose(Pose.SITTING);
     }
 
     @Override
     protected void stop(@NotNull ServerLevel level, @NotNull TamableAnimal pet, long gameTime) {
-        Primal_Util.Visuals.emitAnimation(stopAnimation, pet);
-        pet.setPose(Pose.STANDING);
+        if(this.animationName != null && pet instanceof MobWithTransitionablePoseAnimations animatable)
+            animatable.stopAnimation(this.animationName);
+        else
+            pet.setPose(Pose.STANDING);
         //To avoid an idle immediately after standing up
         pet.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.WAS_IDLE_ANIMATION.get(), true, 100);
     }

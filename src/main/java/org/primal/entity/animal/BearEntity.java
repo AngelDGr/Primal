@@ -50,24 +50,17 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
-import org.primal.client.animation.entity.BearAnimations;
 import org.primal.entity.ai.BearAi;
 import org.primal.entity.ai.controls.look.WaterOrLandLookControl;
 import org.primal.entity.ai.controls.move.WaterOrLandMoveControl;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
-import org.primal.util.mob_types.AnimalRoars;
-import org.primal.util.mob_types.AttackVillagers;
-import org.primal.util.mob_types.PrimalTamable;
-import org.primal.util.mob_types.SemiAquaticAnimal;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager.ControllerRegistrar;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import org.primal.util.mob_types.*;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 import java.util.function.Predicate;
@@ -89,7 +82,7 @@ import java.util.function.Predicate;
 // x Have colored collars
 // x Make it untargetable if faint
 // x Fix the look
-public class BearEntity extends TamableAnimal implements VariantHolder<BearEntity.Variant>, GeoEntity, ContainerListener, HasCustomInventoryScreen, OwnableEntity, NeutralMob, AnimalRoars, PrimalTamable, AttackVillagers, SemiAquaticAnimal {
+public class BearEntity extends TamableAnimal implements VariantHolder<BearEntity.Variant>, MobWithTransitionablePoseAnimations, ContainerListener, HasCustomInventoryScreen, OwnableEntity, NeutralMob, AnimalRoars, PrimalTamable, AttackVillagers, SemiAquaticAnimal {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -170,6 +163,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     public void containerChanged(@NotNull Container container) {
     }
 
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_SLEEP = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.LONG);
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_BEG = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Boolean> BEAR_SLEEPING = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_HONEY_COUNTER = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
@@ -183,6 +178,8 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(LAST_POSE_CHANGE_TICK_SLEEP, 0L);
+        builder.define(LAST_POSE_CHANGE_TICK_BEG, 0L);
         builder.define(BEAR_SLEEPING, false);
         builder.define(DATA_VARIANT_ID, Variant.GRIZZLY.id);
         builder.define(DATA_HONEY_COUNTER, 0);
@@ -258,6 +255,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         if(ageableData.getGroupSize()>0) this.setBaby(ageableData.getGroupSize() % 2 != 0);
 
         this.setVariantFromBiome(this, level.getBiome(this.blockPosition()));
+        resetPoses();
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
     }
 
@@ -270,6 +268,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        this.addAdditionalSaveDataTransitionablePoseAnimations(compound);
         compound.putInt("Variant", this.getVariant().id);
         compound.putInt("HoneyCounter", this.getHoneyCounter());
         compound.putInt("AwakeCounter", this.getAwakeCounter());
@@ -297,6 +296,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.readAdditionalSaveDataTransitionablePoseAnimations(compound);
         this.setVariant(Variant.byId(compound.getInt("Variant")));
         this.setHoneyCounter(compound.getInt("HoneyCounter"));
         this.setAwakeCounter(compound.getInt("AwakeCounter"));
@@ -398,8 +398,10 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
             this.setBearJockey(false);
         }
 
-        if(!this.bearCollapses() && !this.level().isNight() && !this.getBrain().isActive(Primal_Activities.SIT.get()) && this.isBearSleeping())
+        if(!this.bearCollapses() && !this.level().isNight() && !this.getBrain().isActive(Primal_Activities.SIT.get()) && this.isBearSleeping()){
+            this.stopSleeping();
             this.setBearSleeping(false);
+        }
     }
 
     @Override
@@ -423,7 +425,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     public boolean refuseToMove() {
-        return ImmutableList.of(Pose.ROARING, Pose.SNIFFING, Pose.CROAKING).contains(this.getPose());
+        return ImmutableList.of(Pose.ROARING, Pose.SNIFFING, Pose.CROAKING).contains(this.getPose()) || this.isOnPoseTransition();
     }
 
     @Override
@@ -808,29 +810,25 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         this.playSound(Primal_Sounds.ANIMAL_CHEST.get(), 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
     }
 
-    //──────────────────────────────────── GeckoLib & Visuals ────────────────────────────────────
-    @Override
-    public void registerControllers(ControllerRegistrar controllers) {
-        controllers.add(
-                BearAnimations.mainController(this),
-                BearAnimations.attackController(this));
-    }
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState roarAnimationState = new AnimationState();
+    public final AnimationState attackAnimationState = new AnimationState();
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
-    }
+    public final AnimationState startSleepingAnimationState = new AnimationState();
+    public final AnimationState sleepingAnimationState = new AnimationState();
+    public final AnimationState stopSleepingAnimationState = new AnimationState();
 
-    @Override
-    public void swing(@NotNull InteractionHand hand) {
-        this.triggerAnim("attack", this.getRandom().nextBoolean() ? "attack" : "attack2");
-        super.swing(hand);
-    }
+    public final AnimationState startBeggingAnimationState = new AnimationState();
+    public final AnimationState beggingAnimationState = new AnimationState();
+    public final AnimationState stopBeggingAnimationState = new AnimationState();
 
     @Override
     public void tick() {
         super.tick();
+        if (this.level().isClientSide()) {
+            setupAnimationStates();
+        }
 
         if(!this.level().isClientSide){
             if (this.getHoneyCounter() > 0) {
@@ -845,6 +843,62 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 this.setHealingCooldown(this.getHealingCooldown()- 1);
             }
         }
+    }
+
+    @Override
+    public void handleEntityEvent(byte id) {
+        if (id == 4) {
+            this.roarAnimationState.stop();
+            this.attackAnimationState.start(this.tickCount);
+        } else {
+            super.handleEntityEvent(id);
+        }
+    }
+
+    @Override
+    public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> key) {
+        if (DATA_POSE.equals(key)) {
+            if (this.getPose().equals(Pose.ROARING)) {
+                this.roarAnimationState.startIfStopped(this.tickCount);
+            } else {
+                this.roarAnimationState.stop();
+            }
+        }
+
+        super.onSyncedDataUpdated(key);
+    }
+
+    @Override
+    public Map<String, TransitionablePoseAnimation> transitionableAnimations() {
+        return Map.of(
+                "Sleeping",
+                new TransitionablePoseAnimation(this.isBearSleeping(),
+                        Pose.CROAKING, LAST_POSE_CHANGE_TICK_SLEEP,
+                        startSleepingAnimationState, sleepingAnimationState, stopSleepingAnimationState, 20),
+                "Begging",
+                new TransitionablePoseAnimation(this.isBearBegging(),
+                        Pose.SNIFFING, LAST_POSE_CHANGE_TICK_BEG,
+                        startBeggingAnimationState, beggingAnimationState, stopBeggingAnimationState, 5));
+    }
+
+    private void setupAnimationStates() {
+        this.transitionablePoseAnimationsSetupAnimationStates();
+        this.idleAnimationState.animateWhen(!this.isBearSleeping(), this.tickCount);
+    }
+
+    @Override
+    public void swing(@NotNull InteractionHand hand) {
+        super.swing(hand);
+        this.level().broadcastEntityEvent(this, (byte)4);
+    }
+
+    private boolean isBearBegging() {
+        return this.hasPose(Pose.SNIFFING);
+    }
+
+    public void stopSleeping() {
+        if(this.getWakeUpSound()!=null) this.playSound(this.getWakeUpSound(), 1,0.8f+ (this.getRandom().nextIntBetweenInclusive(0, 2)*0.1f));
+        this.stopAnimation("Sleeping");
     }
 
     //──────────────────────────────────── Misc ────────────────────────────────────

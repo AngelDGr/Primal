@@ -1,9 +1,7 @@
 package org.primal.entity.ai.behavior.bear;
 
 import com.google.common.collect.ImmutableMap;
-
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
@@ -56,13 +54,11 @@ public class BearBeg extends Behavior<BearEntity> {
     @Override
     protected void start(@NotNull ServerLevel level, BearEntity bear, long gameTime) {
         bear.stopMoving();
-
-        bear.setPose(Pose.SNIFFING);
+        bear.startAnimation("Begging");
     }
 
     @Override
     protected void stop(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        entity.triggerAnim("base_controller", "beg_end");
-        entity.setPose(Pose.STANDING);
+        entity.stopAnimation("Begging");
     }
 }

@@ -4,43 +4,33 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
+import org.primal.client.renderer.defaulted.MobRendererWithCustomBaby;
 import org.primal.client.model.entity.SnakeModel;
 import org.primal.client.renderer.entity.layer.snake.SnakePaintLayer;
 import org.primal.client.renderer.entity.layer.snake.SnakeShedLayer;
 import org.primal.entity.animal.SnakeEntity;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import org.primal.util.mob_types.EntityOnNeckRenderer;
 
 @OnlyIn(Dist.CLIENT)
-public class SnakeRenderer extends GeoEntityRenderer<SnakeEntity> {
-    public SnakeRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new SnakeModel());
-        this.addRenderLayer(new SnakePaintLayer(this));
-        this.addRenderLayer(new SnakeShedLayer(this));
-        shadowRadius=0f;
+public class SnakeRenderer extends MobRendererWithCustomBaby.WithVariants<SnakeEntity, SnakeModel<SnakeEntity>, SnakeEntity.Variant> implements EntityOnNeckRenderer<SnakeEntity> {
+    public SnakeRenderer(EntityRendererProvider.Context context) {
+        super(context,
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "snake"),
+                new SnakeModel.Adult<>(context.bakeLayer(SnakeModel.Adult.LAYER_LOCATION)),
+                new SnakeModel.Baby<>(context.bakeLayer(SnakeModel.Baby.LAYER_LOCATION)),
+                0f,
+                true, Primal_Main.COMMON_CONFIG.snakeBabyCustomModel.get());
+        this.addLayer(new SnakePaintLayer<>(this));
+        this.addLayer(new SnakeShedLayer<>(this));
     }
 
     @Override
-    protected float getShadowRadius(@NotNull SnakeEntity entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.25F : f;
-    }
-
-    @Override
-    protected void applyRotations(SnakeEntity animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-//        if(animatable.isInWater() && animatable.isSlithering())
-//            Primal_Util.Visuals.bodyFullRotations(animatable, partialTick, poseStack);
-//        else
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
-    }
-
     public<T extends Player> void renderOnNeck(
             T owner,
             SnakeEntity snake,
@@ -51,17 +41,6 @@ public class SnakeRenderer extends GeoEntityRenderer<SnakeEntity> {
     ) {
         poseStack.pushPose();
 
-        poseStack.translate(
-                0.0,
-                (23.75f/16f) + (owner.isCrouching()? 0.2f: 0),
-                0.0);
-
-        BakedGeoModel model = getGeoModel().getBakedModel(getGeoModel().getModelResource(snake, this));
-        var renderType = getRenderType(snake, getTextureLocation(snake), bufferSource, partialTick);
-
-        if(renderType==null) return;
-
-        var buffer = bufferSource.getBuffer(renderType);
         poseStack.mulPose(Axis.YP.rotationDegrees(180));
         poseStack.mulPose(Axis.ZP.rotationDegrees(180));
 
@@ -72,51 +51,19 @@ public class SnakeRenderer extends GeoEntityRenderer<SnakeEntity> {
         snake.yHeadRotO = snake.getYRot();
         snake.yBodyRotO = snake.getYRot();
         snake.tickCount=owner.tickCount;
-        snake.setPose(Pose.SNIFFING);
 
-        if(owner.swinging && !snake.isBaby())
-            snake.triggerAnim("attack", "bite_wrapped");
+        RandomSource random = snake.getRandom();
 
-        int renderColor = getRenderColor(snake, partialTick, packedLight).argbInt();
-        int packedOverlay = getPackedOverlay(snake, 0, partialTick);
+        boolean shouldFlick =
+                random.nextFloat() < 0.0005f // ~0.005% chance per tick
+                        || snake.flickAnimationState.getAccumulatedTime() < 500;
 
-        super.actuallyRender(
-                poseStack,
-                snake,
-                model,
-                renderType,
-                bufferSource,
-                buffer,
-                false,
-                partialTick,
-                packedLight,
-                packedOverlay,
-                renderColor
-        );
+        snake.flickAnimationState.animateWhen(shouldFlick, snake.tickCount);
+        snake.wrappedAnimationState.animateWhen(true, snake.tickCount);
+        snake.attackAnimationState.animateWhen(owner.swinging && !snake.isBaby(), snake.tickCount);
 
-        for (GeoRenderLayer<SnakeEntity> renderLayer : getRenderLayers())
-            renderLayer.render(poseStack, snake, model, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
+        this.render(snake, 0, partialTick, poseStack, bufferSource, packedLight);
 
         poseStack.popPose();
-    }
-
-    @Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, SnakeEntity animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        if(!Primal_Main.COMMON_CONFIG.snakeBabyCustomModel.get()){
-            var bone = model.getBone("head");
-            float headScale = animatable.isBaby() ? 2.f : 1.f;
-            bone.ifPresent(geoBone ->
-                    geoBone.updateScale(headScale, headScale, headScale));
-            if (animatable.isBaby()) {
-                widthScale = heightScale = .4f;
-            }
-        }
-
-        super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
-    }
-
-    @Override
-    public float getMotionAnimThreshold(SnakeEntity animatable) {
-        return 0.0015f;
     }
 }

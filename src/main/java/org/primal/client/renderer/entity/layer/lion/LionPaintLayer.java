@@ -1,25 +1,25 @@
 package org.primal.client.renderer.entity.layer.lion;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
+import org.primal.client.model.entity.LionModel;
 import org.primal.entity.animal.LionEntity;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public class LionPaintLayer extends GeoRenderLayer<LionEntity> {
-    public LionPaintLayer(GeoRenderer<LionEntity> entityRendererIn) {
-        super(entityRendererIn);
+public class LionPaintLayer<T extends LionEntity, M extends LionModel<T>> extends RenderLayer<T, M> {
+
+    public LionPaintLayer(RenderLayerParent<T, M> renderer) {
+        super(renderer);
     }
 
     @Override
-    public void render(PoseStack poseStack, LionEntity animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+    public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, @NotNull T animatable, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         if (!animatable.isTame() || animatable.isInvisible() || !animatable.hasCollar()) return;
 
         RenderType collarRenderType = RenderType.entityCutoutNoCull(
@@ -28,6 +28,6 @@ public class LionPaintLayer extends GeoRenderLayer<LionEntity> {
 
         int i = animatable.getCollarColor().getTextureDiffuseColor();
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, i);
+        this.getParentModel().renderToBuffer(poseStack,bufferSource.getBuffer(collarRenderType), packedLight, OverlayTexture.NO_OVERLAY, i);
     }
 }

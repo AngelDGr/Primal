@@ -169,8 +169,8 @@ public class DeerAi {
                                         GateBehavior.RunningPolicy.TRY_ALL,
                                         ImmutableList.of(
                                                 Pair.of(DeerRegrowAntler.create(TimeUtil.rangeOfSeconds(2, 5)), 1),
-                                                Pair.of(StopAndTriggerAnimation.create("eat",
-                                                        50,
+                                                Pair.of(StopAndTriggerAnimation.create(DeerEntity.EAT,
+                                                        41,
                                                         m->m.getBlockStateOn().is(Blocks.GRASS_BLOCK)
                                                                 && !Primal_Util.isMoving(m)
                                                                 && m.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_PLAY_MOB.get()).isEmpty(),
@@ -178,6 +178,11 @@ public class DeerAi {
                                         )),
                                 3),
                         Pair.of(BehaviorBuilder.triggerIf(Predicate.not(DeerEntity::refuseToMove), RandomStroll.stroll(0.9F)), 5),
+                        Pair.of(StopAndTriggerAnimation.create(DeerEntity.LOOK,
+                                41,
+                                m->!Primal_Util.isMoving(m)
+                                        && m.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_PLAY_MOB.get()).isEmpty(),
+                                TimeUtil.rangeOfSeconds(8, 15)), 1),
                         Pair.of(new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
                                 3),
                         Pair.of(new DoNothing(40, 80),

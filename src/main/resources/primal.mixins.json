@@ -4,7 +4,6 @@
   "minVersion": "0.8",
   "plugin": "org.primal.mixin.PrimalMixinConfigPlugin",
   "mixins": [
-    "AgeableMobMixin",
     "AnimalMixin",
     "AnvilMenuMixin",
     "BedBlockEntityMixin",
@@ -40,14 +39,14 @@
     "VillagerHostilesSensorMixin",
     "ZombieMixin",
     "ZombieVillagerMixin",
-    "fieldguide.EntryRenderHelperMixin",
     "replaced.DolphinMixin",
     "replaced.FoxMixin",
     "replaced.FoxMixin$FoxPanicMixin",
-    "replaced.FoxMixin$FoxPounceMixin",
     "replaced.PolarBearMixin",
+    "replaced.PolarBearMixin$TriggerAttackAnimation",
     "replaced.RabbitMixin",
-    "replaced.WolfMixin"
+    "replaced.WolfMixin",
+    "replaced.WolfMixin$InitSitAnimation"
   ],
   "client": [
     "client.ClientPacketListenerMixin",

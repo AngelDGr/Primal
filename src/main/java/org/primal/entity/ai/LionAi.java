@@ -183,16 +183,16 @@ public class LionAi {
                         Pair.of(BehaviorBuilder.triggerIf(Predicate.not(LionEntity::refuseToMove), RandomStroll.stroll(1f)), 2),
                         //For maneless lions
                         Pair.of(IdlePoseAnimationBehavior.create(
-                                        "lay",
-                                        Pose.SITTING, 80, 200,
+                                        "Laying",
+                                        80, 200,
                                         l ->
                                                 l.isManeless() && canLay(l),
                                         300),
                                 2),
                         //For maned lions
                         Pair.of(IdlePoseAnimationBehavior.create(
-                                        "lay",
-                                        Pose.SITTING, 200, 500,
+                                        "Laying",
+                                        200, 500,
                                         l ->
                                                 !l.isManeless() && canLay(l),
                                         150),
@@ -300,7 +300,7 @@ public class LionAi {
         brain.addActivity(
                 Primal_Activities.SIT.get(),
                 ImmutableList.of(
-                        Pair.of(0, new AnimalSitting("lay"))
+                        Pair.of(0, new AnimalSitting("Laying"))
                 )
         );
     }

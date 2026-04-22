@@ -165,7 +165,7 @@ public class CassowaryAi {
     private static RunOne<CassowaryEntity> createIdleBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
-                        Pair.of(IdlePoseAnimationBehavior.create(Pose.SITTING, 100, 500,
+                        Pair.of(IdlePoseAnimationBehavior.create("Sitting", 100, 500,
                                         m-> IdlePoseAnimationBehavior.basicCanStart(m) && !m.isInWater()
                                                 && !m.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM), 60),
                                 1),

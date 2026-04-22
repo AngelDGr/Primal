@@ -1,55 +1,32 @@
 package org.primal.client.renderer.replaced;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.VariantHolder;
 import net.minecraft.world.entity.animal.Dolphin;
 import org.jetbrains.annotations.NotNull;
-import org.primal.client.model.replaced.DolphinModel;
-import org.primal.client.renderer.defaulted.DefaultedReplacedEntityWithNewVariantsRenderer;
+import org.primal.Primal_Main;
+import org.primal.client.model.entity.replaced.DolphinModel;
 import org.primal.entity.replaced.DolphinReplaced;
 import org.primal.util.Primal_Util;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
 
-public class DolphinRenderer extends DefaultedReplacedEntityWithNewVariantsRenderer<Dolphin, DolphinReplaced, DolphinReplaced.Variant> {
+public class DolphinRenderer extends MobRenderer<Dolphin, DolphinModel<Dolphin>> {
 
-    public DolphinRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new DolphinModel(), new DolphinReplaced(), "dolphin");
-        shadowRadius=0.7F;
+    public DolphinRenderer(EntityRendererProvider.Context context) {
+        super(context, new DolphinModel<>(context.bakeLayer(DolphinModel.LAYER_LOCATION)), 0.7f);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    protected float getShadowRadius(@NotNull Dolphin entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.35F : f;
-    }
-
-    @Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, DolphinReplaced animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        var bone = model.getBone("head");
-        float headScale = this.currentEntity.isBaby() ? 2.f : 1.f;
-        bone.ifPresent(geoBone ->
-                geoBone.updateScale(headScale, headScale, headScale));
-        if (this.currentEntity.isBaby()) {
-            widthScale = heightScale = .5f;
-        }
-        super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
-    }
-
-    @Override
-    protected void applyRotations(DolphinReplaced animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        Primal_Util.Visuals.bodyFullRotations(this.currentEntity, partialTick, poseStack);
-    }
-
-    @Override
-    public ResourceLocation getTextureLocation(DolphinReplaced animatable) {
-        Dolphin dolphin = this.currentEntity;
+    public @NotNull ResourceLocation getTextureLocation(@NotNull Dolphin dolphin) {
         CompoundTag mainTag = new CompoundTag();
         dolphin.saveWithoutId(mainTag);
         var variant = Primal_Util.Visuals.getNomanslandVariant(mainTag, "dolphin", "", "river");
         if (variant != null) return variant;
 
-        return super.getTextureLocation(animatable);
+        var variantHolder = ((VariantHolder<DolphinReplaced.Variant>)(dolphin)).getVariant();
+        return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/dolphin/" + variantHolder.getSerializedName() +".png");
     }
 }

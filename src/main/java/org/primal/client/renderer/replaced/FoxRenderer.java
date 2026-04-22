@@ -1,82 +1,62 @@
 package org.primal.client.renderer.replaced;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Fox;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.primal.Primal_Main;
-import org.primal.client.model.replaced.FoxModel;
-import org.primal.entity.replaced.FoxReplaced;
+import org.primal.client.model.entity.replaced.FoxModel;
 import org.primal.util.Primal_Util;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
-import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
+public class FoxRenderer extends MobRenderer<Fox, FoxModel<Fox>> {
 
-    private static final String ITEM = "mouth";
-    protected ItemStack mainHandItem;
-
-    public FoxRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new FoxModel(), new FoxReplaced());
+    public FoxRenderer(EntityRendererProvider.Context context) {
+        super(context, new FoxModel<>(context.bakeLayer(FoxModel.LAYER_LOCATION)), 0.3F);
 
         //Item on hand renderer
-        addRenderLayer(new BlockAndItemGeoLayer<>(this) {
-            @Nullable
-            @Override
-            protected ItemStack getStackForBone(GeoBone bone, FoxReplaced animatable) {
-                if(bone.getName().equals(ITEM))
-                    return FoxRenderer.this.mainHandItem;
+        this.addLayer(new RenderLayer<>(this) {
+                          @Override
+                          public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, @NotNull Fox livingEntity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+                              boolean isBaby = livingEntity.isBaby();
+                              poseStack.pushPose();
 
-                return null;
-            }
+                              ModelPart foxy = this.getParentModel().foxy;
+                              ModelPart body = this.getParentModel().body_group;
+                              ModelPart head = this.getParentModel().head;
+                              ModelPart mouth = this.getParentModel().mouth;
 
-            @Override
-            protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, FoxReplaced animatable) {
-                if(bone.getName().equals(ITEM))
-                    return ItemDisplayContext.GROUND;
+                              if (isBaby) {
+                                  poseStack.scale(0.5f, 0.5f, 0.5f);
+                                  poseStack.translate(0.0F, 24f / 16.0F, 0.0F);
+                              }
 
-                return ItemDisplayContext.NONE;
-            }
+                              foxy.translateAndRotate(poseStack);
+                              body.translateAndRotate(poseStack);
+                              head.translateAndRotate(poseStack);
+                              mouth.translateAndRotate(poseStack);
 
-            // Do some quick render modifications depending on what the item is
-            @Override
-            protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, FoxReplaced dwarf,
-                                              MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
-                if (stack == FoxRenderer.this.mainHandItem) {
-                    poseStack.mulPose(Axis.XN.rotationDegrees(-90f));
-                    poseStack.mulPose(Axis.YN.rotationDegrees(180f));
+                              poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
 
-                    float f = 0.75F;
-                    poseStack.scale(f, f, f);
-                }
-
-                super.renderStackForBone(poseStack, bone, stack, dwarf, bufferSource, partialTick, packedLight, packedOverlay);
-            }
-        });
-
-        shadowRadius=0.3F;
+                              ItemStack itemstack = livingEntity.getItemBySlot(EquipmentSlot.MAINHAND);
+                              context.getItemInHandRenderer().renderItem(livingEntity, itemstack, ItemDisplayContext.GROUND, false, poseStack, bufferSource, packedLight);
+                              poseStack.popPose();
+                          }
+        }
+        );
     }
 
     @Override
-    protected float getShadowRadius(@NotNull Fox entity) {
-        float f = super.getShadowRadius(entity);
-        return entity.isBaby() ? f * 0.6F : f;
-    }
-
-    @Override
-    public ResourceLocation getTextureLocation(FoxReplaced animatable) {
-        Fox fox = this.currentEntity;
+    public @NotNull ResourceLocation getTextureLocation(@NotNull Fox fox) {
         CompoundTag mainTag = new CompoundTag();
         fox.saveWithoutId(mainTag);
 
@@ -84,37 +64,5 @@ public class FoxRenderer extends GeoReplacedEntityRenderer<Fox, FoxReplaced> {
         if (variant != null) return variant;
 
         return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/fox/"+fox.getVariant().getSerializedName()+(fox.isSleeping()?"_sleep":"")+ ".png");
-    }
-
-    @Override
-    public void preRender(PoseStack poseStack, FoxReplaced animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
-
-        this.mainHandItem = this.currentEntity.getMainHandItem();
-    }
-
-    @Override
-    protected void applyRotations(FoxReplaced animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick, float nativeScale) {
-        super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick, nativeScale);
-        if ((this.currentEntity.isPouncing()) && !this.currentEntity.onGround()) {
-            float f = -Mth.lerp(partialTick, this.currentEntity.xRotO, this.currentEntity.getXRot());
-            poseStack.mulPose(Axis.XP.rotationDegrees(f));
-        }
-    }
-
-    @Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, FoxReplaced animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        GeoBone bone = model.getBone("head").get();
-        float headScale = this.currentEntity.isBaby() ? 2.f : 1.f;
-        bone.updateScale(headScale, headScale, headScale);
-        if (this.currentEntity.isBaby()) {
-            widthScale = heightScale = .5f;
-        }
-        super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
-    }
-
-    @Override
-    public float getMotionAnimThreshold(FoxReplaced animatable) {
-        return 0.0015f;
     }
 }

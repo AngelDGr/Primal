@@ -4,6 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
@@ -39,7 +41,10 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.*;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -53,22 +58,19 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.entity.WalrusAnimations;
 import org.primal.entity.ai.WalrusAi;
-import org.primal.entity.ai.controls.navigation.WalrusPathNavigation;
 import org.primal.entity.ai.controls.look.WaterOrLandLookControl;
 import org.primal.entity.ai.controls.move.WaterOrLandMoveControl;
+import org.primal.entity.ai.controls.navigation.WalrusPathNavigation;
 import org.primal.networking.packets.WalrusJumpPacket;
 import org.primal.registry.*;
 import org.primal.sounds.WalrusSong;
 import org.primal.util.Primal_Util;
+import org.primal.util.mob_types.MobWithTransitionablePoseAnimations;
 import org.primal.util.mob_types.SemiAquaticAnimal;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.function.IntFunction;
 
@@ -87,7 +89,7 @@ import java.util.function.IntFunction;
 //Breed with a bucket of Cod
 // If you give a walrus a Conch shell, it’ll play it and play a song!
 // Some of the songs will be meme references
-public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusEntity.Variant>, GeoEntity, NeutralMob, SemiAquaticAnimal {
+public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusEntity.Variant>, MobWithTransitionablePoseAnimations, NeutralMob, SemiAquaticAnimal {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -163,6 +165,8 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
                 .add(Attributes.JUMP_STRENGTH, 0.5F);
     }
 
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_LAYING = SynchedEntityData.defineId(WalrusEntity.class, EntityDataSerializers.LONG);
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_SWIM_IDLE = SynchedEntityData.defineId(WalrusEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(WalrusEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> WHIRLWIND_DURATION = SynchedEntityData.defineId(WalrusEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SLAM_DURATION = SynchedEntityData.defineId(WalrusEntity.class, EntityDataSerializers.INT);
@@ -174,6 +178,8 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(LAST_POSE_CHANGE_TICK_LAYING, 0L);
+        builder.define(LAST_POSE_CHANGE_TICK_SWIM_IDLE, 0L);
         builder.define(DATA_VARIANT_ID, WalrusEntity.Variant.BROWN.id);
         builder.define(WHIRLWIND_DURATION, 0);
         builder.define(SLAM_DURATION, 0);
@@ -239,6 +245,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        this.addAdditionalSaveDataTransitionablePoseAnimations(compound);
         compound.putInt("Variant", this.getVariant().id);
         compound.putInt("WhirlwindDuration", this.getWhirlwindDuration());
         compound.putInt("SlamDuration", this.getSlamDuration());
@@ -249,6 +256,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.readAdditionalSaveDataTransitionablePoseAnimations(compound);
         this.setVariant(WalrusEntity.Variant.byId(compound.getInt("Variant")));
         this.setWhirlwindDuration(compound.getInt("WhirlwindDuration"));
         this.setSlamDuration(compound.getInt("SlamDuration"));
@@ -367,7 +375,6 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
             }
             if(getSlamDuration()==0 && isSlam){
                 this.doSlamAttackDamage(this.getJumpScale());
-                this.stopTriggeredAnim("base_controller", "ground_pound");
             }
         }
 
@@ -403,7 +410,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     }
 
     public boolean refuseToMove() {
-        return hasInstrument();
+        return hasInstrument() || this.isOnPoseTransition();
     }
 
     public boolean isSeeingTarget(LivingEntity target) {
@@ -889,8 +896,11 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
 
     @Override
     protected @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
+        //TODO: Synch better the ground pound animation with the offset.
+        // The animation last 0.5s (500L accumulated time)
+        // - Tenebris
         float maxSlam = 10.0f;
-        float peakTime = 0.75f; // ← change this freely (0..1)
+        float peakTime = 0.25f;
 
         float slam = Mth.clamp(this.getSlamDuration() - partialTick, 0.0f, maxSlam);
         float t = 1.0f - (slam / maxSlam); // 0 → 1
@@ -942,16 +952,121 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
         return (float)this.getAttributeValue(Attributes.MOVEMENT_SPEED) * (this.isInWater()? 1.5f: 0.4f);
     }
 
-    //──────────────────────────────────── GeckoLib & Visuals ────────────────────────────────────
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+
+    public final AnimationState startLayingAnimationState = new AnimationState();
+    public final AnimationState layingAnimationState = new AnimationState();
+    public final AnimationState stopLayingAnimationState = new AnimationState();
+
+    public final AnimationState startSwimIdleAnimationState = new AnimationState();
+    public final AnimationState swimIdleAnimationState = new AnimationState();
+    public final AnimationState stopSwimIdleAnimationState = new AnimationState();
+
+    public final AnimationState playingAnimationState = new AnimationState();
+
+    public final AnimationState swimAttackAnimationState = new AnimationState();
+
+    public final AnimationState groundPoundAnimationState = new AnimationState();
+
+    private int swimIdleTimer=0;
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(WalrusAnimations.mainController(this));
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide()) {
+            setupAnimationStates();
+        }
+
+        if(this.level().isClientSide()) return;
+
+        double speed = this.getDeltaMovement().length();
+        if((speed<0.08) && !this.hasPose(Pose.SPIN_ATTACK) && !this.isAggressive() && this.isInWaterOrBubble() && !this.isVehicle()){
+            //Needs to remain still for at least 1s
+            swimIdleTimer++;
+            if(!this.isSwimIdling() && swimIdleTimer>20)
+                this.startAnimation("SwimIdle");
+        }
+        else if(this.isSwimIdling() && !this.isAnimationInProgress()) {
+            this.stopAnimation("SwimIdle");
+            swimIdleTimer=0;
+        }
     }
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    public static final byte SWIM_ATTACK=4;
+    public static final byte GROUND_POUND=5;
     @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    public void handleEntityEvent(byte id) {
+        if (id == GROUND_POUND) {
+            this.groundPoundAnimationState.start(this.tickCount);
+        } else {
+            super.handleEntityEvent(id);
+        }
+    }
+
+    private void setupAnimationStates() {
+        this.transitionablePoseAnimationsSetupAnimationStates();
+        this.playingAnimationState.animateWhen(this.hasInstrument(), this.tickCount);
+        this.swimAttackAnimationState.animateWhen(this.hasPose(Pose.SPIN_ATTACK), this.tickCount);
+        this.idleAnimationState.animateWhen(!this.swimAttackAnimationState.isStarted() && !this.layingAnimationState.isStarted(), this.tickCount);
+        if(this.groundPoundAnimationState.getAccumulatedTime()>=375L && this.groundPoundAnimationState.getAccumulatedTime()<=425L){
+            BlockPos groundPos = this.getOnPos();
+            BlockState groundState = this.level().getBlockState(groundPos);
+            if (groundState.isAir() || groundState.liquid()) return;
+
+            spawnGroundPoundParticles(this.level(), this, groundState);
+        }
+    }
+
+    @Override
+    public Map<String, TransitionablePoseAnimation> transitionableAnimations() {
+        return Map.of(
+                "Laying",
+                new MobWithTransitionablePoseAnimations.TransitionablePoseAnimation(this.isLaying(),
+                        Pose.CROAKING, LAST_POSE_CHANGE_TICK_LAYING,
+                        startLayingAnimationState, layingAnimationState, stopLayingAnimationState, 20),
+                "SwimIdle",
+                new MobWithTransitionablePoseAnimations.TransitionablePoseAnimation(this.isSwimIdling(),
+                        Pose.SNIFFING, LAST_POSE_CHANGE_TICK_SWIM_IDLE,
+                        startSwimIdleAnimationState, swimIdleAnimationState, stopSwimIdleAnimationState, 5));
+    }
+
+    private boolean isLaying() {
+        return this.hasPose(Pose.CROAKING);
+    }
+
+    private static void spawnGroundPoundParticles(Level level, WalrusEntity walrus, BlockState groundState) {
+        Vec3 center = walrus.position();
+
+        ParticleOptions particle = new BlockParticleOption(ParticleTypes.BLOCK, groundState);
+
+        int points = 80;
+        double radius = 1.5;
+        double y = 0.05;
+
+        for (int i = 0; i < points; i++) {
+            double angle = (Math.PI * 2 * i) / points;
+
+            double px = center.x + Math.cos(angle) * radius;
+            double pz = center.z + Math.sin(angle) * radius;
+
+            level.addParticle(
+                    particle,
+                    px,
+                    center.y + y,
+                    pz,
+                    0.0,
+                    0.15,
+                    0.0
+            );
+        }
+    }
+
+    private boolean isSwimIdling(){
+        return this.hasPose(Pose.SNIFFING);
+    }
+
+    public boolean isAnimationInProgress(){
+        return this.startSwimIdleAnimationState.isStarted() || this.stopSwimIdleAnimationState.isStarted();
     }
 
     //──────────────────────────────────── Spawning ────────────────────────────────────
