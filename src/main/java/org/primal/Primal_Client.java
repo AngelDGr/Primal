@@ -209,7 +209,7 @@ public class Primal_Client {
 
         //Block Entities
         {
-            event.registerLayerDefinition(ChompTrapRenderer.Model.LAYER_LOCATION, ChompTrapRenderer.Model::createLayer);
+            //event.registerLayerDefinition(ChompTrapRenderer.Model.LAYER_LOCATION, ChompTrapRenderer.Model::createLayer);
         }
         //Helmet Decorations
         {
