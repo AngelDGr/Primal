@@ -31,6 +31,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import org.jetbrains.annotations.NotNull;
 import org.primal.client.item.ConchShellClientExtension;
@@ -381,6 +382,32 @@ public class Primal_Client {
                 event.setNewFovModifier(newFov);
 
             }
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // SISTEMA DE RENDERIZADO ANCLADO PARA JINETES (Morsa)
+    // ────────────────────────────────────────────────────────────────────────
+
+    public static final java.util.Set<java.util.UUID> BLOCKED_RENDER_ENTITIES = new java.util.HashSet<>();
+
+    public static boolean isFirstPersonPlayer(net.minecraft.world.entity.Entity entity) {
+        return entity == Minecraft.getInstance().cameraEntity && Minecraft.getInstance().options.getCameraType().isFirstPerson();
+    }
+
+    @SubscribeEvent
+    public static void preRenderLiving(RenderLivingEvent.Pre<?, ?> event) {
+        if (BLOCKED_RENDER_ENTITIES.contains(event.getEntity().getUUID())) {
+
+            if (!isFirstPersonPlayer(event.getEntity())) {
+                NeoForge.EVENT_BUS.post(new RenderLivingEvent.Post<>(
+                        event.getEntity(), event.getRenderer(), event.getPartialTick(),
+                        event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()
+                ));
+                event.setCanceled(true);
+            }
+
+            BLOCKED_RENDER_ENTITIES.remove(event.getEntity().getUUID());
         }
     }
 }

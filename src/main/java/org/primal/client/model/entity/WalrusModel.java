@@ -1,5 +1,6 @@
 package org.primal.client.model.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.AgeableHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -26,6 +27,8 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
 
     protected abstract ModelPart getHead();
 
+    public abstract void translateToSaddle(com.mojang.blaze3d.vertex.PoseStack poseStack);
+
     @Override
     public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
@@ -47,7 +50,7 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
         private final ModelPart body_rear;
         private final ModelPart body;
         private final ModelPart body_squish;
-        private final ModelPart saddle;
+        public final ModelPart saddle;
         private final ModelPart head;
         private final ModelPart tiny_head;
         private final ModelPart snout;
@@ -200,9 +203,20 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
         }
 
         @Override
+        public void translateToSaddle(com.mojang.blaze3d.vertex.PoseStack poseStack) {
+            this.root().translateAndRotate(poseStack);
+            this.walrus.translateAndRotate(poseStack);
+            this.body_rear.translateAndRotate(poseStack);
+            this.body.translateAndRotate(poseStack);
+            this.body_squish.translateAndRotate(poseStack);
+            this.saddle.translateAndRotate(poseStack);
+        }
+
+        @Override
         public @NotNull ModelPart root() {
             return this.root;
         }
+
     }
 
     public static class Baby<T extends WalrusEntity> extends WalrusModel<T> {
@@ -317,6 +331,12 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
         @Override
         public ModelPart getHead() {
             return head;
+        }
+
+        @Override
+        public void translateToSaddle(com.mojang.blaze3d.vertex.PoseStack poseStack) {
+            this.root().translateAndRotate(poseStack);
+            this.getBody().translateAndRotate(poseStack);
         }
 
         @Override

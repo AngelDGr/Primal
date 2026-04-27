@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.WalrusModel;
 import org.primal.client.renderer.defaulted.MobRendererWithCustomBaby;
+import org.primal.client.renderer.entity.layer.walrus.WalrusRiderLayer;
 import org.primal.client.renderer.entity.layer.walrus.WalrusRiptideLayer;
 import org.primal.client.renderer.entity.layer.walrus.WalrusSaddleLayer;
 import org.primal.entity.animal.WalrusEntity;
@@ -33,6 +34,7 @@ public class WalrusRenderer extends MobRendererWithCustomBaby.WithVariants<Walru
                 false, Primal_Main.COMMON_CONFIG.walrusBabyCustomModel.get());
         this.addLayer(new WalrusRiptideLayer<>(this));
         this.addLayer(new WalrusSaddleLayer<>(this));
+        this.addLayer(new WalrusRiderLayer<>(this));
 
         //Item on hand renderer
         this.addLayer(new RenderLayer<>(this) {
