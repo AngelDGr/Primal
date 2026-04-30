@@ -51,6 +51,7 @@ public class LionAi {
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.GAZE_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
@@ -300,7 +301,7 @@ public class LionAi {
         brain.addActivity(
                 Primal_Activities.SIT.get(),
                 ImmutableList.of(
-                        Pair.of(0, new AnimalSitting("Laying"))
+                        Pair.of(0, new AnimalSitting<>("Laying", LionEntity::isLayingPose))
                 )
         );
     }

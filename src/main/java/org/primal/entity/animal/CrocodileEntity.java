@@ -32,7 +32,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -79,7 +78,7 @@ import java.util.function.IntFunction;
 //      x Entity falls faster
 //      x Sink faster in water
 //      x Inflicted from Ominous Trial Spawner’s projectile throw.
-public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, MobWithTransitionablePoseAnimations, ContainerListener, NeutralMob, HostileMount, VariantHolderWithEgg<CrocodileEntity.Variant, CrocodileEntity>, AttackVillagers, SemiAquaticAnimal {
+public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, MobWithTransitionablePoseAnimations, ContainerListener, NeutralMob, HostileMount, AttackVillagers, SemiAquaticAnimal {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -126,7 +125,6 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         return CrocodileEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
     }
 
-    @Override
     public void setVariantFromBiome(CrocodileEntity animal, Holder<Biome> holder){
         if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_CROCODILE)) {
             animal.setVariant(Variant.BLACK);
@@ -135,11 +133,6 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         } else {
             animal.setVariant(Variant.GREEN);
         }
-    }
-
-    @Override
-    public CrocodileEntity.Variant getRareVariant(CrocodileEntity crocodile) {
-        return Variant.ALBINO;
     }
 
     //──────────────────────────────────── Init ────────────────────────────────────
@@ -375,8 +368,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                         //Attacks if it's too close
                         || (target.distanceTo(this)<8 && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown()))
                 && !this.isPacified()
-                && Primal_Util.isNotNeverAttack(target)
-                && !target.getType().is(Primal_Tags.Entity.CROCODILE_NEVER_ATTACK);
+                && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.CROCODILE_NEVER_ATTACK);
     }
 
     public static boolean canPickUpEntity(@NotNull Entity target, @NotNull CrocodileEntity crocodile){
@@ -562,7 +554,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.CHICKEN);
+        return stack.is(Primal_Tags.Item.CROCODILE_BREED_FOOD);
     }
 
     @Override

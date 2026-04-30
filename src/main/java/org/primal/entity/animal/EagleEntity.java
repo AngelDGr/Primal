@@ -49,8 +49,8 @@ import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.DetectsFartherAway;
 import org.primal.util.mob_types.HostileMount;
+import org.primal.util.mob_types.PrimalBird;
 import org.primal.util.mob_types.PrimalTamable;
-import org.primal.util.mob_types.VariantHolderWithEgg;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,7 +72,7 @@ import java.util.function.IntFunction;
 // x Loud chirp when spot a threat, applies glowing to that threat
 // x Attack when you steal an egg
 
-public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEntity.Variant>, NeutralMob, VariantHolderWithEgg<EagleEntity.Variant, EagleEntity>, HostileMount, FlyingAnimal, DetectsFartherAway, PrimalTamable {
+public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEntity.Variant>, NeutralMob, HostileMount, FlyingAnimal, DetectsFartherAway, PrimalTamable, PrimalBird {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -119,7 +119,6 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         return EagleEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
     }
 
-    @Override
     public void setVariantFromBiome(EagleEntity animal, Holder<Biome> holder){
         if (holder.is(Primal_Tags.Biome.SPAWNS_GOLDEN_EAGLE)) {
             animal.setVariant(Variant.GOLDEN);
@@ -157,6 +156,9 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     public static final EntityDataAccessor<Float> HEALTH_WHEN_START_RIDING = SynchedEntityData.defineId(EagleEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DATA_COLLAR_COLOR = SynchedEntityData.defineId(EagleEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> FOLLOWER_STATE = SynchedEntityData.defineId(EagleEntity.class, EntityDataSerializers.INT);
+    
+    private int flyingEnergy = this.getBaseFlyingEnergy();
+    private int recoveredEnergy = 0;
 
     @Override
     protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
@@ -197,6 +199,22 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         this.entityData.set(FOLLOWER_STATE, state);
     }
 
+    public int getFlyingEnergy() {
+        return flyingEnergy;
+    }
+
+    public void setFlyingEnergy(int flyingEnergy) {
+        this.flyingEnergy = flyingEnergy;
+    }
+
+    public int getRecoveredEnergy() {
+        return recoveredEnergy;
+    }
+
+    public void setRecoveredEnergy(int recoveredEnergy) {
+        this.recoveredEnergy = recoveredEnergy;
+    }
+
     @Override
     public @NotNull SpawnGroupData finalizeSpawn(ServerLevelAccessor level, @NotNull DifficultyInstance difficulty, @NotNull MobSpawnType spawnType, @javax.annotation.Nullable SpawnGroupData spawnGroupData) {
         setVariantFromBiome(this, level.getBiome(this.blockPosition()));
@@ -215,6 +233,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         compound.putInt("Variant", this.getVariant().id);
         this.addAdditionalSaveDataHostileMount(compound);
         this.addAdditionalSaveDataTamable(compound);
+        this.addAdditionalDataPrimalBird(compound);
     }
 
     @Override
@@ -223,6 +242,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         this.setVariant(EagleEntity.Variant.byId(compound.getInt("Variant")));
         this.readAdditionalSaveDataHostileMount(compound);
         this.readAdditionalSaveDataTamable(compound);
+        this.readAdditionalDataPrimalBird(compound);
     }
 
     //──────────────────────────────────── AI & Movement ────────────────────────────────────
@@ -263,6 +283,8 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
             this.ejectPassengers();
 
         EagleAi.updateActivity(this);
+
+        this.birdAiStep();
     }
 
     @Override
@@ -323,10 +345,10 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
 
         //Pass to the sensor to handle tamed logic
         if(this.isTame())
-            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target) && Primal_Util.isSameEagleAttacking(target, this);
+            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.EAGLE_NEVER_ATTACK) && Primal_Util.isSameEagleAttacking(target, this);
 
         return super.canAttack(target)
-                && Primal_Util.isNotNeverAttack(target)
+                && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.EAGLE_NEVER_ATTACK)
                 //Don't attack an eagle unless that eagle attacks first
                 && (!(target instanceof EagleEntity) && this.getLastHurtByMob()!=target)
                 &&
@@ -508,7 +530,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.RABBIT_STEW);
+        return stack.is(Primal_Tags.Item.EAGLE_BREED_FOOD);
     }
 
     @Override
@@ -588,6 +610,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
     public final AnimationState sittingAnimationState = new AnimationState();
 
     public final AnimationState flyAnimationState = new AnimationState();
+    public final AnimationState lookOutAnimationState = new AnimationState();
 
     @Override
     public void tick() {
@@ -597,12 +620,15 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         }
     }
 
+    public static final byte LOOK_OUT=5;
     @Override
     public void handleEntityEvent(byte id) {
         if (id == 13) {
             Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.ANGRY_VILLAGER, 5);
         } else if (id == 14) {
             Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.HAPPY_VILLAGER, 5);
+        } else if(id==LOOK_OUT){
+            this.lookOutAnimationState.start(this.tickCount);
         } else {
             super.handleEntityEvent(id);
         }
@@ -734,6 +760,7 @@ public class EagleEntity extends TamableAnimal implements VariantHolder<EagleEnt
         }
     }
 
+    @SuppressWarnings("deprecation")
     private int findGroundY(int x, int startY, int z) {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, startY, z);
 

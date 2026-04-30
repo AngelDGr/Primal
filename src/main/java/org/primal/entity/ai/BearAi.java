@@ -20,6 +20,7 @@ import org.primal.entity.ai.behavior.generic.roar.AnimalRoar;
 import org.primal.entity.ai.behavior.generic.roar.SetRoarTarget;
 import org.primal.registry.Primal_Activities;
 import org.primal.registry.Primal_Entities;
+import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.registry.Primal_Sensors;
 import org.primal.entity.animal.BearEntity;
 
@@ -41,15 +42,15 @@ public final class BearAi {
             Primal_Sensors.NEAREST_ADULT_BEAR.get(),
             Primal_Sensors.NEAREST_BABY.get(),
             SensorType.NEAREST_PLAYERS,
-            Primal_Sensors.BEAR_NEAREST_BEEHIVE_SENSOR.get(),
-            Primal_Sensors.BEAR_NEAREST_SWEET_BERRY_BUSH_SENSOR.get(),
-            Primal_Sensors.BEAR_TEMPTATIONS_SENSOR.get(),
-            Primal_Sensors.BEAR_REPELLENT_SENSOR.get());
+            Primal_Sensors.BEAR_REPELLENT_SENSOR.get(),
+            Primal_Sensors.BEAR_NEAREST_RAIDABLE_BLOCK_SENSOR.get(),
+            Primal_Sensors.BEAR_TEMPTATIONS_SENSOR.get());
 
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.GAZE_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
@@ -62,6 +63,7 @@ public final class BearAi {
             MemoryModuleType.HURT_BY,
             MemoryModuleType.HURT_BY_ENTITY,
             MemoryModuleType.BREED_TARGET,
+            MemoryModuleType.HAS_HUNTING_COOLDOWN,
 
             MemoryModuleType.IS_PANICKING,
             MemoryModuleType.TEMPTATION_COOLDOWN_TICKS,
@@ -70,7 +72,9 @@ public final class BearAi {
 
             MemoryModuleType.AVOID_TARGET,
 
-            MemoryModuleType.NEAREST_REPELLENT
+            MemoryModuleType.NEAREST_REPELLENT,
+            Primal_MemoryModuleTypes.NEAREST_BEEHIVE.get(),
+            Primal_MemoryModuleTypes.NEAREST_SWEET_BERRY_BUSH.get()
     );
 
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);

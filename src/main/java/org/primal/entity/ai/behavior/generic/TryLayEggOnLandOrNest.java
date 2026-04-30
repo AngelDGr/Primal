@@ -82,7 +82,7 @@ public class TryLayEggOnLandOrNest {
                                                 ItemStack eggStack = new ItemStack(spawnBlock.asItem(),
                                                         level.getRandom().nextIntBetweenInclusive(minEggs, maxEggs));
 
-                                                NestBlock.getBlockEntity(level, blockPosAboveAroundOptional.get()).setEgg(eggStack, null);
+                                                NestBlock.getBlockEntity(level, blockPosAboveAroundOptional.get()).setEgg(eggStack);
                                                 BlockState blockstate = level.getBlockState(blockPosAboveAroundOptional.get()).setValue(NestBlock.HAS_EGG, true);
                                                 level.setBlock(blockPosAboveAroundOptional.get(), blockstate, 3);
                                                 level.gameEvent(GameEvent.BLOCK_CHANGE, blockPosAboveAroundOptional.get(), GameEvent.Context.of(entity, blockstate));

@@ -10,7 +10,7 @@ import net.minecraft.client.animation.KeyframeAnimations;
  * Exported for Minecraft version 1.19 or later with Mojang mappings
  * @author Made by Natsirt, exported and adapted by Tenebris Mors
  */
-public final class SnakeAnimations {
+public class SnakeAnimations {
 
     @SuppressWarnings("PointlessArithmeticExpression")
     public static class Adult {

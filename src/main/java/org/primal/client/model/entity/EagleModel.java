@@ -145,6 +145,9 @@ public abstract class EagleModel<T extends EagleEntity> extends AgeableHierarchi
 
             //──────────────────────────────────── Sitting ────────────────────────────────────
             this.animate(entity.sittingAnimationState, EagleAnimations.Adult.SIT, ageInTicks, 1.0f);
+
+            //──────────────────────────────────── Look Out ────────────────────────────────────
+            this.animate(entity.lookOutAnimationState, EagleAnimations.Adult.LOOK_OUT, ageInTicks, 1.0f);
         }
 
         @Override

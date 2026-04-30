@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.renderer.defaulted.MobRendererWithCustomBaby;
 import org.primal.client.model.entity.CrocodileModel;
+import org.primal.client.renderer.entity.layer.crocodile.CrocodilePreyLayer;
 import org.primal.entity.animal.CrocodileEntity;
 
 public class CrocodileRenderer extends MobRendererWithCustomBaby.WithVariants<CrocodileEntity, CrocodileModel<CrocodileEntity>, CrocodileEntity.Variant> {
@@ -33,6 +34,7 @@ public class CrocodileRenderer extends MobRendererWithCustomBaby.WithVariants<Cr
                 this.getParentModel().renderToBuffer(poseStack, vertexconsumer, 15728640, OverlayTexture.NO_OVERLAY);
             }
         });
+        this.addLayer(new CrocodilePreyLayer<>(this));
     }
 
     @Override

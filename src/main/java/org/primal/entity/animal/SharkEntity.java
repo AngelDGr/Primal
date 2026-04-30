@@ -324,12 +324,12 @@ public class SharkEntity extends WaterAnimal implements VariantHolder<SharkEntit
                 //To defend itself
                 || this.getLastHurtByMob()==target
                 //To defend players near conduits
-                || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()) && (this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtMob()==target || this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtByMob()==target)))
+                || (this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).isPresent() && (this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtMob()==target || this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_CONDUIT_PLAYER.get()).get().getLastHurtByMob()==target)))
                 //To never attack someone with conduit power
                 && !target.hasEffect(MobEffects.CONDUIT_POWER)
                 //To not attack its own rider
                 && !(this.getControllingPassenger()==target)
-                && Primal_Util.isNotNeverAttack(target);
+                && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.SHARK_NEVER_ATTACK);
     }
 
     @Override

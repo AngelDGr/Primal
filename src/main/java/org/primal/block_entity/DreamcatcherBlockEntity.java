@@ -11,6 +11,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.Monster;
@@ -29,24 +30,18 @@ import org.primal.block.DreamcatcherBlock;
 import org.primal.injection.BedBlockHasDreamcatcher;
 import org.primal.registry.Primal_Particles;
 import org.primal.registry.Primal_Sounds;
-import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.AnimatableManager;
-import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import org.primal.util.block_types.AnimatableBlockEntity;
 
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEntity {
+public class DreamcatcherBlockEntity extends BlockEntity implements AnimatableBlockEntity {
     public DreamcatcherBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
-    private int hasMobNear=0;
+    public int hasMobNear=0;
     private boolean hasBedNear=false;
     @Nullable
     private LivingEntity destroyTarget;
@@ -60,6 +55,7 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
         if (this.destroyTarget != null) {
             tag.putUUID("Target", this.destroyTarget.getUUID());
         }
+        tag.putInt("doAttackTimer", this.doAttackTimer);
     }
 
     @Override
@@ -72,6 +68,7 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
         } else {
             this.destroyTargetUUID = null;
         }
+        this.doAttackTimer = tag.getInt("doAttackTimer");
     }
 
     @Override
@@ -89,7 +86,11 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
         this.loadAdditional(pkt.getTag(), lookup);
     }
 
-    public static void clientTick(Level level, BlockPos pos, BlockState state, DreamcatcherBlockEntity dreamcatcher) {
+    public void clientTick(Level level, BlockPos pos, BlockState state) {
+        var dreamcatcher = this;
+        prevAnimationTick = animationTick;
+        animationTick++;
+
         Vec3 center = Vec3.atBottomCenterOf(pos);
 
         updateClientTarget(level, pos, dreamcatcher);
@@ -144,6 +145,11 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, DreamcatcherBlockEntity dreamcatcher) {
         Vec3 center = Vec3.atBottomCenterOf(pos);
+
+        if(dreamcatcher.doAttackTimer>0){
+            dreamcatcher.doAttackTimer--;
+            dreamcatcher.changeDoAttack(dreamcatcher.doAttackTimer, state, pos);
+        }
 
         if (level.getGameTime() % 40L == 0L) {
             updateDestroyTarget(level, pos, state, dreamcatcher);
@@ -257,12 +263,19 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
                     1.0F
             );
             blockEntity.destroyTarget.hurt(level.damageSources().magic(), 4.0F);
-            blockEntity.triggerAnim("base_controller", "attack");
+            blockEntity.changeDoAttack(10, state, pos);
         }
 
         if (livingentity != blockEntity.destroyTarget) {
             level.sendBlockUpdated(pos, state, state, 2);
         }
+    }
+
+    public int doAttackTimer=0;
+    public void changeDoAttack(int doAttack, BlockState state, BlockPos pos) {
+        this.doAttackTimer =doAttack;
+        this.setChanged();
+        if(this.getLevel()!=null) this.getLevel().sendBlockUpdated(pos, state, state, 3);
     }
 
     @Nullable
@@ -301,41 +314,16 @@ public class DreamcatcherBlockEntity extends BlockEntity implements GeoBlockEnti
         }
     }
 
-    public static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
-    public static final RawAnimation SHAKE = RawAnimation.begin().thenLoop("shake");
-    public static final RawAnimation ATTACK = RawAnimation.begin().thenPlay("attack");
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, state -> {
-                    state.getController().transitionLength(0);
-                    state.setControllerSpeed(1f);
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState shakeAnimationState = new AnimationState();
+    public final AnimationState attackAnimationState = new AnimationState();
 
-                    if (state.getController().isPlayingTriggeredAnimation()) {
-                        return PlayState.CONTINUE;
-                    }
+    private float animationTick = 0;
+    private float prevAnimationTick = 0;
 
-                    if(hasMobNear>0){
-                        state.getController().setAnimationSpeed(hasMobNear==2? 1.0f: 0.6f);
-                        return state.setAndContinue(SHAKE);
-                    }
-
-                    if (level != null && level.canSeeSky(this.getBlockPos().above())) {
-                        if (level.isThundering()) {
-                            state.getController().setAnimationSpeed(4f);
-                        } else if (level.isRaining()) {
-                            state.getController().setAnimationSpeed(2f);
-                        }
-                    }
-
-                    return state.setAndContinue(IDLE);
-                }).receiveTriggeredAnimations()
-                        .triggerableAnim("attack", ATTACK)
-        );
-    }
-
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    /** Smooth animation time in ticks with partial-tick interpolation. */
+    public float getAnimationTime(float partialTick) {
+        return prevAnimationTick + (animationTick - prevAnimationTick) * partialTick;
     }
 }

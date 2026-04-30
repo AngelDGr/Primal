@@ -168,6 +168,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     private static final EntityDataAccessor<Boolean> BEAR_SLEEPING = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_HONEY_COUNTER = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_BERRIES_COUNTER = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> AWAKE_COUNTER = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> HEALING_COOLDOWN = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> HAS_CHEST = SynchedEntityData.defineId(BearEntity.class, EntityDataSerializers.BOOLEAN);
@@ -183,6 +184,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         builder.define(BEAR_SLEEPING, false);
         builder.define(DATA_VARIANT_ID, Variant.GRIZZLY.id);
         builder.define(DATA_HONEY_COUNTER, 0);
+        builder.define(DATA_BERRIES_COUNTER, 0);
         builder.define(AWAKE_COUNTER, 0);
         builder.define(HEALING_COOLDOWN, 0);
         builder.define(HAS_CHEST, false);
@@ -198,6 +200,10 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     public int getHoneyCounter() { return this.entityData.get(DATA_HONEY_COUNTER);}
 
     public void setHoneyCounter(int value) { this.entityData.set(DATA_HONEY_COUNTER, value);}
+
+    public int getBerriesCounter() { return this.entityData.get(DATA_BERRIES_COUNTER);}
+
+    public void setBerriesCounter(int value) { this.entityData.set(DATA_BERRIES_COUNTER, value);}
 
     public int getAwakeCounter() { return this.entityData.get(AWAKE_COUNTER);}
 
@@ -271,6 +277,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         this.addAdditionalSaveDataTransitionablePoseAnimations(compound);
         compound.putInt("Variant", this.getVariant().id);
         compound.putInt("HoneyCounter", this.getHoneyCounter());
+        compound.putInt("BerriesCounter", this.getBerriesCounter());
         compound.putInt("AwakeCounter", this.getAwakeCounter());
         compound.putInt("HealingCooldown", this.getHealingCooldown());
         compound.putBoolean("IsSleeping", this.isBearSleeping());
@@ -299,6 +306,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         this.readAdditionalSaveDataTransitionablePoseAnimations(compound);
         this.setVariant(Variant.byId(compound.getInt("Variant")));
         this.setHoneyCounter(compound.getInt("HoneyCounter"));
+        this.setBerriesCounter(compound.getInt("BerriesCounter"));
         this.setAwakeCounter(compound.getInt("AwakeCounter"));
         this.setBearSleeping(compound.getBoolean("IsSleeping"));
         this.setHealingCooldown(compound.getInt("HealingCooldown"));
@@ -470,12 +478,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 || (this.isTame())
                 || (target.distanceTo(this)<8 && !target.isShiftKeyDown()))
                 //To not double trigger the moments the enemy is dying and is attackable
-                && target.getHealth()>0 && target.canBeSeenAsEnemy() && Primal_Util.isNotNeverAttack(target);
-    }
-
-    @Override
-    public boolean hasCustomWaterRoar() {
-        return true;
+                && target.getHealth()>0 && target.canBeSeenAsEnemy() && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.BEAR_NEVER_ATTACK);
     }
 
     @Override
@@ -494,7 +497,26 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
 
     @Override
     public boolean canAttack(@NotNull LivingEntity target) {
-        return super.canAttack(target);
+        //To not attack owner
+        if(this.getOwner()!=null && this.getOwner().equals(target))
+            return false;
+
+        if((this.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target) || this.getBrain().isMemoryValue(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), target)) && super.canAttack(target))
+            return true;
+
+        //Pass to the sensor to handle tamed logic
+        if(this.isTame())
+            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.BEAR_NEVER_ATTACK);
+
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.BEAR_NEVER_ATTACK)
+                //Hunts regularly
+                && target.getType().is(Primal_Tags.Entity.BEAR_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN)
+                && !this.isPacified()
+                && super.canAttack(target);
+    }
+
+    public boolean isPacified(){
+        return this.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_REPELLENT);
     }
 
     @Override
@@ -563,6 +585,15 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
                 EnchantmentHelper.doPostAttackEffects(serverLevel1, entity, damagesource);
             }
         }
+    }
+
+    @Override
+    public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
+        //Put the cooldown to attack prey each 30s
+        if(killed.getType().is(Primal_Tags.Entity.BEAR_HUNTABLE) && !this.isBaby() && this.getRandom().nextBoolean())
+            this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, Primal_Util.toTicks(30));
+
+        return super.killedEntity(level, killed);
     }
 
     //──────────────────────────────────── Feeding & Interaction ────────────────────────────────────
@@ -704,7 +735,7 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.SALMON_BUCKET);
+        return stack.is(Primal_Tags.Item.BEAR_BREED_FOOD);
     }
 
     @Override
@@ -833,6 +864,10 @@ public class BearEntity extends TamableAnimal implements VariantHolder<BearEntit
         if(!this.level().isClientSide){
             if (this.getHoneyCounter() > 0) {
                 this.setHoneyCounter(this.getHoneyCounter() - 1);
+            }
+
+            if (this.getBerriesCounter() > 0) {
+                this.setBerriesCounter(this.getBerriesCounter() - 1);
             }
 
             if (this.getAwakeCounter() > 0 && !this.isAggressive() && !this.getBrain().isActive(Activity.ROAR)) {

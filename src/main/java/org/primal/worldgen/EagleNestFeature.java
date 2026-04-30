@@ -76,7 +76,7 @@ public class EagleNestFeature extends Feature<RandomPatchCustomConfig> {
                         BlockEntity be = level.getBlockEntity(desiredPosition);
 
                         if (be instanceof NestBlockEntity nestEntity) {
-                            nestEntity.setEgg(eggStack, null);
+                            nestEntity.setEgg(eggStack);
                             finalState = finalState.setValue(NestBlock.HAS_EGG, true);
                         }
                     }

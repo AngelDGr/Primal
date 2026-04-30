@@ -1,5 +1,6 @@
 package org.primal.client.model.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.AgeableHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -26,6 +27,8 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
 
     protected abstract ModelPart getHead();
 
+    public abstract void translateToSaddle(PoseStack poseStack);
+
     @Override
     public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
@@ -47,6 +50,7 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
         private final ModelPart body_rear;
         private final ModelPart body;
         private final ModelPart body_squish;
+        public final ModelPart saddle;
         private final ModelPart head;
         private final ModelPart tiny_head;
         private final ModelPart snout;
@@ -69,6 +73,7 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
             this.body_rear = this.walrus.getChild("body_rear");
             this.body = this.body_rear.getChild("body");
             this.body_squish = this.body.getChild("body_squish");
+            this.saddle = this.body_squish.getChild("saddle");
             this.head = this.body.getChild("head");
             this.tiny_head = this.head.getChild("tiny_head");
             this.snout = this.tiny_head.getChild("snout");
@@ -96,8 +101,10 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
             PartDefinition body = body_rear.addOrReplaceChild("body", CubeListBuilder.create(), PartPose.offset(0.0F, -10.05F, 2.0F));
 
             PartDefinition body_squish = body.addOrReplaceChild("body_squish", CubeListBuilder.create().texOffs(0, 39).addBox(-8.0F, -16.0F, -13.0F, 16.0F, 16.0F, 28.0F, new CubeDeformation(0.0F))
-                    .texOffs(68, 8).addBox(-8.5F, -16.75F, 1.0F, 17.0F, 7.0F, 12.0F, new CubeDeformation(0.0F))
                     .texOffs(88, 0).addBox(-8.5F, -18.75F, 10.0F, 17.0F, 2.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 10.0F, 0.0F));
+
+            PartDefinition saddle = body_squish.addOrReplaceChild("saddle", CubeListBuilder.create().texOffs(68, 8)
+                    .addBox(-8.5F, -16.75F, 1.0F, 17.0F, 7.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, 0.0F));
 
             PartDefinition head = body.addOrReplaceChild("head", CubeListBuilder.create().texOffs(60, 27).addBox(-7.0F, -21.0F, -8.0F, 14.0F, 25.0F, 15.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 2.0F, -6.0F));
 
@@ -197,9 +204,20 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
         }
 
         @Override
+        public void translateToSaddle(PoseStack poseStack) {
+            this.root().translateAndRotate(poseStack);
+            this.walrus.translateAndRotate(poseStack);
+            this.body_rear.translateAndRotate(poseStack);
+            this.body.translateAndRotate(poseStack);
+            this.body_squish.translateAndRotate(poseStack);
+            this.saddle.translateAndRotate(poseStack);
+        }
+
+        @Override
         public @NotNull ModelPart root() {
             return this.root;
         }
+
     }
 
     public static class Baby<T extends WalrusEntity> extends WalrusModel<T> {
@@ -314,6 +332,12 @@ public abstract class WalrusModel<T extends WalrusEntity> extends AgeableHierarc
         @Override
         public ModelPart getHead() {
             return head;
+        }
+
+        @Override
+        public void translateToSaddle(PoseStack poseStack) {
+            this.root().translateAndRotate(poseStack);
+            this.getBody().translateAndRotate(poseStack);
         }
 
         @Override

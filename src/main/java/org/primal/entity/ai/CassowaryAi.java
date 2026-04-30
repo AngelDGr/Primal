@@ -8,7 +8,6 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -22,11 +21,13 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import org.primal.entity.ai.behavior.cassowary.CassowaryLungeAttack;
 import org.primal.entity.ai.behavior.cassowary.CassowaryPickFruit;
-import org.primal.entity.ai.behavior.generic.*;
+import org.primal.entity.ai.behavior.generic.GoesToImportantBlockSometimes;
+import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
+import org.primal.entity.ai.behavior.generic.TryLayEggOnLandOrNest;
 import org.primal.entity.ai.behavior.generic.home.AnimalGoesToBlock;
 import org.primal.entity.ai.behavior.generic.home.AnimalRemoveHome;
 import org.primal.entity.ai.behavior.generic.home.AnimalSearchHome;
-import org.primal.entity.animal.*;
+import org.primal.entity.animal.CassowaryEntity;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 
@@ -51,6 +52,7 @@ public class CassowaryAi {
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.GAZE_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,

@@ -1,5 +1,6 @@
 package org.primal.client.model.entity;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.model.AgeableHierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -27,6 +28,8 @@ public abstract class CrocodileModel<T extends CrocodileEntity> extends AgeableH
 
     protected abstract ModelPart getHead();
 
+    public abstract void translateToMouth(PoseStack poseStack);
+
     @Override
     public void setupAnim(@NotNull T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         this.root().getAllParts().forEach(ModelPart::resetPose);
@@ -48,6 +51,7 @@ public abstract class CrocodileModel<T extends CrocodileEntity> extends AgeableH
         private final ModelPart body;
         private final ModelPart head;
         private final ModelPart jaw;
+        private final ModelPart mouth;
         private final ModelPart tail;
         private final ModelPart tail_tip;
         private final ModelPart right_back_leg;
@@ -66,6 +70,7 @@ public abstract class CrocodileModel<T extends CrocodileEntity> extends AgeableH
             this.body = this.croc.getChild("body");
             this.head = this.body.getChild("head");
             this.jaw = this.head.getChild("jaw");
+            this.mouth = this.head.getChild("mouth");
             this.tail = this.body.getChild("tail");
             this.tail_tip = this.tail.getChild("tail_tip");
             this.right_back_leg = this.croc.getChild("right_back_leg");
@@ -120,6 +125,8 @@ public abstract class CrocodileModel<T extends CrocodileEntity> extends AgeableH
             PartDefinition bottom_teeth_r4 = jaw.addOrReplaceChild("bottom_teeth_r4", CubeListBuilder.create().texOffs(92, 95).mirror().addBox(0.0F, -2.0F, -2.0F, 0.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(-3.15F, 2.0F, -6.0F, 0.0F, 0.0F, -0.4363F));
 
             PartDefinition bottom_teeth_r5 = jaw.addOrReplaceChild("bottom_teeth_r5", CubeListBuilder.create().texOffs(92, 95).addBox(0.0F, -2.0F, -2.0F, 0.0F, 2.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.15F, 2.0F, -6.0F, 0.0F, 0.0F, 0.4363F));
+
+            PartDefinition mouth = head.addOrReplaceChild("mouth", CubeListBuilder.create(), PartPose.offset(0.0F, 10.0F, -16.0F));
 
             PartDefinition tail = body.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(0, 29).addBox(-3.0F, -4.0F, 0.0F, 6.0F, 9.0F, 18.0F, new CubeDeformation(0.0F))
                     .texOffs(48, 50).addBox(-3.0F, -6.0F, 0.0F, 6.0F, 2.0F, 18.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 1.0F, 9.0F));
@@ -204,6 +211,15 @@ public abstract class CrocodileModel<T extends CrocodileEntity> extends AgeableH
         @Override
         public ModelPart getHead() {
             return head;
+        }
+
+        @Override
+        public void translateToMouth(PoseStack poseStack) {
+            this.root().translateAndRotate(poseStack);
+            this.croc.translateAndRotate(poseStack);
+            this.body.translateAndRotate(poseStack);
+            this.head.translateAndRotate(poseStack);
+            this.mouth.translateAndRotate(poseStack);
         }
 
         @Override
@@ -324,6 +340,12 @@ public abstract class CrocodileModel<T extends CrocodileEntity> extends AgeableH
         @Override
         public ModelPart getHead() {
             return head;
+        }
+
+        @Override
+        public void translateToMouth(PoseStack poseStack) {
+            this.root().translateAndRotate(poseStack);
+            this.getBody().translateAndRotate(poseStack);
         }
 
         @Override

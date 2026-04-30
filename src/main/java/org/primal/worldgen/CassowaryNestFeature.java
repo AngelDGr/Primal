@@ -86,7 +86,7 @@ public class CassowaryNestFeature extends Feature<RandomPatchCustomConfig> {
                             ItemStack eggStack = new ItemStack(Primal_Items.CASSOWARY_EGG.get(), 1);
 
                             if (level.getBlockEntity(desiredPosition) instanceof NestBlockEntity nestEntity) {
-                                nestEntity.setEgg(eggStack, null);
+                                nestEntity.setEgg(eggStack);
                                 finalState = finalState.setValue(NestBlock.HAS_EGG, true);
                                 level.setBlock(desiredPosition, finalState, Block.UPDATE_ALL);
                                 eggNumber++;

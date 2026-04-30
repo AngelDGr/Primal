@@ -14,7 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -453,10 +452,6 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
             this.setPose(Pose.STANDING);
         }
 
-        if(Primal_Util.Ai.isMovingOrNoInGround(this)){
-//            this.stopTriggeredAnim("base_controller", "lay_end");
-        }
-
         this.assignPackLeaderAndHome(LionEntity.class);
 
         //Reduces each 3s
@@ -491,11 +486,11 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
 
         //Pass to the sensor to handle tamed logic
         if(this.isTame())
-            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target);
+            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.LION_NEVER_ATTACK);
 
         var nearestAttackableCautious = this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_ATTACKABLE_CAUTIOUS.get());
 
-        return Primal_Util.isNotNeverAttack(target)
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.LION_NEVER_ATTACK)
                 //Hunts regularly
                 && (target.getType().is(Primal_Tags.Entity.LION_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN)
                     //It is the nearest cautious attackable
@@ -505,7 +500,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public boolean canBeCautious(@NotNull LivingEntity target){
-        return Primal_Util.isNotNeverAttack(target)
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.LION_NEVER_ATTACK)
                 && !this.isPacified()
                 && this.distanceTo(target) < LionEntity.TERRITORIAL_DISTANCE
                 && !(target instanceof LionEntity)
@@ -742,7 +737,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(ItemTags.MEAT);
+        return stack.is(Primal_Tags.Item.LION_BREED_FOOD);
     }
 
     @Override
@@ -847,7 +842,7 @@ public class LionEntity extends TamableAnimal implements VariantHolder<LionEntit
     }
 
     public boolean isLayingPose(){
-        return this.hasPose(Pose.SITTING) ;
+        return this.hasPose(Pose.SITTING);
     }
 
     private boolean isPouncing() {

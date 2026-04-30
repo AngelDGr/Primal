@@ -438,8 +438,8 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     //──────────────────────────────────── Multipart ────────────────────────────────────
     @Override
     public boolean isMultipartEntity() {
-        //To be added to correctly to the level
-        if(this.tickCount==0) return true;
+        //To be added and removed to correctly to the level
+        if(this.tickCount==0 || this.getRemovalReason()!=null) return true;
 
         return isSlithering() && !this.isBaby();
     }
@@ -706,9 +706,9 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
         //Pass to the sensor to handle tamed logic
         if(this.isTame())
-            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target);
+            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.SNAKE_NEVER_ATTACK);
 
-        return Primal_Util.isNotNeverAttack(target)
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.SNAKE_NEVER_ATTACK)
                 //Hunts regularly
                 && (target.getType().is(Primal_Tags.Entity.SNAKE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN)
                 //It is the nearest cautious attackable
@@ -718,7 +718,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     public boolean canBeCautious(@NotNull LivingEntity target){
-        return Primal_Util.isNotNeverAttack(target)
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.SNAKE_NEVER_ATTACK)
                 && this.distanceTo(target) < SnakeEntity.TERRITORIAL_DISTANCE
                 && !(target instanceof SnakeEntity)
                 //Not be cautious of owner
@@ -923,7 +923,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.FERMENTED_SPIDER_EYE);
+        return stack.is(Primal_Tags.Item.SNAKE_BREED_FOOD);
     }
 
     @Override

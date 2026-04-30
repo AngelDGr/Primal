@@ -41,7 +41,9 @@ public class Primal_BlockTagsGenerator extends BlockTagsProvider {
                 .add(Blocks.TURTLE_EGG)
                 .add(Blocks.SNIFFER_EGG)
                 .add(Blocks.DRAGON_EGG)
-                .addOptional(ResourceLocation.fromNamespaceAndPath("nomansland", "tortoise_egg"));
+                .addOptional(ResourceLocation.fromNamespaceAndPath("nomansland", "tortoise_egg"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("spawn", "iguana_egg"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("spawn", "marine_iguana_egg"));
 
         this.tag(Primal_Tags.Block.RIVER_REED_SOIL)
                 .add(Blocks.GRAVEL)

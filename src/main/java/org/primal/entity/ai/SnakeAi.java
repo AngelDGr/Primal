@@ -241,7 +241,7 @@ public final class SnakeAi {
         brain.addActivity(
                 Primal_Activities.SIT.get(),
                 ImmutableList.of(
-                        Pair.of(0, new AnimalSitting())
+                        Pair.of(0, new AnimalSitting<>())
                 )
         );
     }

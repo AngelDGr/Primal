@@ -10,35 +10,39 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.registry.Primal_Activities;
 import org.primal.registry.Primal_MemoryModuleTypes;
-import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.MobWithTransitionablePoseAnimations;
 
-public class AnimalSitting extends Behavior<TamableAnimal> {
+import java.util.function.Predicate;
+
+public class AnimalSitting<T extends TamableAnimal> extends Behavior<T> {
 
     @Nullable
     private final String animationName;
+    @Nullable
+    Predicate<T> conditionToRetriggerAnimation;
 
     public AnimalSitting() {
-        this(null);
+        this(null, null);
     }
 
-    public AnimalSitting(@Nullable String animationName) {
+    public AnimalSitting(@Nullable String animationName, @Nullable Predicate<T> conditionToRetriggerAnimation) {
         super(ImmutableMap.of(), Integer.MAX_VALUE);
         this.animationName = animationName;
+        this.conditionToRetriggerAnimation = conditionToRetriggerAnimation;
     }
 
     @Override
-    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull TamableAnimal pet) {
+    protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull T pet) {
         return this.canStillUse(level, pet, 0);
     }
 
     @Override
-    protected boolean canStillUse(@NotNull ServerLevel level, @NotNull TamableAnimal pet, long gameTime) {
+    protected boolean canStillUse(@NotNull ServerLevel level, @NotNull T pet, long gameTime) {
         return pet.getBrain().isActive(Primal_Activities.SIT.get());
     }
 
     @Override
-    protected void start(@NotNull ServerLevel level, @NotNull TamableAnimal pet, long gameTime) {
+    protected void start(@NotNull ServerLevel level, @NotNull T pet, long gameTime) {
         this.stopMoving(pet);
         if(this.animationName != null && pet instanceof MobWithTransitionablePoseAnimations animatable)
             animatable.startAnimation(this.animationName);
@@ -48,12 +52,16 @@ public class AnimalSitting extends Behavior<TamableAnimal> {
     }
 
     @Override
-    protected void tick(@NotNull ServerLevel level, @NotNull TamableAnimal pet, long gameTime) {
+    protected void tick(@NotNull ServerLevel level, @NotNull T pet, long gameTime) {
+        //Just in case
+        if(this.animationName != null && pet instanceof MobWithTransitionablePoseAnimations animatable
+                && this.conditionToRetriggerAnimation != null && !this.conditionToRetriggerAnimation.test(pet))
+            animatable.forceStartAnimation(this.animationName);
         this.stopMoving(pet);
     }
 
     @Override
-    protected void stop(@NotNull ServerLevel level, @NotNull TamableAnimal pet, long gameTime) {
+    protected void stop(@NotNull ServerLevel level, @NotNull T pet, long gameTime) {
         if(this.animationName != null && pet instanceof MobWithTransitionablePoseAnimations animatable)
             animatable.stopAnimation(this.animationName);
         else

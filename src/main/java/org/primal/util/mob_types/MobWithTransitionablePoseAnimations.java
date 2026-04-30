@@ -61,6 +61,15 @@ public interface MobWithTransitionablePoseAnimations {
         }
     }
 
+    default void forceStartAnimation(String animationName){
+        var animation = this.transitionableAnimations().get(animationName);
+        if(animation != null){
+            self().setPose(animation.pose());
+            self().gameEvent(GameEvent.ENTITY_ACTION);
+            resetLastPoseChangeTickToFullStand(self(), self().level().getGameTime(), animation.lastPoseTick, animation.stopTransitionLength);
+        }
+    }
+
     default void stopAnimation(String animationName){
         var animation = this.transitionableAnimations().get(animationName);
         if(animation != null){
@@ -85,6 +94,7 @@ public interface MobWithTransitionablePoseAnimations {
         for(Map.Entry<String, TransitionablePoseAnimation> entry : transitionableAnimations().entrySet())
             if(entry.getValue().isInStartPoseTransition(self()) || entry.getValue().isInStopPoseTransition(self()))
                 result=true;
+
         return result;
     }
 

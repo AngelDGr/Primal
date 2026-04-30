@@ -9,7 +9,6 @@ import net.minecraft.world.entity.ai.sensing.NearestLivingEntitySensor;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.BearEntity;
-import org.primal.registry.Primal_Tags;
 import org.primal.util.Primal_Util;
 
 import java.util.List;
@@ -37,11 +36,6 @@ public final class BearEntitySensor extends NearestLivingEntitySensor<BearEntity
                             && !(target instanceof TamableAnimal pet2 && pet2.getOwner()!=null && pet2.getOwner()==bear.getOwner()));
         //Wild logic
         else
-            Primal_Util.Ai.setNearestAttackableOnSensor(bear, target ->
-                    Sensor.isEntityAttackable(bear, target)
-                            //To attack prey
-                            && target.getType().is(Primal_Tags.Entity.BEAR_HUNTABLE)
-                            //To not attack enemies near campfires
-                            && !(target.level() instanceof ServerLevel serverLevel && BearRepellentSensor.findNearestRepellent(serverLevel, target).isPresent()));
+            Primal_Util.Ai.setNearestAttackableOnSensor(bear);
     }
 }

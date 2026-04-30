@@ -101,13 +101,13 @@ public class NestBlockEntity extends BlockEntity {
         this.updateBlock();
     }
 
-    public void addEgg(ItemStack stack, @Nullable LivingEntity player) {
+    public void addEgg(ItemStack stack) {
         this.setItem(new ItemStack(stack.getItem(), this.getEgg().getCount() + 1) );
 
         this.updateBlock();
     }
 
-    public void setEgg(ItemStack stack, @Nullable LivingEntity player) {
+    public void setEgg(ItemStack stack) {
         this.setItem(stack);
 
         this.updateBlock();

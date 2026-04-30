@@ -235,10 +235,10 @@ public class Primal_Util {
     }
 
     /**
-        A simple check to see if the entity is from the tag {@link  Primal_Tags.Entity#NEVER_ATTACK}
+     A simple check to see if the entity is from the tag {@link  Primal_Tags.Entity#NEVER_ATTACK} or their own never attack tag
      */
-    public static boolean isNotNeverAttack(LivingEntity entity) {
-        return !entity.getType().is(Primal_Tags.Entity.NEVER_ATTACK);
+    public static boolean isNotNeverAttack(LivingEntity entity, TagKey<EntityType<?>> neverAttackTag) {
+        return !entity.getType().is(Primal_Tags.Entity.NEVER_ATTACK) && !entity.getType().is(neverAttackTag);
     }
 
     /**

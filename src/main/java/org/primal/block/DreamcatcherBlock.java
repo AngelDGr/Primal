@@ -136,7 +136,8 @@ public class DreamcatcherBlock extends BaseEntityBlock {
             return null;
 
         if (level.isClientSide)
-            return createTickerHelper(blockEntityType, Primal_BlockEntities.DREAMCATCHER.get(), DreamcatcherBlockEntity::clientTick);
+            return createTickerHelper(blockEntityType, Primal_BlockEntities.DREAMCATCHER.get(),
+                    (pLevel1, pPos, pState1, pBlockEntity) -> pBlockEntity.clientTick(pLevel1, pPos, pState1));
         else
             return createTickerHelper(blockEntityType, Primal_BlockEntities.DREAMCATCHER.get(), DreamcatcherBlockEntity::serverTick);
     }

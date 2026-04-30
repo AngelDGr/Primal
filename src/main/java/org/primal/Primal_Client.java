@@ -31,6 +31,7 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import org.jetbrains.annotations.NotNull;
 import org.primal.client.item.ConchShellClientExtension;
@@ -40,6 +41,7 @@ import org.primal.client.model.entity.replaced.*;
 import org.primal.client.model.helmet_decoration.DeerAntlersModel;
 import org.primal.client.model.helmet_decoration.GoatHornsModel;
 import org.primal.client.model.entity.*;
+import org.primal.client.model.block.*;
 import org.primal.client.renderer.EntityOnNeckLayer;
 import org.primal.client.renderer.block_entity.*;
 import org.primal.client.renderer.entity.*;
@@ -209,7 +211,8 @@ public class Primal_Client {
 
         //Block Entities
         {
-            event.registerLayerDefinition(ChompTrapRenderer.Model.LAYER_LOCATION, ChompTrapRenderer.Model::createLayer);
+            event.registerLayerDefinition(ChompTrapModel.LAYER_LOCATION, ChompTrapModel::createLayer);
+            event.registerLayerDefinition(DreamcatcherModel.LAYER_LOCATION, DreamcatcherModel::createLayer);
         }
         //Helmet Decorations
         {
@@ -381,6 +384,34 @@ public class Primal_Client {
                 event.setNewFovModifier(newFov);
 
             }
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────────
+    // Anchored Rendering System for Riders
+    // By DarkBlade
+    // ────────────────────────────────────────────────────────────────────────
+
+    public static final java.util.Set<java.util.UUID> BLOCKED_RENDER_ENTITIES = new java.util.HashSet<>();
+
+    public static boolean isFirstPersonPlayer(net.minecraft.world.entity.Entity entity) {
+        return entity == Minecraft.getInstance().cameraEntity && Minecraft.getInstance().options.getCameraType().isFirstPerson();
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    @SubscribeEvent
+    public static void preRenderLiving(RenderLivingEvent.Pre<?, ?> event) {
+        if (BLOCKED_RENDER_ENTITIES.contains(event.getEntity().getUUID())) {
+
+            if (!isFirstPersonPlayer(event.getEntity())) {
+                NeoForge.EVENT_BUS.post(new RenderLivingEvent.Post<>(
+                        event.getEntity(), event.getRenderer(), event.getPartialTick(),
+                        event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()
+                ));
+                event.setCanceled(true);
+            }
+
+            BLOCKED_RENDER_ENTITIES.remove(event.getEntity().getUUID());
         }
     }
 }

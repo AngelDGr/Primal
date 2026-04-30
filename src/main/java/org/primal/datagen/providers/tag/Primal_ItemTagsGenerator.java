@@ -146,5 +146,29 @@ public class Primal_ItemTagsGenerator extends ItemTagsProvider {
                 .add(Primal_Items.FALLOW_DEER_ANTLER.get())
                 .add(Primal_Items.REINDEER_ANTLER.get())
                 .add(Primal_Items.WHITETAIL_DEER_ANTLER.get());
+
+        this.tag(Primal_Tags.Item.BEAR_BREED_FOOD)
+                .add(Items.SALMON_BUCKET);
+
+        this.tag(Primal_Tags.Item.EAGLE_BREED_FOOD)
+                .add(Items.RABBIT_STEW);
+
+        this.tag(Primal_Tags.Item.CROCODILE_BREED_FOOD)
+                .add(Items.CHICKEN);
+
+        this.tag(Primal_Tags.Item.CASSOWARY_BREED_FOOD)
+                .addTag(Primal_Tags.Item.EXOTIC_FRUITS);
+
+        this.tag(Primal_Tags.Item.WALRUS_BREED_FOOD)
+                .add(Items.COD_BUCKET);
+
+        this.tag(Primal_Tags.Item.LION_BREED_FOOD)
+                .addTag(ItemTags.MEAT);
+
+        this.tag(Primal_Tags.Item.SNAKE_BREED_FOOD)
+                .add(Items.FERMENTED_SPIDER_EYE);
+
+        this.tag(Primal_Tags.Item.DEER_BREED_FOOD)
+                .add(Items.APPLE);
     }
 }

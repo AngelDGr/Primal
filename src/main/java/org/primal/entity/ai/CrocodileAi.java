@@ -38,8 +38,7 @@ public class CrocodileAi {
             SensorType.NEAREST_PLAYERS,
             SensorType.NEAREST_ADULT,
             Primal_Sensors.CROCODILE_TEMPTATIONS_SENSOR.get(),
-            Primal_Sensors.CROCODILE_NEAREST_EGG.get(),
-            Primal_Sensors.CROCODILE_NEAREST_REED.get());
+            Primal_Sensors.CROCODILE_NEAREST_IMPORTANT_BLOCK.get());
 
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.NEAREST_LIVING_ENTITIES,

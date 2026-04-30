@@ -29,7 +29,7 @@ public class NearestSpecificBlockSensor<T extends LivingEntity> extends Sensor<T
     public final int heightDetection;
     public final Predicate<T> canUse;
     public NearestSpecificBlockSensor(Predicate<T> canUse, @Nullable TagKey<Block> blockTag, @Nullable Block block, @Nullable BiPredicate<T, BlockPos> blockPredicate, int widthDetection, int heightDetection){
-        super(40);
+        super(50);
         this.canUse=canUse;
         this.blockTag = blockTag;
         this.block=block;

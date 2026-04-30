@@ -14,6 +14,6 @@ public class SnowyDirtBlockMixin {
 
     @ModifyReturnValue(method = "isSnowySetting", at = @At("RETURN"))
     private static boolean primal$addSnowyWithSeashells(boolean original, @Local(argsOnly = true) BlockState state) {
-        return original || (state.getBlock().asItem().getDefaultInstance().is(Primal_Tags.Item.SEASHELLS) && state.getValue(Snowloggable.SNOWY));
+        return original || (state.getBlock().asItem().getDefaultInstance().is(Primal_Tags.Item.SEASHELLS) && state.getOptionalValue(Snowloggable.SNOWY).orElse(false));
     }
 }

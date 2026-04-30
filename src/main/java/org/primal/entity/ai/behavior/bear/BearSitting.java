@@ -2,6 +2,7 @@ package org.primal.entity.ai.behavior.bear;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.BearEntity;
@@ -31,6 +32,7 @@ public class BearSitting extends Behavior<BearEntity> {
 
     @Override
     protected void tick(@NotNull ServerLevel level, @NotNull BearEntity bear, long gameTime) {
+        if(bear.getPose().equals(Pose.STANDING)) bear.forceStartAnimation("Sleeping");
         bear.stopMoving();
     }
 

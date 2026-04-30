@@ -105,15 +105,6 @@ public final class Primal_MemoryModuleTypes {
     public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> MUSIC_BLOCK =
             Primal_Registries.MEMORY_MODULE_TYPES.register("nearest_music_block", () -> new MemoryModuleType<>(Optional.empty()));
 
-    public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> REST_NEEDED =
-            Primal_Registries.MEMORY_MODULE_TYPES.register("rest_needed", () -> new MemoryModuleType<>(Optional.of(Codec.INT)));
-
-    public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> RESTED_TIME =
-            Primal_Registries.MEMORY_MODULE_TYPES.register("rested_time", () -> new MemoryModuleType<>(Optional.of(Codec.INT)));
-
-    public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<BlockPos>> LANDING_POS =
-            Primal_Registries.MEMORY_MODULE_TYPES.register("landing_pos", () -> new MemoryModuleType<>(Optional.of(BlockPos.CODEC)));
-
     public static DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Boolean>> HOLLOW_LOG_ENTER_COOLDOWN =
             Primal_Registries.MEMORY_MODULE_TYPES.register("hollow_log_enter_cooldown", () -> new MemoryModuleType<>(Optional.of(Codec.BOOL)));
 

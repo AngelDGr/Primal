@@ -444,7 +444,8 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
         if(target.getType().equals(this.getType()) && target.getHealth()<=target.getMaxHealth()*0.30)
             return false;
 
-        return (this.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target) || this.getBrain().isMemoryValue(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), target))
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.WALRUS_NEVER_ATTACK)
+                && (this.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target) || this.getBrain().isMemoryValue(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), target))
                 && super.canAttack(target);
     }
 
@@ -762,7 +763,7 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.COD_BUCKET);
+        return stack.is(Primal_Tags.Item.WALRUS_BREED_FOOD);
     }
 
     public boolean isInstrument(@NotNull ItemStack stack) {
@@ -896,33 +897,9 @@ public class WalrusEntity extends AbstractHorse implements VariantHolder<WalrusE
 
     @Override
     protected @NotNull Vec3 getPassengerAttachmentPoint(@NotNull Entity entity, @NotNull EntityDimensions dimensions, float partialTick) {
-        //TODO: Synch better the ground pound animation with the offset.
-        // The animation last 0.5s (500L accumulated time)
-        // - Tenebris
-        float maxSlam = 10.0f;
-        float peakTime = 0.25f;
-
-        float slam = Mth.clamp(this.getSlamDuration() - partialTick, 0.0f, maxSlam);
-        float t = 1.0f - (slam / maxSlam); // 0 → 1
-
-        float peak;
-        if (t < peakTime) {
-            peak = t / peakTime;
-        } else {
-            peak = (1.0f - t) / (1.0f - peakTime);
-        }
-        peak = Mth.clamp(peak, 0.0f, 1.0f);
-
-        float baseBack = -0.6f;
-        float extraBack = -0.55f * peak;
-
-        float back = baseBack + extraBack;
-
-        Vec3 offset = new Vec3(0.0, -0.85, back)
-                .yRot(-this.getYRot() * Mth.DEG_TO_RAD);
-
         return super.getPassengerAttachmentPoint(entity, dimensions, partialTick)
-                .add(offset);
+                .add(new Vec3(0.0, -0.85, -0.6f)
+                        .yRot(-this.getYRot() * Mth.DEG_TO_RAD));
     }
 
     @Override

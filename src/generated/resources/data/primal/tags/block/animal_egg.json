@@ -9,6 +9,14 @@
     {
       "id": "nomansland:tortoise_egg",
       "required": false
+    },
+    {
+      "id": "spawn:iguana_egg",
+      "required": false
+    },
+    {
+      "id": "spawn:marine_iguana_egg",
+      "required": false
     }
   ]
 }

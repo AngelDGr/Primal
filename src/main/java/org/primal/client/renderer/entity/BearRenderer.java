@@ -8,10 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.renderer.defaulted.MobRendererWithCustomBaby;
 import org.primal.client.model.entity.BearModel;
-import org.primal.client.renderer.entity.layer.bear.BearBarrelsLayer;
-import org.primal.client.renderer.entity.layer.bear.BearCollarLayer;
-import org.primal.client.renderer.entity.layer.bear.BearHoneyLayer;
-import org.primal.client.renderer.entity.layer.bear.BearSleepLayer;
+import org.primal.client.renderer.entity.layer.bear.*;
 import org.primal.entity.animal.BearEntity;
 
 @OnlyIn(Dist.CLIENT)
@@ -28,6 +25,7 @@ public final class BearRenderer extends MobRendererWithCustomBaby.WithVariants<B
 
         this.addLayer(new BearCollarLayer<>(this));
         this.addLayer(new BearBarrelsLayer<>(this));
+        this.addLayer(new BearBerriesLayer<>(this));
         this.addLayer(new BearHoneyLayer<>(this));
         this.addLayer(new BearSleepLayer<>(this));
 

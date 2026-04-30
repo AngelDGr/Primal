@@ -27,6 +27,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -353,7 +355,7 @@ public class ChompTrapBlock extends BaseEntityBlock {
         if(oldState.is(this) && newState.is(this)){
             if(level.getBlockEntity(pos) instanceof ChompTrapBlockEntity chompTrap && (oldState.getValue(OPEN)!=newState.getValue(OPEN))){
                 //Triggers animation (lower/lower_broken/snap)
-                chompTrap.triggerAnim("base_controller", newState.getValue(OPEN)? "lower" + (newState.getValue(BROKEN)? "_broken": "") : "snap");
+                if(level.isClientSide()) chompTrap.setOnTransitionTime();
                 //Trigger Sound
                 if(level instanceof Level realLevel && !newState.getValue(OPEN)){
                     realLevel.scheduleTick(pos, this, 60);
@@ -388,5 +390,14 @@ public class ChompTrapBlock extends BaseEntityBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new ChompTrapBlockEntity(Primal_BlockEntities.CHOMP_TRAP.get(), pos, state, this.type);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
+        if (level.isClientSide)
+            return createTickerHelper(blockEntityType, Primal_BlockEntities.CHOMP_TRAP.get(),
+                    (pLevel1, pPos, pState1, pBlockEntity) -> pBlockEntity.clientTick(pLevel1, pPos, pState1));
+
+        else return null;
     }
 }

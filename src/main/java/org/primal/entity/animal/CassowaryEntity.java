@@ -2,7 +2,6 @@ package org.primal.entity.animal;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Dynamic;
-
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +39,6 @@ import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.AttackVillagers;
 import org.primal.util.mob_types.MobWithTransitionablePoseAnimations;
-import org.primal.util.mob_types.VariantHolderWithEgg;
 
 import java.util.Collections;
 import java.util.List;
@@ -68,7 +66,7 @@ import java.util.function.IntFunction;
 // Add Suspicious Gravel to nests, which you can uncover various loot, including Petrified Fruit
 // Cassowaries will eat “Petrified fruit”, which in return it poops out seeds of either Litchi, Kiwano, or Starfruit
 // It can be bred with any of the exotic fruits.
-public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEntity.Variant>, VariantHolderWithEgg<CassowaryEntity.Variant, CassowaryEntity>, MobWithTransitionablePoseAnimations, NeutralMob, AttackVillagers {
+public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEntity.Variant>, MobWithTransitionablePoseAnimations, NeutralMob, AttackVillagers {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -113,7 +111,6 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
         return CassowaryEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
     }
 
-    @Override
     public void setVariantFromBiome(CassowaryEntity animal, Holder<Biome> holder) {
         if (holder.is(Primal_Tags.Biome.SPAWNS_SUNSET_CASSOWARY)) {
             animal.setVariant(CassowaryEntity.Variant.SUNSET);
@@ -234,9 +231,9 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     }
 
     public List<ItemStack> getDroppedSeeds() {
-        if(this.level().getServer() == null) return Collections.emptyList();
-
-        final LootTable lootTable = this.level().getServer().reloadableRegistries().getLootTable(Primal_LootTables.CASSOWARY_PROCESSED_SEEDS);
+        var server = this.level().getServer();
+        if(server == null) return Collections.emptyList();
+        final LootTable lootTable = server.reloadableRegistries().getLootTable(Primal_LootTables.CASSOWARY_PROCESSED_SEEDS);
         return lootTable.getRandomItems(new LootParams.Builder((ServerLevel)this.level())
                 .withParameter(LootContextParams.THIS_ENTITY, this)
                 .withParameter(LootContextParams.ORIGIN, this.position())
@@ -271,7 +268,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
                         || (target.getType().equals(this.getType()) && !target.isBaby() && target.getHealth()>=target.getMaxHealth()*0.30 && this.getHealth()>=this.getMaxHealth()*0.30)
                 )
                 && !this.isPacified()
-                && Primal_Util.isNotNeverAttack(target);
+                && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.CASSOWARY_NEVER_ATTACK);
     }
 
     @Override
@@ -352,7 +349,7 @@ public class CassowaryEntity extends Animal implements VariantHolder<CassowaryEn
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Primal_Tags.Item.EXOTIC_FRUITS);
+        return stack.is(Primal_Tags.Item.CASSOWARY_BREED_FOOD);
     }
 
     @Override

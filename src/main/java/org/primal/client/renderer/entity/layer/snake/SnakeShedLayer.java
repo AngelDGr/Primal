@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
 import org.primal.client.model.entity.SnakeModel;
 import org.primal.entity.animal.SnakeEntity;
-import software.bernie.geckolib.util.Color;
 
 public class SnakeShedLayer<T extends SnakeEntity, M extends SnakeModel<T>> extends RenderLayer<T, M> {
     public SnakeShedLayer(RenderLayerParent<T, M> renderer) {
@@ -26,6 +25,6 @@ public class SnakeShedLayer<T extends SnakeEntity, M extends SnakeModel<T>> exte
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
                         "textures/entity/snake/"+(entity.isBaby() && Primal_Main.COMMON_CONFIG.snakeBabyCustomModel.get()? "baby/": "")+ "shed" + ".png"));
 
-        this.getParentModel().renderToBuffer(poseStack, bufferSource.getBuffer(collarRenderType), packedLight, OverlayTexture.NO_OVERLAY, Color.WHITE.argbInt());
+        this.getParentModel().renderToBuffer(poseStack, bufferSource.getBuffer(collarRenderType), packedLight, OverlayTexture.NO_OVERLAY);
     }
 }

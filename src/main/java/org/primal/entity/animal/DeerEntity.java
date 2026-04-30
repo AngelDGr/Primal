@@ -541,7 +541,7 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.APPLE);
+        return stack.is(Primal_Tags.Item.DEER_BREED_FOOD);
     }
 
     public static boolean isHealFood(@NotNull ItemStack stack){

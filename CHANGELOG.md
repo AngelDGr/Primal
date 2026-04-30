@@ -4,15 +4,34 @@
 - Added flick animation to snakes while on the player's neck
 - Added a new config option to add support for more wolf variants
 - Added look animation to deer
+- Added Spawn placeable eggs to the default config and tag for nests (need to erase your config to let the game regenerate the defaults)
+- Improved Walrus riding renderer - By DarkBlade
+- Improved Crocodile thrashing renderer
+- Added look-out animation for eagle when on ground resting
+- Added "never attack" entity tags to all aggressive animals, for mobs that the specific animal can't ever attack
+- - Only the crocodile_never_attack tag exist by default, but the rest can be implemented with datapacks
+- - All never attack tags are named "[animal]_never_attack", e.g. "bear_never_attack", "snake_never_attack"
+- Added "breed food" item tags to all animals, for food that can breed them
 
 # Changes
 - Snakes don't get out of its owner neck when flying on creative
 - Changed crocodile model
 - Added new animation when brushed a crocodile scute
 - Modified logic for lion sigma variant to be just a texture change instead of a variant change
+- Made bears pick up berries bushes instead of destroying the block
+- Made bears have a sweet berry layer like with honey, and added a cooldown to pick berries (45s)
+- Made baby bears able to raid sweet berries
+- Modified some spawn eggs textures
+- Improved eagle idle movement (yes, again)
 
 # Fixes
 - Fixed baby rabbits not being assigned the custom primal variant correctly when born from breeding
+- Added correctly hunting cooldown to bear
+- Modified nest logic to call finalizeSpawn() when hatching the egg. It should improve compatibility
+- Fixed bear no raiding beehives and sweet bushes correctly
+- Optimized a little bit bear and crocodile code
+- Fixed honey counter for bear being too long
+- Fixed snake parts being removed from the world incorrectly if removed while standing
 
 # 1.1.5 - 1.21
 # Additions

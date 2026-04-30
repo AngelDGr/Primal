@@ -1,24 +1,20 @@
 package org.primal.client.renderer.block_entity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.resources.ResourceLocation;
+import org.primal.Primal_Main;
 import org.primal.block_entity.ChompTrapBlockEntity;
 import org.primal.client.model.block.ChompTrapModel;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
+import org.primal.client.renderer.defaulted.BlockEntityRendererWithAnimations;
 
-@SuppressWarnings("unused")
-public class ChompTrapRenderer extends GeoBlockRenderer<ChompTrapBlockEntity> {
-    public ChompTrapRenderer(final BlockEntityRendererProvider.Context ctx) {
-        super(new ChompTrapModel());
+public class ChompTrapRenderer extends BlockEntityRendererWithAnimations<ChompTrapBlockEntity> {
+    public ChompTrapRenderer(BlockEntityRendererProvider.Context context) {
+        super(new ChompTrapModel(context.bakeLayer(ChompTrapModel.LAYER_LOCATION)), ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "chomp_trap"));
     }
 
     @Override
-    public void actuallyRender(PoseStack poseStack, ChompTrapBlockEntity animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+    public ResourceLocation buildFormattedTexturePath(ResourceLocation basePath, ChompTrapBlockEntity animatable) {
+        return basePath.withPath("textures/block/chomp_trap/" + animatable.colorType + ".png");
     }
 }
