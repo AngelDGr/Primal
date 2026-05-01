@@ -198,7 +198,9 @@ public class Primal_Config {
                             List.of(
                                     List.of("minecraft:turtle_egg", "minecraft:turtle"),
                                     List.of("minecraft:sniffer_egg", "minecraft:sniffer"),
-                                    List.of("nomansland:tortoise_egg", "nomansland:tortoise")
+                                    List.of("nomansland:tortoise_egg", "nomansland:tortoise"),
+                                    List.of("spawn:iguana_egg", "spawn:iguana"),
+                                    List.of("spawn:marine_iguana_egg", "spawn:marine_iguana")
                             ),
                             obj -> {
                                 if (!(obj instanceof List<?> inner)) return false;

@@ -1,9 +1,6 @@
 package org.primal.block_entity;
 
 import net.minecraft.core.*;
-import net.minecraft.core.particles.BlockParticleOption;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
@@ -15,6 +12,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -29,18 +27,11 @@ import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.gameevent.PositionSource;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.primal.block.ChompTrapBlock;
 import org.primal.registry.Primal_DamageTypes;
 import org.primal.util.Primal_Util;
-import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import org.primal.util.block_types.AnimatableBlockEntity;
 
-public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity, GameEventListener.Holder<ChompTrapBlockEntity.ChompTrapListener>, Container, Clearable {
+public class ChompTrapBlockEntity extends BlockEntity implements AnimatableBlockEntity, GameEventListener.Holder<ChompTrapBlockEntity.ChompTrapListener>, Container, Clearable {
 
     private final ChompTrapBlockEntity.ChompTrapListener chompTrapListener;
     private final NonNullList<ItemStack> items = NonNullList.withSize(9, ItemStack.EMPTY);
@@ -257,94 +248,27 @@ public class ChompTrapBlockEntity extends BlockEntity implements GeoBlockEntity,
     }
 
     //──────────────────────────────────── Visuals ────────────────────────────────────
-    public static final RawAnimation LOWER = RawAnimation.begin().thenPlay("lower");
-    public static final RawAnimation SNAP = RawAnimation.begin().thenPlay("snap");
-    public static final RawAnimation LOWER_BROKEN = RawAnimation.begin().thenPlay("lower_broken");
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState transitionAnimationState = new AnimationState();
 
-    public static final RawAnimation LOWERED = RawAnimation.begin().thenLoop("lowered");
-    public static final RawAnimation SNAPPED = RawAnimation.begin().thenLoop("snapped");
-    public static final RawAnimation BROKEN = RawAnimation.begin().thenLoop("broken");
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, state -> {
-            state.getController().transitionLength(0);
-            state.setControllerSpeed(1f);
-            var blockState = this.getBlockState();
+    private float animationTick = 0;
+    private float prevAnimationTick = 0;
 
-            if (state.getController().isPlayingTriggeredAnimation()) {
-                return PlayState.CONTINUE;
-            }
+    public boolean mustReset = false;
 
-            return state.setAndContinue(blockState.getValue(ChompTrapBlock.BROKEN)? BROKEN: blockState.getValue(ChompTrapBlock.OPEN)? LOWERED : SNAPPED);
-        }).receiveTriggeredAnimations()
-                        .triggerableAnim("lower", LOWER)
-                        .triggerableAnim("lower_broken", LOWER_BROKEN)
-                        .triggerableAnim("snap", SNAP)
-                        .setCustomInstructionKeyframeHandler(c-> {
-                            if("chompParticles;".equals(c.getKeyframeData().getInstructions()))
-                                spawnChompParticles(this.getLevel(), getBlockPos());
-
-                            if("groundParticles;".equals(c.getKeyframeData().getInstructions()))
-                                spawnGroundParticles(this.getLevel(), getBlockPos());
-                        })
-        );
+    /** Smooth animation time in ticks with partial-tick interpolation. */
+    public float getAnimationTime(float partialTick) {
+        return prevAnimationTick + (animationTick - prevAnimationTick) * partialTick;
     }
 
-    private static void spawnChompParticles(
-            Level level,
-            BlockPos blockPos
-    ) {
-        for (int i = 0; i < 12; i++) {
-            double d0 = blockPos.getX() + (level.getRandom().nextDouble());
-            double d1 = blockPos.getY() + level.getRandom().nextDouble();
-            double d2 = blockPos.getZ() + (level.getRandom().nextDouble());
+    public void clientTick(Level level, BlockPos pos, BlockState state) {
+        prevAnimationTick = animationTick;
+        animationTick++;
 
-            double d3 = (level.getRandom().nextDouble() * 2.0 - 1.0) * 0.3;
-            double d4 = 0.3 + level.getRandom().nextDouble() * 0.3;
-            double d5 = (level.getRandom().nextDouble() * 2.0 - 1.0) * 0.3;
-
-            level.addParticle(ParticleTypes.CRIT,
-                    d0, d1 + 0.8, d2,
-                    d3, d4, d5);
-        }
+        if(mustReset) mustReset = false;
     }
 
-    private static void spawnGroundParticles(
-            Level level,
-            BlockPos blockPos
-    ) {
-        if (level == null) return;
-
-        var state = level.getBlockState(blockPos.below());
-        ParticleOptions particle = new BlockParticleOption(ParticleTypes.BLOCK, state);
-
-        double centerX = blockPos.getCenter().x;
-        double centerY = blockPos.getY();
-        double centerZ = blockPos.getCenter().z;
-
-        for (int i = 0; i < 2; i++) {
-
-            // Radius around block (adjust for spread)
-            double radius = 0.7;
-
-            double offsetX = (level.getRandom().nextDouble() * 2 - 1) * radius;
-            double offsetZ = (level.getRandom().nextDouble() * 2 - 1) * radius;
-
-            double x = centerX + offsetX;
-            double y = centerY + (level.getRandom().nextDouble() * 0.5);
-            double z = centerZ + offsetZ;
-
-            double motionX = (level.getRandom().nextDouble() * 2 - 1) * 0.1;
-            double motionY = 0.2 + level.getRandom().nextDouble() * 0.2;
-            double motionZ = (level.getRandom().nextDouble() * 2 - 1) * 0.1;
-
-            level.addParticle(particle, x, y, z, motionX, motionY, motionZ);
-        }
-    }
-
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    public void setOnTransitionTime() {
+        this.mustReset = true;
     }
 }

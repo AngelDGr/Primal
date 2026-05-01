@@ -5,18 +5,15 @@ import com.google.common.collect.Maps;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.Turtle;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +21,6 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,9 +45,11 @@ import org.primal.registry.Primal_Blocks;
 import org.primal.registry.Primal_Sounds;
 import org.primal.registry.Primal_Tags;
 import org.primal.util.block_types.AnimalEgg;
-import org.primal.util.mob_types.VariantHolderWithEgg;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class NestBlock extends BaseEntityBlock {
     public static final BooleanProperty HAS_EGG = BooleanProperty.create("has_egg");
@@ -415,10 +413,10 @@ public class NestBlock extends BaseEntityBlock {
                 //Spawn entities
                 if(eggsProperty!=null)
                     for (int j = 0; j < eggState.getValue(eggsProperty); j++)
-                        eggHatch(nestState, eggState, level, pos, random, eggsProperty, entityType, j);
+                        eggHatch(nestState, eggState, level, pos, entityType, j);
                 //Single eggs
                 else
-                    eggHatch(nestState, eggState, level, pos, random, null, entityType, 0);
+                    eggHatch(nestState, eggState, level, pos, entityType, 0);
 
                 NestBlockEntity nestBlockEntity = NestBlock.getBlockEntity(level, pos);
                 BlockState emptyNestState =
@@ -433,7 +431,8 @@ public class NestBlock extends BaseEntityBlock {
         }
     }
 
-    private static void eggHatch(@NotNull BlockState nestState, @NotNull BlockState eggState, @NotNull Level level, @NotNull BlockPos pos, @NotNull RandomSource random, @Nullable IntegerProperty eggsProperty, @Nullable Optional<EntityType<?>> entityType, int j){
+    @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "deprecation", "OverrideOnly"})
+    private static void eggHatch(@NotNull BlockState nestState, @NotNull BlockState eggState, @NotNull Level level, @NotNull BlockPos pos, @Nullable Optional<EntityType<?>> entityType, int j){
         removeEgg(null, level, pos, nestState, false);
         level.levelEvent(2001, pos, Block.getId(nestState));
 
@@ -442,37 +441,20 @@ public class NestBlock extends BaseEntityBlock {
             //Spawn primal animal
             Animal animal = animalEgg.getAnimal().get().create(level);
             if (animal != null) {
-                Holder<Biome> holder = level.getBiome(pos);
                 animal.setBaby(true);
-
-                if (animal instanceof VariantHolderWithEgg variantWhenHatches && animal instanceof VariantHolder variantHolder) {
-
-                    var variantHolderCast =((VariantHolderWithEgg<StringRepresentable, Animal>) variantWhenHatches);
-
-                    if(variantHolderCast.getRareVariant(animal)!=null && variantWhenHatches.getRareVariantProbability(level)){
-                        variantHolder.setVariant(variantHolderCast.getRareVariant(animal));
-                    } else {
-                        variantHolderCast.setVariantFromBiome(animal, holder);
-                    }
-                }
-
-
                 animal.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
                 level.addFreshEntity(animal);
+                if(level instanceof ServerLevel level1) animal.finalizeSpawn(level1, level.getCurrentDifficultyAt(pos), MobSpawnType.BREEDING, null, null);
             }
         }
         //Other eggs
-        else if (entityType.isPresent()) {
+        else if (entityType!=null && entityType.isPresent()) {
             Entity entity = entityType.get().create(level);
-
             if(entity!=null){
-                if (entity instanceof AgeableMob ageable) {
-                    ageable.setBaby(true);
-                    if(entity instanceof Turtle turtle)
-                        turtle.setHomePos(pos);
-                }
+                if (entity instanceof AgeableMob ageable) ageable.setBaby(true);
                 entity.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY() +1, (double)pos.getZ() + 0.3, 0.0F, 0.0F);
                 level.addFreshEntity(entity);
+                if(level instanceof ServerLevel level1 && entity instanceof Mob livingEntity) livingEntity.finalizeSpawn(level1, level.getCurrentDifficultyAt(pos), MobSpawnType.BREEDING, null, null);
             }
         }
     }

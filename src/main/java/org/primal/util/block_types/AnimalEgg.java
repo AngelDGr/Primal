@@ -1,19 +1,13 @@
 package org.primal.util.block_types;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.VariantHolder;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -24,7 +18,6 @@ import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.primal.registry.Primal_Sounds;
-import org.primal.util.mob_types.VariantHolderWithEgg;
 
 public interface AnimalEgg {
 
@@ -40,19 +33,22 @@ public interface AnimalEgg {
 
     default void decreaseEggs(Level level, BlockPos pos, BlockState state, @Nullable IntegerProperty eggsProperty) {
         level.playSound(null, pos, Primal_Sounds.EGG_BREAK.get(), SoundSource.BLOCKS, 0.7F, 0.9F + level.random.nextFloat() * 0.2F);
-        int i = state.getValue(eggsProperty);
-        if (i <= 1) {
-            level.destroyBlock(pos, false);
+        if(eggsProperty != null) {
+            int i = state.getValue(eggsProperty);
+            if (i <= 1) {
+                level.destroyBlock(pos, false);
+            } else {
+                level.setBlock(pos, state.setValue(eggsProperty, i - 1), 2);
+                level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(state));
+                level.levelEvent(2001, pos, Block.getId(state));
+            }
         } else {
-            level.setBlock(pos, state.setValue(eggsProperty, i - 1), 2);
-            level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(state));
-            level.levelEvent(2001, pos, Block.getId(state));
+            level.destroyBlock(pos, false);
         }
     }
 
     RegistryObject<? extends EntityType<? extends Animal>> getAnimal();
 
-    @SuppressWarnings("unchecked")
     default void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random, @Nullable IntegerProperty eggsProperty) {
         if (shouldUpdateHatchLevel(level)) {
             int i = state.getValue(HATCH);
@@ -71,23 +67,10 @@ public interface AnimalEgg {
                     level.levelEvent(2001, pos, Block.getId(state));
                     Animal animal = this.getAnimal().get().create(level);
                     if (animal != null) {
-                        Holder<Biome> holder = level.getBiome(pos);
                         animal.setAge(-24000);
-
-                        if (animal instanceof VariantHolderWithEgg variantWhenHatches && animal instanceof VariantHolder variantHolder) {
-
-                            var variantHolderCast =((VariantHolderWithEgg<StringRepresentable, Animal>) variantWhenHatches);
-
-                            if(variantHolderCast.getRareVariant(animal)!=null && variantWhenHatches.getRareVariantProbability(level)){
-                                variantHolder.setVariant(variantHolderCast.getRareVariant(animal));
-                            } else {
-                                variantHolderCast.setVariantFromBiome(animal, holder);
-                            }
-                        }
-
-
                         animal.moveTo((double)pos.getX() + 0.3 + (double)j * 0.2, pos.getY(), (double)pos.getZ() + 0.3, 0.0F, 0.0F);
                         level.addFreshEntity(animal);
+                        animal.finalizeSpawn(level, level.getCurrentDifficultyAt(pos), MobSpawnType.BREEDING, null, null);
                     }
                 }
             }

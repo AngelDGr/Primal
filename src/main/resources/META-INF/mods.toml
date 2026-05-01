@@ -79,11 +79,3 @@ description='''${mod_description}'''
     versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
-
-# Geckolib above 4.2
-[[dependencies.${mod_id}]]
-    modId = "geckolib"
-    mandatory=true
-    versionRange="[4.2,)"
-    ordering = "NONE"
-    side = "BOTH"

@@ -16,17 +16,13 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 import org.primal.entity.ai.behavior.deer.DeerHeadbutt;
 import org.primal.entity.ai.behavior.deer.DeerRegrowAntler;
 import org.primal.entity.ai.behavior.generic.*;
 import org.primal.entity.animal.DeerEntity;
-import org.primal.registry.Primal_Activities;
-import org.primal.registry.Primal_Entities;
-import org.primal.registry.Primal_MemoryModuleTypes;
-import org.primal.registry.Primal_Sensors;
+import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 
 import java.util.function.Predicate;
@@ -48,6 +44,7 @@ public class DeerAi {
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.GAZE_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
@@ -100,7 +97,7 @@ public class DeerAi {
     );
 
     public static Ingredient getTemptations() {
-        return Ingredient.of(Items.APPLE);
+        return Ingredient.of(Primal_Tags.Item.DEER_BREED_FOOD);
     }
 
     public static void initMemories(DeerEntity deer, RandomSource random) {
@@ -170,8 +167,8 @@ public class DeerAi {
                                         GateBehavior.RunningPolicy.TRY_ALL,
                                         ImmutableList.of(
                                                 Pair.of(DeerRegrowAntler.create(TimeUtil.rangeOfSeconds(2, 5)), 1),
-                                                Pair.of(StopAndTriggerAnimation.create("eat",
-                                                        50,
+                                                Pair.of(StopAndTriggerAnimation.create(DeerEntity.EAT,
+                                                        41,
                                                         m->m.getBlockStateOn().is(Blocks.GRASS_BLOCK)
                                                                 && !Primal_Util.isMoving(m)
                                                                 && m.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_PLAY_MOB.get()).isEmpty(),
@@ -179,6 +176,11 @@ public class DeerAi {
                                         )),
                                 3),
                         Pair.of(BehaviorBuilder.triggerIf(Predicate.not(DeerEntity::refuseToMove), RandomStroll.stroll(0.9F)), 5),
+                        Pair.of(StopAndTriggerAnimation.create(DeerEntity.LOOK,
+                                41,
+                                m->!Primal_Util.isMoving(m)
+                                        && m.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_PLAY_MOB.get()).isEmpty(),
+                                TimeUtil.rangeOfSeconds(8, 15)), 1),
                         Pair.of(new RandomLookAround(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F),
                                 3),
                         Pair.of(new DoNothing(40, 80),

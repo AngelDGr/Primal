@@ -3,37 +3,34 @@ package org.primal.entity.ai;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.datafixers.util.Pair;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.TimeUtil;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.behavior.*;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.Ingredient;
-import org.primal.entity.ai.behavior.bear.*;
-import org.primal.entity.ai.behavior.generic.*;
-import org.primal.entity.ai.behavior.generic.pet.FollowOwner;
-import org.primal.entity.ai.behavior.generic.roar.AnimalRoar;
-import org.primal.entity.ai.behavior.generic.roar.SetRoarTarget;
-import org.primal.registry.Primal_Activities;
-import org.primal.registry.Primal_Entities;
-import org.primal.registry.Primal_Sensors;
-import org.primal.entity.animal.BearEntity;
-
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
+import net.minecraft.world.item.crafting.Ingredient;
+import org.primal.entity.ai.behavior.bear.*;
+import org.primal.entity.ai.behavior.generic.ConditionalSwim;
+import org.primal.entity.ai.behavior.generic.SetLookTarget;
+import org.primal.entity.ai.behavior.generic.TryFindWaterSurface;
+import org.primal.entity.ai.behavior.generic.pet.FollowOwner;
+import org.primal.entity.ai.behavior.generic.roar.AnimalRoar;
+import org.primal.entity.ai.behavior.generic.roar.SetRoarTarget;
+import org.primal.entity.animal.BearEntity;
+import org.primal.registry.*;
 import org.primal.util.Primal_Util;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 public final class BearAi {
     private static final ImmutableList<SensorType<? extends Sensor<? super BearEntity>>> SENSOR_TYPES = ImmutableList.of(
@@ -42,15 +39,15 @@ public final class BearAi {
             Primal_Sensors.NEAREST_ADULT_BEAR.get(),
             Primal_Sensors.NEAREST_BABY.get(),
             SensorType.NEAREST_PLAYERS,
-            Primal_Sensors.BEAR_NEAREST_BEEHIVE_SENSOR.get(),
-            Primal_Sensors.BEAR_NEAREST_SWEET_BERRY_BUSH_SENSOR.get(),
-            Primal_Sensors.BEAR_TEMPTATIONS_SENSOR.get(),
-            Primal_Sensors.BEAR_REPELLENT_SENSOR.get());
+            Primal_Sensors.BEAR_REPELLENT_SENSOR.get(),
+            Primal_Sensors.BEAR_NEAREST_RAIDABLE_BLOCK_SENSOR.get(),
+            Primal_Sensors.BEAR_TEMPTATIONS_SENSOR.get());
 
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.GAZE_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
@@ -63,6 +60,7 @@ public final class BearAi {
             MemoryModuleType.HURT_BY,
             MemoryModuleType.HURT_BY_ENTITY,
             MemoryModuleType.BREED_TARGET,
+            MemoryModuleType.HAS_HUNTING_COOLDOWN,
 
             MemoryModuleType.IS_PANICKING,
             MemoryModuleType.TEMPTATION_COOLDOWN_TICKS,
@@ -71,13 +69,15 @@ public final class BearAi {
 
             MemoryModuleType.AVOID_TARGET,
 
-            MemoryModuleType.NEAREST_REPELLENT
+            MemoryModuleType.NEAREST_REPELLENT,
+            Primal_MemoryModuleTypes.NEAREST_BEEHIVE.get(),
+            Primal_MemoryModuleTypes.NEAREST_SWEET_BERRY_BUSH.get()
     );
 
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
 
     public static Ingredient getTemptations() {
-        return Ingredient.of(Items.SALMON_BUCKET);
+        return Ingredient.of(Primal_Tags.Item.BEAR_BREED_FOOD);
     }
 
     private static void initMemories(BearEntity BearEntity, RandomSource random) {

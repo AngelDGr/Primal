@@ -1,60 +1,54 @@
 package org.primal.client.renderer.entity.layer.wolf;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
+import org.primal.client.model.entity.replaced.WolfModel;
 import org.primal.client.renderer.replaced.WolfRenderer;
-import org.primal.entity.replaced.WolfReplaced;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public class WolfEyesLayer extends GeoRenderLayer<WolfReplaced> {
+public class WolfEyesLayer<T extends Wolf, M extends WolfModel<T>> extends RenderLayer<T, M> {
 
-    private final GeoReplacedEntityRenderer<Wolf, WolfReplaced> renderer;
-    public WolfEyesLayer(GeoReplacedEntityRenderer<Wolf, WolfReplaced> entityRendererIn) {
-        super(entityRendererIn);
-        this.renderer=entityRendererIn;
+    public WolfEyesLayer(RenderLayerParent<T, M> renderer) {
+        super(renderer);
     }
 
     @Override
-    public void render(PoseStack poseStack, WolfReplaced animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        Wolf wolf = renderer.getCurrentEntity();
-
+    public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, @NotNull T livingEntity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
         CompoundTag mainTag = new CompoundTag();
-        wolf.saveWithoutId(mainTag);
+        livingEntity.saveWithoutId(mainTag);
         String variantTag= mainTag.getString("variant");
 
         //Default glowing eyes
-        RenderType eyesrenderType = RenderType.entityTranslucentEmissive(convertWolfVariantToName(variantTag));
+        RenderType eyesrenderType = RenderType.entityTranslucentEmissive(convertWolfVariantToName(variantTag, livingEntity));
 
         if(mainTag.getBoolean("IsCuredBewereager")){
             eyesrenderType = RenderType.entityTranslucentEmissive(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/species/bewereager_eyes.png"));
         }
 
         //Angry glowing eyes
-        if(wolf.isAngry() && !wolf.isTame())
+        if(livingEntity.isAngry() && !livingEntity.isTame())
             eyesrenderType = RenderType.entityTranslucentEmissive(ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/angry.png"));
 
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, eyesrenderType, bufferSource.getBuffer(eyesrenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1,1,1,1);
+        this.getParentModel().renderToBuffer(poseStack, bufferSource.getBuffer(eyesrenderType), packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 
-    public ResourceLocation convertWolfVariantToName(String variantName) {
+    public ResourceLocation convertWolfVariantToName(String variantName, T wolf) {
 
-        if(BuiltInRegistries.ENTITY_TYPE.getKey(this.renderer.getCurrentEntity().getType()).getNamespace().equals("pet_cemetery")){
-            if(BuiltInRegistries.ENTITY_TYPE.getKey(this.renderer.getCurrentEntity().getType()).getPath().equals("skeleton_wolf"))
+        if(BuiltInRegistries.ENTITY_TYPE.getKey(wolf.getType()).getNamespace().equals("pet_cemetery")){
+            if(BuiltInRegistries.ENTITY_TYPE.getKey(wolf.getType()).getPath().equals("skeleton_wolf"))
                 return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/skeleton_eyes.png");
 
-            if(BuiltInRegistries.ENTITY_TYPE.getKey(this.renderer.getCurrentEntity().getType()).getPath().equals("zombie_wolf"))
+            if(BuiltInRegistries.ENTITY_TYPE.getKey(wolf.getType()).getPath().equals("zombie_wolf"))
                 return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/pet_cemetery/zombie_eyes.png");
         }
 

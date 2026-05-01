@@ -21,9 +21,11 @@ import net.minecraft.world.entity.ai.util.LandRandomPos;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.monster.piglin.StopAdmiringIfItemTooFarAway;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import org.primal.entity.ai.behavior.generic.*;
+import org.primal.entity.ai.behavior.generic.GoesToImportantBlockSometimes;
+import org.primal.entity.ai.behavior.generic.SetLookTarget;
+import org.primal.entity.ai.behavior.generic.StopMoving;
+import org.primal.entity.ai.behavior.generic.TryFindWaterSurface;
 import org.primal.entity.ai.behavior.generic.hide_on_log.AnimalEntersLog;
 import org.primal.entity.ai.behavior.generic.home.AnimalGoesToBlock;
 import org.primal.entity.ai.behavior.generic.home.AnimalRemoveHome;
@@ -110,7 +112,7 @@ public final class SnakeAi {
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
 
     public static Ingredient getTemptations() {
-        return Ingredient.of(Items.FERMENTED_SPIDER_EYE);
+        return Ingredient.of(Primal_Tags.Item.SNAKE_BREED_FOOD);
     }
 
     @SuppressWarnings("unused")
@@ -242,7 +244,7 @@ public final class SnakeAi {
         brain.addActivity(
                 Primal_Activities.SIT.get(),
                 ImmutableList.of(
-                        Pair.of(0, new AnimalSitting())
+                        Pair.of(0, new AnimalSitting<>())
                 )
         );
     }

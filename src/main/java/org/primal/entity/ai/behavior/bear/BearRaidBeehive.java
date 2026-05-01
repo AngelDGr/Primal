@@ -1,5 +1,6 @@
 package org.primal.entity.ai.behavior.bear;
 
+import net.minecraft.world.InteractionHand;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_MemoryModuleTypes;
 import org.primal.entity.animal.BearEntity;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.animal.Bee;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity;
 import net.minecraft.world.level.block.entity.BeehiveBlockEntity.BeeReleaseStatus;
 import net.minecraft.world.level.block.state.BlockState;
+import org.primal.util.Primal_Util;
 
 public class BearRaidBeehive extends Behavior<BearEntity> {
 
@@ -38,13 +40,16 @@ public class BearRaidBeehive extends Behavior<BearEntity> {
 
     @Override
     protected void start(@NotNull ServerLevel level, BearEntity entity, long gameTime) {
-        entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_BEEHIVE.get()).get(), 1.f, 2));
+        var beehive = entity.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_BEEHIVE.get());
+        beehive.ifPresent(blockPos ->
+                entity.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(blockPos, 1.f, 0)));
     }
 
     @Override
     protected void tick(@NotNull ServerLevel level, BearEntity owner, long gameTime) {
         BlockPos nearestBeehive = owner.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_BEEHIVE.get()).orElse(null);
-        if (nearestBeehive != null && owner.blockPosition().distManhattan(nearestBeehive) <= 2.f) {
+        if (nearestBeehive != null && owner.blockPosition().distManhattan(nearestBeehive) <= 4.5f) {
+
             BlockState state = level.getBlockState(nearestBeehive);
             if (!state.is(BlockTags.BEEHIVES)) {
                 return;
@@ -57,9 +62,9 @@ public class BearRaidBeehive extends Behavior<BearEntity> {
                 ((Bee)entity).setTarget(owner);
             }
             level.destroyBlock(nearestBeehive, false, owner);
-            owner.triggerAnim("attack", "attack");
+            owner.swing(InteractionHand.MAIN_HAND);
 
-            owner.setHoneyCounter(20*60*10);
+            owner.setHoneyCounter(Primal_Util.toTicks(150));
         }
     }
 
@@ -68,9 +73,7 @@ public class BearRaidBeehive extends Behavior<BearEntity> {
         if (owner.isBaby() || owner.getHoneyCounter() > 0)
             return false;
         BlockPos blockPosBeehive = owner.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_BEEHIVE.get()).orElse(null);
-        if (!(level.getBlockEntity(blockPosBeehive) instanceof BeehiveBlockEntity) || BeehiveBlockEntity.getHoneyLevel(level.getBlockState(blockPosBeehive)) < 5)
-            return false;
-        return true;
+        return blockPosBeehive != null && level.getBlockEntity(blockPosBeehive) instanceof BeehiveBlockEntity && BeehiveBlockEntity.getHoneyLevel(level.getBlockState(blockPosBeehive)) >= 5;
     }
 
 }

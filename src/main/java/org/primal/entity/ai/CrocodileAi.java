@@ -8,7 +8,6 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -17,11 +16,13 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
-import org.primal.entity.ai.behavior.crocodile.*;
-import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
+import org.primal.entity.ai.behavior.crocodile.CrocodileExploding;
+import org.primal.entity.ai.behavior.crocodile.CrocodileGoesToCompass;
+import org.primal.entity.ai.behavior.crocodile.CrocodileStartAttack;
+import org.primal.entity.ai.behavior.crocodile.CrocodileThrash;
 import org.primal.entity.ai.behavior.generic.GoesToImportantBlockSometimes;
+import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
 import org.primal.entity.ai.behavior.generic.TryFindWaterSurface;
 import org.primal.entity.ai.behavior.generic.TryLayEggOnLandOrNest;
 import org.primal.entity.animal.CrocodileEntity;
@@ -40,8 +41,7 @@ public class CrocodileAi {
             SensorType.NEAREST_PLAYERS,
             SensorType.NEAREST_ADULT,
             Primal_Sensors.CROCODILE_TEMPTATIONS_SENSOR.get(),
-            Primal_Sensors.CROCODILE_NEAREST_EGG.get(),
-            Primal_Sensors.CROCODILE_NEAREST_REED.get());
+            Primal_Sensors.CROCODILE_NEAREST_IMPORTANT_BLOCK.get());
 
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
@@ -83,7 +83,7 @@ public class CrocodileAi {
     private static final UniformInt ADULT_FOLLOW_RANGE = UniformInt.of(5, 16);
 
     public static Ingredient getTemptations() {
-        return Ingredient.of(Items.CHICKEN);
+        return Ingredient.of(Primal_Tags.Item.CROCODILE_BREED_FOOD);
     }
 
     public static void initMemories(CrocodileEntity CrocodileEntity, RandomSource random) {
@@ -218,7 +218,7 @@ public class CrocodileAi {
     private static RunOne<CrocodileEntity> createIdleMovementBehaviors() {
         return new RunOne<>(
                 ImmutableList.of(
-                        Pair.of(IdlePoseAnimationBehavior.create("basking", Pose.CROAKING,
+                        Pair.of(IdlePoseAnimationBehavior.create("Basking",
                                         Primal_Util.toTicks(5), Primal_Util.toTicks(10),
                                         c -> IdlePoseAnimationBehavior.basicCanStart(c) && c.level().isDay() && !c.isInWater(),
                                         Primal_Util.toTicks(40)),

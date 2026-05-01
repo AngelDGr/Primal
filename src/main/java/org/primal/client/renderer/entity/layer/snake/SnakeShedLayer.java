@@ -1,31 +1,30 @@
 package org.primal.client.renderer.entity.layer.snake;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
+import org.primal.client.model.entity.SnakeModel;
 import org.primal.entity.animal.SnakeEntity;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SnakeShedLayer extends GeoRenderLayer<SnakeEntity> {
-    public SnakeShedLayer(GeoRenderer<SnakeEntity> entityRendererIn) {
-        super(entityRendererIn);
+public class SnakeShedLayer<T extends SnakeEntity, M extends SnakeModel<T>> extends RenderLayer<T, M> {
+    public SnakeShedLayer(RenderLayerParent<T, M> renderer) {
+        super(renderer);
     }
 
     @Override
-    public void render(PoseStack poseStack, SnakeEntity animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        if (!animatable.isShedding() || animatable.isInvisible()) return;
+    public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, @NotNull T entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (!entity.isShedding() || entity.isInvisible()) return;
 
         RenderType collarRenderType = RenderType.entityTranslucentCull(
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
-                        "textures/entity/snake/"+(animatable.isBaby()? "baby/": "")+ "shed" + ".png"));
+                        "textures/entity/snake/"+(entity.isBaby() && Primal_Main.COMMON_CONFIG.snakeBabyCustomModel.get()? "baby/": "")+ "shed" + ".png"));
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
+        this.getParentModel().renderToBuffer(poseStack, bufferSource.getBuffer(collarRenderType), packedLight, OverlayTexture.NO_OVERLAY, 1, 1, 1, 1);
     }
 }

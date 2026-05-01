@@ -41,7 +41,6 @@ import net.minecraftforge.common.Tags;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.entity.CrocodileAnimations;
 import org.primal.entity.ai.CrocodileAi;
 import org.primal.entity.ai.controls.look.CrocodileLookControl;
 import org.primal.entity.ai.controls.move.CrocodileMoveControl;
@@ -51,17 +50,10 @@ import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.AttackVillagers;
 import org.primal.util.mob_types.HostileMount;
+import org.primal.util.mob_types.MobWithTransitionablePoseAnimations;
 import org.primal.util.mob_types.SemiAquaticAnimal;
-import org.primal.util.mob_types.VariantHolderWithEgg;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.IntFunction;
 
 //xTODO
@@ -90,13 +82,9 @@ import java.util.function.IntFunction;
 //      x Entity falls faster
 //      x Sink faster in water
 //      x Inflicted from Ominous Trial Spawner’s projectile throw.
-public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, GeoEntity, ContainerListener, NeutralMob, HostileMount, VariantHolderWithEgg<CrocodileEntity.Variant, CrocodileEntity>, AttackVillagers, SemiAquaticAnimal {
+public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEntity.Variant>, MobWithTransitionablePoseAnimations, ContainerListener, NeutralMob, HostileMount, AttackVillagers, SemiAquaticAnimal {
 
-    protected SimpleContainer inventory=new SimpleContainer(54);
-    @Override
-    public void containerChanged(@NotNull Container container) {}
-
-    //Attributes and Variants
+    //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
         GREEN(0, "green"),
         BROWN(1, "brown"),
@@ -131,6 +119,35 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         }
     }
 
+    @Override
+    public void setVariant(@NotNull Variant variant) {
+        this.entityData.set(DATA_VARIANT_ID, variant.id);
+    }
+
+    @Override
+    public @NotNull Variant getVariant() {
+        return CrocodileEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
+    }
+
+    public void setVariantFromBiome(CrocodileEntity animal, Holder<Biome> holder){
+        if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_CROCODILE)) {
+            animal.setVariant(Variant.BLACK);
+        } else if(holder.is(Primal_Tags.Biome.SPAWNS_BROWN_CROCODILE)){
+            animal.setVariant(Variant.BROWN);
+        } else {
+            animal.setVariant(Variant.GREEN);
+        }
+    }
+
+    //──────────────────────────────────── Init ────────────────────────────────────
+    public CrocodileEntity(EntityType<? extends Animal> entityType, Level level) {
+        super(entityType, level);
+        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
+        this.moveControl = new CrocodileMoveControl(this, 85, 10, 0.38f, 0.01f, false);
+        this.lookControl = new CrocodileLookControl<>(this, 10);
+        this.setMaxUpStep(1.5f);
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 40f)
@@ -141,14 +158,42 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 .add(Attributes.KNOCKBACK_RESISTANCE, 0.4f);
     }
 
-    //Init
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    public CrocodileEntity(EntityType<? extends Animal> entityType, Level level) {
-        super(entityType, level);
-        this.setPathfindingMalus(BlockPathTypes.WATER, -1.0F);
-        this.moveControl = new CrocodileMoveControl(this, 85, 10, 0.38f, 0.01f, false);
-        this.lookControl = new CrocodileLookControl<>(this, 10);
-        this.setMaxUpStep(1.5f);
+    protected SimpleContainer inventory=new SimpleContainer(54);
+    @Override
+    public void containerChanged(@NotNull Container container) {}
+
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_BASK = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.LONG);
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_SWIM_IDLE = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.LONG);
+    private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Float> HEALTH_WHEN_START_RIDING = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Boolean> THRASHING = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.BOOLEAN);
+
+    @Override
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(LAST_POSE_CHANGE_TICK_BASK, 0L);
+        this.entityData.define(LAST_POSE_CHANGE_TICK_SWIM_IDLE, 0L);
+        this.entityData.define(HEALTH_WHEN_START_RIDING, 0f);
+        this.entityData.define(DATA_VARIANT_ID, CrocodileEntity.Variant.GREEN.id);
+        this.entityData.define(THRASHING, false);
+    }
+
+    @Override
+    public float getHealthWhenStartRiding() {
+        return this.entityData.get(HEALTH_WHEN_START_RIDING);
+    }
+
+    @Override
+    public void setHealthWhenStartRiding(float healthWhenStartRiding) {
+        this.entityData.set(HEALTH_WHEN_START_RIDING, healthWhenStartRiding);
+    }
+
+    public boolean isThrashing() {
+        return this.entityData.get(THRASHING);
+    }
+
+    public void setThrashing(boolean thrashing) {
+        this.entityData.set(THRASHING, thrashing);
     }
 
     @Override
@@ -163,86 +208,10 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
-    public void setVariantFromBiome(CrocodileEntity animal, Holder<Biome> holder){
-        if (holder.is(Primal_Tags.Biome.SPAWNS_BLACK_CROCODILE)) {
-            animal.setVariant(Variant.BLACK);
-        } else if(holder.is(Primal_Tags.Biome.SPAWNS_BROWN_CROCODILE)){
-            animal.setVariant(Variant.BROWN);
-        } else {
-            animal.setVariant(Variant.GREEN);
-        }
-    }
-
-    @Override
-    public CrocodileEntity.Variant getRareVariant(CrocodileEntity crocodile) {
-        return Variant.ALBINO;
-    }
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(
-                CrocodileAnimations.mainController(this),
-                CrocodileAnimations.attackController(this));
-    }
-
-    @Override
-    public int getMaxHeadXRot() {
-        return 25;
-    }
-
-    @Override
-    public int getMaxHeadYRot() {
-        return 10;
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return this.cache;
-    }
-
-    @Override
-    public void swing(@NotNull InteractionHand hand) {
-        this.triggerAnim("attack", this.isInWater()?  "attack_water": "attack");
-        super.swing(hand);
-    }
-
-    @Override
-    public boolean doHurtTarget(@NotNull Entity entity) {
-        return super.doHurtTarget(entity);
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-
-        if (this.hasClock() && this.tickCount % 20 == 0) {
-            // Alternate pitch each tick
-            float pitch = (this.tickCount / 20) % 2 == 0 ? 0.6f : 0.5f;
-
-            this.playSound(Primal_Sounds.CROCODILE_CLOCK.get(), 1.0f, pitch);
-        }
-
-    }
-
-    //SynchedData
-    private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.INT);
-    public static final EntityDataAccessor<Float> HEALTH_WHEN_START_RIDING = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.FLOAT);
-    public static final EntityDataAccessor<Boolean> THRASHING = SynchedEntityData.defineId(CrocodileEntity.class, EntityDataSerializers.BOOLEAN);
-
-
-    @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(HEALTH_WHEN_START_RIDING, 0f);
-        this.entityData.define(DATA_VARIANT_ID, CrocodileEntity.Variant.GREEN.id);
-        this.entityData.define(THRASHING, false);
-    }
-
-    @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        this.addAdditionalSaveDataTransitionablePoseAnimations(compound);
         compound.putInt("Variant", this.getVariant().id);
-
         ListTag listtag = new ListTag();
         for (int i = 0; i < this.inventory.getContainerSize(); i++) {
             ItemStack itemstack = this.inventory.getItem(i);
@@ -259,6 +228,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.readAdditionalSaveDataTransitionablePoseAnimations(compound);
         this.setVariant(CrocodileEntity.Variant.byId(compound.getInt("Variant")));
 
         ListTag listtag = compound.getList("Items", 10);
@@ -273,87 +243,30 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
-    public float getHealthWhenStartRiding() {
-        return this.entityData.get(HEALTH_WHEN_START_RIDING);
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
+        if(this.isBaby())
+            return EntityDimensions.scalable(this.getType().getDimensions().width, 1.75f).scale(this.getScale());
+        return this.getType().getDimensions().scale(this.getScale());
+    }
+
+    //──────────────────────────────────── AI & Movement ────────────────────────────────────
+    @Override
+    protected void registerGoals() {}
+
+    @Override
+    protected @NotNull Brain.Provider<CrocodileEntity> brainProvider() {
+        return CrocodileAi.brainProvider();
     }
 
     @Override
-    public void setHealthWhenStartRiding(float healthWhenStartRiding) {
-        this.entityData.set(HEALTH_WHEN_START_RIDING, healthWhenStartRiding);
+    protected @NotNull Brain<?> makeBrain(@NotNull Dynamic<?> dynamic) {
+        return CrocodileAi.makeBrain(this.brainProvider().makeBrain(dynamic));
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void setVariant(@NotNull Variant variant) {
-        this.entityData.set(DATA_VARIANT_ID, variant.id);
-    }
-
-    @Override
-    public @NotNull Variant getVariant() {
-        return CrocodileEntity.Variant.byId(this.entityData.get(DATA_VARIANT_ID));
-    }
-
-    public boolean isThrashing() {
-        return this.entityData.get(THRASHING);
-    }
-
-    public void setThrashing(boolean thrashing) {
-        this.entityData.set(THRASHING, thrashing);
-    }
-
-    //Breeding
-    @Override
-    public void spawnChildFromBreeding(@NotNull ServerLevel level, @NotNull Animal mate) {
-        this.finalizeSpawnChildFromBreeding(level, mate, null);
-        this.getBrain().setMemory(MemoryModuleType.IS_PREGNANT, Unit.INSTANCE);
-    }
-
-    @Override
-    public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
-        if(otherParent instanceof CrocodileEntity otherParentCasted)
-            return Primal_Util.createFromParents(Primal_Entities.CROCODILE.get(),
-                    this,
-                    otherParentCasted, c-> CrocodileAi.initMemories(c, level.getRandom()));
-
-        return null;
-    }
-
-    @Override
-    protected void ageBoundaryReached() {
-        super.ageBoundaryReached();
-        if (!this.isBaby() && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
-            this.spawnAtLocation(new ItemStack(Primal_Items.CROCODILE_SCUTE.get(), this.getRandom().nextIntBetweenInclusive(3, 5)), 1);
-        }
-    }
-
-    public boolean brushOffScute() {
-        if (this.isBaby()) {
-            return false;
-        } else {
-            this.spawnAtLocation(new ItemStack(Primal_Items.CROCODILE_SCUTE.get()), 1);
-            this.gameEvent(GameEvent.ENTITY_INTERACT);
-            this.playSound(Primal_Sounds.ARMADILLO_BRUSH.get());
-            return true;
-        }
-    }
-
-    @Override
-    public boolean isFood(@NotNull ItemStack stack) {
-        return isMatingFood(stack);
-    }
-
-    public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.CHICKEN);
-    }
-
-    //Movement
-    @Override
-    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
-        return new CrocodilePathNavigation(this, level);
-    }
-
-    @Override
-    public boolean onClimbable() {
-        return false;
+    public @NotNull Brain<CrocodileEntity> getBrain() {
+        return (Brain<CrocodileEntity>) super.getBrain();
     }
 
     @Override
@@ -392,6 +305,11 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level level) {
+        return new CrocodilePathNavigation(this, level);
+    }
+
+    @Override
     public void travel(@NotNull Vec3 travelVector) {
         if (this.isEffectiveAi() && this.isInWater()) {
             this.moveRelative(this.getSpeed(), travelVector);
@@ -402,9 +320,65 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         }
     }
 
-    @SuppressWarnings("all")
-    //Damage necessary to being released
-    private final float healthLossToBeReleased =2.0f;
+    @Override
+    public @NotNull Vec3 getFluidFallingAdjustedMovement(double gravity, boolean isFalling, @NotNull Vec3 deltaMovement) {
+        return deltaMovement.scale(0.90);
+    }
+
+    @Override
+    public float getSpeed() {
+        return this.isSprinting()? super.getSpeed()*1.375f : super.getSpeed();
+    }
+
+    public boolean refuseToMove() {
+        return this.isOnPoseAnimation() || this.isOnPoseTransition();
+    }
+
+    public void stopMoving(){
+        this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
+        this.getNavigation().stop();
+        this.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
+    }
+
+    @Override
+    public boolean onClimbable() {
+        return false;
+    }
+
+    //──────────────────────────────────── Combat ────────────────────────────────────
+    @Nullable
+    @Override
+    public LivingEntity getTarget() {
+        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
+    }
+
+    @Override
+    public boolean canAttack(@NotNull LivingEntity target) {
+        if(this.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target) && super.canAttack(target))
+            return true;
+
+        return super.canAttack(target) &&
+                //Hunts regularly
+                ((target.getType().is(Primal_Tags.Entity.CROCODILE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN))
+                        //Attacks if it has a nearby baby
+                        || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get()) && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown())
+                        //To attack the last one that hurt it
+                        || this.getLastHurtByMob()==target
+                        //Attacks if it has a nearby egg
+                        || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get())
+                        && this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).isPresent()
+                        && this.level().getBlockState(this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Blocks.CROCODILE_EGG.get())
+                        && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown())
+                        //Attacks if it's too close
+                        || (target.distanceTo(this)<8 && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown()))
+                && !this.isPacified()
+                && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.CROCODILE_NEVER_ATTACK);
+    }
+
+    public static boolean canPickUpEntity(@NotNull Entity target, @NotNull CrocodileEntity crocodile){
+        return target.getBoundingBox().getSize()<crocodile.getBoundingBox().getSize()
+                && !crocodile.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.IS_STUNNED.get());
+    }
 
     @Override
     public boolean hurt(@NotNull DamageSource source, float amount) {
@@ -427,25 +401,25 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         return hurt;
     }
 
-    //Thrash
+    @Override
+    public boolean doHurtTarget(@NotNull Entity entity) {
+        this.level().broadcastEntityEvent(this, (byte)4);
+        return super.doHurtTarget(entity);
+    }
+
+    @Override
+    public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
+        //Put the cooldown to attack prey each 600 ticks (30s)
+        if(killed.getType().is(Primal_Tags.Entity.CROCODILE_HUNTABLE)){
+            this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, 600L);
+        }
+
+        return super.killedEntity(level, killed);
+    }
+
     @Override
     public @NotNull Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
         return new Vec3(passenger.getX(), passenger.getY()+0.1, passenger.getZ());
-    }
-
-    @Override
-    public boolean shouldRiderSit() {
-        return false;
-    }
-
-    @Override
-    public boolean canRiderInteract() {
-        return true;
-    }
-
-    @Override
-    public @Nullable LivingEntity getControllingPassenger() {
-        return null;
     }
 
     @Override
@@ -467,88 +441,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         }
     }
 
-    public static boolean canPickUpEntity(@NotNull Entity target, @NotNull CrocodileEntity crocodile){
-        return target.getBoundingBox().getSize()<crocodile.getBoundingBox().getSize()
-                && !crocodile.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.IS_STUNNED.get());
-    }
-
-    public void stopMoving(){
-        this.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        this.getNavigation().stop();
-        this.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
-    }
-
-    @Override
-    public @NotNull Vec3 getFluidFallingAdjustedMovement(double gravity, boolean isFalling, @NotNull Vec3 deltaMovement) {
-        return deltaMovement.scale(0.90);
-    }
-
-    @Override
-    public float getSpeed() {
-        return this.isSprinting()? super.getSpeed()*1.375f : super.getSpeed();
-    }
-
-    //AI
-    @Override
-    protected void registerGoals() {}
-
-    @Override
-    protected @NotNull Brain.Provider<CrocodileEntity> brainProvider() {
-        return CrocodileAi.brainProvider();
-    }
-
-    @Override
-    protected @NotNull Brain<?> makeBrain(@NotNull Dynamic<?> dynamic) {
-        return CrocodileAi.makeBrain(this.brainProvider().makeBrain(dynamic));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public @NotNull Brain<CrocodileEntity> getBrain() {
-        return (Brain<CrocodileEntity>) super.getBrain();
-    }
-
-    @Nullable
-    @Override
-    public LivingEntity getTarget() {
-        return Primal_Util.OneTwentyEquivalent.getTargetFromBrain(this);
-    }
-
-    @Override
-    public boolean canAttack(@NotNull LivingEntity target) {
-        if(this.getBrain().isMemoryValue(MemoryModuleType.ATTACK_TARGET, target) && super.canAttack(target))
-            return true;
-
-        return super.canAttack(target) &&
-                //Hunts regularly
-                ((target.getType().is(Primal_Tags.Entity.CROCODILE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN))
-                //Attacks if it has a nearby baby
-                || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_VISIBLE_BABY.get()) && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown())
-                //To attack the last one that hurt it
-                || this.getLastHurtByMob()==target
-                //Attacks if it has a nearby egg
-                || (this.getBrain().hasMemoryValue(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get())
-                    && this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).isPresent()
-                    && this.level().getBlockState(this.getBrain().getMemory(Primal_MemoryModuleTypes.NEAREST_IMPORTANT_BLOCK.get()).get()).is(Primal_Blocks.CROCODILE_EGG.get())
-                    && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown())
-                //Attacks if it's too close
-                || (target.distanceTo(this)<8 && !(target instanceof CrocodileEntity) && !target.isShiftKeyDown()))
-                && !this.isPacified()
-                && Primal_Util.isNotNeverAttack(target)
-                && !target.getType().is(Primal_Tags.Entity.CROCODILE_NEVER_ATTACK);
-    }
-
-    @Override
-    public boolean killedEntity(@NotNull ServerLevel level, @NotNull LivingEntity killed) {
-        //Put the cooldown to attack prey each 600 ticks (30s)
-        if(killed.getType().is(Primal_Tags.Entity.CROCODILE_HUNTABLE)){
-            this.getBrain().setMemoryWithExpiry(MemoryModuleType.HAS_HUNTING_COOLDOWN, true, 600L);
-        }
-
-        return super.killedEntity(level, killed);
-    }
-
-    //Eating
+    //──────────────────────────────────── Feeding & Interaction ────────────────────────────────────
     @Override
     public @NotNull InteractionResult mobInteract(@NotNull Player player, @NotNull InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
@@ -588,8 +481,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 ItemEntity itementity = new ItemEntity(this.level(), x, y, z, stackToDrop);
                 itementity.setDefaultPickUpDelay();
                 this.level().addFreshEntity(itementity);
-                if(!this.level().isClientSide)
-                    this.triggerAnim("base_controller", "vomits");
+                this.level().broadcastEntityEvent(this, (byte)6);
                 if(this.getVomitSound()!=null)
                     this.playSound(this.getVomitSound(), 1.0f, 1.0f);
 
@@ -609,17 +501,13 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
                 itemstack.shrink(itemstack.getCount());
 
-                if(!this.level().isClientSide)
-                    this.triggerAnim("base_controller", "vomits");
+                this.level().broadcastEntityEvent(this, (byte)6);
 
                 if(this.getEatSound()!=null)
                     this.playSound(this.getEatSound(), 1.0f, 1.0f);
 
                 return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
-
-
-
         }
 
 
@@ -652,15 +540,48 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         return InteractionResult.PASS;
     }
 
-    @Override
-    public void handleEntityEvent(byte id) {
-        if (id == 38) {
-            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.HAPPY_VILLAGER, 0.01, 7, 0.2, 1, 1);
-        } else if(id==80) {
-            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.SPLASH, 0.01, 7, 0, 0.5, 1);
+    public boolean brushOffScute() {
+        if (this.isBaby()) {
+            return false;
+        } else {
+            this.level().broadcastEntityEvent(this, SHAKE_OFF);
+            this.spawnAtLocation(new ItemStack(Primal_Items.CROCODILE_SCUTE.get()), 1);
+            this.gameEvent(GameEvent.ENTITY_INTERACT);
+            this.playSound(Primal_Sounds.ARMADILLO_BRUSH.get());
+            return true;
         }
-        else {
-            super.handleEntityEvent(id);
+    }
+
+    @Override
+    public boolean isFood(@NotNull ItemStack stack) {
+        return isMatingFood(stack);
+    }
+
+    public static boolean isMatingFood(@NotNull ItemStack stack){
+        return stack.is(Primal_Tags.Item.CROCODILE_BREED_FOOD);
+    }
+
+    @Override
+    public void spawnChildFromBreeding(@NotNull ServerLevel level, @NotNull Animal mate) {
+        this.finalizeSpawnChildFromBreeding(level, mate, null);
+        this.getBrain().setMemory(MemoryModuleType.IS_PREGNANT, Unit.INSTANCE);
+    }
+
+    @Override
+    public @Nullable AgeableMob getBreedOffspring(@NotNull ServerLevel level, @NotNull AgeableMob otherParent) {
+        if(otherParent instanceof CrocodileEntity otherParentCasted)
+            return Primal_Util.createFromParents(Primal_Entities.CROCODILE.get(),
+                    this,
+                    otherParentCasted, c-> CrocodileAi.initMemories(c, level.getRandom()));
+
+        return null;
+    }
+
+    @Override
+    protected void ageBoundaryReached() {
+        super.ageBoundaryReached();
+        if (!this.isBaby() && this.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+            this.spawnAtLocation(new ItemStack(Primal_Items.CROCODILE_SCUTE.get(), this.getRandom().nextIntBetweenInclusive(3, 5)), 1);
         }
     }
 
@@ -679,7 +600,6 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         }
     }
 
-    //Special Belly Items
     public Optional<GlobalPos> getCompassPos(){
         Optional<GlobalPos> compassPos=Optional.empty();
 
@@ -687,6 +607,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
             if(CompassItem.isLodestoneCompass(stack) && CompassItem.getLodestonePosition(stack.getTag())!=null){
                 compassPos= Optional.ofNullable(CompassItem.getLodestonePosition(stack.getTag()));
             }
+
         }
 
         return compassPos;
@@ -698,6 +619,15 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 
     public boolean hasTNT(){
         return this.inventory.hasAnyMatching(stack -> stack.is(Primal_Tags.Item.MAKES_CROCODILE_EXPLODE));
+    }
+
+    @Override
+    protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int i, boolean recentlyHit) {
+        if(!this.inventory.isEmpty()){
+            for(ItemStack stack : ((SimpleContainerAccessor)(this.inventory)).getItems()){
+                this.spawnAtLocation(stack);
+            }
+        }
     }
 
     public void explode() {
@@ -720,16 +650,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         }
     }
 
-    @Override
-    protected void dropCustomDeathLoot(@NotNull DamageSource damageSource, int i, boolean recentlyHit) {
-        if(!this.inventory.isEmpty()){
-            for(ItemStack stack : ((SimpleContainerAccessor)(this.inventory)).getItems()){
-                this.spawnAtLocation(stack);
-            }
-        }
-    }
-
-    //Sounds
+    //──────────────────────────────────── Sounds ────────────────────────────────────
     public static final byte CROCODILE_THRASHING = 99;
 
     @Override
@@ -769,7 +690,114 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         return Primal_Sounds.CROCODILE_EAT.get();
     }
 
-    //Misc
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState attackAnimationState = new AnimationState();
+    public final AnimationState thrashingAnimationState = new AnimationState();
+
+    public final AnimationState vomitsAnimationState = new AnimationState();
+
+    public final AnimationState startSwimIdleAnimationState = new AnimationState();
+    public final AnimationState swimIdleAnimationState = new AnimationState();
+    public final AnimationState stopSwimIdleAnimationState = new AnimationState();
+
+    public final AnimationState startBaskingAnimationState = new AnimationState();
+    public final AnimationState baskingAnimationState = new AnimationState();
+    public final AnimationState stopBaskingAnimationState = new AnimationState();
+
+    public final AnimationState shakeOffAnimationState = new AnimationState();
+
+    private int swimIdleTimer=0;
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide()) {
+            setupAnimationStates();
+        }
+
+        if (this.hasClock() && this.tickCount % 20 == 0) {
+            // Alternate pitch each tick
+            float pitch = (this.tickCount / 20) % 2 == 0 ? 0.6f : 0.5f;
+
+            this.playSound(Primal_Sounds.CROCODILE_CLOCK.get(), 1.0f, pitch);
+        }
+
+        if(this.level().isClientSide()) return;
+
+        double speed = this.getDeltaMovement().length();
+        if((speed<0.08) && !this.isThrashing() && !this.isAggressive() && this.isInWaterOrBubble()){
+            //Needs to remain still for at least 1s
+            swimIdleTimer++;
+            if(!this.isSwimIdling() && swimIdleTimer>20)
+                this.startAnimation("SwimIdle");
+        }
+        else if(this.isSwimIdling() && !this.isAnimationInProgress()) {
+            this.stopAnimation("SwimIdle");
+            swimIdleTimer=0;
+        }
+    }
+
+    public static final byte SHAKE_OFF=72;
+    @Override
+    public void handleEntityEvent(byte id) {
+        if (id == 38) {
+            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.HAPPY_VILLAGER, 0.01, 7, 0.2, 1, 1);
+        } else if(id==80) {
+            Primal_Util.Visuals.addParticlesAroundSelf(this, ParticleTypes.SPLASH, 0.01, 7, 0, 0.5, 1);
+        }
+        else if (id == 6) {
+            this.vomitsAnimationState.start(this.tickCount);
+        } else if (id == 4) {
+            this.attackAnimationState.start(this.tickCount);
+        } else if (id == SHAKE_OFF) {
+            this.shakeOffAnimationState.start(this.tickCount);
+        } else {
+            super.handleEntityEvent(id);
+        }
+    }
+
+    private void setupAnimationStates() {
+        this.idleAnimationState.animateWhen(!this.isBasking(), this.tickCount);
+        this.thrashingAnimationState.animateWhen(this.isThrashing(), this.tickCount);
+        this.transitionablePoseAnimationsSetupAnimationStates();
+    }
+
+    @Override
+    public Map<String, MobWithTransitionablePoseAnimations.TransitionablePoseAnimation> transitionableAnimations() {
+        return Map.of(
+                "Basking",
+                new MobWithTransitionablePoseAnimations.TransitionablePoseAnimation(this.isBasking(),
+                        Pose.CROAKING, LAST_POSE_CHANGE_TICK_BASK,
+                        startBaskingAnimationState, baskingAnimationState, stopBaskingAnimationState, 20),
+                "SwimIdle",
+                new MobWithTransitionablePoseAnimations.TransitionablePoseAnimation(this.isSwimIdling(),
+                        Pose.SNIFFING, LAST_POSE_CHANGE_TICK_SWIM_IDLE,
+                        startSwimIdleAnimationState, swimIdleAnimationState, stopSwimIdleAnimationState, 10));
+    }
+
+    private boolean isBasking() {
+        return this.hasPose(Pose.CROAKING);
+    }
+
+    private boolean isSwimIdling(){
+        return this.hasPose(Pose.SNIFFING);
+    }
+
+    public boolean isAnimationInProgress(){
+        return this.startSwimIdleAnimationState.isStarted() || this.stopSwimIdleAnimationState.isStarted();
+    }
+
+    //──────────────────────────────────── Misc ────────────────────────────────────
+    @Override
+    public int getMaxHeadXRot() {
+        return 25;
+    }
+
+    @Override
+    public int getMaxHeadYRot() {
+        return 10;
+    }
+
     @Override
     public int getMaxAirSupply() {
         return 4800;
@@ -781,10 +809,18 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
     }
 
     @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pose) {
-        if(this.isBaby())
-            return EntityDimensions.scalable(this.getType().getDimensions().width, 1.75f).scale(this.getScale());
-        return this.getType().getDimensions().scale(this.getScale());
+    public boolean shouldRiderSit() {
+        return false;
+    }
+
+    @Override
+    public boolean canRiderInteract() {
+        return true;
+    }
+
+    @Override
+    public @Nullable LivingEntity getControllingPassenger() {
+        return null;
     }
 
     @Override
@@ -808,7 +844,6 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
 //                && (MobSpawnType.ignoresLightRequirements(spawnType) || isBrightEnoughToSpawn(level, pos))
                 && isNearWater(level, pos, 5, 2);
     }
-
 
     @SuppressWarnings("all")
     protected static boolean isNearWater(LevelAccessor level, BlockPos pos, int lateralDistance, int verticalDistance) {
@@ -841,7 +876,6 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
         return false;
     }
 
-
     @Override
     public boolean isTargetingVillager() {
         return this.getTarget() instanceof Villager
@@ -851,7 +885,7 @@ public class CrocodileEntity extends Animal implements VariantHolder<CrocodileEn
                 || this.getFirstPassenger() instanceof Villager;
     }
 
-    //Just to being classified as neutral
+    //──────────────────────────────────── Neutral Behavior ────────────────────────────────────
     @Override
     public int getRemainingPersistentAngerTime() {return 0;}
 

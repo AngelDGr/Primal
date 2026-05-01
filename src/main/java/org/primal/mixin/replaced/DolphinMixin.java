@@ -6,17 +6,15 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Dolphin;
 import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
+import org.jetbrains.annotations.NotNull;
 import org.primal.entity.replaced.DolphinReplaced;
 import org.primal.registry.Primal_Tags;
-import org.primal.util.mob_types.ReplacedEntityNewVariantHolder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Dolphin.class)
-public abstract class DolphinMixin extends WaterAnimal implements ReplacedEntityNewVariantHolder<DolphinReplaced.Variant> {
+public abstract class DolphinMixin extends WaterAnimal implements VariantHolder<DolphinReplaced.Variant>, DolphinReplaced {
     protected DolphinMixin(EntityType<? extends WaterAnimal> entityType, Level level) {
         super(entityType, level);
     }
@@ -44,36 +42,52 @@ public abstract class DolphinMixin extends WaterAnimal implements ReplacedEntity
     @SuppressWarnings("unchecked")
     @Inject(method = "finalizeSpawn", at = @At("TAIL"))
     private void primal$dolphinFinalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, SpawnGroupData spawnGroupData, CompoundTag tag, CallbackInfoReturnable<SpawnGroupData> cir){
-        this.primal$setVariantFromBiome((ReplacedEntityNewVariantHolder<DolphinReplaced.Variant>) p$THIS, level.getBiome(this.blockPosition()));
+        this.primal$setVariantFromBiome((VariantHolder<DolphinReplaced.Variant>) p$THIS, level.getBiome(this.blockPosition()));
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
     public void primal$dolphinAddAdditionalSaveData(CompoundTag compound, CallbackInfo ci) {
-        compound.putInt("PrimalVariant", this.primal$getVariant().getId());
+        compound.putInt("PrimalVariant", this.getVariant().getId());
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
     public void primal$dolphinReadAdditionalSaveData(CompoundTag compound, CallbackInfo ci) {
-        this.primal$setVariant(DolphinReplaced.Variant.byId(compound.getInt("PrimalVariant")));
+        this.setVariant(DolphinReplaced.Variant.byId(compound.getInt("PrimalVariant")));
     }
 
-    @Override
-    public <M extends ReplacedEntityNewVariantHolder<DolphinReplaced.Variant>> void primal$setVariantFromBiome(M animal, Holder<Biome> holder) {
+    @Unique
+    public <M extends VariantHolder<DolphinReplaced.Variant>> void primal$setVariantFromBiome(M animal, Holder<Biome> holder) {
         if (holder.is(Primal_Tags.Biome.SPAWNS_DOLPHIN_WARM))
-            animal.primal$setVariant(DolphinReplaced.Variant.WARM);
+            animal.setVariant(DolphinReplaced.Variant.WARM);
         else if(holder.is(Primal_Tags.Biome.SPAWNS_DOLPHIN_COLD))
-            animal.primal$setVariant(DolphinReplaced.Variant.COLD);
+            animal.setVariant(DolphinReplaced.Variant.COLD);
         else
-            animal.primal$setVariant(DolphinReplaced.Variant.LUKEWARM);
+            animal.setVariant(DolphinReplaced.Variant.LUKEWARM);
     }
 
     @Override
-    public void primal$setVariant(DolphinReplaced.Variant variant) {
+    public void setVariant(DolphinReplaced.Variant variant) {
         this.entityData.set(PRIMAL$DATA_VARIANT_ID, variant.getId());
     }
 
     @Override
-    public DolphinReplaced.Variant primal$getVariant() {
+    public DolphinReplaced.@NotNull Variant getVariant() {
         return DolphinReplaced.Variant.byId(this.entityData.get(PRIMAL$DATA_VARIANT_ID));
+    }
+
+    //──────────────────────────────────── Animations ────────────────────────────────────
+    @Unique
+    public final AnimationState primal$idleAnimationState = new AnimationState();
+
+    @Override
+    public AnimationState primal$idleAnimationState() {
+        return primal$idleAnimationState;
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void primal$addAnimationIntoTick(CallbackInfo ci) {
+        if(this.level().isClientSide()) {
+            this.primal$idleAnimationState.animateWhen(true, this.tickCount);
+        }
     }
 }

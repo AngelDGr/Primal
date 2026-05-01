@@ -1,9 +1,7 @@
 package org.primal.mixin.replaced;
 
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.NeutralMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
@@ -19,6 +17,7 @@ import org.primal.entity.ai.controls.move.WaterOrLandMoveControl;
 import org.primal.entity.ai.goals.TryFindWaterSurfaceGoal;
 import org.primal.entity.animal.BearEntity;
 import org.primal.entity.animal.WalrusEntity;
+import org.primal.entity.replaced.PolarBearReplaced;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -26,11 +25,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import software.bernie.geckolib.animatable.GeoReplacedEntity;
-import software.bernie.geckolib.util.RenderUtils;
 
 @Mixin(PolarBear.class)
-public abstract class PolarBearMixin extends Animal implements NeutralMob {
+public abstract class PolarBearMixin extends Animal implements NeutralMob, PolarBearReplaced {
 
     @Shadow public abstract boolean isStanding();
 
@@ -76,16 +73,61 @@ public abstract class PolarBearMixin extends Animal implements NeutralMob {
         }
     }
 
-    @Inject(method = "tick", at = @At("TAIL"))
-    private void primal$triggerAttackAnimation(CallbackInfo ci){
-        //Client-side only
-        if (!this.level().isClientSide) return;
+    //──────────────────────────────────── Animations ────────────────────────────────────
+    @Unique
+    public final AnimationState primal$idleAnimationState = new AnimationState();
+    @Unique
+    public final AnimationState primal$attackAnimationState = new AnimationState();
 
-        //This triggers the animation directly from the replacing class
-        if(this.isStanding()){
-            if (RenderUtils.getReplacedAnimatable(this.getType()) instanceof GeoReplacedEntity replacedEntity){
-                replacedEntity.triggerAnim(p$THIS, "attack", "attack"+(this.isInWater()?"_swim": "") );
+    @Override
+    public AnimationState primal$idleAnimationState() {
+        return primal$idleAnimationState;
+    }
+
+    @Override
+    public AnimationState primal$attackAnimationState() {
+        return primal$attackAnimationState;
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    private void primal$addAnimationIntoTick(CallbackInfo ci) {
+        if(this.level().isClientSide()) {
+            this.primal$idleAnimationState.animateWhen(true, this.tickCount);
+        }
+        if(primal$standingCounter>0) primal$standingCounter--;
+    }
+
+    @Unique
+    public int primal$standingCounter = 0;
+
+    @Inject(method = "setStanding", at = @At("HEAD"))
+    private void primal$triggerAttackAnimation(boolean standing, CallbackInfo ci) {
+        if(standing && !this.level().isClientSide() && primal$standingCounter<=0){
+            if(this.isInWaterOrBubble()) primal$standingCounter=10;
+            else primal$standingCounter=20;
+
+            this.level().broadcastEntityEvent(this, (byte)4);
+        }
+    }
+
+    @Mixin(Animal.class)
+    public abstract static class TriggerAttackAnimation extends PathfinderMob {
+
+        protected TriggerAttackAnimation(EntityType<? extends PathfinderMob> entityType, Level level) {
+            super(entityType, level);
+        }
+
+        @Unique
+        Animal p$THIS = (Animal)(Object)this;
+
+        @Inject(method = "handleEntityEvent", at = @At("HEAD"))
+        private void primal$addTriggerAnimation(byte id, CallbackInfo ci) {
+            if(p$THIS instanceof PolarBearReplaced polarBear){
+                if (id == 4)
+                    polarBear.primal$attackAnimationState().start(this.tickCount);
             }
         }
     }
+
+
 }

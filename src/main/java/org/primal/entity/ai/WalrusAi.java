@@ -10,7 +10,6 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.*;
 import net.minecraft.world.entity.ai.behavior.declarative.BehaviorBuilder;
@@ -20,7 +19,6 @@ import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.entity.ai.behavior.generic.IdlePoseAnimationBehavior;
 import org.primal.entity.ai.behavior.generic.TryFindWaterSurface;
@@ -28,10 +26,7 @@ import org.primal.entity.ai.behavior.walrus.WalrusPlayInstrument;
 import org.primal.entity.ai.behavior.walrus.WalrusSlamAttack;
 import org.primal.entity.ai.behavior.walrus.WalrusSwimWhirlwindAttack;
 import org.primal.entity.animal.WalrusEntity;
-import org.primal.registry.Primal_Activities;
-import org.primal.registry.Primal_Entities;
-import org.primal.registry.Primal_MemoryModuleTypes;
-import org.primal.registry.Primal_Sensors;
+import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 
 import java.util.Optional;
@@ -88,7 +83,7 @@ public class WalrusAi {
     );
 
     public static Ingredient getTemptations() {
-        return Ingredient.of(Items.COD_BUCKET);
+        return Ingredient.of(Primal_Tags.Item.WALRUS_BREED_FOOD);
     }
 
     public static void initMemories(WalrusEntity walrus, RandomSource random) {
@@ -179,8 +174,8 @@ public class WalrusAi {
                                         )),
                                 1),
                         Pair.of(IdlePoseAnimationBehavior.create(
-                                        "lay",
-                                        Pose.CROAKING, 100, 400,
+                                        "Laying",
+                                        100, 400,
                                         mob -> IdlePoseAnimationBehavior.basicCanStart(mob) && !mob.isInWater() && mob.onGround() && !mob.hasInstrument(),
                                         200),
                                 1),

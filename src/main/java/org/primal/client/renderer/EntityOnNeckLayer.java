@@ -1,11 +1,11 @@
 package org.primal.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -16,20 +16,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.primal.client.renderer.entity.SnakeRenderer;
-import org.primal.entity.animal.SnakeEntity;
 import org.primal.injection.SetNeckEntity;
 import org.primal.registry.Primal_Entities;
+import org.primal.util.mob_types.EntityOnNeckRenderer;
 
 @OnlyIn(Dist.CLIENT)
 public class EntityOnNeckLayer<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
-    private final SnakeRenderer snakeRenderer;
 
-    public EntityOnNeckLayer(RenderLayerParent<T, PlayerModel<T>> renderer, EntityRendererProvider.Context context) {
+    public EntityOnNeckLayer(RenderLayerParent<T, PlayerModel<T>> renderer) {
         super(renderer);
-        this.snakeRenderer = new SnakeRenderer(context);
     }
 
+    @Override
     public void render(
             @NotNull PoseStack poseStack,
             @NotNull MultiBufferSource buffer,
@@ -46,6 +44,7 @@ public class EntityOnNeckLayer<T extends Player> extends RenderLayer<T, PlayerMo
     }
 
     Entity entity=null;
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void render(
             PoseStack poseStack,
             MultiBufferSource buffer,
@@ -62,13 +61,17 @@ public class EntityOnNeckLayer<T extends Player> extends RenderLayer<T, PlayerMo
                     if(entity==null)
                         this.entity = type.create(livingEntity.level());
 
-                    //Renders the entity
-                    if (entity instanceof SnakeEntity snake){
-                        snake.load(tag);
+                    Minecraft mc = Minecraft.getInstance();
+                    EntityRenderDispatcher dispatcher = mc.getEntityRenderDispatcher();
+                    EntityRenderer<?> renderer = dispatcher.getRenderer(entity);
 
-                        this.snakeRenderer.renderOnNeck(
+                    //Renders the entity
+                    if (renderer instanceof EntityOnNeckRenderer rendererOnNeck){
+                        entity.load(tag);
+
+                        rendererOnNeck.renderOnNeck(
                                 livingEntity,
-                                snake,
+                                entity,
                                 poseStack,
                                 buffer,
                                 packedLight,
@@ -79,10 +82,10 @@ public class EntityOnNeckLayer<T extends Player> extends RenderLayer<T, PlayerMo
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static void registerOnPlayer(EntityRenderDispatcher renderManager, EntityRendererProvider.Context rendererContext) {
+    public static void registerOnPlayer(EntityRenderDispatcher renderManager) {
         for (EntityRenderer<? extends Player> renderer : renderManager.getSkinMap().values())
             if(renderer instanceof PlayerRenderer playerRenderer){
-                EntityOnNeckLayer<?> layer = new EntityOnNeckLayer<>(playerRenderer, rendererContext);
+                EntityOnNeckLayer<?> layer = new EntityOnNeckLayer<>(playerRenderer);
                 playerRenderer.addLayer((EntityOnNeckLayer) layer);
             }
     }

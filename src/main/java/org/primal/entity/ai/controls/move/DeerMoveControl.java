@@ -81,8 +81,7 @@ public class DeerMoveControl extends MoveControl {
 
                     boolean isOneFenceWithSpaceAbove = state.is(BlockTags.FENCES) && aboveState.isAir() && aboveAboveState.isAir() && aboveAboveAboveState.isAir();
                     boolean isTwoBlocksWithAirAbove =
-                            !state.isAir()
-                            && !aboveState.isAir()
+                            !aboveState.isAir()
                             && aboveAboveState.isAir() && aboveAboveAboveState.isAir()
                             && aboveAboveAboveAboveState.isAir();
 

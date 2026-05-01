@@ -1,34 +1,34 @@
 package org.primal.client.renderer.entity.layer.snake;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
+import org.primal.client.model.entity.SnakeModel;
 import org.primal.entity.animal.SnakeEntity;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SnakePaintLayer extends GeoRenderLayer<SnakeEntity> {
-    public SnakePaintLayer(GeoRenderer<SnakeEntity> entityRendererIn) {
-        super(entityRendererIn);
+public class SnakePaintLayer<T extends SnakeEntity, M extends SnakeModel<T>> extends RenderLayer<T, M> {
+
+    public SnakePaintLayer(RenderLayerParent<T, M> renderer) {
+        super(renderer);
     }
 
     @Override
-    public void render(PoseStack poseStack, SnakeEntity animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        if (!animatable.isTame() || animatable.isInvisible() || !animatable.hasCollar()) return;
+    public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, @NotNull T entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (!entity.isTame() || entity.isInvisible() || !entity.hasCollar()) return;
 
         RenderType collarRenderType = RenderType.entityCutoutNoCull(
                 ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID,
-                        "textures/entity/snake/"+(animatable.isBaby()? "baby/": "")+ "marks" + ".png"));
+                        "textures/entity/snake/"+(entity.isBaby() && Primal_Main.COMMON_CONFIG.snakeBabyCustomModel.get()? "baby/": "")+ "marks" + ".png"));
 
-        float[] i = animatable.getCollarColor().getTextureDiffuseColors();
+        float[] i = entity.getCollarColor().getTextureDiffuseColors();
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY,
+        this.getParentModel().renderToBuffer(poseStack, bufferSource.getBuffer(collarRenderType), packedLight, OverlayTexture.NO_OVERLAY,
                 i[0],
                 i[1],
                 i[2],

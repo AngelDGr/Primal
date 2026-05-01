@@ -42,7 +42,6 @@ import net.minecraft.world.level.gameevent.*;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.entity.DeerAnimations;
 import org.primal.entity.ai.DeerAi;
 import org.primal.entity.ai.controls.look.DeerLookControl;
 import org.primal.entity.ai.controls.move.DeerMoveControl;
@@ -51,10 +50,6 @@ import org.primal.networking.DelayedTasks;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.DetectsFartherAway;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -95,7 +90,7 @@ import java.util.function.IntFunction;
 // It gives them the ability to levitate (switch new land & fly like an eagle), which will happen randomly and when it goes panicked.
 // They do not get new skin, but instead their textures will glow.
 // Gains a particle trail.
-public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Variant>, GeoEntity, DetectsFartherAway {
+public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Variant>, DetectsFartherAway {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -559,7 +554,7 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.APPLE);
+        return stack.is(Primal_Tags.Item.DEER_BREED_FOOD);
     }
 
     public static boolean isHealFood(@NotNull ItemStack stack){
@@ -610,18 +605,24 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
         DelayedTasks.runLater(1, this::discard);
     }
 
-    //──────────────────────────────────── GeckoLib & Visuals ────────────────────────────────────
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+
+    public final AnimationState eatAnimationState = new AnimationState();
+    public final AnimationState lookAnimationState = new AnimationState();
+
+    public final AnimationState jumpAnimationState = new AnimationState();
+
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(DeerAnimations.mainController(this));
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide()) {
+            setupAnimationStates();
+        }
     }
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
-
+    public static final byte EAT=4;
+    public static final byte LOOK=5;
     @Override
     public void handleEntityEvent(byte id) {
         if (id == 38){
@@ -633,9 +634,20 @@ public class DeerEntity extends Animal implements VariantHolder<DeerEntity.Varia
             Primal_Util.Visuals.addParticlesAroundSelf(this,
                     new BlockParticleOption(ParticleTypes.BLOCK, Blocks.BONE_BLOCK.defaultBlockState()),
                     0.02, 12, 0, 0.2, 1);
+        } else if(id==EAT){
+            this.eatAnimationState.start(this.tickCount);
+        } else if(id==LOOK){
+            this.lookAnimationState.start(this.tickCount);
         }
         else
             super.handleEntityEvent(id);
+    }
+
+    private void setupAnimationStates() {
+//        if(this.eatAnimationState.isStarted() && Primal_Util.isMoving(this)) eatAnimationState.stop();
+
+        this.jumpAnimationState.animateWhen(this.isJumping(), this.tickCount);
+        this.idleAnimationState.animateWhen(true, this.tickCount);
     }
 
     //──────────────────────────────────── Misc ────────────────────────────────────

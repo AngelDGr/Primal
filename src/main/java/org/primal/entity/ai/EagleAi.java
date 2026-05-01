@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.TimeUtil;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -19,12 +20,13 @@ import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.schedule.Activity;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import org.primal.block.NestBlock;
-import org.primal.entity.ai.behavior.eagle.*;
+import org.primal.entity.ai.behavior.eagle.EagleDetectHostile;
+import org.primal.entity.ai.behavior.eagle.EagleSnatch;
+import org.primal.entity.ai.behavior.eagle.EagleStartAttack;
 import org.primal.entity.ai.behavior.generic.*;
-import org.primal.entity.ai.behavior.generic.bird.*;
+import org.primal.entity.ai.behavior.generic.bird.BirdAvoidWhileAscending;
 import org.primal.entity.ai.behavior.generic.home.AnimalGoesToBlock;
 import org.primal.entity.ai.behavior.generic.home.AnimalRemoveHome;
 import org.primal.entity.ai.behavior.generic.home.AnimalReturnHome;
@@ -35,6 +37,7 @@ import org.primal.entity.animal.EagleEntity;
 import org.primal.injection.IsEagleTarget;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
+import org.primal.util.mob_types.PrimalBird;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,6 +62,7 @@ public class EagleAi {
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.GAZE_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
@@ -99,14 +103,11 @@ public class EagleAi {
 
             Primal_MemoryModuleTypes.ATTACKED_LIST.get(),
             Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(),
-
-            Primal_MemoryModuleTypes.REST_NEEDED.get(),
-            Primal_MemoryModuleTypes.RESTED_TIME.get(),
-            Primal_MemoryModuleTypes.LANDING_POS.get()
+            Primal_MemoryModuleTypes.WAS_TRIGGER_ANIMATION.get()
     );
 
     public static Ingredient getTemptations() {
-        return Ingredient.of(Items.RABBIT_STEW);
+        return Ingredient.of(Primal_Tags.Item.EAGLE_BREED_FOOD);
     }
 
     @SuppressWarnings("unused")
@@ -140,7 +141,7 @@ public class EagleAi {
                 ImmutableList.of(
                         new ConditionalSwim<>(0.8F, EagleEntity::isAffectedByFluids),
                         new LookAtTargetSink(45, 90),
-                        new MoveToTargetSinkButStopsQuickly()
+                        new MoveToTargetSink()
                 )
         );
     }
@@ -172,6 +173,7 @@ public class EagleAi {
                         SetEntityLookTargetSometimes.create(EntityType.PLAYER, 6.0F, UniformInt.of(30, 60)),
                         new FollowTemptation(livingEntity -> 1.0F, livingEntity -> livingEntity.isBaby() ? 2.5 : 3.5),
                         new AnimalWanderFromScared(5, 8, 5, 10, e->!e.isAggressive()),
+                        new ConditionalLookAround<>(UniformInt.of(150, 250), 30.0F, 0.0F, 0.0F, e->!e.isFlying() || e.isBaby()),
                         createIdleMovementBehaviors()
                 )
         );
@@ -184,10 +186,24 @@ public class EagleAi {
                 GateBehavior.OrderPolicy.ORDERED,
                 GateBehavior.RunningPolicy.TRY_ALL,
                 ImmutableList.of(
-                        Pair.of(BirdStrollFlyGetTired.create(1, 30, 35, 5, 10 ,Predicate.not(EagleEntity::isBaby), UniformInt.of(1, 3)), 1),
-                        Pair.of(BirdDescending.create(1, 12, Predicate.not(EagleEntity::isBaby), UniformInt.of(2, 5)), 1),
-                        Pair.of(BehaviorBuilder.triggerIf(Primal_Util.Ai::isBabyWithoutHome, RandomStroll.stroll(0.9F, true)), 1),
-                        Pair.of(new ConditionalDoNothing<>(20, 60, Predicate.not(EagleEntity::isFlying)), 1)
+                        Pair.of(BehaviorBuilder.triggerIf(PrimalBird::basicBirdCanFly, Primal_Util.Ai.fly(1f, 10, 15)), 1),
+
+                        Pair.of(StopAndTriggerAnimation.create(EagleEntity.LOOK_OUT, 41, m->!Primal_Util.isMoving(m) && !m.isFlying() && !m.isAggressive() && !m.isBaby(), TimeUtil.rangeOfSeconds(8, 20)), 1),
+
+                        Pair.of(new ConditionalDoNothing<>(20, 60,
+                                e-> {
+                                    if(e.isBaby())
+                                        return e.getBrain().getMemory(MemoryModuleType.HOME).isPresent();
+                                    else
+                                        return !e.level().getBlockState(e.getOnPos().below()).isAir() && !e.canContinueFlying();
+
+                                }), 1),
+
+                        Pair.of(BehaviorBuilder.triggerIf(e-> {
+                            if(Primal_Util.Ai.isBabyWithoutHome(e)) return true;
+
+                            return e.level().getBlockState(e.getOnPos().below()).isAir() && !e.canContinueFlying() && !e.canStartFlyingAgain();
+                        }, RandomStroll.stroll(0.9F, true)), 1)
                 ));
     }
 
@@ -251,7 +267,7 @@ public class EagleAi {
         brain.addActivity(
                 Primal_Activities.SIT.get(),
                 ImmutableList.of(
-                        Pair.of(0, new AnimalSitting())
+                        Pair.of(0, new AnimalSitting<>())
                 )
         );
     }

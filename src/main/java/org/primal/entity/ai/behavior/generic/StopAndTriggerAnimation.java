@@ -1,7 +1,6 @@
 package org.primal.entity.ai.behavior.generic;
 
 import com.google.common.collect.ImmutableMap;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.entity.Mob;
@@ -10,7 +9,6 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import org.jetbrains.annotations.NotNull;
 import org.primal.registry.Primal_MemoryModuleTypes;
-import org.primal.util.Primal_Util;
 
 import java.util.function.Predicate;
 
@@ -20,9 +18,9 @@ public class StopAndTriggerAnimation<T extends Mob> extends Behavior<T> {
     private final Predicate<T> canStillUse;
     private final int duration;
     private final UniformInt cooldown;
-    private final Pair<String, String> animation;
+    private final byte animationByte;
 
-    public StopAndTriggerAnimation(Pair<String, String> animation, int duration, Predicate<T> canStart, Predicate<T> canStillUse, UniformInt cooldown) {
+    public StopAndTriggerAnimation(int duration, Predicate<T> canStart, Predicate<T> canStillUse, UniformInt cooldown, byte animationByte) {
         super(ImmutableMap.of(
                 MemoryModuleType.AVOID_TARGET,
                 MemoryStatus.VALUE_ABSENT,
@@ -34,15 +32,11 @@ public class StopAndTriggerAnimation<T extends Mob> extends Behavior<T> {
         this.canStart=canStart;
         this.canStillUse=canStillUse;
         this.cooldown=cooldown;
-        this.animation=animation;
+        this.animationByte=animationByte;
     }
 
-    public static<T extends Mob> StopAndTriggerAnimation<T> create(String animation, int duration, Predicate<T> canStart, UniformInt cooldown){
-        return new  StopAndTriggerAnimation<>(Pair.of("base_controller", animation), duration, canStart, canStart, cooldown);
-    }
-
-    public static<T extends Mob> StopAndTriggerAnimation<T> create(String animation, int duration, Predicate<T> canStart, Predicate<T> canStillUse, UniformInt cooldown){
-        return new  StopAndTriggerAnimation<>(Pair.of("base_controller", animation), duration, canStart, canStillUse, cooldown);
+    public static<T extends Mob> StopAndTriggerAnimation<T> create(byte animationByte, int duration, Predicate<T> canStart, UniformInt cooldown){
+        return new StopAndTriggerAnimation<>(duration, canStart, canStart, cooldown, animationByte);
     }
 
     @Override
@@ -68,8 +62,9 @@ public class StopAndTriggerAnimation<T extends Mob> extends Behavior<T> {
         mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
         mob.getNavigation().stop();
         mob.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
-
-        Primal_Util.Visuals.emitAnimation(animation, mob);
+        if(this.animationByte!=(byte) -1){
+            mob.level().broadcastEntityEvent(mob, animationByte);
+        }
 
         this.endTimestamp = gameTime + (long) duration;
     }
@@ -77,8 +72,6 @@ public class StopAndTriggerAnimation<T extends Mob> extends Behavior<T> {
     @Override
     protected void stop(@NotNull ServerLevel level, @NotNull T mob, long gameTime) {
         mob.getBrain().setMemoryWithExpiry(Primal_MemoryModuleTypes.WAS_TRIGGER_ANIMATION.get(), true, mob.level().getRandom().nextIntBetweenInclusive(cooldown.getMinValue(), cooldown.getMaxValue()));
-        //Just in case
-        Primal_Util.Visuals.stopAnimation(animation, mob);
     }
 
     @Override

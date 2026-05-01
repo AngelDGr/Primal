@@ -53,7 +53,6 @@ import net.minecraftforge.entity.PartEntity;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.entity.SnakeAnimations;
 import org.primal.entity.ai.SnakeAi;
 import org.primal.entity.ai.controls.look.WaterOrLandLookControl;
 import org.primal.entity.ai.controls.move.SnakeMoveControl;
@@ -64,10 +63,6 @@ import org.primal.injection.SetNeckEntity;
 import org.primal.registry.*;
 import org.primal.util.Primal_Util;
 import org.primal.util.mob_types.*;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.Map;
 import java.util.UUID;
@@ -109,7 +104,7 @@ import java.util.stream.Collectors;
 // When bred, they will lay their eggs/have babies in their hidey-holes
 // Add sounds
 // Add natural spawn
-public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEntity.Variant>, GeoEntity, NeutralMob, PrimalTamable, SemiAquaticAnimal, DetectsFartherAway, AttackVillagers, HideOnLog, CustomFieldGuideState {
+public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEntity.Variant>, MobWithTransitionablePoseAnimations, NeutralMob, PrimalTamable, SemiAquaticAnimal, DetectsFartherAway, AttackVillagers, HideOnLog {
 
     //──────────────────────────────────── Variants ────────────────────────────────────
     public enum Variant implements StringRepresentable {
@@ -230,6 +225,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         return Mth.ceil((f - 8.0F) * f2);
     }
 
+    public static final EntityDataAccessor<Long> LAST_POSE_CHANGE_TICK_SLITHER = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.LONG);
     private static final EntityDataAccessor<Integer> DATA_VARIANT_ID = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_COLLAR_COLOR = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> HAS_COLLAR = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
@@ -243,11 +239,11 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     private static final EntityDataAccessor<Boolean> IS_DANCING = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_SHEDDING = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> SHEDDING_TIME = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Boolean> FIELDGUIDE_STATE = SynchedEntityData.defineId(SnakeEntity.class, EntityDataSerializers.BOOLEAN);
 
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
+        this.entityData.define(LAST_POSE_CHANGE_TICK_SLITHER, 0L);
         this.entityData.define(DATA_VARIANT_ID, SnakeEntity.Variant.NULL.id);
         this.entityData.define(DATA_COLLAR_COLOR, DyeColor.RED.getId());
         this.entityData.define(HAS_COLLAR, true);
@@ -261,7 +257,6 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         this.entityData.define(IS_DANCING, false);
         this.entityData.define(IS_SHEDDING, false);
         this.entityData.define(SHEDDING_TIME, 0);
-        this.entityData.define(FIELDGUIDE_STATE, false);
     }
 
     @Override
@@ -331,13 +326,12 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         //Transition animations
         //Standing -> Slithering
         if(getSnakeState().equals(SnakeState.STANDING) && state.equals(SnakeState.SLITHERING)){
-            this.stopTriggeredAnimation("base_controller", "slither_end");
-            this.triggerAnim("base_controller", "slither_start");
+            this.startAnimation("Slithering");
         }
         //Slithering -> Standing
         if(getSnakeState().equals(SnakeState.SLITHERING) && state.equals(SnakeState.STANDING)){
-            this.stopTriggeredAnimation("base_controller", "slither_start");
-            this.triggerAnim("base_controller", "slither_end");
+            if(!this.isInSittingPose())
+                this.stopAnimation("Slithering");
         }
 
         this.entityData.set(SNAKE_STATE, state.getSerializedName());
@@ -388,16 +382,6 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     @Override
-    public void setFieldGuideState(boolean state) {
-        this.entityData.set(FIELDGUIDE_STATE, state);
-    }
-
-    @Override
-    public boolean hasFieldGuideState() {
-        return this.entityData.get(FIELDGUIDE_STATE);
-    }
-
-    @Override
     public void onSyncedDataUpdated(@NotNull EntityDataAccessor<?> key) {
         if (SNAKE_STATE.equals(key) || FOLLOWER_STATE.equals(key)) this.refreshDimensions();
 
@@ -420,6 +404,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     @Override
     public void addAdditionalSaveData(@NotNull CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        this.addAdditionalSaveDataTransitionablePoseAnimations(compound);
         compound.putInt("Variant", this.getVariant().id);
         this.addAdditionalSaveDataTamable(compound);
         compound.putInt("SlitherCooldown", this.getSlitherCooldown());
@@ -436,6 +421,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        this.readAdditionalSaveDataTransitionablePoseAnimations(compound);
         this.setVariant(SnakeEntity.Variant.byId(compound.getInt("Variant")));
         this.readAdditionalSaveDataTamable(compound);
         this.setSlitherCooldown(compound.getInt("SlitherCooldown"));
@@ -452,8 +438,8 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     //──────────────────────────────────── Multipart ────────────────────────────────────
     @Override
     public boolean isMultipartEntity() {
-        //To be added to correctly to the level
-        if(this.tickCount==0) return true;
+        //To be added and removed to correctly to the level
+        if(this.tickCount==0 || this.getRemovalReason()!=null) return true;
 
         return isSlithering() && !this.isBaby();
     }
@@ -503,12 +489,6 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     @Override
-    public void tick() {
-        super.tick();
-        for(SnakePart part: this.parts.getSubEntities()) part.tick();
-    }
-
-    @Override
     protected void pushEntities() {
         if(!this.isSlithering() && !this.isBaby() && !this.isSitting())
             super.pushEntities();
@@ -550,7 +530,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         //Trigger flick
         if(getFlickCooldown()==0){
             if(!this.isDancing())
-                this.triggerAnim("misc", "flick");
+                this.level().broadcastEntityEvent(this, FLICK);
             this.setFlickCooldown(
                     this.getRandom().nextIntBetweenInclusive(60, 200)
             );
@@ -678,7 +658,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
     public boolean refuseToMove() {
 //        return ImmutableList.of(Pose.ROARING, Pose.SNIFFING, Pose.CROAKING).contains(this.getPose());
-        return false;
+        return this.isOnPoseTransition();
     }
 
     @Override
@@ -731,9 +711,9 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
         //Pass to the sensor to handle tamed logic
         if(this.isTame())
-            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target);
+            return super.canAttack(target) && Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.SNAKE_NEVER_ATTACK);
 
-        return Primal_Util.isNotNeverAttack(target)
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.SNAKE_NEVER_ATTACK)
                 //Hunts regularly
                 && (target.getType().is(Primal_Tags.Entity.SNAKE_HUNTABLE) && !this.getBrain().hasMemoryValue(MemoryModuleType.HAS_HUNTING_COOLDOWN)
                 //It is the nearest cautious attackable
@@ -743,7 +723,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     public boolean canBeCautious(@NotNull LivingEntity target){
-        return Primal_Util.isNotNeverAttack(target)
+        return Primal_Util.isNotNeverAttack(target, Primal_Tags.Entity.SNAKE_NEVER_ATTACK)
                 && this.distanceTo(target) < SnakeEntity.TERRITORIAL_DISTANCE
                 && !(target instanceof SnakeEntity)
                 //Not be cautious of owner
@@ -860,7 +840,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
 
         //Set shedding
         if(stackInHand.is(Primal_Tags.Item.SNAKE_EDIBLE_EGGS) && !this.isShedding() && this.isTame() && this.isOwnedBy(player)){
-            this.triggerAnim("misc", "eat");
+            this.level().broadcastEntityEvent(this, EAT);
             stackInHand.shrink(1);
             this.level().playSound(null, this, this.getEatingSound(), this.getSoundSource(), 1.0F, 1.0F);
             this.setIsShedding(true);
@@ -961,7 +941,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     public static boolean isMatingFood(@NotNull ItemStack stack){
-        return stack.is(Items.FERMENTED_SPIDER_EYE);
+        return stack.is(Primal_Tags.Item.SNAKE_BREED_FOOD);
     }
 
     @Override
@@ -1003,21 +983,36 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
         this.setSheddingTime(0);
     }
 
-    //──────────────────────────────────── GeckoLib & Visuals ────────────────────────────────────
+    //──────────────────────────────────── Visuals ────────────────────────────────────
+    public final AnimationState idleAnimationState = new AnimationState();
+    public final AnimationState attackAnimationState = new AnimationState();
+    public final AnimationState sittingAnimationState = new AnimationState();
+    public final AnimationState flickAnimationState = new AnimationState();
+    public final AnimationState eatAnimationState = new AnimationState();
+
+    public final AnimationState swimAnimationState = new AnimationState();
+
+    public final AnimationState danceAnimationState = new AnimationState();
+
+    public final AnimationState startSlitherAnimationState = new AnimationState();
+    public final AnimationState slitherAnimationState = new AnimationState();
+    public final AnimationState stopSlitherAnimationState = new AnimationState();
+
+    public final AnimationState wrappedAnimationState = new AnimationState();
+
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(
-                SnakeAnimations.mainController(this),
-                SnakeAnimations.attackController(this),
-                SnakeAnimations.miscController(this));
+    public void tick() {
+        super.tick();
+        if (this.level().isClientSide()) {
+            setupAnimationStates();
+        }
+
+        for(SnakePart part: this.parts.getSubEntities()) part.tick();
     }
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
-
+    public static final byte ATTACK=4;
+    public static final byte FLICK=5;
+    public static final byte EAT=72;
     @Override
     public void handleEntityEvent(byte id) {
         if (id == 13)
@@ -1038,17 +1033,40 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
                     0.1,
                     this.isSlithering()? 0.8f: 0.1f,
                     this.isSlithering()? 0.8f: 0.1f);
-        else
+        else if (id == ATTACK) {
+            this.attackAnimationState.start(this.tickCount);
+        } else if(id == FLICK) {
+            this.flickAnimationState.start(this.tickCount);
+        } else if(id == EAT) {
+            this.eatAnimationState.start(this.tickCount);
+        } else {
             super.handleEntityEvent(id);
+        }
+    }
+
+    private void setupAnimationStates() {
+        this.danceAnimationState.animateWhen(this.isDancing(), this.tickCount);
+        this.sittingAnimationState.animateWhen(this.isInSittingPose() && !this.isDancing(), this.tickCount);
+        this.swimAnimationState.animateWhen(this.isInWaterOrBubble(), this.tickCount);
+        this.transitionablePoseAnimationsSetupAnimationStates();
+        this.idleAnimationState.animateWhen(!this.isSlithering() && !this.sittingAnimationState.isStarted() && !this.danceAnimationState.isStarted(), this.tickCount);
+    }
+
+    @Override
+    public Map<String, TransitionablePoseAnimation> transitionableAnimations() {
+        return Map.of(
+                "Slithering",
+                new TransitionablePoseAnimation(this.isSlithering(),
+                        Pose.USING_TONGUE, LAST_POSE_CHANGE_TICK_SLITHER,
+                        startSlitherAnimationState, slitherAnimationState, stopSlitherAnimationState, 5));
     }
 
     @Override
     public void swing(@NotNull InteractionHand hand) {
-        //Just in case
-        this.stopTriggeredAnimation("attack", "flick");
-
-        this.triggerAnim("attack", "bite_"+this.getSnakeState().name);
         super.swing(hand);
+        //Just in case
+        this.flickAnimationState.stop();
+        this.level().broadcastEntityEvent(this, ATTACK);
     }
 
     //──────────────────────────────────── Misc ────────────────────────────────────
@@ -1171,7 +1189,7 @@ public class SnakeEntity extends TamableAnimal implements VariantHolder<SnakeEnt
     }
 
     public boolean playEatingSound(){
-        this.triggerAnim("misc", "eat");
+        this.level().broadcastEntityEvent(this, EAT);
         //Play the sound
         if (!this.isSilent()) {
             SoundEvent soundEvent = this.getEatingSound();

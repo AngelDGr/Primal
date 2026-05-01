@@ -12,8 +12,4 @@ public interface AnimalRoars {
     default boolean canRoarAtEntity(LivingEntity target){
         return true;
     }
-
-    default boolean hasCustomWaterRoar(){
-        return false;
-    }
 }

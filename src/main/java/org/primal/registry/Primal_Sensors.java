@@ -24,6 +24,7 @@ import org.primal.Primal_Registries;
 
 import org.primal.entity.ai.*;
 import org.primal.entity.ai.sensors.*;
+import org.primal.entity.ai.sensors.crocodile.CrocodileNearestImportantBlockSensor;
 import org.primal.entity.ai.sensors.generic.*;
 import org.primal.entity.ai.sensors.bear.*;
 import org.primal.entity.ai.sensors.eagle.*;
@@ -44,13 +45,9 @@ public final class Primal_Sensors {
             Primal_Registries.SENSOR_TYPES.register("bear_entity_sensor",
                     () -> new SensorType<>(BearEntitySensor::new));
 
-    public static RegistryObject<SensorType<BearNearestBeehiveSensor>> BEAR_NEAREST_BEEHIVE_SENSOR =
-            Primal_Registries.SENSOR_TYPES.register("bear_nearest_beehive_sensor",
-                    () -> new SensorType<>(BearNearestBeehiveSensor::new));
-
-    public static RegistryObject<SensorType<BearNearestSweetBerryBushSensor>> BEAR_NEAREST_SWEET_BERRY_BUSH_SENSOR =
-            Primal_Registries.SENSOR_TYPES.register("bear_nearest_sweet_berry_bush_sensor",
-                    () -> new SensorType<>(BearNearestSweetBerryBushSensor::new));
+    public static RegistryObject<SensorType<BearNearestImportantBlock>> BEAR_NEAREST_RAIDABLE_BLOCK_SENSOR =
+            Primal_Registries.SENSOR_TYPES.register("bear_nearest_raidable_block_sensor",
+                    () -> new SensorType<>(BearNearestImportantBlock::new));
 
     public static final RegistryObject<SensorType<TemptingSensor>> BEAR_TEMPTATIONS_SENSOR =
             Primal_Registries.SENSOR_TYPES.register("bear_temptations",
@@ -78,13 +75,9 @@ public final class Primal_Sensors {
             Primal_Registries.SENSOR_TYPES.register("crocodile_temptations",
                     () -> new SensorType<>(() -> new TemptingSensor(CrocodileAi.getTemptations())));
 
-    public static RegistryObject<SensorType<NearestSpecificBlockSensor<CrocodileEntity>>> CROCODILE_NEAREST_EGG =
-            Primal_Registries.SENSOR_TYPES.register("crocodile_near_egg",
-                    () -> new SensorType<>(()-> new NearestSpecificBlockSensor<>(Primal_Blocks.CROCODILE_EGG.get(), 24, 3)));
-
-    public static RegistryObject<SensorType<NearestSpecificBlockSensor<CrocodileEntity>>> CROCODILE_NEAREST_REED =
-            Primal_Registries.SENSOR_TYPES.register("crocodile_near_reed",
-                    () -> new SensorType<>(()-> new NearestSpecificBlockSensor<>(Primal_Tags.Block.CROCODILE_ATTRACTORS, 24, 3)));
+    public static RegistryObject<SensorType<CrocodileNearestImportantBlockSensor>> CROCODILE_NEAREST_IMPORTANT_BLOCK =
+            Primal_Registries.SENSOR_TYPES.register("crocodile_nearest_important_block",
+                    () -> new SensorType<>(CrocodileNearestImportantBlockSensor::new));
 
     //Eagle
     public static RegistryObject<SensorType<EagleEntitySensor>> EAGLE_ENTITY_SENSOR =

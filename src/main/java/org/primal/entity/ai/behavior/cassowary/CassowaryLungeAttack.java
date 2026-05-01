@@ -2,12 +2,10 @@ package org.primal.entity.ai.behavior.cassowary;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.behavior.Behavior;
 import net.minecraft.world.entity.ai.behavior.EntityTracker;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
-import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.primal.entity.animal.CassowaryEntity;
@@ -31,19 +29,24 @@ public class CassowaryLungeAttack extends Behavior<CassowaryEntity> {
 
     @Override
     protected boolean checkExtraStartConditions(@NotNull ServerLevel level, @NotNull CassowaryEntity cassowary) {
-        LivingEntity target = cassowary.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
-        NearestVisibleLivingEntities nearestVisibleLivingEntities = cassowary.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).get();
-        return cassowary.isWithinLungeAttackRange(target)
-                && nearestVisibleLivingEntities.contains(target)
-                && cassowary.isSeeingTarget(target)
+        var target = cassowary.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
+        var nearestVisibleLivingEntities = cassowary.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES);
+        return target.isPresent() && nearestVisibleLivingEntities.isPresent() &&
+                cassowary.isWithinLungeAttackRange(target.get())
+                && nearestVisibleLivingEntities.get().contains(target.get())
+                && cassowary.isSeeingTarget(target.get())
                 && cassowary.onGround();
     }
 
     @Override
     protected void start(@NotNull ServerLevel level, CassowaryEntity cassowary, long gameTime) {
-        LivingEntity target = cassowary.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).get();
+        var target = cassowary.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET);
+        if(target.isEmpty()){
+            stop(level, cassowary, gameTime);
+            return;
+        }
 
-        cassowary.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(target, true));
+        cassowary.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, new EntityTracker(target.get(), true));
 
         Vec3 lookVec = cassowary.getLookAngle();
 
@@ -58,7 +61,8 @@ public class CassowaryLungeAttack extends Behavior<CassowaryEntity> {
 
         if(cassowary.getLungeSound()!=null)
             cassowary.playSound(cassowary.getLungeSound(), 1.0f, 1.0f);
-        cassowary.triggerAnim("base_controller", "attack");
+
+        cassowary.startAnimation("Attacking");
 
         stop(level, cassowary, gameTime);
     }

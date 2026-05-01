@@ -106,12 +106,26 @@ public class EagleMoveControl extends MoveControl {
 
                 float pitch = (float)(-Mth.atan2(velocity.y, Math.sqrt(velocity.x * velocity.x + velocity.z * velocity.z)) * (180F / Math.PI));
                 this.mob.setXRot(this.rotlerp(this.mob.getXRot(), pitch, 90));
-//                if(this.eagle.isFlying())
-//                    this.mob.getLookControl().setLookAt(target);
+
             } else {
                 // Light damping when idle
                 Vec3 v = this.mob.getDeltaMovement().scale(DAMPING);
                 this.mob.setDeltaMovement(v);
+                Vec3 vec3 = this.mob.getDeltaMovement();
+                if (!this.mob.onGround() && vec3.y < 0.0) {
+                    this.mob.setDeltaMovement(vec3.multiply(1.0, 0.8, 1.0));
+                }
+
+                Vec3 velocity = this.mob.getDeltaMovement();
+                if (this.eagle.isFlying() && velocity.lengthSqr() > 1.0E-4) {
+                    Vec3 dir = velocity.normalize();
+
+                    dir = new Vec3(dir.x, dir.y * 0.1, dir.z).normalize();
+
+                    Vec3 lookTarget = this.mob.position().add(dir.scale(4.0));
+                    this.mob.getLookControl().setLookAt( lookTarget);
+                }
+
                 this.mob.setNoGravity(false);
             }
         }

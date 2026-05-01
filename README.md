@@ -3,11 +3,6 @@
 </div>
 
 * * *
-<div align="center">
-  <a href="https://modrinth.com/mod/geckolib" target="_blank" rel="nofollow noopener noreferrer"><img src="https://i.imgur.com/Kyx7Y6Y.png" alt="Geckolib" width="305" height="190" /></a>
-  </div>
-
-* * *
 
 # Introduction
 <div style="text-align: center;">

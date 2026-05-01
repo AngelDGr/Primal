@@ -1,41 +1,34 @@
 package org.primal.client.renderer.entity.layer.wolf;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.Wolf;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.primal.Primal_Main;
-import org.primal.entity.replaced.WolfReplaced;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import org.primal.client.model.entity.replaced.WolfModel;
+import org.primal.client.renderer.replaced.WolfRenderer;
 
-public class WolfCollarLayer extends GeoRenderLayer<WolfReplaced> {
+public class WolfCollarLayer<T extends Wolf, M extends WolfModel<T>> extends RenderLayer<T, M> {
 
-    private final GeoReplacedEntityRenderer<Wolf, WolfReplaced> renderer;
-    public WolfCollarLayer(GeoReplacedEntityRenderer<Wolf, WolfReplaced> entityRendererIn) {
-        super(entityRendererIn);
-        this.renderer=entityRendererIn;
+    public WolfCollarLayer(RenderLayerParent<T, M> renderer) {
+        super(renderer);
     }
 
     @Override
-    public void render(PoseStack poseStack, WolfReplaced animatable, BakedGeoModel bakedModel, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        Wolf wolf = renderer.getCurrentEntity();
+    public void render(@NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight, @NotNull T livingEntity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (!livingEntity.isTame()) return;
 
-        if (!wolf.isTame()) return;
-
-//        RenderType collarRenderType = RenderType.entityCutoutNoCull(
-//                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/collar"+ WolfRenderer.addSlimSuffix(wolf.getVariant())+ ".png"));
         RenderType collarRenderType = RenderType.entityCutoutNoCull(
-                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/collar.png"));
+                ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/wolf/collar"+ WolfRenderer.addSlimSuffix(livingEntity)+ ".png"));
 
-        float[] i = wolf.getCollarColor().getTextureDiffuseColors();
+        float[] i = livingEntity.getCollarColor().getTextureDiffuseColors();
 
-        this.getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, collarRenderType, bufferSource.getBuffer(collarRenderType), partialTick, packedLight, OverlayTexture.NO_OVERLAY,
+        this.getParentModel().renderToBuffer(poseStack, bufferSource.getBuffer(collarRenderType), packedLight, OverlayTexture.NO_OVERLAY,
                 i[0],
                 i[1],
                 i[2],

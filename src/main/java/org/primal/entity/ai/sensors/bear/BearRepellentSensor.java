@@ -13,18 +13,26 @@ import java.util.Optional;
 import java.util.Set;
 
 public class BearRepellentSensor extends Sensor<LivingEntity> {
+
+    public BearRepellentSensor(){
+        super(20);
+    }
+
     @Override
     public @NotNull Set<MemoryModuleType<?>> requires() {
         return ImmutableSet.of(MemoryModuleType.NEAREST_REPELLENT);
     }
 
-    protected void doTick(@NotNull ServerLevel level, LivingEntity entity) {
-
-        entity.getBrain()
-                .setMemory(MemoryModuleType.NEAREST_REPELLENT, findNearestRepellent(level, entity));
+    @Override
+    protected void doTick(@NotNull ServerLevel level, @NotNull LivingEntity entity) {
+        entity.getBrain().setMemory(MemoryModuleType.NEAREST_REPELLENT, findNearestRepellent(level, entity));
     }
 
-    public static Optional<BlockPos> findNearestRepellent(ServerLevel level, LivingEntity bear) {
-        return BlockPos.findClosestMatch(bear.blockPosition(), 8, 4, pos -> level.getBlockState(pos).is(Primal_Tags.Block.BEAR_REPELLENTS));
+    public boolean isRepellent(@NotNull ServerLevel level, BlockPos blockPos){
+        return level.getBlockState(blockPos).is(Primal_Tags.Block.BEAR_REPELLENTS);
+    }
+
+    public Optional<BlockPos> findNearestRepellent(ServerLevel level, @NotNull LivingEntity bear) {
+        return BlockPos.findClosestMatch(bear.blockPosition(), 8, 4, pos -> isRepellent(level, pos));
     }
 }

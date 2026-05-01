@@ -32,7 +32,18 @@ public final class Primal_Tags {
         public static final TagKey<EntityType<?>> DEER_VERY_SCARED = createTag(Registries.ENTITY_TYPE, "deer_very_scared");
 
         public static final TagKey<EntityType<?>> NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "never_attack");
+
+        //──────────────────────────────────── Never Attack ────────────────────────────────────
+        public static final TagKey<EntityType<?>> BEAR_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "bear_never_attack");
         public static final TagKey<EntityType<?>> CROCODILE_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "crocodile_never_attack");
+        public static final TagKey<EntityType<?>> EAGLE_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "eagle_never_attack");
+        public static final TagKey<EntityType<?>> SHARK_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "shark_never_attack");
+
+        public static final TagKey<EntityType<?>> CASSOWARY_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "cassowary_never_attack");
+        public static final TagKey<EntityType<?>> WALRUS_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "walrus_never_attack");
+        public static final TagKey<EntityType<?>> LION_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "lion_never_attack");
+        public static final TagKey<EntityType<?>> SNAKE_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "snake_never_attack");
+//        public static final TagKey<EntityType<?>> DEER_NEVER_ATTACK = createTag(Registries.ENTITY_TYPE, "deer_never_attack");
     }
 
     public static class Block {
@@ -85,6 +96,18 @@ public final class Primal_Tags {
 
         public static final TagKey<net.minecraft.world.item.Item> DEER_ANTLERS = createTag(Registries.ITEM, "deer_antlers");
         public static final TagKey<net.minecraft.world.item.Item> HELMET_ATTACHMENTS = createTag(Registries.ITEM, "helmet_attachments");
+
+        //──────────────────────────────────── Breed Food ────────────────────────────────────
+        public static final TagKey<net.minecraft.world.item.Item> BEAR_BREED_FOOD = createTag(Registries.ITEM, "bear_breed_food");
+        public static final TagKey<net.minecraft.world.item.Item> CROCODILE_BREED_FOOD = createTag(Registries.ITEM, "crocodile_breed_food");
+        public static final TagKey<net.minecraft.world.item.Item> EAGLE_BREED_FOOD = createTag(Registries.ITEM, "eagle_breed_food");
+//        public static final TagKey<net.minecraft.world.item.Item> SHARK_BREED_FOOD = createTag(Registries.ITEM, "shark_breed_food");
+
+        public static final TagKey<net.minecraft.world.item.Item> CASSOWARY_BREED_FOOD = createTag(Registries.ITEM, "cassowary_breed_food");
+        public static final TagKey<net.minecraft.world.item.Item> WALRUS_BREED_FOOD = createTag(Registries.ITEM, "walrus_breed_food");
+        public static final TagKey<net.minecraft.world.item.Item> LION_BREED_FOOD = createTag(Registries.ITEM, "lion_breed_food");
+        public static final TagKey<net.minecraft.world.item.Item> SNAKE_BREED_FOOD = createTag(Registries.ITEM, "snake_breed_food");
+        public static final TagKey<net.minecraft.world.item.Item> DEER_BREED_FOOD = createTag(Registries.ITEM, "deer_breed_food");
     }
 
     public static class Biome {

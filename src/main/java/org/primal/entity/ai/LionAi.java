@@ -51,6 +51,7 @@ public class LionAi {
             MemoryModuleType.NEAREST_LIVING_ENTITIES,
             MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.LOOK_TARGET,
+            MemoryModuleType.GAZE_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE,
             MemoryModuleType.PATH,
@@ -183,16 +184,16 @@ public class LionAi {
                         Pair.of(BehaviorBuilder.triggerIf(Predicate.not(LionEntity::refuseToMove), RandomStroll.stroll(1f)), 2),
                         //For maneless lions
                         Pair.of(IdlePoseAnimationBehavior.create(
-                                        "lay",
-                                        Pose.SITTING, 80, 200,
+                                        "Laying",
+                                        80, 200,
                                         l ->
                                                 l.isManeless() && canLay(l),
                                         300),
                                 2),
                         //For maned lions
                         Pair.of(IdlePoseAnimationBehavior.create(
-                                        "lay",
-                                        Pose.SITTING, 200, 500,
+                                        "Laying",
+                                        200, 500,
                                         l ->
                                                 !l.isManeless() && canLay(l),
                                         150),
@@ -245,14 +246,14 @@ public class LionAi {
                         new AnimalRoar<>(6f,
                                 l-> AnimalRoar.setAttackTargetAndNearby(l, LionEntity.class,
                                         ll->{
-                                    if(l.isTame()){
-                                        //Tamed lions only command if is adult and maneless and has the same owner
-                                        return ll!=l && ll.getOwner()==l.getOwner() && (!ll.isBaby() && ll.isManeless());
-                                    } else {
-                                        //Wild only command adults, maneless untamed lions
-                                        return ll!=l && !ll.isTame() && (!ll.isBaby() && ll.isManeless());
-                                    }
-                                        }),
+                                            if(l.isTame()){
+                                                //Tamed lions only command if is adult and maneless and has the same owner
+                                                return ll!=l && ll.getOwner()==l.getOwner() && (!ll.isBaby() && ll.isManeless());
+                                            } else {
+                                                //Wild only command adults, maneless untamed lions
+                                                return ll!=l && !ll.isTame() && (!ll.isBaby() && ll.isManeless());
+                                            }
+                                                }),
                                 100)
                 ),
                 MemoryModuleType.ROAR_TARGET);
@@ -300,7 +301,7 @@ public class LionAi {
         brain.addActivity(
                 Primal_Activities.SIT.get(),
                 ImmutableList.of(
-                        Pair.of(0, new AnimalSitting("lay"))
+                        Pair.of(0, new AnimalSitting<>("Laying", LionEntity::isLayingPose))
                 )
         );
     }
@@ -310,8 +311,7 @@ public class LionAi {
         Brain<LionEntity> brain = lion.getBrain();
 
         //Is angry per 30s
-        if(brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent())
-            brain.setMemoryWithExpiry(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), brain.getMemory(MemoryModuleType.ATTACK_TARGET).get(), 600);
+        if(brain.getMemory(MemoryModuleType.ATTACK_TARGET).isPresent()) brain.setMemoryWithExpiry(Primal_MemoryModuleTypes.LAST_ATTACK_TARGET.get(), brain.getMemory(MemoryModuleType.ATTACK_TARGET).get(), 600);
 
         if(!brain.isActive(Primal_Activities.STALK.get()) && brain.getMemory(Primal_MemoryModuleTypes.STALK_TARGET.get()).isEmpty() && lion.hasPose(Pose.CROUCHING))
             lion.setPose(Pose.STANDING);

@@ -17,7 +17,6 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import org.primal.util.mob_types.AnimalRoars;
 import org.primal.util.Primal_Util;
-import software.bernie.geckolib.animatable.GeoEntity;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -35,7 +34,7 @@ public final class AnimalRoar<T extends Mob & AnimalRoars> extends Behavior<T> {
                 MemoryStatus.VALUE_PRESENT,
                 MemoryModuleType.ATTACK_TARGET,
                 MemoryStatus.VALUE_ABSENT),
-                45);
+                41);
         this.roarVolume=roarVolume;
         this.atStop=atStop;
         this.roarCooldown=roarCooldown;
@@ -59,15 +58,7 @@ public final class AnimalRoar<T extends Mob & AnimalRoars> extends Behavior<T> {
             mob.setPose(Pose.ROARING);
 
             if(mob.getRoarSound()!=null) mob.playSound(mob.getRoarSound(), roarVolume, 1);
-
-            if(mob instanceof GeoEntity geo)
-                geo.triggerAnim("base_controller", "roar"+(mob.isInWater() && mob.hasCustomWaterRoar()? "_swim": "") );
         }
-    }
-
-    @Override
-    protected void tick(@NotNull ServerLevel level, T mob, long gameTime) {
-        mob.setPose(Pose.ROARING);
     }
 
     @Override
@@ -79,14 +70,6 @@ public final class AnimalRoar<T extends Mob & AnimalRoars> extends Behavior<T> {
         mob.getBrain().eraseMemory(MemoryModuleType.ROAR_TARGET);
 
         if(!mob.getBrain().hasMemoryValue(MemoryModuleType.ROAR_SOUND_COOLDOWN)) mob.getBrain().setMemoryWithExpiry(MemoryModuleType.ROAR_SOUND_COOLDOWN, Unit.INSTANCE, roarCooldown);
-        if(mob instanceof GeoEntity geo)
-            geo.stopTriggeredAnimation("base_controller", "roar"+(mob.isInWater() && mob.hasCustomWaterRoar()? "_swim": "") );
-    }
-
-    private void stopMoving(T mob){
-        mob.getBrain().eraseMemory(MemoryModuleType.WALK_TARGET);
-        mob.getNavigation().stop();
-        mob.getBrain().eraseMemory(MemoryModuleType.LOOK_TARGET);
     }
 
     public static<T extends Mob & AnimalRoars> void setAttackTarget(T mob){

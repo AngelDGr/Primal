@@ -9,10 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LightningBolt;
-import net.minecraft.world.entity.RelativeMovement;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.Dolphin;
 import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -131,8 +128,8 @@ public abstract class EntityMixin {
     @ModifyReturnValue(method = "getTypeName", at = @At("TAIL"))
     private Component primal$setCustomVariantName(Component original) {
         if(p$THIS instanceof Dolphin && Primal_Main.COMMON_CONFIG.dolphinModelChange.get()){
-             return primal$getCustomVariantName(
-                     (Dolphin & ReplacedEntityNewVariantHolder<DolphinReplaced.Variant>) p$THIS,
+             return primal$getCustomVariantNameV(
+                     (Dolphin & VariantHolder<DolphinReplaced.Variant>) p$THIS,
                      original,
                      DolphinReplaced.Variant.COLD);
         }
@@ -146,6 +143,25 @@ public abstract class EntityMixin {
         }
 
         return original;
+    }
+
+    @Unique
+    @SafeVarargs
+    private static<T extends StringRepresentable, E extends Entity & VariantHolder<T>> Component primal$getCustomVariantNameV(E entity,
+                                                                                                                              Component defaultName,
+                                                                                                                              T... variants){
+        if(entity.hasCustomName()) return defaultName;
+
+        var location = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+
+        for(T variant : variants){
+            if(entity.getVariant().equals(variant)){
+                //entity.primal.bear.[variant]
+                return Component.translatable("entity."+location.getNamespace()+ "."+ location.getPath() +"."+variant.getSerializedName());
+            }
+        }
+
+        return defaultName;
     }
 
     /**

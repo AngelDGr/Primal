@@ -3,19 +3,20 @@ package org.primal.client.renderer.replaced;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.animal.PolarBear;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.NotNull;
-import org.primal.client.model.replaced.PolarBearModel;
-import org.primal.entity.replaced.PolarBearReplaced;
-import org.primal.util.Primal_Util;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoReplacedEntityRenderer;
+import org.primal.Primal_Main;
+import org.primal.client.model.entity.replaced.PolarBearModel;
 
-public class PolarBearRenderer extends GeoReplacedEntityRenderer<PolarBear, PolarBearReplaced> {
+@OnlyIn(Dist.CLIENT)
+public class PolarBearRenderer extends MobRenderer<PolarBear, PolarBearModel<PolarBear>> {
 
-    public PolarBearRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new PolarBearModel(), new PolarBearReplaced());
-        shadowRadius=1.0F;
+    public PolarBearRenderer(EntityRendererProvider.Context context) {
+        super(context, new PolarBearModel<>(context.bakeLayer(PolarBearModel.LAYER_LOCATION)), 1.0F);
     }
 
     @Override
@@ -25,23 +26,7 @@ public class PolarBearRenderer extends GeoReplacedEntityRenderer<PolarBear, Pola
     }
 
     @Override
-    public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, PolarBearReplaced animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        var bone = model.getBone("head");
-
-        float headScale = this.currentEntity.isBaby() ? 2.f : 1.f;
-        bone.ifPresent(geoBone ->
-                geoBone.updateScale(headScale, headScale, headScale));
-        if (this.currentEntity.isBaby()) {
-            widthScale = heightScale = .5f;
-        }
-        super.scaleModelForRender(widthScale, heightScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
-    }
-
-    @Override
-    protected void applyRotations(PolarBearReplaced animatable, PoseStack poseStack, float ageInTicks, float rotationYaw, float partialTick) {
-        if(this.currentEntity.isInWater())
-            Primal_Util.Visuals.bodyFullRotations(this.currentEntity, partialTick, poseStack);
-        else
-            super.applyRotations(animatable, poseStack, ageInTicks, rotationYaw, partialTick);
+    public @NotNull ResourceLocation getTextureLocation(@NotNull PolarBear entity) {
+        return ResourceLocation.fromNamespaceAndPath(Primal_Main.MOD_ID, "textures/entity/polar_bear.png");
     }
 }

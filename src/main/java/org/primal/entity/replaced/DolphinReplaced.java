@@ -3,26 +3,14 @@ package org.primal.entity.replaced;
 import com.mojang.serialization.Codec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Dolphin;
+import net.minecraft.world.entity.AnimationState;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.primal.client.animation.replaced.DolphinAnimations;
-import software.bernie.geckolib.animatable.GeoReplacedEntity;
-import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.function.IntFunction;
 
-public class DolphinReplaced implements GeoReplacedEntity {
-
+public interface DolphinReplaced {
     //──────────────────────────────────── Variants ────────────────────────────────────
-    public enum Variant implements StringRepresentable {
+    enum Variant implements StringRepresentable {
         LUKEWARM(0, "lukewarm"),
         WARM(1, "warm"),
         COLD(2, "cold");
@@ -55,31 +43,5 @@ public class DolphinReplaced implements GeoReplacedEntity {
         }
     }
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-
-    public DolphinReplaced(){
-        SingletonGeoAnimatable.registerSyncedAnimatable(this);
-    }
-
-    @Override
-    public EntityType<Dolphin> getReplacingEntityType() {
-        return EntityType.DOLPHIN;
-    }
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(DolphinAnimations.mainController(this));
-    }
-
-    @Nullable
-    public Dolphin getEntityFromState(AnimationState<DolphinReplaced> state) {
-        Entity entity = state.getData(DataTickets.ENTITY);
-        if (!(entity instanceof Dolphin dolphin)) return null;
-        return dolphin;
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
-    }
+    AnimationState primal$idleAnimationState();
 }

@@ -22,6 +22,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GrassColor;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
@@ -31,8 +32,11 @@ import net.minecraftforge.client.event.*;
 import net.minecraftforge.fml.loading.FMLLoader;
 import org.jetbrains.annotations.NotNull;
 import org.primal.client.layer.HelmetDecorationLayer;
+import org.primal.client.model.entity.replaced.*;
 import org.primal.client.model.helmet_decoration.DeerAntlersModel;
 import org.primal.client.model.helmet_decoration.GoatHornsModel;
+import org.primal.client.model.entity.*;
+import org.primal.client.model.block.*;
 import org.primal.client.renderer.EntityOnNeckLayer;
 import org.primal.client.renderer.block_entity.*;
 import org.primal.client.renderer.entity.*;
@@ -168,16 +172,66 @@ public class Primal_Client {
 
     @SubscribeEvent
     public static void registerLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(DEER_ANTLERS_ON_HELMET_LAYER, DeerAntlersModel::createLayer);
-        event.registerLayerDefinition(GOAT_HORNS_ON_HELMET_LAYER, GoatHornsModel::createLayer);
+        //Mobs
+        {
+            //Replaced
+            {
+                event.registerLayerDefinition(WolfModel.LAYER_LOCATION, WolfModel::createLayer);
+                event.registerLayerDefinition(PolarBearModel.LAYER_LOCATION, PolarBearModel::createLayer);
+                event.registerLayerDefinition(FoxModel.LAYER_LOCATION, FoxModel::createLayer);
+                event.registerLayerDefinition(RabbitModel.LAYER_LOCATION, RabbitModel::createLayer);
+                event.registerLayerDefinition(DolphinModel.LAYER_LOCATION, DolphinModel::createLayer);
+            }
+
+            //Primal
+            {
+                event.registerLayerDefinition(BearModel.Adult.LAYER_LOCATION, BearModel.Adult::createLayer);
+                event.registerLayerDefinition(BearModel.Adult.Grolar.LAYER_LOCATION, BearModel.Adult.Grolar::createLayer);
+                event.registerLayerDefinition(BearModel.Baby.LAYER_LOCATION, BearModel.Baby::createLayer);
+
+                event.registerLayerDefinition(SharkModel.LAYER_LOCATION, SharkModel::createLayer);
+
+                event.registerLayerDefinition(CrocodileModel.Adult.LAYER_LOCATION, CrocodileModel.Adult::createLayer);
+                event.registerLayerDefinition(CrocodileModel.Baby.LAYER_LOCATION, CrocodileModel.Baby::createLayer);
+
+                event.registerLayerDefinition(EagleModel.Adult.LAYER_LOCATION, EagleModel.Adult::createLayer);
+                event.registerLayerDefinition(EagleModel.Baby.LAYER_LOCATION, EagleModel.Baby::createLayer);
+
+                event.registerLayerDefinition(CassowaryModel.Adult.LAYER_LOCATION, CassowaryModel.Adult::createLayer);
+                event.registerLayerDefinition(CassowaryModel.Baby.LAYER_LOCATION, CassowaryModel.Baby::createLayer);
+
+                event.registerLayerDefinition(WalrusModel.Adult.LAYER_LOCATION, WalrusModel.Adult::createLayer);
+                event.registerLayerDefinition(WalrusModel.Baby.LAYER_LOCATION, WalrusModel.Baby::createLayer);
+
+                event.registerLayerDefinition(LionModel.Adult.LAYER_LOCATION, LionModel.Adult::createLayer);
+                event.registerLayerDefinition(LionModel.Baby.LAYER_LOCATION, LionModel.Baby::createLayer);
+
+                event.registerLayerDefinition(SnakeModel.Adult.LAYER_LOCATION, SnakeModel.Adult::createLayer);
+                event.registerLayerDefinition(SnakeModel.Baby.LAYER_LOCATION, SnakeModel.Baby::createLayer);
+
+                event.registerLayerDefinition(DeerModel.Adult.LAYER_LOCATION, DeerModel.Adult::createLayer);
+                event.registerLayerDefinition(DeerModel.Baby.LAYER_LOCATION, DeerModel.Baby::createLayer);
+            }
+
+        }
+
+        //Block Entities
+        {
+            event.registerLayerDefinition(ChompTrapModel.LAYER_LOCATION, ChompTrapModel::createLayer);
+            event.registerLayerDefinition(DreamcatcherModel.LAYER_LOCATION, DreamcatcherModel::createLayer);
+        }
+        //Helmet Decorations
+        {
+            event.registerLayerDefinition(DEER_ANTLERS_ON_HELMET_LAYER, DeerAntlersModel::createLayer);
+            event.registerLayerDefinition(GOAT_HORNS_ON_HELMET_LAYER, GoatHornsModel::createLayer);
+        }
     }
 
     @SubscribeEvent
     public static void registerEntityLayers(final EntityRenderersEvent.AddLayers event) {
-        EntityRenderDispatcher dispatcher = Minecraft.getInstance()
-                .getEntityRenderDispatcher();
+        EntityRenderDispatcher dispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
 
-        EntityOnNeckLayer.registerOnPlayer(dispatcher, event.getContext());
+        EntityOnNeckLayer.registerOnPlayer(dispatcher);
 
         HelmetDecorationLayer.registerOnAll(dispatcher, event.getContext());
     }
@@ -298,6 +352,8 @@ public class Primal_Client {
     @SuppressWarnings("unused")
     @Mod.EventBusSubscriber(modid = Primal_Main.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class Primal_ClientMainGameBus {
+        public static final java.util.Set<java.util.UUID> BLOCKED_RENDER_ENTITIES = new java.util.HashSet<>();
+
         @SubscribeEvent
         public static void customizeOverlay(RenderGuiOverlayEvent.@NotNull Pre event) {
         }
@@ -321,6 +377,31 @@ public class Primal_Client {
                     event.setNewFovModifier(newFov);
 
                 }
+            }
+        }
+
+        // ────────────────────────────────────────────────────────────────────────
+        // Anchored Rendering System for Riders
+        // By DarkBlade
+        // ────────────────────────────────────────────────────────────────────────
+
+        public static boolean isFirstPersonPlayer(net.minecraft.world.entity.Entity entity) {
+            return entity == Minecraft.getInstance().cameraEntity && Minecraft.getInstance().options.getCameraType().isFirstPerson();
+        }
+
+        @SubscribeEvent
+        public static void preRenderLiving(RenderLivingEvent.Pre<?, ?> event) {
+            if (BLOCKED_RENDER_ENTITIES.contains(event.getEntity().getUUID())) {
+
+                if (!isFirstPersonPlayer(event.getEntity())) {
+                    MinecraftForge.EVENT_BUS.post(new RenderLivingEvent.Post<>(
+                            event.getEntity(), event.getRenderer(), event.getPartialTick(),
+                            event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()
+                    ));
+                    event.setCanceled(true);
+                }
+
+                BLOCKED_RENDER_ENTITIES.remove(event.getEntity().getUUID());
             }
         }
     }
