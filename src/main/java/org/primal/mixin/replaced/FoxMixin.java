@@ -19,14 +19,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.Predicate;
 
-@Mixin(Fox.class)
+@Mixin(value = Fox.class)
 public abstract class FoxMixin extends Animal implements VariantHolder<Fox.Type>, FoxReplaced {
 
     protected FoxMixin(EntityType<? extends Animal> entityType, Level level) {
         super(entityType, level);
+        p$THIS = (Fox) (Object) this;
+        primal$idleAnimationState = new AnimationState();
+        primal$sitAnimationState = new AnimationState();
+        primal$sleepAnimationState = new AnimationState();
+        primal$stuckAnimationState = new AnimationState();
+        primal$unstuckAnimationState = new AnimationState();
+        primal$pounceAnimationState = new AnimationState();
+    }
+
+    @Unique
+    private Fox getP$THIS(){
+        if (p$THIS == null){
+            p$THIS = (Fox) (Object) this;
+        }
+        return p$THIS;
     }
     @Unique
-    Fox p$THIS = (Fox)(Object)this;
+    Fox p$THIS;
 
     @ModifyArg(
             method = "registerGoals",
@@ -62,67 +77,85 @@ public abstract class FoxMixin extends Animal implements VariantHolder<Fox.Type>
 
     //──────────────────────────────────── Animations ────────────────────────────────────
     @Unique
-    public final AnimationState primal$idleAnimationState = new AnimationState();
+    public AnimationState primal$idleAnimationState;
     @Unique
-    public final AnimationState primal$sitAnimationState = new AnimationState();
+    public AnimationState primal$sitAnimationState;
     @Unique
-    public final AnimationState primal$sleepAnimationState = new AnimationState();
+    public AnimationState primal$sleepAnimationState;
     @Unique
-    public final AnimationState primal$stuckAnimationState = new AnimationState();
+    public AnimationState primal$stuckAnimationState;
     @Unique
-    public final AnimationState primal$unstuckAnimationState = new AnimationState();
+    public AnimationState primal$unstuckAnimationState;
     @Unique
-    public final AnimationState primal$pounceAnimationState = new AnimationState();
+    public AnimationState primal$pounceAnimationState;
 
     @Override
     public AnimationState primal$idleAnimationState() {
-        return primal$idleAnimationState;
+        if (this.primal$idleAnimationState == null){
+            this.primal$idleAnimationState = new AnimationState();
+        }
+        return this.primal$idleAnimationState;
     }
 
     @Override
     public AnimationState primal$sitAnimationState() {
-        return primal$sitAnimationState;
+        if (this.primal$sitAnimationState == null){
+            this.primal$sitAnimationState = new AnimationState();
+        }
+        return this.primal$sitAnimationState;
     }
 
     @Override
     public AnimationState primal$sleepAnimationState() {
-        return primal$sleepAnimationState;
+        if (this.primal$sleepAnimationState == null){
+            this.primal$sleepAnimationState = new AnimationState();
+        }
+        return this.primal$sleepAnimationState;
     }
 
     @Override
     public AnimationState primal$stuckAnimationState() {
-        return primal$stuckAnimationState;
+        if (this.primal$stuckAnimationState == null){
+            this.primal$stuckAnimationState = new AnimationState();
+        }
+        return this.primal$stuckAnimationState;
     }
 
     @Override
     public AnimationState primal$unstuckAnimationState() {
-        return primal$unstuckAnimationState;
+        if (this.primal$unstuckAnimationState == null){
+            this.primal$unstuckAnimationState = new AnimationState();
+        }
+        return this.primal$unstuckAnimationState;
     }
 
     @Override
     public AnimationState primal$pounceAnimationState() {
+        if (this.primal$pounceAnimationState == null){
+            this.primal$pounceAnimationState = new AnimationState();
+        }
         return primal$pounceAnimationState;
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void primal$addAnimationIntoTick(CallbackInfo ci) {
         if(this.level().isClientSide()) {
-            this.primal$idleAnimationState.animateWhen(true, this.tickCount);
+            this.primal$idleAnimationState().animateWhen(true, this.tickCount);
 
-            this.primal$sleepAnimationState.animateWhen(p$THIS.isSleeping(), this.tickCount);
+            this.primal$sleepAnimationState().animateWhen(getP$THIS().isSleeping(), this.tickCount);
 
-            this.primal$sitAnimationState.animateWhen(p$THIS.isSitting(), this.tickCount);
+            this.primal$sitAnimationState().animateWhen(getP$THIS().isSitting(), this.tickCount);
 
-            this.primal$pounceAnimationState.animateWhen(p$THIS.isPouncing(), this.tickCount);
+            this.primal$pounceAnimationState().animateWhen(getP$THIS().isPouncing(), this.tickCount);
 
-            this.primal$stuckAnimationState.animateWhen(p$THIS.isFaceplanted(), this.tickCount);
+            this.primal$stuckAnimationState().animateWhen(getP$THIS().isFaceplanted(), this.tickCount);
         }
         if(primal$unstuckCounter >0) primal$unstuckCounter--;
     }
 
     @Inject(method = "handleEntityEvent", at = @At("HEAD"))
     private void primal$addTriggerAnimation(byte id, CallbackInfo ci) {
-        if(p$THIS instanceof FoxReplaced fox){
+        if(getP$THIS() instanceof FoxReplaced fox){
             if (id == 78)
                 fox.primal$unstuckAnimationState().start(this.tickCount);
         }
